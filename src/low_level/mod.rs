@@ -34,7 +34,10 @@ use std::ops::Deref;
 use std::string::ToString;
 
 
-mod transmit;
+pub(super) mod iso_7816_6_tag_length_value;
+
+
+pub(super) mod transmit;
 
 
 
@@ -45,5 +48,7 @@ include!("CardExt.rs");
 include!("CardOrTransactionExt.rs");
 include!("ContextError.rs");
 include!("ContextExt.rs");
+include!("ProprietaryApplicationIdentifierExtension.rs");
+include!("RegisteredApplicationProviderIdentifier.rs");
 include!("VecExt.rs");
 

@@ -21,3 +21,4 @@ version = "0.0.0"
 [dependencies]
 likely = "^0.1.0"
 pcsc = "^2.5.0"
+swiss-army-knife = "^0.0.19"

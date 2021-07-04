@@ -5,6 +5,7 @@
 use super::CardError;
 use likely::unlikely;
 use std::num::NonZeroU8;
+use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
 include!("ApplicationInformation.rs");

@@ -301,7 +301,23 @@ impl<'data> ApplicationProtocolDataUnitCommand<'data>
 
 impl ApplicationProtocolDataUnitCommand<'static>
 {
-	pub(super) const GetDataObjectApplicationRelatedData: Self = Self::new_get_data_object_0x00(0x6E);
+	pub(crate) const SelectApplicationOpenPgp: Self =
+	{
+		static Data: &'static [u8] = &[ApplicationIdentifier::RegisteredApplicationProviderIdentifier[0], ApplicationIdentifier::RegisteredApplicationProviderIdentifier[1], ApplicationIdentifier::RegisteredApplicationProviderIdentifier[2], ApplicationIdentifier::RegisteredApplicationProviderIdentifier[3], ApplicationIdentifier::RegisteredApplicationProviderIdentifier[4], ApplicationIdentifier::OpenPgpProprietaryApplicationIdentifierExtension];
+		
+		Self
+		{
+			class: Self::LastChunkClass,
+			
+			instruction: 0xA4,
+			
+			parameters: [0x04, 0x00],
+			
+			data: Cow::Borrowed(Data)
+		}
+	};
+	
+	pub(crate) const GetDataObjectApplicationRelatedData: Self = Self::new_get_data_object_0x00(0x6E);
 	
 	pub(super) const GetDataObjectCardholderRelatedData: Self = Self::new_get_data_object_0x00(0x65);
 	

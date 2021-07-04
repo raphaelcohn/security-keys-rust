@@ -132,12 +132,12 @@ impl ResponseCode
 			return Err(CardError::TransmitReturnedLessThanTwoBytes { received_length: received_length as u8 })
 		}
 		let data_length = received_length - 2;
-		let sw1 = received_buffer[data_length];
-		let sw2 = received_buffer[data_length + 1];
+		let sw1 = received_buffer.get_unchecked_value_safe(data_length);
+		let sw2 = received_buffer.get_unchecked_value_safe(data_length + 1);
 	
 		let this = Self::categorize_response_code(sw1, sw2);
 		
-		Ok((&received_buffer[ .. data_length], this))
+		Ok((received_buffer.get_unchecked_range_safe( .. data_length), this))
 	}
 	
 	#[inline(always)]
