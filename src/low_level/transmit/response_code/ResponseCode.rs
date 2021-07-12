@@ -126,22 +126,34 @@ impl ResponseCode
 	#[inline(always)]
 	pub(crate) fn extract_response_data_and_response_code(received_buffer: &[u8]) -> Result<(&[u8], Self), CardError>
 	{
-		let received_length = received_buffer.len();
-		if unlikely!(received_length < 2)
+		let data_length =
 		{
-			return Err(CardError::TransmitReturnedLessThanTwoBytes { received_length: received_length as u8 })
-		}
-		let data_length = received_length - 2;
-		let sw1 = received_buffer.get_unchecked_value_safe(data_length);
-		let sw2 = received_buffer.get_unchecked_value_safe(data_length + 1);
+			let received_length = received_buffer.len();
+			if unlikely!(received_length < 2)
+			{
+				return Err(CardError::TransmitReturnedLessThanTwoBytes { received_length: received_length as u8 })
+			}
+			received_length - 2
+		};
+		
+		let status_word = Self::get_data_length_and_status_word(received_buffer, data_length);
 	
-		let this = Self::categorize_response_code(sw1, sw2);
+		let this = Self::categorize_status_word(status_word);
 		
 		Ok((received_buffer.get_unchecked_range_safe( .. data_length), this))
 	}
 	
 	#[inline(always)]
-	pub(super) fn categorize_response_code(sw1: u8, sw2: u8) -> Self
+	fn get_data_length_and_status_word(received_buffer: &[u8], data_length: usize) -> (u8, u8)
+	{
+		(
+			received_buffer.get_unchecked_value_safe(data_length),
+			received_buffer.get_unchecked_value_safe(data_length + 1)
+		)
+	}
+	
+	#[inline(always)]
+	pub(super) fn categorize_status_word((sw1, sw2): (u8, u8)) -> Self
 	{
 		use self::ApplicationError::*;
 		use self::ApplicationInformation::*;

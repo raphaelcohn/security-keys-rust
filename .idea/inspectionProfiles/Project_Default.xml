@@ -1898,6 +1898,7 @@
     <inspection_tool class="RsModuleNaming" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="RsNeedlessLifetimes" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="RsNonExhaustiveMatch" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="RsNonShorthandFieldPatterns" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="RsReassignImmutable" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="RsRedundantElse" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="RsSelfConvention" enabled="false" level="WARNING" enabled_by_default="false" />
@@ -1913,6 +1914,7 @@
     <inspection_tool class="RsTypeAliasNaming" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="RsTypeCheck" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="RsTypeParameterNaming" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="RsUnknownCrateTypes" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="RsUnreachableCode" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="RsUnreachablePatterns" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="RsUnresolvedReference" enabled="true" level="ERROR" enabled_by_default="true" />
@@ -2171,7 +2173,6 @@
     <inspection_tool class="TimeToString" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="ToArrayCallWithZeroLengthArrayArgument" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="TodoComment" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="TomlUnresolvedReference" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="TooBroadCatch" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="TooBroadScope" enabled="true" level="INFORMATION" enabled_by_default="true">
       <option name="m_allowConstructorAsInitializer" value="false" />
