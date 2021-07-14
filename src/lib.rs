@@ -26,6 +26,8 @@
 #![feature(allocator_api)]
 #![feature(const_fn_transmute)]
 #![feature(core_intrinsics)]
+#![feature(maybe_uninit_slice)]
+#![feature(maybe_uninit_uninit_array)]
 #![feature(try_reserve)]
 
 
@@ -50,7 +52,7 @@
 use std::collections::TryReserveError;
 
 
-mod libpcsc;
+mod pcsc;
 
 
 //mod low_level;
