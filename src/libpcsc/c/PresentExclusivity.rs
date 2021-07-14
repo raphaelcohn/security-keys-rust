@@ -2,10 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(in crate::libpcsc) const SCARD_F_COMM_ERROR: LONG = 0x8010_0013u32 as LONG;
-
-pub(in crate::libpcsc) const SCARD_F_INTERNAL_ERROR: LONG = 0x8010_0001u32 as LONG;
-
-pub(in crate::libpcsc) const SCARD_F_UNKNOWN_ERROR: LONG = 0x8010_0014u32 as LONG;
-
-pub(in crate::libpcsc) const SCARD_F_WAITED_TOO_LONG: LONG = 0x8010_0007u32 as LONG;
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub(crate) enum PresentExclusivity
+{
+	/// `PCSCLITE_SHARING_EXCLUSIVE_CONTEXT`.
+	Exclusive,
+	
+	/// `PCSCLITE_SHARING_LAST_CONTEXT`.
+	Last,
+	
+	/// `PCSCLITE_SHARING_NO_CONTEXT`.
+	Shared,
+}

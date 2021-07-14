@@ -3,45 +3,32 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-enum Timeout
+pub(crate) enum ShareModeAndPreferredProtocols
 {
-	Immediate,
+	Direct,
 
-	/// A value of u32::MAX is not valid.
-	Milliseconds(NonZeroU32),
-	
-	/// In practice, libpcsclite converts infinite timeouts to 60,000 milliseconds (one minute) (but allows longer specified ones with `Milliseconds()`)!
-	Infinity,
+	Exclusive(PreferredProtocols),
+
+	Shared(PreferredProtocols),
 }
 
-impl Default for Timeout
+impl ShareModeAndPreferredProtocols
 {
 	#[inline(always)]
-	fn default() -> Self
+	fn into_DWORDs(self) -> (DWORD, DWORD, bool, bool)
 	{
-		Timeout::Immediate
-	}
-}
-
-impl Timeout
-{
-	#[inline(always)]
-	fn into_DWORD(self) -> DWORD
-	{
-		use self::Timeout::*;
+		use self::ShareModeAndPreferredProtocols::*;
+		
+		#[cfg(not(target_os = "windows"))] const IsDirectModeShared: bool = false;
+		#[cfg(target_os = "windows")] const IsDirectModeShared: bool = true;
 		
 		match self
 		{
-			Immediate => 0,
+			Direct => (SCARD_SHARE_DIRECT, 0, true, IsDirectModeShared),
 			
-			Milliseconds(milliseconds) =>
-			{
-				let milliseconds = milliseconds.get() as DWORD;
-				assert_ne!(milliseconds, INFINITE);
-				milliseconds
-			}
+			Exclusive(preferred_protocols) => (SCARD_SHARE_EXCLUSIVE, preferred_protocols.into_DWORD(), false, false),
 			
-			Infinity => INFINITE
+			Shared(preferred_protocols) => (SCARD_SHARE_SHARED, preferred_protocols.into_DWORD(), false, true),
 		}
 	}
 }

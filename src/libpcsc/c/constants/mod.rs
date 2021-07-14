@@ -11,7 +11,7 @@ include!("ATR_BUFFER_SIZE.rs");
 include!("AttributeClassShift.rs");
 include!("INFINITE.rs");
 include!("MAX_ATR.rs");
-include!("MAX_BUFFER.rs");
+include!("MAX_BUFFER_.rs");
 include!("MAX_READERNAME.rs");
 include!("PCSCLITE_MAX_READERS_CONTEXTS.rs");
 include!("SCARD_ATR_LENGTH.rs");

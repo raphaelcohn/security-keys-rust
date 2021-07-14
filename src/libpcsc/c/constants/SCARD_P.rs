@@ -2,4 +2,4 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(in crate::libpcsc) const SCARD_P_SHUTDOWN: LONG = 0x8010_0018;
+pub(in crate::libpcsc) const SCARD_P_SHUTDOWN: LONG = 0x8010_0018u32 as LONG;

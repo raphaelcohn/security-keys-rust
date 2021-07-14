@@ -12,7 +12,8 @@ use self::transmit::response_code::ResponseCode;
 use self::transmit::response_code::ClassFunctionError;
 use self::transmit::response_code::StateOfNonVolatileMemoryUnchangedWarning;
 use likely::unlikely;
-use pcsc::{Attribute, CardStatus};
+use pcsc::Attribute;
+use pcsc::CardStatus;
 use pcsc::Card;
 use pcsc::Context;
 use pcsc::Disposition;
@@ -50,5 +51,4 @@ include!("ContextError.rs");
 include!("ContextExt.rs");
 include!("ProprietaryApplicationIdentifierExtension.rs");
 include!("RegisteredApplicationProviderIdentifier.rs");
-include!("VecExt.rs");
 

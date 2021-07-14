@@ -19,16 +19,20 @@ impl Drop for ContextInner
 		}
 		else
 		{
-			use self::ContextEstablishmentError::*;
-			match result
+			use self::CommunicationError::*;
+			
+			let _error = match result
 			{
-				SCARD_E_NO_SERVICE => (),
-				SCARD_F_COMM_ERROR => (),
+				SCARD_E_NO_MEMORY => OutOfMemory,
+				
+				SCARD_E_NO_SERVICE => ThereIsNoDaemonRunningOrConnectionWithTheDaemonCouldNotBeEstablished,
+				
+				SCARD_F_COMM_ERROR => InternalCommunications,
 				
 				SCARD_E_INVALID_HANDLE => unreachable!("Invalid context handle"),
 				
 				_ => unreachable!("Undocumented error {} from SCardReleaseContext()", result),
-			}
+			};
 		}
 	}
 }

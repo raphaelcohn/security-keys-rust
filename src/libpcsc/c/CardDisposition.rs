@@ -4,9 +4,9 @@
 
 /// `#[repr(DWORD)]`.
 #[cfg_attr(any(target_os = "macos", target_os = "windows"), repr(u32))]
-#[cfg_attr(all(not(any(target_os = "macos", target_os = "windows"))), target_pointer_width = "32"), repr(u32)]
-#[cfg_attr(all(not(any(target_os = "macos", target_os = "windows"))), target_pointer_width = "64"), repr(u64)]
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
+#[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "32"), repr(u32))]
+#[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "64"), repr(u64))]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) enum CardDisposition
 {
 	/// Don’t alter card state.
@@ -16,7 +16,9 @@ pub(crate) enum CardDisposition
 	Reset = SCARD_RESET_CARD,
 	
 	/// Unpower and terminate access to the card.
-	Unpower = SCARD_UNPOWER_CARD,
+	///
+	/// Does a 'cold reset': powers down card then powers it up.
+	ColdReset = SCARD_UNPOWER_CARD,
 	
 	/// Eject the card from the reader.
 	Eject = SCARD_EJECT_CARD,

@@ -2,10 +2,26 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(in crate::libpcsc) const SCARD_F_COMM_ERROR: LONG = 0x8010_0013u32 as LONG;
-
-pub(in crate::libpcsc) const SCARD_F_INTERNAL_ERROR: LONG = 0x8010_0001u32 as LONG;
-
-pub(in crate::libpcsc) const SCARD_F_UNKNOWN_ERROR: LONG = 0x8010_0014u32 as LONG;
-
-pub(in crate::libpcsc) const SCARD_F_WAITED_TOO_LONG: LONG = 0x8010_0007u32 as LONG;
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub(crate) enum CardReaderState<'answer_to_reset>
+{
+	Ignored,
+	
+	Unavailable,
+	
+	/// The reader name was not known on the system; this can only occur after entering the wait loop, otherwise an error (`SCARD_E_UNKNOWN_READER`) is immediately returned.
+	Unknown,
+	
+	/// There is no card in the card reader.
+	Empty,
+	
+	Present
+	{
+		exclusivity: PresentExclusivity,
+		
+		/// Also known as unresponsive.
+		is_mute: bool,
+		
+		answer_to_reset: AnswerToReset<'answer_to_reset>,
+	}
+}

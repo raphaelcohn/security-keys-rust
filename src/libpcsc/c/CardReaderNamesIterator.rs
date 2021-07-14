@@ -3,45 +3,43 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-enum Timeout
+pub(crate) struct CardReaderNamesIterator<'buffer>
 {
-	Immediate,
-
-	/// A value of u32::MAX is not valid.
-	Milliseconds(NonZeroU32),
+	slice: &'buffer [u8],
 	
-	/// In practice, libpcsclite converts infinite timeouts to 60,000 milliseconds (one minute) (but allows longer specified ones with `Milliseconds()`)!
-	Infinity,
+	next_c_string_index: usize,
 }
 
-impl Default for Timeout
+impl<'buffer> Iterator for CardReaderNamesIterator<'buffer>
 {
+	type Item = CardReaderName<'buffer>;
+	
 	#[inline(always)]
-	fn default() -> Self
+	fn next(&mut self) -> Option<Self::Item>
 	{
-		Timeout::Immediate
-	}
-}
-
-impl Timeout
-{
-	#[inline(always)]
-	fn into_DWORD(self) -> DWORD
-	{
-		use self::Timeout::*;
+		let slice = self.slice.get_unchecked_range_safe(self.next_c_string_index .. );
 		
-		match self
+		let null_index = CardReaderNames::null_index(slice);
+		if unlikely!(null_index == 0)
 		{
-			Immediate => 0,
-			
-			Milliseconds(milliseconds) =>
-			{
-				let milliseconds = milliseconds.get() as DWORD;
-				assert_ne!(milliseconds, INFINITE);
-				milliseconds
-			}
-			
-			Infinity => INFINITE
+			return None
+		}
+		
+		let result = Some(CardReaderNames::wrap_reader_name(slice, null_index));
+		self.next_c_string_index = CardReaderNames::next_c_string_index(null_index);
+		result
+	}
+	
+	#[inline(always)]
+	fn size_hint(&self) -> (usize, Option<usize>)
+	{
+		if unlikely!(self.slice.len() == 1)
+		{
+			(0, Some(0))
+		}
+		else
+		{
+			(1, None)
 		}
 	}
 }

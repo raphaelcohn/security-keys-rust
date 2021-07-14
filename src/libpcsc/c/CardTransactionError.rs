@@ -2,46 +2,51 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// None of these errors can occur if the reader states are empty or consist entirely of ignored values.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-enum Timeout
+pub(crate) enum CardTransactionError
 {
-	Immediate,
-
-	/// A value of u32::MAX is not valid.
-	Milliseconds(NonZeroU32),
+	NoSmartCard,
 	
-	/// In practice, libpcsclite converts infinite timeouts to 60,000 milliseconds (one minute) (but allows longer specified ones with `Milliseconds()`)!
-	Infinity,
+	UnavailableCardReader,
+	
+	Reconnection(CardConnectError),
+	
+	Communication(CommunicationError)
 }
 
-impl Default for Timeout
+impl Display for CardTransactionError
 {
 	#[inline(always)]
-	fn default() -> Self
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		Timeout::Immediate
+		Debug::fmt(self, f)
 	}
 }
 
-impl Timeout
+impl error::Error for CardTransactionError
 {
 	#[inline(always)]
-	fn into_DWORD(self) -> DWORD
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::Timeout::*;
+		use self::CardTransactionError::*;
 		
 		match self
 		{
-			Immediate => 0,
+			Reconnection(cause) => Some(cause),
 			
-			Milliseconds(milliseconds) =>
-			{
-				let milliseconds = milliseconds.get() as DWORD;
-				assert_ne!(milliseconds, INFINITE);
-				milliseconds
-			}
+			Communication(cause) => Some(cause),
 			
-			Infinity => INFINITE
+			_ => None,
 		}
+	}
+}
+
+impl From<CardConnectError> for CardTransactionError
+{
+	#[inline(always)]
+	fn from(cause: CardConnectError) -> Self
+	{
+		CardTransactionError::Reconnection(cause)
 	}
 }

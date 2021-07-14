@@ -2,10 +2,36 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(in crate::libpcsc) const SCARD_F_COMM_ERROR: LONG = 0x8010_0013u32 as LONG;
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq)]
+pub(crate) struct Buffer
+{
+	buffer: ManuallyDrop<Vec<u8>>,
 
-pub(in crate::libpcsc) const SCARD_F_INTERNAL_ERROR: LONG = 0x8010_0001u32 as LONG;
+	buffer_provider: Rc<BufferProvider>
+}
 
-pub(in crate::libpcsc) const SCARD_F_UNKNOWN_ERROR: LONG = 0x8010_0014u32 as LONG;
+impl Drop for Buffer
+{
+	#[inline(always)]
+	fn drop(&mut self)
+	{
+		let buffer = unsafe { ManuallyDrop::take(&mut self.buffer) };
+		self.buffer_provider.gift(buffer)
+	}
+}
 
-pub(in crate::libpcsc) const SCARD_F_WAITED_TOO_LONG: LONG = 0x8010_0007u32 as LONG;
+impl Buffer
+{
+	#[inline(always)]
+	fn c_string_pointer_mut(&mut self) -> *mut c_char
+	{
+		self.buffer.as_mut_ptr() as *mut c_char
+	}
+	
+	#[inline(always)]
+	fn shorten(&mut self, same_or_shorter_length: DWORD)
+	{
+		let length = same_or_shorter_length as usize;
+		self.buffer.set_length(length);
+	}
+}

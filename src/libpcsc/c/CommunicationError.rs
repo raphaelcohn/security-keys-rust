@@ -3,45 +3,29 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-enum Timeout
+pub(crate) enum CommunicationError
 {
-	Immediate,
-
-	/// A value of u32::MAX is not valid.
-	Milliseconds(NonZeroU32),
+	/// There is no free slot to store `hContext`.
+	OutOfMemory,
 	
-	/// In practice, libpcsclite converts infinite timeouts to 60,000 milliseconds (one minute) (but allows longer specified ones with `Milliseconds()`)!
-	Infinity,
+	/// The pcsclite server is not running.
+	ThereIsNoDaemonRunningOrConnectionWithTheDaemonCouldNotBeEstablished,
+	
+	/// An internal communications error has been detected.
+	///
+	/// eg the daemon supports a different version of the internal message protocol used by libpcsc's client.
+	InternalCommunications,
 }
 
-impl Default for Timeout
+impl Display for CommunicationError
 {
 	#[inline(always)]
-	fn default() -> Self
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		Timeout::Immediate
+		Debug::fmt(self, f)
 	}
 }
 
-impl Timeout
+impl error::Error for CommunicationError
 {
-	#[inline(always)]
-	fn into_DWORD(self) -> DWORD
-	{
-		use self::Timeout::*;
-		
-		match self
-		{
-			Immediate => 0,
-			
-			Milliseconds(milliseconds) =>
-			{
-				let milliseconds = milliseconds.get() as DWORD;
-				assert_ne!(milliseconds, INFINITE);
-				milliseconds
-			}
-			
-			Infinity => INFINITE
-		}
-	}
 }

@@ -6,9 +6,9 @@
 ///
 /// `#[repr(DWORD)]`.
 #[cfg_attr(any(target_os = "macos", target_os = "windows"), repr(u32))]
-#[cfg_attr(all(not(any(target_os = "macos", target_os = "windows"))), target_pointer_width = "32"), repr(u32)]
-#[cfg_attr(all(not(any(target_os = "macos", target_os = "windows"))), target_pointer_width = "64"), repr(u64)]
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
+#[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "32"), repr(u32))]
+#[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "64"), repr(u64))]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) enum Scope
 {
 	/// Database operations are performed within the domain of the user.

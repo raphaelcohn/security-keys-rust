@@ -9,7 +9,7 @@ impl Context
 {
 	/// Affected by the environment variable `PCSCLITE_NO_BLOCKING`.
 	#[inline(always)]
-	fn establish(scope: Scope) -> Result<Self, ContextEstablishmentError>
+	pub(crate) fn establish(scope: Scope) -> Result<Self, CommunicationError>
 	{
 		let mut context_handle = MaybeUninit::uninit();
 		
@@ -18,11 +18,11 @@ impl Context
 		if likely!(result == SCARD_S_SUCCESS)
 		{
 			let handle = unsafe { context_handle.assume_init() };
-			Ok(Self(Rc::new(handle)))
+			Ok(Self(Rc::new(ContextInner(handle))))
 		}
 		else
 		{
-			use self::ContextEstablishmentError::*;
+			use self::CommunicationError::*;
 			match result
 			{
 				SCARD_E_NO_MEMORY => Err(OutOfMemory),
@@ -40,7 +40,7 @@ impl Context
 	
 	/// This uses PThread mutexes; avoid.
 	#[inline(always)]
-	fn is_valid(&self) -> bool
+	pub(crate) fn is_valid(&self) -> bool
 	{
 		let result = unsafe { SCardIsValidContext(self.get_context()) };
 		
@@ -60,24 +60,42 @@ impl Context
 	}
 	
 	#[inline(always)]
-	fn list_all_connected_card_readers<'buffer>(&self, buffer_provider: &'buffer mut impl BufferProvider) -> Result<ReaderNames<'buffer>, ()>
+	pub(crate) fn initial_card_reader_states(&self, buffer_provider: &Rc<BufferProvider>, mut card_reader_state_user: impl for<'callback> FnMut(CardReaderEventName<'callback>, InsertionsAndRemovalsCount, CardReaderState<'callback>) -> ()) -> Result<(), CardReaderStatusChangeError>
 	{
-		static NoReadersAvailable: &'static [u8] = b"\0";
+		let card_reader_names = self.iterator_over_all_connected_card_readers(buffer_provider).map_err(CardReaderStatusChangeError::Communication)?;
+		let mut card_reader_states = card_reader_names.create_card_reader_states();
+		self.update_card_reader_states(Timeout::Immediate, &mut card_reader_states)?;
 		
+		for index in 0 .. card_reader_states.length()
+		{
+			let (card_reader_event_name, _user_data, insertions_and_removals_count, _state_changed, card_reader_state) = card_reader_states.get_reader_state(index);
+			card_reader_state_user(card_reader_event_name, insertions_and_removals_count, card_reader_state)
+		}
+		
+		Ok(())
+	}
+	
+	#[inline(always)]
+	pub(crate) fn iterator_over_all_connected_card_readers(&self, buffer_provider: &Rc<BufferProvider>) -> Result<CardReaderNames, CommunicationError>
+	{
 		loop
 		{
 			let mut readers_buffer_length = MaybeUninit::uninit();
 			let result = unsafe { SCardListReaders(self.get_context(), null(), null_mut(), readers_buffer_length.as_mut_ptr()) };
 			
+			use self::CommunicationError::*;
+			
 			if unlikely!(result != SCARD_S_SUCCESS)
 			{
 				return match result
 				{
-					SCARD_E_NO_READERS_AVAILABLE => Ok(ReaderNames(NoReadersAvailable)),
+					SCARD_E_NO_READERS_AVAILABLE => Ok(CardReaderNames::Empty),
 					
-					SCARD_E_NO_MEMORY => Err(()),
+					SCARD_E_NO_MEMORY => Err(OutOfMemory),
 					
-					SCARD_E_NO_SERVICE => Err(()),
+					SCARD_E_NO_SERVICE => Err(ThereIsNoDaemonRunningOrConnectionWithTheDaemonCouldNotBeEstablished),
+					
+					SCARD_F_COMM_ERROR => Err(InternalCommunications),
 					
 					SCARD_E_INSUFFICIENT_BUFFER => unreachable!("SCARD_E_INSUFFICIENT_BUFFER should not happen as mszReaders was null"),
 					
@@ -90,30 +108,31 @@ impl Context
 			}
 			
 			let mut readers_buffer_length = unsafe { readers_buffer_length.assume_init() };
-			let readers_buffer: &mut [c_char] = buffer_provider.provide_buffer(readers_buffer_length as usize);
+			let mut readers_buffer = buffer_provider.provide_buffer(readers_buffer_length as usize).map_err(|_| OutOfMemory)?;
 			
-			let result = unsafe { SCardListReaders(self.get_context(), null(), readers_buffer.as_mut_ptr(), &mut readers_buffer_length) };
+			let result = unsafe { SCardListReaders(self.get_context(), null(), readers_buffer.c_string_pointer_mut(), &mut readers_buffer_length) };
 			
 			if likely!(result == SCARD_S_SUCCESS)
 			{
-				// readers_buffer_length can actually be shorter.
-				let readers_buffer = readers_buffer.get_unchecked_range_safe(0 .. (readers_buffer_length as usize));
-				return Ok(readers_buffer)
+				readers_buffer.shorten(readers_buffer_length);
+				return Ok(CardReaderNames::new(readers_buffer))
 			}
 			
-			match result
+			return match result
 			{
-				SCARD_E_NO_READERS_AVAILABLE => return Ok(ReaderNames(NoReadersAvailable)),
+				SCARD_E_NO_READERS_AVAILABLE => Ok(CardReaderNames::Empty),
 				
-				SCARD_E_NO_MEMORY => return Err(()),
+				SCARD_E_NO_MEMORY => Err(OutOfMemory),
 				
-				SCARD_E_NO_SERVICE => return Err(()),
+				SCARD_E_NO_SERVICE => Err(ThereIsNoDaemonRunningOrConnectionWithTheDaemonCouldNotBeEstablished),
+				
+				SCARD_F_COMM_ERROR => Err(InternalCommunications),
 				
 				SCARD_E_INSUFFICIENT_BUFFER => continue,
 				
 				SCARD_E_INVALID_HANDLE => unreachable!("Invalid context handle"),
 				
-				SCARD_E_INVALID_PARAMETER => unreachable!("pcchReaders should not happen as pcchReaders was not null"),
+				SCARD_E_INVALID_PARAMETER => unreachable!("Should not happen as pcchReaders was not null"),
 				
 				_ => unreachable!("Undocumented error {} from SCardListReaders()", result),
 			}
@@ -121,174 +140,16 @@ impl Context
 	}
 	
 	#[inline(always)]
-	fn connect_card(&self)
+	pub(crate) fn update_card_reader_states<UserData>(&self, timeout: Timeout, card_reader_states: &mut CardReaderStates<UserData>) -> Result<(), CardReaderStatusChangeError>
 	{
-		SCardConnect()
+		card_reader_states.get_status_change(timeout, self.get_context())
 	}
 	
-	// Has an extra special reader name.
-	#[inline(always)]
-	fn block_getting_status_change(&self, timeout: Timeout, reader_states: &mut ReaderStates) -> Result<(), ()>
-	{
-		#[repr(transparent)]
-		struct ReaderStates<UserData>(ArrayVec<SCARD_READERSTATE, PCSCLITE_MAX_READERS_CONTEXTS>, PhantomData<UserData>);
-		
-		impl<UserData> Drop for ReaderStates<UserData>
-		{
-			#[inline(always)]
-			fn drop(&mut self)
-			{
-				for reader_state in self.0.iter()
-				{
-					let user_data_raw_pointer = reader_state.pvUserData;
-					if unlikely!(!user_data_raw_pointer.is_null())
-					{
-						unsafe { drop(Box::from_raw(user_data_raw_pointer)) };
-					}
-				}
-			}
-		}
-		
-		impl<UserData> ReaderStates<UserData>
-		{
-			#[inline(always)]
-			fn special_reader_name_for_detecting_card_reader_insertions_and_removals() -> *const c_char
-			{
-				static PNP_NOTIFICATION: &'static [u8] = b"\\\\?PnP?\\Notification\0";
-				PNP_NOTIFICATION.as_ptr() as *const c_char
-			}
-			
-			#[inline(always)]
-			const fn new() -> Self
-			{
-				Self(ArrayVec::new_const())
-			}
-			
-			#[inline(always)]
-			fn is_empty(&self) -> bool
-			{
-				self.0.is_empty()
-			}
-			
-			/// 128 characters ?including \0.
-			#[inline(always)]
-			fn push_reader_state<'reader_name: 'self, 'self>(&'self mut self, reader_name: Option<&'reader_name CStr>, user_data: Option<Box<UserData>>, known_state: KnownState)
-			{
-				self.0.push
-				(
-					SCARD_READERSTATE
-					{
-						szReader: match reader_name
-						{
-							None => SpecialPnpName,
-							
-							// TODO: CStr management.
-							Some(reader_name) => CStr,
-						},
-						
-						pvUserData: match user_data
-						{
-							None => null_mut(),
-							
-							Some(user_data) => Box::into_raw(user_data),
-						},
-						
-						dwCurrentState: known_state.into_DWORD(),
-						
-						dwEventState: unsafe { uninitialized() },
-						
-						cbAtr: 0,
-						rgbAtr: []
-					}
-				)
-			}
-			
-			// dwEventState will be forced to zero on entry.
-			/*
-dwEventState also contains a number of events in the upper 16 bits
-dwEventState & 0xFFFF0000). This number of events is incremented
-for each card insertion or removal in the specified reader. This can
-be used to detect a card removal/insertion between two calls to
-SCardGetStatusChange()
-
-dwCurrentState should be set, on entry to blocking functionality, to dwEventState to detect any changes.
-			 */
-			#[inline(always)]
-			fn get_reader_state<'reader_name: 'self, 'self>(&'self self, index: usize) -> (&'reader_name CStr, Option<&'self UserData>, u16, u16, &'self [u8])
-			{
-				let reader_state = self.0.get_unchecked_safe(index);
-				
-				// Only valid if readerState & SCARD_PRESENT (can check by inspecting value of cbAtr)
-				let answer_to_reset = reader_state.rgbAtr.get_unchecked_range_safe(0 .. reader_state.cbAtr);
-				
-				let user_data_raw_pointer = reader_state.pvUserData;
-				let user_data = if likely!(user_data_raw_pointer.is_null())
-				{
-					None
-				}
-				else
-				{
-					Some(unsafe { & * user_data_raw_pointer })
-				};
-				
-				let event_state = reader_state.dwEventState as u32;
-				let insertion_and_removal_count = (event_state >> 16) as u16;
-				let current_state = (event_state & 0xFFFF) as u16;
-				
-				let raw_reader_name_or_special = reader_state.szReader;
-				let reader_name = if raw_reader_name_or_special == Self::special_reader_name_for_detecting_card_reader_insertions_and_removals()
-				{
-					x
-				}
-				else
-				{
-					unsafe { CStr::from_ptr(raw_reader_name_or_special) }
-				};
-				
-				(reader_name, user_data, insertion_and_removal_count, current_state, answer_to_reset)
-			}
-		}
-		
-		if unlikely!(reader_states.is_empty())
-		{
-			return Ok(())
-		}
-		
-		
-		
-		let reader_states_length = reader_states.len() as DWORD;
-		
-		/*
-			Valid 'input' states
-				SCARD_STATE_UNAWARE
-				SCARD_STATE_IGNORE
-				
-				SCARD_STATE_UNAVAILABLE
-			
-			Valid 'output' states
-				SCARD_STATE_CHANGED | ???
-				SCARD_STATE_UNKNOWN | SCARD_STATE_CHANGED | SCARD_STATE_IGNORE
-				SCARD_STATE_UNAVAILABLE
-				SCARD_STATE_EMPTY
-				SCARD_STATE_PRESENT
-				SCARD_STATE_PRESENT | SCARD_STATE_EXCLUSIVE
-				SCARD_STATE_PRESENT | SCARD_STATE_INUSE
-				SCARD_STATE_MUTE
-				
-				?SCARD_STATE_UNPOWERED
-				?STATE_ATRMATCH
-				
-			
-		 */
-		
-		unsafe { SCardGetStatusChange(self.get_context(), timeout.into_DWORD(), reader_states.as_mut_ptr(), reader_states_length) };
-	}
-	
-	/// Cancels a blocking `block_getting_status_change()`.
+	/// Cancels a blocking `update_card_reader_states()`.
 	///
 	/// In practice, will require a separate thread.
 	#[inline(always)]
-	fn cancel_block_getting_status_change(&self) -> bool
+	pub(crate) fn cancel_update_card_reader_states(&self) -> bool
 	{
 		let result = unsafe { SCardCancel(self.get_context()) };
 		
@@ -310,7 +171,90 @@ dwCurrentState should be set, on entry to blocking functionality, to dwEventStat
 	}
 	
 	#[inline(always)]
-	fn get_context(self) -> SCARDCONTEXT
+	pub(crate) fn connect_card(&self, card_shared_access_back_off: CardSharedAccessBackOff, reconnect_card_disposition: CardDisposition, card_reader_name: CardReaderName, share_mode_and_preferred_protocols: ShareModeAndPreferredProtocols) -> Result<ConnectedCard, CardConnectError>
+	{
+		let (dwShareMode, dwPreferredProtocols, is_direct, is_shared) = share_mode_and_preferred_protocols.into_DWORDs();
+		let mut handle = MaybeUninit::uninit();
+		let mut active_protocol = MaybeUninit::uninit();
+		
+		let mut card_shared_access_back_off_for_connect = card_shared_access_back_off.clone();
+		loop
+		{
+			let result = unsafe { SCardConnect(self.get_context(), card_reader_name.as_ptr(), dwShareMode, dwPreferredProtocols, handle.as_mut_ptr(), active_protocol.as_mut_ptr()) };
+			
+			if likely!(result == SCARD_S_SUCCESS)
+			{
+				break
+			}
+			
+			use self::CardConnectError::*;
+			use self::CommunicationError::*;
+			
+			let error = match result
+			{
+				SCARD_E_SHARING_VIOLATION => if card_shared_access_back_off_for_connect.sleep()
+				{
+					continue
+				}
+				else
+				{
+					GivingUpAsCanNotGetSharedAccess
+				},
+				
+				SCARD_E_NO_SMARTCARD => NoSmartCard,
+				
+				SCARD_E_UNSUPPORTED_FEATURE => PreferredProtocolsUnsupported,
+				
+				SCARD_E_READER_UNAVAILABLE => UnavailableCardReader,
+				
+				SCARD_W_UNPOWERED_CARD => CardIsUnpowered,
+				
+				SCARD_W_UNRESPONSIVE_CARD => CardIsMute,
+				
+				SCARD_E_NO_MEMORY => Communication(OutOfMemory),
+				
+				SCARD_E_NO_SERVICE => Communication(ThereIsNoDaemonRunningOrConnectionWithTheDaemonCouldNotBeEstablished),
+				
+				SCARD_F_COMM_ERROR => Communication(InternalCommunications),
+				
+				SCARD_E_PROTO_MISMATCH => unimplemented!("Protocols are validated before being passed"),
+				
+				SCARD_E_INVALID_PARAMETER => unreachable!("phCard and pdwActiveProtocol are not null"),
+				
+				SCARD_E_UNKNOWN_READER => unreachable!("card_reader_name is not null"),
+				
+				SCARD_E_INVALID_VALUE => unreachable!("card_reader_name can not exceed maximum, or used an invalid share mode"),
+				
+				SCARD_E_INVALID_HANDLE => unreachable!("Invalid context handle"),
+				
+				_ => unreachable!("Undocumented error {} from SCardConnect()", result),
+			};
+			return Err(error)
+		}
+		
+		Ok
+		(
+			ConnectedCard
+			{
+				handle: unsafe { handle.assume_init() },
+			
+				active_protocol: unsafe { transmute(active_protocol.assume_init()) },
+				
+				is_direct,
+				
+				is_shared,
+				
+				card_shared_access_back_off,
+				
+				reconnect_card_disposition,
+				
+				disposed: false
+			}
+		)
+	}
+	
+	#[inline(always)]
+	fn get_context(&self) -> SCARDCONTEXT
 	{
 		(self.0).0
 	}

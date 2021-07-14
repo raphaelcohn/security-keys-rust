@@ -2,23 +2,24 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// None of these errors can occur on Linux.
+/// None of these errors can occur if the reader states are empty or consist entirely of ignored values.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum ContextEstablishmentError
+pub(crate) enum CardReaderStatusChangeError
 {
-	/// There is no free slot to store `hContext`.
-	#[cfg(any(target_os = "macos", target_os = "windows"))] OutOfMemory,
+	/// This *does not* occur if waiting loops internally in libpcsclite, ie you can not rely on it.
+	UnknownCardReader,
 	
-	/// The pcsclite server is not running.
-	#[cfg(any(target_os = "macos", target_os = "windows"))] ThereIsNoDaemonRunningOrConnectionWithTheDaemonCouldNotBeEstablished,
+	/// Circumstances of occurrence are not understood.
+	UnavailableCardReader,
 	
-	/// An internal communications error has been detected.
-	///
-	/// eg the daemon supports a different version of the internal message protocol used by libpcsc's client.
-	#[cfg(any(target_os = "macos", target_os = "windows"))] InternalCommunications,
+	Cancelled,
+	
+	TimedOut,
+	
+	Communication(CommunicationError)
 }
 
-impl Display for ContextEstablishmentError
+impl Display for CardReaderStatusChangeError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -27,6 +28,18 @@ impl Display for ContextEstablishmentError
 	}
 }
 
-impl error::Error for ContextEstablishmentError
+impl error::Error for CardReaderStatusChangeError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use self::CardReaderStatusChangeError::*;
+		
+		match self
+		{
+			Communication(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

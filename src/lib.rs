@@ -23,6 +23,8 @@
 #![warn(unused_crate_dependencies)]
 
 
+#![feature(allocator_api)]
+#![feature(const_fn_transmute)]
 #![feature(core_intrinsics)]
 #![feature(try_reserve)]
 
@@ -32,31 +34,30 @@
 //! This is a rust library.
 
 
-use self::low_level::ActivityError;
-use self::low_level::CardError;
-use self::low_level::CardExt;
-use self::low_level::CardOrTransactionExt;
-use self::low_level::ContextExt;
-use self::low_level::transmit::ApplicationProtocolDataUnitCommand;
-use self::low_level::transmit::CommandChaining;
-use self::low_level::transmit::SendBuffer;
-use self::low_level::transmit::ReceiveBuffers;
-use self::low_level::transmit::Response;
-use self::low_level::transmit::ResponseLengthEncoding;
-use std::ffi::CString;
-use pcsc::Context;
-use std::borrow::Cow;
-use crate::low_level::iso_7816_6_tag_length_value::ConstructedValues;
-use crate::low_level::iso_7816_6_tag_length_value::Tag;
+// use self::low_level::ActivityError;
+// use self::low_level::CardError;
+// use self::low_level::CardExt;
+// use self::low_level::CardOrTransactionExt;
+// use self::low_level::ContextExt;
+// use self::low_level::transmit::ApplicationProtocolDataUnitCommand;
+// use self::low_level::transmit::CommandChaining;
+// use self::low_level::transmit::SendBuffer;
+// use self::low_level::transmit::ReceiveBuffers;
+// use self::low_level::transmit::Response;
+// use self::low_level::transmit::ResponseLengthEncoding;
+// use crate::low_level::iso_7816_6_tag_length_value::ConstructedValues;
+// use crate::low_level::iso_7816_6_tag_length_value::Tag;
+use std::collections::TryReserveError;
 
 
 mod libpcsc;
 
 
-mod low_level;
+//mod low_level;
 
 
-mod open_pgp;
+//mod open_pgp;
 
 
-include!("EXAMPLE.rs");
+//include!("EXAMPLE.rs");
+include!("VecExt.rs");
