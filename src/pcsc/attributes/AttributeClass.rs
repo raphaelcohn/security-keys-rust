@@ -9,33 +9,33 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
 pub enum AttributeClass
 {
-	#[allow(missing_docs)]
+	/// Vendor information definitions.
 	VendorInformation = SCARD_CLASS_VENDOR_INFO,
 	
-	#[allow(missing_docs)]
-	Communications = SCARD_CLASS_COMMUNICATIONS,
+	/// Communication definitions.
+	Communication = SCARD_CLASS_COMMUNICATIONS,
 	
-	#[allow(missing_docs)]
+	/// Protocol definitions.
 	Protocol = SCARD_CLASS_PROTOCOL,
 	
-	#[allow(missing_docs)]
+	/// Power Management definitions.
 	PowerManagement = SCARD_CLASS_POWER_MGMT,
 	
-	#[allow(missing_docs)]
-	Security = SCARD_CLASS_SECURITY,
+	/// Security Assurance definitions.
+	SecurityAssurance = SCARD_CLASS_SECURITY,
 	
-	#[allow(missing_docs)]
-	Mechanical = SCARD_CLASS_MECHANICAL,
+	/// Mechanical characteristics definitions.
+	MechanicalCharacteristics = SCARD_CLASS_MECHANICAL,
 	
-	#[allow(missing_docs)]
-	VendorDefined = SCARD_CLASS_VENDOR_DEFINED,
+	/// Vendor specific definitions.
+	VendorSpecific = SCARD_CLASS_VENDOR_DEFINED,
 	
-	#[allow(missing_docs)]
-	IfdProtocol = SCARD_CLASS_IFD_PROTOCOL,
+	/// Interface Device (IFD) Protocol options.
+	InterfaceFeviceProtocol = SCARD_CLASS_IFD_PROTOCOL,
 	
-	#[allow(missing_docs)]
+	/// ICC State specific definitions.
 	IccState = SCARD_CLASS_ICC_STATE,
 	
-	#[allow(missing_docs)]
-	System = SCARD_CLASS_SYSTEM,
+	/// System-specific definitions.
+	SystemSpecific = SCARD_CLASS_SYSTEM,
 }
