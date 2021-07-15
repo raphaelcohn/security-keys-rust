@@ -4,12 +4,13 @@
 
 /// Maximum length is 33 on macos and with pcsclite and 36 on windows.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) struct AnswerToReset<'a>(&'a [u8]);
+pub struct AnswerToReset<'a>(&'a [u8]);
 
 impl<'a> AnswerToReset<'a>
 {
+	/// Is this valid?
 	#[inline(always)]
-	pub(crate) fn is_valid(&self) -> bool
+	pub const fn is_valid(&self) -> bool
 	{
 		!self.0.is_empty()
 	}

@@ -8,20 +8,27 @@
 #[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "64"), repr(u64))]
 #[derive(EnumIter)]
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum CardStatus
+pub enum CardStatus
 {
+	/// Unknown.
 	Unknown = SCARD_UNKNOWN,
-
+	
+	/// Absent.
 	Absent = SCARD_ABSENT,
-
+	
+	/// Present.
 	Present = SCARD_PRESENT,
-
+	
+	/// Swallowed.
 	Swallowed = SCARD_SWALLOWED,
-
+	
+	/// Powered.
 	Powered = SCARD_POWERED,
-
+	
+	/// Negotiable.
 	Negotiable = SCARD_NEGOTIABLE,
 
+	/// Specific.
 	Specific = SCARD_SPECIFIC,
 }
 

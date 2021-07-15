@@ -4,6 +4,7 @@
 
 use super::AttributeIdentifier;
 use super::CardDisposition;
+use super::ControlCode;
 use super::Scope;
 use std::error;
 use std::fmt::Debug;

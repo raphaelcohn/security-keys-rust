@@ -7,7 +7,7 @@
 #[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "32"), repr(u32))]
 #[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "64"), repr(u64))]
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum CardDisposition
+pub enum CardDisposition
 {
 	/// Don’t alter card state.
 	Leave = SCARD_LEAVE_CARD,

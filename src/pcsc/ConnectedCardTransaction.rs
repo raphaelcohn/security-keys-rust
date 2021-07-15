@@ -2,8 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// A transaction on a `ConnectedCard`.
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
-pub(crate) struct ConnectedCardTransaction
+pub struct ConnectedCardTransaction
 {
 	connected_card: ConnectedCard,
 	
@@ -47,17 +48,20 @@ impl ConnectedCardOrTransaction for ConnectedCardTransaction
 
 impl ConnectedCardTransaction
 {
+	/// High-level API; generally the most useful.
 	#[inline(always)]
-	pub(crate) fn get_attribute_or_disconnect_activity<AttributeUser: for <'a> FnOnce(&'a [u8]) -> R, R>(self, attribute_identifier: AttributeIdentifier, attribute_user: AttributeUser) -> Result<(Self, Option<R>), ActivityError>
+	pub fn get_attribute_or_disconnect_activity<AttributeUser: for <'a> FnOnce(&'a [u8]) -> R, R>(self, attribute_identifier: AttributeIdentifier, attribute_user: AttributeUser) -> Result<(Self, Option<R>), ActivityError>
 	{
 		self.get_attribute_or_disconnect(attribute_identifier, attribute_user).map_err(|cause| ActivityError::GetAttribute { cause, attribute_identifier })
 	}
 	
+	/// Mid-level API that ensures a card is properly disconnected.
+	///
 	/// Returns `None` if the attribute is unsupported.
 	///
 	/// The CCID project at <https://salsa.debian.org/rousseau/CCID.git> contains a partial list of attribute value formats in [`SCARDGETATTRIB.txt`](https://salsa.debian.org/rousseau/CCID/-/blob/master/SCARDGETATTRIB.txt).
 	#[inline(always)]
-	pub(crate) fn get_attribute_or_disconnect<AttributeUser: for <'a> FnOnce(&'a [u8]) -> R, R>(self, attribute_identifier: AttributeIdentifier, attribute_user: AttributeUser) -> Result<(Self, Option<R>), WithDisconnectError<CardTransmissionError>>
+	pub fn get_attribute_or_disconnect<AttributeUser: for <'a> FnOnce(&'a [u8]) -> R, R>(self, attribute_identifier: AttributeIdentifier, attribute_user: AttributeUser) -> Result<(Self, Option<R>), WithDisconnectError<CardTransmissionError>>
 	{
 		match self.get_attribute(attribute_identifier, attribute_user)
 		{
@@ -71,7 +75,7 @@ impl ConnectedCardTransaction
 	///
 	/// The CCID project at <https://salsa.debian.org/rousseau/CCID.git> contains a partial list of attribute value formats in [`SCARDGETATTRIB.txt`](https://salsa.debian.org/rousseau/CCID/-/blob/master/SCARDGETATTRIB.txt).
 	#[inline(always)]
-	pub(crate) fn get_attribute<AttributeUser: for <'a> FnOnce(&'a [u8]) -> R, R>(&self, attribute_identifier: AttributeIdentifier, attribute_user: AttributeUser) -> Result<Option<R>, CardTransmissionError>
+	pub fn get_attribute<AttributeUser: for <'a> FnOnce(&'a [u8]) -> R, R>(&self, attribute_identifier: AttributeIdentifier, attribute_user: AttributeUser) -> Result<Option<R>, CardTransmissionError>
 	{
 		let handle = self.handle();
 		let attribute_identifier = attribute_identifier.into_DWORD();
@@ -138,14 +142,16 @@ impl ConnectedCardTransaction
 		}
 	}
 	
+	/// High-level API; generally the most useful.
 	#[inline(always)]
-	pub(crate) fn set_attribute_or_disconnect_activity(self, attribute_identifier: AttributeIdentifier, attribute_value: &ArrayVec<u8, MaximumAttributeValueSize>) -> Result<(Self, bool), ActivityError>
+	pub fn set_attribute_or_disconnect_activity(self, attribute_identifier: AttributeIdentifier, attribute_value: &ArrayVec<u8, MaximumAttributeValueSize>) -> Result<(Self, bool), ActivityError>
 	{
 		self.set_attribute_or_disconnect(attribute_identifier, attribute_value).map_err(|cause| ActivityError::SetAttribute { cause, attribute_identifier })
 	}
 	
+	/// Mid-level API that ensures a card is properly disconnected.
 	#[inline(always)]
-	pub(crate) fn set_attribute_or_disconnect(self, attribute_identifier: AttributeIdentifier, attribute_value: &ArrayVec<u8, MaximumAttributeValueSize>) -> Result<(Self, bool), WithDisconnectError<CardTransmissionError>>
+	pub fn set_attribute_or_disconnect(self, attribute_identifier: AttributeIdentifier, attribute_value: &ArrayVec<u8, MaximumAttributeValueSize>) -> Result<(Self, bool), WithDisconnectError<CardTransmissionError>>
 	{
 		match self.set_attribute(attribute_identifier, attribute_value)
 		{
@@ -157,7 +163,7 @@ impl ConnectedCardTransaction
 	
 	/// Tries to return `false` if the attribute is unsupported, but this may not be supported by internal behaviour.
 	#[inline(always)]
-	pub(crate) fn set_attribute(&self, attribute_identifier: AttributeIdentifier, attribute_value: &ArrayVec<u8, MaximumAttributeValueSize>) -> Result<bool, CardTransmissionError>
+	pub fn set_attribute(&self, attribute_identifier: AttributeIdentifier, attribute_value: &ArrayVec<u8, MaximumAttributeValueSize>) -> Result<bool, CardTransmissionError>
 	{
 		let handle = self.handle();
 		let attribute_identifier = attribute_identifier.into_DWORD();
@@ -231,14 +237,16 @@ impl ConnectedCardTransaction
 		}
 	}
 	
+	/// High-level API; generally the most useful.
 	#[inline(always)]
-	pub(crate) fn transmit_application_protocol_data_unit_or_disconnect_activity<'receive_buffer>(self, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<(Self, &'receive_buffer [u8]), ActivityError>
+	pub fn transmit_application_protocol_data_unit_or_disconnect_activity<'receive_buffer>(self, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<(Self, &'receive_buffer [u8]), ActivityError>
 	{
 		self.transmit_application_protocol_data_unit_or_disconnect(send_buffer, receive_buffer).map_err(|cause| ActivityError::TransmitApplicationProtocolDataUnit { cause, class: send_buffer[0], instruction: send_buffer[1], parameters: [send_buffer[2], send_buffer[3]] })
 	}
 	
+	/// Mid-level API that ensures a card is properly disconnected.
 	#[inline(always)]
-	pub(crate) fn transmit_application_protocol_data_unit_or_disconnect<'receive_buffer>(self, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<(Self, &'receive_buffer [u8]), WithDisconnectError<CardCommandError>>
+	pub fn transmit_application_protocol_data_unit_or_disconnect<'receive_buffer>(self, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<(Self, &'receive_buffer [u8]), WithDisconnectError<CardCommandError>>
 	{
 		match self.transmit_application_protocol_data_unit(send_buffer, receive_buffer)
 		{
@@ -249,7 +257,7 @@ impl ConnectedCardTransaction
 	}
 	
 	/// If sending normal APDUs, make sure `receive_buffer` is `Context::MaximumSendOrReceiveBufferSize`; if using extended APDUs, make sure it is `Context::MaximumExtendedSendOrReceiveBufferSize`.
-	pub(crate) fn transmit_application_protocol_data_unit<'receive_buffer>(&self, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<&'receive_buffer [u8], CardCommandError>
+	pub fn transmit_application_protocol_data_unit<'receive_buffer>(&self, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<&'receive_buffer [u8], CardCommandError>
 	{
 		let send_buffer_length = send_buffer.len();
 		let receive_buffer_length_original = receive_buffer.len();
@@ -341,14 +349,16 @@ impl ConnectedCardTransaction
 		}
 	}
 	
+	/// High-level API; generally the most useful.
 	#[inline(always)]
-	pub(crate) fn transmit_control_or_disconnect_activity<'receive_buffer>(self, control_code: u32, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<(Self, &'receive_buffer [u8]), ActivityError>
+	pub fn transmit_control_or_disconnect_activity<'receive_buffer>(self, control_code: ControlCode, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<(Self, &'receive_buffer [u8]), ActivityError>
 	{
 		self.transmit_application_protocol_data_unit_or_disconnect(send_buffer, receive_buffer).map_err(|cause| ActivityError::TransmitControl { cause, control_code })
 	}
 	
+	/// Mid-level API that ensures a card is properly disconnected.
 	#[inline(always)]
-	pub(crate) fn transmit_control_or_disconnect<'receive_buffer>(self, control_code: u32, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<(Self, &'receive_buffer [u8]), WithDisconnectError<CardCommandError>>
+	pub fn transmit_control_or_disconnect<'receive_buffer>(self, control_code: ControlCode, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<(Self, &'receive_buffer [u8]), WithDisconnectError<CardCommandError>>
 	{
 		match self.transmit_control(control_code, send_buffer, receive_buffer)
 		{
@@ -363,7 +373,7 @@ impl ConnectedCardTransaction
 	/// Ideally, make sure `receive_buffer` is `Context::MaximumSendOrReceiveBufferSizeExtended`.
 	///
 	/// The CCID project at <https://salsa.debian.org/rousseau/CCID.git> contains a partial list of control codes in [`SCARDCONTROL.txt`](https://salsa.debian.org/rousseau/CCID/-/blob/master/SCARDCONTOL.txt).
-	pub(crate) fn transmit_control<'receive_buffer>(&self, control_code: u32, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<&'receive_buffer [u8], CardCommandError>
+	pub fn transmit_control<'receive_buffer>(&self, control_code: ControlCode, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<&'receive_buffer [u8], CardCommandError>
 	{
 		let send_buffer_length = send_buffer.len();
 		debug_assert!(send_buffer_length <= Context::MaximumExtendedSendOrReceiveBufferSize);
@@ -372,7 +382,7 @@ impl ConnectedCardTransaction
 		debug_assert!(receive_buffer_length <= Context::MaximumExtendedSendOrReceiveBufferSize);
 		
 		let handle = self.handle();
-		let control_code = control_code as DWORD;
+		let control_code = control_code.into_DWORD();
 		let send_buffer_pointer = send_buffer.as_ptr();
 		let send_buffer_length = send_buffer.len() as DWORD;
 		let receive_buffer_pointer = receive_buffer.as_mut_ptr() as *mut u8;
@@ -449,16 +459,16 @@ impl ConnectedCardTransaction
 		}
 	}
 	
-	/// Always disconnects.
+	/// High-level API; generally the most useful.
 	#[inline(always)]
-	pub(crate) fn end_activity(self, end_transaction_disposition: CardDisposition) -> Result<(), ActivityError>
+	pub fn end_and_disconnect_activity(self, end_transaction_disposition: CardDisposition) -> Result<(), ActivityError>
 	{
-		self.end(end_transaction_disposition).map_err(|cause| ActivityError::EndTransaction { cause, end_transaction_disposition })
+		self.end_and_disconnect(end_transaction_disposition).map_err(|cause| ActivityError::EndTransaction { cause, end_transaction_disposition })
 	}
 	
-	/// Always disconnects.
+	/// Mid-level API that ensures a card is properly disconnected.
 	#[inline(always)]
-	pub(crate) fn end(mut self, end_transaction_disposition: CardDisposition) -> Result<(), WithDisconnectError<TransactionError>>
+	pub fn end_and_disconnect(mut self, end_transaction_disposition: CardDisposition) -> Result<(), WithDisconnectError<TransactionError>>
 	{
 		self.disposed = true;
 		let connected_card = unsafe { read(&self.connected_card) };

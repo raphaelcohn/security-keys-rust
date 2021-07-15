@@ -2,8 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// Why was a card or card reader unavailable?
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum UnavailableError
+pub enum UnavailableError
 {
 	/// Seems to only occur during connect and reconnect.
 	CardIsUnpowered,
@@ -16,8 +17,10 @@ pub(crate) enum UnavailableError
 	/// Seems to only occur during reconnect, probably due to a card being ejected.
 	CardRemoved,
 	
+	#[allow(missing_docs)]
 	NoCard,
 	
+	#[allow(missing_docs)]
 	CardReaderUnavailable,
 }
 

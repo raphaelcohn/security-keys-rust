@@ -2,28 +2,35 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// A PC/SC lite context.
+///
+/// Only one per thread is needed.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) struct Context(Rc<ContextInner>);
+pub struct Context(Rc<ContextInner>);
 
 /// Hack as Rust does not like const generics with namespaces.
-pub(crate) const MaximumAttributeValueSize: usize = Context::MaximumAttributeValueSize;
+pub const MaximumAttributeValueSize: usize = Context::MaximumAttributeValueSize;
 
 impl Context
 {
-	pub(crate) const MaximumSendOrReceiveBufferSize: usize = MAX_BUFFER_SIZE;
+	/// Maximum buffer size.
+	pub const MaximumSendOrReceiveBufferSize: usize = MAX_BUFFER_SIZE;
 	
-	pub(crate) const MaximumExtendedSendOrReceiveBufferSize: usize = MAX_BUFFER_SIZE_EXTENDED;
+	/// Maximum extended buffer size.
+	pub const MaximumExtendedSendOrReceiveBufferSize: usize = MAX_BUFFER_SIZE_EXTENDED;
 	
-	pub(crate) const MaximumAttributeValueSize: usize = Self::MaximumSendOrReceiveBufferSize;
+	/// Maximum attribute size.
+	pub const MaximumAttributeValueSize: usize = Self::MaximumSendOrReceiveBufferSize;
 	
+	/// High-level API.
 	#[inline(always)]
-	pub(crate) fn establish_activity(scope: Scope) -> Result<Self, ActivityError>
+	pub fn establish_activity(scope: Scope) -> Result<Self, ActivityError>
 	{
 		Self::establish(scope).map_err(|cause| ActivityError::EstablishContext { cause, scope })
 	}
 	
 	/// Affected by the environment variable `PCSCLITE_NO_BLOCKING`.
-	pub(crate) fn establish(scope: Scope) -> Result<Self, CommunicationError>
+	pub fn establish(scope: Scope) -> Result<Self, CommunicationError>
 	{
 		let mut context_handle = MaybeUninit::uninit();
 		
@@ -56,6 +63,7 @@ impl Context
 	}
 	
 	/// This uses PThread mutexes; avoid.
+	#[allow(dead_code)]
 	#[inline(always)]
 	fn is_valid(&self) -> bool
 	{
@@ -76,14 +84,16 @@ impl Context
 		}
 	}
 	
+	/// High-level API.
 	#[inline(always)]
-	pub(crate) fn initial_card_reader_states_activity(&self, card_reader_state_user: impl for<'callback> FnMut(CardReaderName<'callback>, InsertionsAndRemovalsCount, CardReaderState<'callback>) -> ()) -> Result<(), ActivityError>
+	pub fn initial_card_reader_states_activity(&self, card_reader_state_user: impl for<'callback> FnMut(CardReaderName<'callback>, InsertionsAndRemovalsCount, CardReaderState<'callback>) -> ()) -> Result<(), ActivityError>
 	{
 		self.initial_card_reader_states(card_reader_state_user).map_err(ActivityError::InitialCardReaderStates)
 	}
 	
+	/// Mid-level API.
 	#[inline(always)]
-	pub(crate) fn initial_card_reader_states(&self, mut card_reader_state_user: impl for<'callback> FnMut(CardReaderName<'callback>, InsertionsAndRemovalsCount, CardReaderState<'callback>) -> ()) -> Result<(), CardReaderStatusChangeError>
+	pub fn initial_card_reader_states(&self, mut card_reader_state_user: impl for<'callback> FnMut(CardReaderName<'callback>, InsertionsAndRemovalsCount, CardReaderState<'callback>) -> ()) -> Result<(), CardReaderStatusChangeError>
 	{
 		let card_reader_names = self.connected_card_readers()?;
 		let mut card_reader_states = card_reader_names.create_card_reader_states();
@@ -98,13 +108,15 @@ impl Context
 		Ok(())
 	}
 	
+	/// High-level API.
 	#[inline(always)]
-	pub(crate) fn connected_card_readers_activity(&self) -> Result<CardReaderNames, ActivityError>
+	pub fn connected_card_readers_activity(&self) -> Result<CardReaderNames, ActivityError>
 	{
 		self.connected_card_readers().map_err(ActivityError::ConnectedCardReaders)
 	}
 	
-	pub(crate) fn connected_card_readers(&self) -> Result<CardReaderNames, CommunicationError>
+	/// Low-level API.
+	pub fn connected_card_readers(&self) -> Result<CardReaderNames, CommunicationError>
 	{
 		let mut reader_names = CardReaderNamesBuffer::new_const();
 		
@@ -141,14 +153,16 @@ impl Context
 		return Err(error)
 	}
 	
+	/// High-level API.
 	#[inline(always)]
-	pub(crate) fn update_card_reader_states_activity<UserData>(&self, timeout: Timeout, card_reader_states: &mut CardReaderStates<UserData>) -> Result<(), ActivityError>
+	pub fn update_card_reader_states_activity<UserData>(&self, timeout: Timeout, card_reader_states: &mut CardReaderStates<UserData>) -> Result<(), ActivityError>
 	{
 		self.update_card_reader_states(timeout, card_reader_states).map_err(ActivityError::UpdateCardReaderStates)
 	}
 	
+	/// Low-level API.
 	#[inline(always)]
-	pub(crate) fn update_card_reader_states<UserData>(&self, timeout: Timeout, card_reader_states: &mut CardReaderStates<UserData>) -> Result<(), CardReaderStatusChangeError>
+	pub fn update_card_reader_states<UserData>(&self, timeout: Timeout, card_reader_states: &mut CardReaderStates<UserData>) -> Result<(), CardReaderStatusChangeError>
 	{
 		card_reader_states.get_status_change(timeout, self.get_context())
 	}
@@ -156,8 +170,9 @@ impl Context
 	/// Cancels a blocking `update_card_reader_states()`.
 	///
 	/// In practice, will require a separate thread.
+	#[allow(dead_code)]
 	#[inline(always)]
-	pub(crate) fn cancel_update_card_reader_states(&self) -> Result<bool, CommunicationError>
+	fn cancel_update_card_reader_states(&self) -> Result<bool, CommunicationError>
 	{
 		let result = unsafe { SCardCancel(self.get_context()) };
 		
@@ -180,13 +195,15 @@ impl Context
 		}
 	}
 	
+	/// High-level API.
 	#[inline(always)]
-	pub(crate) fn connect_card_activity(&self, card_shared_access_back_off: CardSharedAccessBackOff, reconnect_card_disposition: CardDisposition, card_reader_name: &CardReaderName, share_mode_and_preferred_protocols: ShareModeAndPreferredProtocols) -> Result<ConnectedCard, ActivityError>
+	pub fn connect_card_activity(&self, card_shared_access_back_off: CardSharedAccessBackOff, reconnect_card_disposition: CardDisposition, card_reader_name: &CardReaderName, share_mode_and_preferred_protocols: ShareModeAndPreferredProtocols) -> Result<ConnectedCard, ActivityError>
 	{
 		self.connect_card(card_shared_access_back_off, reconnect_card_disposition, card_reader_name, share_mode_and_preferred_protocols).map_err(ActivityError::ConnectCard)
 	}
 	
-	pub(crate) fn connect_card(&self, card_shared_access_back_off: CardSharedAccessBackOff, reconnect_card_disposition: CardDisposition, card_reader_name: &CardReaderName, share_mode_and_preferred_protocols: ShareModeAndPreferredProtocols) -> Result<ConnectedCard, ConnectCardError>
+	/// Mid-level API.
+	pub fn connect_card(&self, card_shared_access_back_off: CardSharedAccessBackOff, reconnect_card_disposition: CardDisposition, card_reader_name: &CardReaderName, share_mode_and_preferred_protocols: ShareModeAndPreferredProtocols) -> Result<ConnectedCard, ConnectCardError>
 	{
 		let context = self.get_context();
 		let card_reader_name_pointer = card_reader_name.as_ptr();

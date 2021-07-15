@@ -2,8 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// Card reader name error.
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub(crate) enum CardReaderNameError
+pub enum CardReaderNameError
 {
 	/// A reader name may not be an empty C string.
 	Empty,

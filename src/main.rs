@@ -2,9 +2,20 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-// See also <https://crates.io/crates/openpgp-card>
-#[allow(missing_docs)]
-fn EXAMPLE() -> Result<(), ActivityError>
+use security_keys_rust::VecExt;
+use security_keys_rust::pcsc::CardDisposition;
+use security_keys_rust::pcsc::CardSharedAccessBackOff;
+use security_keys_rust::pcsc::ConnectedCardOrTransaction;
+use security_keys_rust::pcsc::Context;
+use security_keys_rust::pcsc::Scope;
+use security_keys_rust::pcsc::ShareModeAndPreferredProtocols;
+use security_keys_rust::pcsc::attributes::AttributeIdentifier;
+use security_keys_rust::pcsc::card_reader_name::CardReaderName;
+use security_keys_rust::pcsc::errors::ActivityError;
+use arrayvec::ArrayVec;
+
+
+fn main() -> Result<(), ActivityError>
 {
 	let card_shared_access_back_off = CardSharedAccessBackOff::default();
 	let reconnect_card_disposition = CardDisposition::Leave;
@@ -30,8 +41,8 @@ fn EXAMPLE() -> Result<(), ActivityError>
 	
 	let attribute_identifier = AttributeIdentifier::ChannelIdentifier;
 	
-	let (transaction, _attribute) = transaction.get_attribute_or_disconnect_activity(attribute_identifier, |attribute_value| {
-		
+	let (transaction, _attribute) = transaction.get_attribute_or_disconnect_activity(attribute_identifier, |attribute_value|
+	{
 		println!("Attribute value {:?}", attribute_value)
 	})?;
 	
@@ -42,7 +53,7 @@ fn EXAMPLE() -> Result<(), ActivityError>
 	let mut receive_buffer = Vec::new_buffer(Context::MaximumExtendedSendOrReceiveBufferSize).unwrap();
 	let (transaction, _received) = transaction.transmit_application_protocol_data_unit_or_disconnect_activity(&send_buffer, &mut receive_buffer)?;
 	
-	transaction.end_activity(CardDisposition::ColdReset)?;
+	transaction.end_and_disconnect_activity(CardDisposition::ColdReset)?;
 	
 	drop(context);
 	

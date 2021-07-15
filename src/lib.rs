@@ -36,20 +36,11 @@
 //! This is a rust library.
 
 
-use self::pcsc::CardDisposition;
-use self::pcsc::CardSharedAccessBackOff;
-use self::pcsc::ConnectedCardOrTransaction;
-use self::pcsc::Context;
-use self::pcsc::Scope;
-use self::pcsc::ShareModeAndPreferredProtocols;
-use self::pcsc::attributes::AttributeIdentifier;
-use self::pcsc::card_reader_name::CardReaderName;
-use self::pcsc::errors::ActivityError;
-use arrayvec::ArrayVec;
 use std::collections::TryReserveError;
 
 
-mod pcsc;
+/// PC/SC lite C library wrapper.
+pub mod pcsc;
 
 
 mod low_level;
@@ -58,5 +49,4 @@ mod low_level;
 //mod open_pgp;
 
 
-include!("EXAMPLE.rs");
 include!("VecExt.rs");

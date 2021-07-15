@@ -6,7 +6,7 @@
 ///
 /// There are latent bugs in PCSC that permit a reader name of 128 bytes *excluding* the trailing ASCII NULL.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) struct CardReaderName<'a>(Cow<'a, CStr>);
+pub struct CardReaderName<'a>(Cow<'a, CStr>);
 
 impl<'a> TryFrom<&'a CStr> for CardReaderName<'a>
 {
@@ -45,6 +45,20 @@ impl<'a> Deref for CardReaderName<'a>
 
 impl<'a> CardReaderName<'a>
 {
+	/// Into owned.
+	#[inline(always)]
+	pub fn into_owned(self) -> CardReaderName<'static>
+	{
+		CardReaderName(Cow::Owned(self.0.into_owned()))
+	}
+	
+	/// Into a `CString`.
+	#[inline(always)]
+	pub fn into_c_string(self) -> CString
+	{
+		self.0.into_owned()
+	}
+	
 	#[inline(always)]
 	fn validate(c_str: &CStr) -> Result<(), CardReaderNameError>
 	{
@@ -97,25 +111,13 @@ impl<'a> CardReaderName<'a>
 	{
 		Self(Cow::Borrowed(c_str))
 	}
-	
-	#[inline(always)]
-	pub(crate) fn into_owned(self) -> CardReaderName<'static>
-	{
-		CardReaderName(Cow::Owned(self.0.into_owned()))
-	}
-	
-	#[inline(always)]
-	pub(crate) fn into_c_string(self) -> CString
-	{
-		self.0.into_owned()
-	}
 }
 
 impl CardReaderName<'static>
 {
 	/// See <https://doc.rust-lang.org/std/ffi/struct.CString.html#method.new> for similar usages.
 	#[inline(always)]
-	pub(crate) fn new<T: Into<Vec<u8>>>(t: T) -> Result<Self, CardReaderNameError>
+	pub fn new<T: Into<Vec<u8>>>(t: T) -> Result<Self, CardReaderNameError>
 	{
 		let c_string = CString::new(t).map_err(CardReaderNameError::Nul)?;
 		Self::try_from(c_string)

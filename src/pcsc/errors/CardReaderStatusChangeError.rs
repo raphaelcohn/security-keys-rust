@@ -2,17 +2,20 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// None of these errors can occur if the reader states are empty or consist entirely of ignored values.
+/// Card reader status change error.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum CardReaderStatusChangeError
+pub enum CardReaderStatusChangeError
 {
 	/// This *does not* occur if waiting loops internally in libpcsclite, ie you can not rely on it.
 	UnknownCardReader,
 	
+	#[allow(missing_docs)]
 	Cancelled,
 	
+	#[allow(missing_docs)]
 	TimedOut,
 	
+	#[allow(missing_docs)]
 	UnavailableOrCommunication(UnavailableOrCommunicationError),
 }
 

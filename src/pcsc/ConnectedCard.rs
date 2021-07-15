@@ -2,8 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// A card in a read that is connected.
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
-pub(crate) struct ConnectedCard
+pub struct ConnectedCard
 {
 	handle: SCARDHANDLE,
 	
@@ -125,8 +126,9 @@ impl ConnectedCardOrTransaction for ConnectedCard
 
 impl ConnectedCard
 {
+	#[allow(missing_docs)]
 	#[inline(always)]
-	pub(crate) fn disconnect(mut self, card_disposition: CardDisposition) -> Result<(), UnavailableOrCommunicationError>
+	pub fn disconnect(mut self, card_disposition: CardDisposition) -> Result<(), UnavailableOrCommunicationError>
 	{
 		self.disposed = true;
 		
@@ -172,14 +174,14 @@ impl ConnectedCard
 	
 	/// Begins a transaction or disconnects.
 	#[inline(always)]
-	pub(crate) fn begin_transaction_or_disconnect_activity(self) -> Result<ConnectedCardTransaction, ActivityError>
+	pub fn begin_transaction_or_disconnect_activity(self) -> Result<ConnectedCardTransaction, ActivityError>
 	{
 		self.begin_transaction_or_disconnect().map_err(ActivityError::BeginTransaction)
 	}
 	
 	/// Begins a transaction or disconnects.
 	#[inline(always)]
-	pub(crate) fn begin_transaction_or_disconnect(self) -> Result<ConnectedCardTransaction, WithDisconnectError<TransactionError>>
+	pub fn begin_transaction_or_disconnect(self) -> Result<ConnectedCardTransaction, WithDisconnectError<TransactionError>>
 	{
 		if self.is_shared
 		{
@@ -197,7 +199,7 @@ impl ConnectedCard
 	}
 	
 	/// Begins a transaction.
-	pub(crate) fn begin_transaction(self) -> Result<ConnectedCardTransaction, TransactionError>
+	pub fn begin_transaction(self) -> Result<ConnectedCardTransaction, TransactionError>
 	{
 		if self.is_shared
 		{
@@ -278,24 +280,11 @@ impl ConnectedCard
 	}
 	
 	#[inline(always)]
-	fn active_protocol_into_DWORD(&self) -> DWORD
-	{
-		match self.active_protocol()
-		{
-			None => 0,
-			
-			Some(protocol) => protocol.into_DWORD()
-		}
-	}
-	
-	#[inline(always)]
 	const fn remaining_reset_retry_attempts(&self) -> RemainingResetRetryAttempts
 	{
 		self.card_shared_access_back_off.remaining_reset_retry_attempts()
 	}
 	
-	// libpcsclite: Any PC/SC transaction held by the process is still valid after SCardReconnect().
-	// windows: PC/SC transactions are released and a new call to SCardBeginTransaction() must be done.
 	#[inline(always)]
 	fn reconnect(&self) -> Result<(), ConnectCardError>
 	{

@@ -2,8 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// A control code.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-struct ControlCode(DWORD);
+pub struct ControlCode(DWORD);
 
 impl ControlCode
 {
@@ -11,5 +12,11 @@ impl ControlCode
 	const fn new(raw_control_code: DWORD) -> Self
 	{
 		Self(SCARD_CTL_CODE(raw_control_code))
+	}
+	
+	#[inline(always)]
+	const fn into_DWORD(self) -> DWORD
+	{
+		self.0
 	}
 }

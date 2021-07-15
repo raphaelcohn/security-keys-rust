@@ -16,7 +16,8 @@ pub(in crate::pcsc) const SCARD_STATE_EMPTY: DWORD = 0x0010;
 
 pub(in crate::pcsc) const SCARD_STATE_PRESENT: DWORD = 0x0020;
 
-pub(in crate::pcsc) const SCARD_STATE_ATRMATCH: DWORD = 0x0040;
+#[allow(dead_code)]
+const SCARD_STATE_ATRMATCH: DWORD = 0x0040;
 
 pub(in crate::pcsc) const SCARD_STATE_EXCLUSIVE: DWORD = 0x0080;
 
@@ -24,4 +25,5 @@ pub(in crate::pcsc) const SCARD_STATE_INUSE: DWORD = 0x0100;
 
 pub(in crate::pcsc) const SCARD_STATE_MUTE: DWORD = 0x0200;
 
-pub(in crate::pcsc) const SCARD_STATE_UNPOWERED: DWORD = 0x0400;
+#[allow(dead_code)]
+const SCARD_STATE_UNPOWERED: DWORD = 0x0400;

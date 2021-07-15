@@ -6,10 +6,12 @@
 ///
 /// There are latent bugs in PCSC that permit a reader name of 128 bytes *excluding* the trailing ASCII NULL.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum CardReaderEventName<'a>
+pub enum CardReaderEventName<'a>
 {
+	/// A regular reader name used for state changes.
 	StateChange(CardReaderName<'a>),
 	
+	/// A special reader name used to detect if card readers are added or removed; something of a hack in PC/SC lite.
 	AddedOrRemoved,
 }
 

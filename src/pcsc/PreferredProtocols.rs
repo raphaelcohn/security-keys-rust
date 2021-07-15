@@ -7,15 +7,30 @@
 #[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "32"), repr(u32))]
 #[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "64"), repr(u64))]
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum PreferredProtocols
+pub enum PreferredProtocols
 {
+	/// `T = 0` protocol; obsolescent.
 	T0 = SCARD_PROTOCOL_T0,
 	
+	/// `T = 1` protocol; frame-based; supported by most cards as of 2021.
 	T1 = SCARD_PROTOCOL_T1,
 	
+	/// A raw protocol; not ideal.
 	RAW = SCARD_PROTOCOL_RAW,
 	
+	/// Let the card reader or driver choose either `T = 0` or `T = 1`.
+	///
+	/// Ideal choice.
 	T0_or_T1 = SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1,
+}
+
+impl Default for PreferredProtocols
+{
+	#[inline(always)]
+	fn default() -> Self
+	{
+		PreferredProtocols::T0_or_T1
+	}
 }
 
 impl PreferredProtocols

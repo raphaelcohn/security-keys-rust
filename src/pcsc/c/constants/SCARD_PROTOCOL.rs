@@ -2,9 +2,11 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(in crate::pcsc) const SCARD_PROTOCOL_UNDEFINED: DWORD = 0x0000_0000;
+#[allow(dead_code)]
+const SCARD_PROTOCOL_UNDEFINED: DWORD = 0x0000_0000;
 
-pub(in crate::pcsc) const SCARD_PROTOCOL_UNSET: DWORD = SCARD_PROTOCOL_UNDEFINED;
+#[allow(dead_code)]
+const SCARD_PROTOCOL_UNSET: DWORD = SCARD_PROTOCOL_UNDEFINED;
 
 pub(in crate::pcsc) const SCARD_PROTOCOL_T0: DWORD = 0x0000_0001;
 
@@ -15,4 +17,5 @@ pub(in crate::pcsc) const SCARD_PROTOCOL_T1: DWORD = 0x0000_0002;
 
 pub(in crate::pcsc) const SCARD_PROTOCOL_T15: DWORD = 0x0000_0008;
 
-pub(in crate::pcsc) const SCARD_PROTOCOL_ANY: DWORD = SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1;
+#[allow(dead_code)]
+const SCARD_PROTOCOL_ANY: DWORD = SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1;

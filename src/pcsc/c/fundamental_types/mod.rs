@@ -7,6 +7,5 @@
 
 
 include!("DWORD.rs");
-include!("INFINITE.rs");
 include!("LONG.rs");
 include!("ULONG.rs");

@@ -2,8 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// Card reader states.
 #[repr(transparent)]
-pub(crate) struct CardReaderStates<'card_reader_names, UserData>(ArrayVec<SCARD_READERSTATE, PCSCLITE_MAX_READERS_CONTEXTS>, PhantomData<&'card_reader_names UserData>);
+pub struct CardReaderStates<'card_reader_names, UserData>(ArrayVec<SCARD_READERSTATE, PCSCLITE_MAX_READERS_CONTEXTS>, PhantomData<&'card_reader_names UserData>);
 
 impl<'card_reader_names, UserData> Drop for CardReaderStates<'card_reader_names, UserData>
 {
@@ -23,21 +24,23 @@ impl<'card_reader_names, UserData> Drop for CardReaderStates<'card_reader_names,
 
 impl<'card_reader_names, UserData> CardReaderStates<'card_reader_names, UserData>
 {
+	/// New instance.
 	#[inline(always)]
-	pub(crate) const fn new() -> Self
+	pub const fn new() -> Self
 	{
 		Self(ArrayVec::new_const(), PhantomData)
 	}
 	
+	/// Length.
 	#[inline(always)]
-	pub(crate) fn length(&self) -> usize
+	pub fn length(&self) -> usize
 	{
 		self.0.len()
 	}
 	
 	/// Note that if a reader state is ignored, then on return, if adjusted using `change_reader_state_notification()`, it will become `SCARD_STATE_UNAWARE`.
 	#[inline(always)]
-	pub(crate) fn push_reader_state(&mut self, card_reader_name: CardReaderEventName<'card_reader_names>, user_data: Option<Box<UserData>>, ignore: bool)
+	pub fn push_reader_state(&mut self, card_reader_name: CardReaderEventName<'card_reader_names>, user_data: Option<Box<UserData>>, ignore: bool)
 	{
 		self.0.push
 		(
@@ -70,8 +73,11 @@ impl<'card_reader_names, UserData> CardReaderStates<'card_reader_names, UserData
 		)
 	}
 	
+	/// Get reader state.
+	///
+	/// Does not check `index` is out-of-range except in debug builds.
 	#[inline(always)]
-	pub(crate) fn get_reader_state(&self, index: usize) -> (CardReaderEventName<'card_reader_names>, Option<&UserData>, InsertionsAndRemovalsCount, StateChanged, CardReaderState)
+	pub fn get_reader_state(&self, index: usize) -> (CardReaderEventName<'card_reader_names>, Option<&UserData>, InsertionsAndRemovalsCount, StateChanged, CardReaderState)
 	{
 		let reader_state = self.0.get_unchecked_safe(index);
 		
@@ -104,8 +110,11 @@ impl<'card_reader_names, UserData> CardReaderStates<'card_reader_names, UserData
 		(reader_name, user_data, insertions_and_removals_count, has_changed, reader_event_state)
 	}
 	
+	/// Change reader state.
+	///
+	/// Does not check `index` is out-of-range except in debug builds.
 	#[inline(always)]
-	pub(crate) fn change_reader_state_notification(&mut self, index: usize, change_reader_state_notification: ChangeCardReaderStateNotification)
+	pub fn change_reader_state_notification(&mut self, index: usize, change_reader_state_notification: ChangeCardReaderStateNotification)
 	{
 		let reader_state = self.0.get_unchecked_mut_safe(index);
 		

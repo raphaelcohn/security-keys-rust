@@ -7,35 +7,35 @@
 #[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "32"), repr(u32))]
 #[cfg_attr(all(not(any(target_os = "macos", target_os = "windows")), target_pointer_width = "64"), repr(u64))]
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
-pub(crate) enum AttributeClass
+pub enum AttributeClass
 {
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	VendorInformation = SCARD_CLASS_VENDOR_INFO,
 	
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	Communications = SCARD_CLASS_COMMUNICATIONS,
 	
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	Protocol = SCARD_CLASS_PROTOCOL,
 	
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	PowerManagement = SCARD_CLASS_POWER_MGMT,
 	
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	Security = SCARD_CLASS_SECURITY,
 	
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	Mechanical = SCARD_CLASS_MECHANICAL,
 	
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	VendorDefined = SCARD_CLASS_VENDOR_DEFINED,
 	
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	IfdProtocol = SCARD_CLASS_IFD_PROTOCOL,
 	
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	IccState = SCARD_CLASS_ICC_STATE,
 	
-	#[allow(dead_code)]
+	#[allow(missing_docs)]
 	System = SCARD_CLASS_SYSTEM,
 }

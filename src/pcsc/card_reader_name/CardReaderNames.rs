@@ -2,8 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// Card reader names.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq)]
-pub(crate) struct CardReaderNames(CardReaderNamesBuffer);
+pub struct CardReaderNames(CardReaderNamesBuffer);
 
 impl CardReaderNames
 {
@@ -31,8 +32,9 @@ impl CardReaderNames
 		return Self(reader_names)
 	}
 	
+	/// Iterate.
 	#[inline(always)]
-	pub(crate) fn iterate(&self) -> CardReaderNamesIterator
+	pub fn iterate(&self) -> CardReaderNamesIterator
 	{
 		CardReaderNamesIterator
 		{
@@ -42,8 +44,9 @@ impl CardReaderNames
 		}
 	}
 	
+	/// Create card reader states from all card reader names.
 	#[inline(always)]
-	pub(crate) fn create_card_reader_states(&self) -> CardReaderStates<()>
+	pub fn create_card_reader_states(&self) -> CardReaderStates<()>
 	{
 		let mut card_reader_states = CardReaderStates::new();
 		self.use_all_card_reader_names(|card_reader_name|
@@ -53,8 +56,9 @@ impl CardReaderNames
 		card_reader_states
 	}
 	
+	/// Iterate, efficiently.
 	#[inline(always)]
-	pub(crate) fn use_all_card_reader_names<'buffer, CardReaderNameUser: FnMut(CardReaderName<'buffer>)>(&'buffer self, mut card_reader_name_user: CardReaderNameUser)
+	pub fn use_all_card_reader_names<'buffer, CardReaderNameUser: FnMut(CardReaderName<'buffer>)>(&'buffer self, mut card_reader_name_user: CardReaderNameUser)
 	{
 		let mut slice = self.slice();
 		let mut null_index = Self::null_index(slice);

@@ -4,7 +4,7 @@
 
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub(crate) enum ActivityError
+pub enum ActivityError
 {
 	CardReaderName(CardReaderNameError),
 	
@@ -59,7 +59,7 @@ pub(crate) enum ActivityError
 	{
 		cause: WithDisconnectError<CardCommandError>,
 		
-		control_code: u32,
+		control_code: ControlCode,
 	},
 	
 	EndTransaction

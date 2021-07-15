@@ -2,12 +2,14 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// A timeout.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum Timeout
+pub enum Timeout
 {
+	/// Immediate.
 	Immediate,
 
-	/// A value of u32::MAX is not valid.
+	/// A value of u32::MAX is not valid (this will cause an assertion failure panic).
 	Milliseconds(NonZeroU32),
 	
 	/// In practice, libpcsclite converts infinite timeouts to 60,000 milliseconds (one minute) (but allows longer specified ones with `Milliseconds()`)!

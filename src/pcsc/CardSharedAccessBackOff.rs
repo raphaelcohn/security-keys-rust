@@ -2,8 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// Back off settings.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) struct CardSharedAccessBackOff
+pub struct CardSharedAccessBackOff
 {
 	reset_retry_attempts: usize,
 	
@@ -25,10 +26,12 @@ impl Default for CardSharedAccessBackOff
 
 impl CardSharedAccessBackOff
 {
-	pub(crate) const Default: Self = Self::new(3, 5, Duration::from_secs(1), Duration::from_millis(1));
+	/// Default settings.
+	pub const Default: Self = Self::new(3, 5, Duration::from_secs(1), Duration::from_millis(1));
 	
+	/// New instance.
 	#[inline(always)]
-	pub(crate) const fn new(reset_retry_attempts: usize, reconnect_retry_attempts: usize, reconnect_maximum_sleep: Duration, reconnect_initial_sleep: Duration) -> Self
+	pub const fn new(reset_retry_attempts: usize, reconnect_retry_attempts: usize, reconnect_maximum_sleep: Duration, reconnect_initial_sleep: Duration) -> Self
 	{
 		Self
 		{

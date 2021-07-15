@@ -103,19 +103,23 @@ use std::time::Duration;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
-pub(crate) mod attributes;
+/// Attributes.
+pub mod attributes;
 
 
-pub(crate) mod card_reader_name;
+/// Card reader name.
+pub mod card_reader_name;
 
 
-pub(crate) mod card_state;
+/// Card state.
+pub mod card_state;
 
 
 mod c;
 
 
-pub(crate) mod errors;
+/// Errors.
+pub mod errors;
 
 
 include!("AnswerToReset.rs");

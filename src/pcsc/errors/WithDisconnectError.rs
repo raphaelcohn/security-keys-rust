@@ -2,11 +2,14 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// An erro occurred that forced a disconnect of the card, which may also have errored.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) struct WithDisconnectError<E: error::Error>
+pub struct WithDisconnectError<E: error::Error>
 {
+	/// The error that originally occurred.
 	cause: E,
 	
+	/// If `Some()`, an error that occurred during disconnect of the card.
 	disconnect_error: Option<UnavailableOrCommunicationError>,
 }
 

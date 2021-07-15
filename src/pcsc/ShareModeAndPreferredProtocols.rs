@@ -2,21 +2,31 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// How to share the card and which protocols to use with it if shared or exclusive.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum ShareModeAndPreferredProtocols
+pub enum ShareModeAndPreferredProtocols
 {
+	/// Direct, protocol-less access.
+	///
+	/// This mode does not support transmitting Application Protocol Data Units (APDUs), only control codes.
+	///
+	/// Note that on Windows this gives exclusive access; on macos and Linux shared access!
 	Direct,
 
+	/// Exclusive access desired; the card must not be shared with anyone else.
 	Exclusive(PreferredProtocols),
-
+	
+	/// Shared access; other processes and threads can access the card, but transactions can be used to prevent this as needed.
 	Shared(PreferredProtocols),
 }
 
 impl ShareModeAndPreferredProtocols
 {
-	pub(crate) const ExclusiveAnyProtocol: Self = Self::Exclusive(PreferredProtocols::T0_or_T1);
+	/// Exclusive, any of `T=0` or `T=1` protocols.
+	pub const ExclusiveAnyProtocol: Self = Self::Exclusive(PreferredProtocols::T0_or_T1);
 	
-	pub(crate) const SharedAnyProtocol: Self = Self::Shared(PreferredProtocols::T0_or_T1);
+	/// Shared, any of `T=0` or `T=1` protocols.
+	pub const SharedAnyProtocol: Self = Self::Shared(PreferredProtocols::T0_or_T1);
 	
 	#[inline(always)]
 	fn into_DWORDs(self) -> (DWORD, DWORD, bool, bool)
