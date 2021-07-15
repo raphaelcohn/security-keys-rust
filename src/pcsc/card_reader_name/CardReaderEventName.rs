@@ -16,7 +16,7 @@ pub(crate) enum CardReaderEventName<'a>
 impl<'a> CardReaderEventName<'a>
 {
 	#[inline(always)]
-	fn raw_reader_name_or_special(self) -> *const c_char
+	pub(in crate::pcsc) fn raw_reader_name_or_special(self) -> *const c_char
 	{
 		use self::CardReaderEventName::*;
 		
@@ -29,7 +29,7 @@ impl<'a> CardReaderEventName<'a>
 	}
 	
 	#[inline(always)]
-	fn recreate(raw_reader_name_or_special: *const c_char) -> Self
+	pub(in crate::pcsc) fn recreate(raw_reader_name_or_special: *const c_char) -> Self
 	{
 		use self::CardReaderEventName::*;
 		
@@ -51,7 +51,7 @@ impl<'a> CardReaderEventName<'a>
 	}
 	
 	#[inline(always)]
-	fn state_change(self) -> CardReaderName<'a>
+	pub(in crate::pcsc) fn state_change(self) -> CardReaderName<'a>
 	{
 		use self::CardReaderEventName::*;
 		

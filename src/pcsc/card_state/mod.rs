@@ -1,0 +1,70 @@
+// This file is part of security-keys-rust. It is subject to the license terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT. No part of security-keys-rust, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+// Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
+
+
+use super::AnswerToReset;
+use super::Timeout;
+use super::c::constants::PCSCLITE_MAX_READERS_CONTEXTS;
+use super::c::constants::SCARD_ABSENT;
+use super::c::constants::SCARD_E_CANCELLED;
+use super::c::constants::SCARD_E_INVALID_HANDLE;
+use super::c::constants::SCARD_E_INVALID_PARAMETER;
+use super::c::constants::SCARD_E_INVALID_VALUE;
+use super::c::constants::SCARD_E_NO_MEMORY;
+use super::c::constants::SCARD_E_NO_SERVICE;
+use super::c::constants::SCARD_E_NO_SMARTCARD;
+use super::c::constants::SCARD_E_READER_UNAVAILABLE;
+use super::c::constants::SCARD_E_TIMEOUT;
+use super::c::constants::SCARD_E_UNKNOWN_READER;
+use super::c::constants::SCARD_F_COMM_ERROR;
+use super::c::constants::SCARD_F_INTERNAL_ERROR;
+use super::c::constants::SCARD_NEGOTIABLE;
+use super::c::constants::SCARD_POWERED;
+use super::c::constants::SCARD_PRESENT;
+use super::c::constants::SCARD_S_SUCCESS;
+use super::c::constants::SCARD_SPECIFIC;
+use super::c::constants::SCARD_STATE_CHANGED;
+use super::c::constants::SCARD_STATE_EMPTY;
+use super::c::constants::SCARD_STATE_EXCLUSIVE;
+use super::c::constants::SCARD_STATE_IGNORE;
+use super::c::constants::SCARD_STATE_INUSE;
+use super::c::constants::SCARD_STATE_MUTE;
+use super::c::constants::SCARD_STATE_PRESENT;
+use super::c::constants::SCARD_STATE_UNAVAILABLE;
+use super::c::constants::SCARD_STATE_UNAWARE;
+use super::c::constants::SCARD_STATE_UNKNOWN;
+use super::c::constants::SCARD_SWALLOWED;
+use super::c::constants::SCARD_UNKNOWN;
+use super::c::constants::SCARD_W_REMOVED_CARD;
+use super::c::constants::SCARD_W_UNPOWERED_CARD;
+use super::c::constants::SCARD_W_UNRESPONSIVE_CARD;
+use super::c::functions::SCardGetStatusChange;
+use super::c::fundamental_types::DWORD;
+use super::c::types::SCARDCONTEXT;
+use super::c::types::SCARD_READERSTATE;
+use super::card_reader_name::CardReaderEventName;
+use super::errors::CardReaderStatusChangeError;
+use super::errors::CommunicationError;
+use super::errors::UnavailableError;
+use super::errors::UnavailableOrCommunicationError;
+use arrayvec::ArrayVec;
+use libc::c_void;
+use likely::likely;
+use likely::unlikely;
+use std::collections::HashSet;
+use std::marker::PhantomData;
+use std::mem::transmute;
+use std::ptr::null_mut;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+use swiss_army_knife::get_unchecked::GetUnchecked;
+use swiss_army_knife::unsafe_initialization::unsafe_uninitialized;
+
+
+include!("CardReaderState.rs");
+include!("CardReaderStates.rs");
+include!("CardStatus.rs");
+include!("ChangeCardReaderStateNotification.rs");
+include!("InsertionsAndRemovalsCount.rs");
+include!("PresentExclusivity.rs");
+include!("StateChanged.rs");

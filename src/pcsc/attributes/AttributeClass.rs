@@ -9,23 +9,33 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
 pub(crate) enum AttributeClass
 {
+	#[allow(dead_code)]
 	VendorInformation = SCARD_CLASS_VENDOR_INFO,
 	
+	#[allow(dead_code)]
 	Communications = SCARD_CLASS_COMMUNICATIONS,
 	
+	#[allow(dead_code)]
 	Protocol = SCARD_CLASS_PROTOCOL,
 	
+	#[allow(dead_code)]
 	PowerManagement = SCARD_CLASS_POWER_MGMT,
 	
+	#[allow(dead_code)]
 	Security = SCARD_CLASS_SECURITY,
 	
+	#[allow(dead_code)]
 	Mechanical = SCARD_CLASS_MECHANICAL,
 	
+	#[allow(dead_code)]
 	VendorDefined = SCARD_CLASS_VENDOR_DEFINED,
 	
+	#[allow(dead_code)]
 	IfdProtocol = SCARD_CLASS_IFD_PROTOCOL,
 	
+	#[allow(dead_code)]
 	IccState = SCARD_CLASS_ICC_STATE,
 	
+	#[allow(dead_code)]
 	System = SCARD_CLASS_SYSTEM,
 }

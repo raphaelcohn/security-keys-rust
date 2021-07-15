@@ -2,4 +2,4 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-type CardReaderNamesBuffer = ArrayVec<u8, CardReaderNamesBufferMaximumSize>;
+pub(in crate::pcsc) type CardReaderNamesBuffer = ArrayVec<u8, CardReaderNamesBufferMaximumSize>;

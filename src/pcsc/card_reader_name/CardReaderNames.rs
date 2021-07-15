@@ -10,7 +10,7 @@ impl CardReaderNames
 	const ArrayEndMarkerIsEmptyCString: u8 = 0x00;
 	
 	#[inline(always)]
-	fn from_valid_buffer(mut reader_names: CardReaderNamesBuffer, reader_names_length: DWORD) -> Self
+	pub(in crate::pcsc) fn from_valid_buffer(mut reader_names: CardReaderNamesBuffer, reader_names_length: DWORD) -> Self
 	{
 		let reader_names_length = reader_names_length as usize;
 		debug_assert_ne!(reader_names_length, 0);
@@ -22,7 +22,7 @@ impl CardReaderNames
 	}
 	
 	#[inline(always)]
-	fn from_empty_buffer(mut reader_names: CardReaderNamesBuffer) -> Self
+	pub(in crate::pcsc) fn from_empty_buffer(mut reader_names: CardReaderNamesBuffer) -> Self
 	{
 		debug_assert_eq!(reader_names.len(), 0);
 		

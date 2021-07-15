@@ -39,7 +39,7 @@ impl CardStatus
 	
 	#[cfg(not(target_os = "windows"))]
 	#[inline(always)]
-	fn convert(enumeration_on_windows_and_bit_field_on_pcsclite: u16) -> HashSet<CardStatus>
+	pub(in crate::pcsc) fn convert(enumeration_on_windows_and_bit_field_on_pcsclite: u16) -> HashSet<CardStatus>
 	{
 		let raw_status = enumeration_on_windows_and_bit_field_on_pcsclite as DWORD;
 		let mut card_reader_statuses = HashSet::with_capacity(1);

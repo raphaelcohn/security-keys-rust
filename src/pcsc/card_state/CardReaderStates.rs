@@ -122,7 +122,7 @@ impl<'card_reader_names, UserData> CardReaderStates<'card_reader_names, UserData
 	}
 	
 	#[inline(always)]
-	fn get_status_change(&mut self, timeout: Timeout, context: SCARDCONTEXT) -> Result<(), CardReaderStatusChangeError>
+	pub(in crate::pcsc) fn get_status_change(&mut self, timeout: Timeout, context: SCARDCONTEXT) -> Result<(), CardReaderStatusChangeError>
 	{
 		let reader_states_length = self.0.len() as DWORD;
 		

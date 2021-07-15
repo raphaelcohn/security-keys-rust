@@ -73,7 +73,7 @@ impl<'a> CardReaderName<'a>
 	}
 	
 	#[inline(always)]
-	fn wrap_buffer(buffer: &'a [u8], null_index: usize) -> Self
+	pub(in crate::pcsc) fn wrap_buffer(buffer: &'a [u8], null_index: usize) -> Self
 	{
 		let bytes = buffer.get_unchecked_range_safe(0 .. null_index);
 		let length = bytes.len();
