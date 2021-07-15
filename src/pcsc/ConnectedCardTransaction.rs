@@ -78,13 +78,12 @@ impl ConnectedCardTransaction
 		let mut attribute_value: [MaybeUninit<u8>; Context::MaximumAttributeValueSize] = MaybeUninit::uninit_array();
 		let attribute_value_pointer = attribute_value.as_mut_ptr() as *mut u8;
 		let mut attribute_length;
-		let attribute_length_pointer = &mut attribute_length;
 		
 		let mut remaining_reset_retry_attempts = self.remaining_reset_retry_attempts();
 		loop
 		{
 			attribute_length = attribute_value.len() as DWORD;
-			let result = unsafe { SCardGetAttrib(handle, attribute_identifier, attribute_value_pointer, attribute_length_pointer) };
+			let result = unsafe { SCardGetAttrib(handle, attribute_identifier, attribute_value_pointer, &mut attribute_length) };
 			
 			if likely!(result == SCARD_S_SUCCESS)
 			{
@@ -271,13 +270,12 @@ impl ConnectedCardTransaction
 		let send_buffer_length = send_buffer_length as DWORD;
 		let receive_buffer_pointer = receive_buffer.as_mut_ptr() as *mut u8;
 		let mut receive_buffer_length;
-		let receive_buffer_length_pointer = &mut receive_buffer_length;
 		
 		let mut remaining_reset_retry_attempts = self.remaining_reset_retry_attempts();
 		loop
 		{
 			receive_buffer_length = receive_buffer_length_original as DWORD;
-			let result = unsafe { SCardTransmit(handle, pioSendPci, send_buffer_pointer, send_buffer_length, null_mut(), receive_buffer_pointer, receive_buffer_length_pointer) };
+			let result = unsafe { SCardTransmit(handle, pioSendPci, send_buffer_pointer, send_buffer_length, null_mut(), receive_buffer_pointer, &mut receive_buffer_length) };
 			
 			if likely!(result == SCARD_S_SUCCESS)
 			{

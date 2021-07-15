@@ -52,7 +52,6 @@ impl ConnectedCardOrTransaction for ConnectedCard
 		let mut reader_name: [MaybeUninit<u8>; MAX_READERNAME] = MaybeUninit::uninit_array();
 		let reader_name_pointer = reader_name.as_mut_ptr() as *mut c_char;
 		let mut read_name_length;
-		let reader_name_length_pointer = &mut read_name_length;
 		let mut state = MaybeUninit::uninit();
 		let state_pointer = state.as_mut_ptr();
 		let mut protocol = MaybeUninit::uninit();
@@ -60,14 +59,13 @@ impl ConnectedCardOrTransaction for ConnectedCard
 		let mut answer_to_reset: [MaybeUninit<u8>; ATR_BUFFER_SIZE] = MaybeUninit::uninit_array();
 		let answer_to_reset_pointer = answer_to_reset.as_mut_ptr() as *mut u8;
 		let mut answer_to_reset_length;
-		let answer_to_reset_length_pointer = &mut answer_to_reset_length;
 		
 		let mut remaining_reset_retry_attempts = self.remaining_reset_retry_attempts();
 		loop
 		{
 			read_name_length = MAX_READERNAME as DWORD;
 			answer_to_reset_length = ATR_BUFFER_SIZE as DWORD;
-			let result = unsafe { SCardStatus(self.handle, reader_name_pointer, reader_name_length_pointer, state_pointer, protocol_pointer, answer_to_reset_pointer, answer_to_reset_length_pointer) };
+			let result = unsafe { SCardStatus(self.handle, reader_name_pointer, &mut read_name_length, state_pointer, protocol_pointer, answer_to_reset_pointer, &mut answer_to_reset_length) };
 			
 			if likely!(result == SCARD_S_SUCCESS)
 			{
