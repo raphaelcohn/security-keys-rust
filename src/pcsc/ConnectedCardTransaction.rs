@@ -464,20 +464,20 @@ impl ConnectedCardTransaction
 		let connected_card = unsafe { read(&self.connected_card) };
 		drop(self);
 		
-		let card_disposition = if connected_card.is_shared
+		let (connected_card, card_disposition) = if connected_card.is_shared
 		{
-			Self::end_shared_and_disconnect_if_error_occurs(&connected_card, end_transaction_disposition)?;
-			CardDisposition::Leave
+			let connected_card = Self::end_shared_and_disconnect_if_error_occurs(connected_card, end_transaction_disposition)?;
+			(connected_card, CardDisposition::Leave)
 		}
 		else
 		{
-			end_transaction_disposition
+			(connected_card, end_transaction_disposition)
 		};
 		connected_card.disconnect(card_disposition).map_err(|disconnect_error| WithDisconnectError::new(TransactionError::from(disconnect_error), Ok(())))
 	}
 	
 	#[inline(always)]
-	fn end_shared_and_disconnect_if_error_occurs(connected_card: &ConnectedCard, end_transaction_disposition: CardDisposition) -> Result<(), WithDisconnectError<TransactionError>>
+	fn end_shared_and_disconnect_if_error_occurs(connected_card: ConnectedCard, end_transaction_disposition: CardDisposition) -> Result<ConnectedCard, WithDisconnectError<TransactionError>>
 	{
 		debug_assert!(connected_card.is_shared);
 		
@@ -488,7 +488,7 @@ impl ConnectedCardTransaction
 			
 			if likely!(result == SCARD_S_SUCCESS)
 			{
-				return Ok(())
+				return Ok(connected_card)
 			}
 			
 			use self::CardStatusError::*;
@@ -542,7 +542,10 @@ impl ConnectedCardTransaction
 	{
 		self.disposed = true;
 		
-		self.connected_card.disconnect_on_error(cause)
+		let connected_card = unsafe { read(&self.connected_card) };
+		drop(self);
+		
+		connected_card.disconnect_on_error(cause)
 	}
 	
 	#[inline(always)]

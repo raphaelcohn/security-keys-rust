@@ -181,11 +181,18 @@ impl ConnectedCard
 	#[inline(always)]
 	pub(crate) fn begin_transaction_or_disconnect(self) -> Result<ConnectedCardTransaction, WithDisconnectError<TransactionError>>
 	{
-		match self.begin_transaction()
+		if self.is_shared
 		{
-			Err(cause) => self.disconnect_on_error(cause),
-			
-			Ok(transaction) => Ok(transaction)
+			match self.begin_shared_transaction()
+			{
+				Err((this, cause)) => this.disconnect_on_error(cause),
+				
+				Ok(transaction) => Ok(transaction)
+			}
+		}
+		else
+		{
+			Ok(self.begun_transaction())
 		}
 	}
 	
@@ -194,16 +201,16 @@ impl ConnectedCard
 	{
 		if self.is_shared
 		{
-			self.begin_shared_transaction()
+			self.begin_shared_transaction().map_err(|(_, error)| error)
 		}
 		else
 		{
-			self.begun_transaction()
+			Ok(self.begun_transaction())
 		}
 	}
 	
 	#[inline(always)]
-	fn begin_shared_transaction(self) -> Result<ConnectedCardTransaction, TransactionError>
+	fn begin_shared_transaction(self) -> Result<ConnectedCardTransaction, (Self, TransactionError)>
 	{
 		debug_assert!(self.is_shared);
 		
@@ -213,7 +220,7 @@ impl ConnectedCard
 			let result = unsafe { SCardBeginTransaction(self.handle) };
 			if likely!(result == SCARD_S_SUCCESS)
 			{
-				return self.begun_transaction()
+				return Ok(self.begun_transaction())
 			}
 			
 			use self::CardStatusError::*;
@@ -227,7 +234,11 @@ impl ConnectedCard
 			{
 				SCARD_W_RESET_CARD if self.is_shared =>
 				{
-					remaining_reset_retry_attempts.card_was_reset::<TransactionError>(&self)?;
+					if let Err(error) = remaining_reset_retry_attempts.card_was_reset::<TransactionError>(&self)
+					{
+						return Err((self, error))
+					}
+					
 					continue
 				}
 				
@@ -256,14 +267,14 @@ impl ConnectedCard
 				_ => unreachable!("Undocumented error {} from SCardConnect()", result),
 			};
 			
-			return Err(error)
+			return Err((self, error))
 		}
 	}
 	
 	#[inline(always)]
-	fn begun_transaction(self) -> Result<ConnectedCardTransaction, TransactionError>
+	fn begun_transaction(self) -> ConnectedCardTransaction
 	{
-		Ok(ConnectedCardTransaction { connected_card: self, disposed: false })
+		ConnectedCardTransaction { connected_card: self, disposed: false }
 	}
 	
 	#[inline(always)]

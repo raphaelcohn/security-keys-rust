@@ -3,7 +3,7 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-enum Timeout
+pub(crate) enum Timeout
 {
 	Immediate,
 
