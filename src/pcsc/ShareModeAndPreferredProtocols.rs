@@ -14,6 +14,10 @@ pub(crate) enum ShareModeAndPreferredProtocols
 
 impl ShareModeAndPreferredProtocols
 {
+	pub(crate) const ExclusiveAnyProtocol: Self = Self::Exclusive(PreferredProtocols::T0_or_T1);
+	
+	pub(crate) const SharedAnyProtocol: Self = Self::Shared(PreferredProtocols::T0_or_T1);
+	
 	#[inline(always)]
 	fn into_DWORDs(self) -> (DWORD, DWORD, bool, bool)
 	{

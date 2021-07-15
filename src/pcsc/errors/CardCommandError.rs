@@ -39,11 +39,20 @@ impl error::Error for CardCommandError
 	}
 }
 
-impl From<CardConnectError> for CardCommandError
+impl From<CardStatusError> for CardCommandError
 {
 	#[inline(always)]
-	fn from(cause: CardConnectError) -> Self
+	fn from(cause: CardStatusError) -> Self
 	{
-		CardCommandError::CardTransmission(CardTransmissionError::ReconnectionUnavailableOrCommunication(ReconnectionUnavailableOrCommunicationError::Reconnection(cause)))
+		CardCommandError::CardTransmission(CardTransmissionError::CardStatus(cause))
+	}
+}
+
+impl From<ConnectCardError> for CardCommandError
+{
+	#[inline(always)]
+	fn from(cause: ConnectCardError) -> Self
+	{
+		CardCommandError::CardTransmission(CardTransmissionError::CardStatus(CardStatusError::ReconnectionUnavailableOrCommunication(ReconnectionUnavailableOrCommunicationError::Reconnection(cause))))
 	}
 }

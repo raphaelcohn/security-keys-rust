@@ -4,17 +4,14 @@
 
 /// None of these errors can occur if the reader states are empty or consist entirely of ignored values.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum CardConnectError
+pub(crate) enum TransactionError
 {
-	PreferredProtocolsUnsupported,
+	SharingViolation,
 	
-	/// Only occurs if it is impossible to obtain shared access.
-	GivingUpAsCanNotGetSharedAccess,
-	
-	UnavailableOrCommunication(UnavailableOrCommunicationError),
+	CardStatus(CardStatusError),
 }
 
-impl Display for CardConnectError
+impl Display for TransactionError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -23,18 +20,45 @@ impl Display for CardConnectError
 	}
 }
 
-impl error::Error for CardConnectError
+impl error::Error for TransactionError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::CardConnectError::*;
+		use self::TransactionError::*;
 		
 		match self
 		{
-			UnavailableOrCommunication(cause) => Some(cause),
+			CardStatus(cause) => Some(cause),
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<ConnectCardError> for TransactionError
+{
+	#[inline(always)]
+	fn from(cause: ConnectCardError) -> Self
+	{
+		TransactionError::CardStatus(CardStatusError::ReconnectionUnavailableOrCommunication(ReconnectionUnavailableOrCommunicationError::Reconnection(cause)))
+	}
+}
+
+impl From<CardStatusError> for TransactionError
+{
+	#[inline(always)]
+	fn from(cause: CardStatusError) -> Self
+	{
+		TransactionError::CardStatus(cause)
+	}
+}
+
+impl From<UnavailableOrCommunicationError> for TransactionError
+{
+	#[inline(always)]
+	fn from(cause: UnavailableOrCommunicationError) -> Self
+	{
+		TransactionError::CardStatus(CardStatusError::ReconnectionUnavailableOrCommunication(ReconnectionUnavailableOrCommunicationError::UnavailableOrCommunication(cause)))
 	}
 }

@@ -161,7 +161,7 @@ impl<'card_reader_names, UserData> CardReaderStates<'card_reader_names, UserData
 			
 			SCARD_F_COMM_ERROR => UnavailableOrCommunication(Communication(InternalCommunications)),
 			
-			SCARD_F_INTERNAL_ERROR => panic!("Internal error"),
+			SCARD_F_INTERNAL_ERROR => UnavailableOrCommunication(Communication(InternalError)),
 			
 			SCARD_E_INVALID_PARAMETER => unreachable!("Null reader states and non-zero reader_states_length, or more reader_states than PCSCLITE_MAX_READERS_CONTEXTS"),
 			

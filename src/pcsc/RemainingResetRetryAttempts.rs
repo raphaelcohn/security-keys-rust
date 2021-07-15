@@ -2,16 +2,23 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Length will not exceed `MAX_ATR_SIZE`.
-pub(super) struct AnswerToReset<'atr_buf>(&'atr_buf [u8]);
+#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+struct RemainingResetRetryAttempts(usize);
 
-impl<'atr_buf> Deref for AnswerToReset<'atr_buf>
+impl RemainingResetRetryAttempts
 {
-	type Target = [u8];
-	
 	#[inline(always)]
-	fn deref(&self) -> &Self::Target
+	fn card_was_reset<E: error::Error + From<ConnectCardError> + From<CardStatusError>>(&mut self, connected_card: &ConnectedCard) -> Result<(), E>
 	{
-		self.0
+		let remaining_retry_attempts = self.0;
+		if unlikely!(remaining_retry_attempts == 0)
+		{
+			return Err(E::from(CardStatusError::TooManyResets))
+		}
+		self.0 = remaining_retry_attempts - 1;
+		
+		connected_card.reconnect()?;
+		
+		Ok(())
 	}
 }

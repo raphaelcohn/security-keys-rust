@@ -2,20 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub(crate) enum CardReaderNameError
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub(crate) struct WithDisconnectError<E: error::Error>
 {
-	/// A reader name may not be an empty C string.
-	Empty,
-
-	/// A reader name may not exceed 128 bytes, including the trailing ASCII NULL.
-	TooLong(usize),
-
-	/// When constructing from bytes, the bytes contained an ASCII NUL.
-	Nul(NulError),
+	cause: E,
+	
+	disconnect_error: Option<UnavailableOrCommunicationError>,
 }
 
-impl Display for CardReaderNameError
+impl<E: error::Error> Display for WithDisconnectError<E>
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -24,18 +19,25 @@ impl Display for CardReaderNameError
 	}
 }
 
-impl error::Error for CardReaderNameError
+impl<E: 'static + error::Error> error::Error for WithDisconnectError<E>
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::CardReaderNameError::*;
-		
-		match self
+		Some(&self.cause)
+	}
+}
+
+impl<E: error::Error> WithDisconnectError<E>
+{
+	#[inline(always)]
+	pub(crate) fn new(cause: E, disconnect_error: Result<(), UnavailableOrCommunicationError>) -> Self
+	{
+		Self
 		{
-			Nul(cause) => Some(cause),
-			
-			_ => None,
+			cause,
+		
+			disconnect_error: disconnect_error.err(),
 		}
 	}
 }

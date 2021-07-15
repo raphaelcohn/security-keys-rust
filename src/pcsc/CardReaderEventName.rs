@@ -5,7 +5,7 @@
 /// A reader name should be 128 bytes, including the trailing ASCII NULL.
 ///
 /// There are latent bugs in PCSC that permit a reader name of 128 bytes *excluding* the trailing ASCII NULL.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) enum CardReaderEventName<'a>
 {
 	StateChange(CardReaderName<'a>),
@@ -48,5 +48,18 @@ impl<'a> CardReaderEventName<'a>
 	{
 		static PlugAndPlayNotification: &'static [u8] = b"\\\\?PnP?\\Notification\0";
 		PlugAndPlayNotification.as_ptr() as *const c_char
+	}
+	
+	#[inline(always)]
+	fn state_change(self) -> CardReaderName<'a>
+	{
+		use self::CardReaderEventName::*;
+		
+		match self
+		{
+			StateChange(state_change) => state_change,
+			
+			AddedOrRemoved => panic!("Was not StateChange"),
+		}
 	}
 }

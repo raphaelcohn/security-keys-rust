@@ -3,16 +3,32 @@
 
 
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq)]
-pub(crate) struct CardReaderNames(Option<Buffer>);
+pub(crate) struct CardReaderNames(CardReaderNamesBuffer);
 
 impl CardReaderNames
 {
-	const Empty: Self = Self(None);
+	const ArrayEndMarkerIsEmptyCString: u8 = 0x00;
 	
 	#[inline(always)]
-	const fn new(buffer: Buffer) -> Self
+	fn from_valid_buffer(mut reader_names: CardReaderNamesBuffer, reader_names_length: DWORD) -> Self
 	{
-		Self(Some(buffer))
+		let reader_names_length = reader_names_length as usize;
+		debug_assert_ne!(reader_names_length, 0);
+		
+		unsafe { reader_names.set_len(reader_names_length) };
+		
+		debug_assert_eq!(reader_names.get_unchecked_value_safe(reader_names_length - 1), Self::ArrayEndMarkerIsEmptyCString, "reader_names array of CStrings is not terminated by an empty CString");
+		Self(reader_names)
+	}
+	
+	#[inline(always)]
+	fn from_empty_buffer(mut reader_names: CardReaderNamesBuffer) -> Self
+	{
+		debug_assert_eq!(reader_names.len(), 0);
+		
+		unsafe { reader_names.set_len(1) };
+		reader_names.set_unchecked_mut_safe(0, Self::ArrayEndMarkerIsEmptyCString);
+		return Self(reader_names)
 	}
 	
 	#[inline(always)]
@@ -55,16 +71,7 @@ impl CardReaderNames
 	#[inline(always)]
 	fn slice(&self) -> &[u8]
 	{
-		match self.0
-		{
-			None =>
-			{
-				static NoReadersAvailable: &'static [u8] = b"\0";
-				NoReadersAvailable
-			}
-			
-			Some(ref buffer) => buffer.buffer.as_slice(),
-		}
+		self.0.as_slice()
 	}
 	
 	#[inline(always)]

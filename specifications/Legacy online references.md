@@ -10,3 +10,4 @@
 * Legacy OIDs reference
     * <https://oidref.com/1.0.7816>
 * Some card data tags: <https://stackoverflow.com/questions/37640130/get-data-apdu-command-different-tags-and-response-format> 
+* Some additional information <https://www.ukessays.com/essays/information-technology/introduction-to-the-smart-card-information-technology-essay.php>.

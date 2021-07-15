@@ -5,19 +5,52 @@
 /// A card reader name should be 128 bytes, including the trailing ASCII NULL.
 ///
 /// There are latent bugs in PCSC that permit a reader name of 128 bytes *excluding* the trailing ASCII NULL.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) struct CardReaderName<'a>(&'a CStr);
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub(crate) struct CardReaderName<'a>(Cow<'a, CStr>);
 
 impl<'a> TryFrom<&'a CStr> for CardReaderName<'a>
 {
 	type Error = CardReaderNameError;
 	
 	#[inline(always)]
-	fn try_from(c_string: &'a CStr) -> Result<Self, Self::Error>
+	fn try_from(c_str: &'a CStr) -> Result<Self, Self::Error>
+	{
+		Self::validate(c_str)?;
+		Ok(Self::borrow(c_str))
+	}
+}
+
+impl TryFrom<CString> for CardReaderName<'static>
+{
+	type Error = CardReaderNameError;
+	
+	#[inline(always)]
+	fn try_from(c_string: CString) -> Result<Self, Self::Error>
+	{
+		Self::validate(c_string.as_c_str())?;
+		Ok(Self(Cow::Owned(c_string)))
+	}
+}
+
+impl<'a> Deref for CardReaderName<'a>
+{
+	type Target = CStr;
+	
+	#[inline(always)]
+	fn deref(&self) -> &Self::Target
+	{
+		self.0.borrow()
+	}
+}
+
+impl<'a> CardReaderName<'a>
+{
+	#[inline(always)]
+	fn validate(c_str: &CStr) -> Result<(), CardReaderNameError>
 	{
 		use self::CardReaderNameError::*;
 		
-		let bytes = c_string.to_bytes_with_nul();
+		let bytes = c_str.to_bytes_with_nul();
 		let length = bytes.len();
 		if unlikely!(length == 0)
 		{
@@ -29,13 +62,10 @@ impl<'a> TryFrom<&'a CStr> for CardReaderName<'a>
 		}
 		else
 		{
-			Ok(Self(c_string))
+			Ok(())
 		}
 	}
-}
-
-impl<'a> CardReaderName<'a>
-{
+	
 	#[inline(always)]
 	fn as_ptr(&self) -> *const c_char
 	{
@@ -53,12 +83,41 @@ impl<'a> CardReaderName<'a>
 		debug_assert_ne!(length, 1);
 		debug_assert_eq!(bytes.get_unchecked_value_safe(length - 1), 0x00);
 		
-		Self(unsafe { CStr::from_bytes_with_nul_unchecked(bytes) })
+		Self::borrow(unsafe { CStr::from_bytes_with_nul_unchecked(bytes) })
 	}
 	
 	#[inline(always)]
 	fn new_unchecked(bytes: *const c_char) -> Self
 	{
-		Self(unsafe { CStr::from_ptr(bytes) })
+		Self::borrow(unsafe { CStr::from_ptr(bytes) })
+	}
+	
+	#[inline(always)]
+	fn borrow(c_str: &'a CStr) -> Self
+	{
+		Self(Cow::Borrowed(c_str))
+	}
+	
+	#[inline(always)]
+	pub(crate) fn into_owned(self) -> CardReaderName<'static>
+	{
+		CardReaderName(Cow::Owned(self.0.into_owned()))
+	}
+	
+	#[inline(always)]
+	pub(crate) fn into_c_string(self) -> CString
+	{
+		self.0.into_owned()
+	}
+}
+
+impl CardReaderName<'static>
+{
+	/// See <https://doc.rust-lang.org/std/ffi/struct.CString.html#method.new> for similar usages.
+	#[inline(always)]
+	pub(crate) fn new<T: Into<Vec<u8>>>(t: T) -> Result<Self, CardReaderNameError>
+	{
+		let c_string = CString::new(t).map_err(CardReaderNameError::Nul)?;
+		Self::try_from(c_string)
 	}
 }

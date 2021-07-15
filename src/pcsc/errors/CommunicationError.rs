@@ -15,6 +15,9 @@ pub(crate) enum CommunicationError
 	///
 	/// eg the daemon supports a different version of the internal message protocol used by pcsc's client.
 	InternalCommunications,
+	
+	/// An unspecified communication failure.
+	InternalError,
 }
 
 impl Display for CommunicationError

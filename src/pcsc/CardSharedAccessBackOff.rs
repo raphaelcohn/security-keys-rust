@@ -5,40 +5,63 @@
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) struct CardSharedAccessBackOff
 {
-	remaining_retry_attempts: usize,
+	reset_retry_attempts: usize,
 	
-	maximum_sleep_nanoseconds: NonZeroU64,
+	remaining_reconnect_retry_attempts: usize,
 	
-	current_sleep_nanoseconds: NonZeroU64,
+	reconnect_maximum_sleep: Duration,
+	
+	reconnect_current_sleep: Duration,
+}
+
+impl Default for CardSharedAccessBackOff
+{
+	#[inline(always)]
+	fn default() -> Self
+	{
+		Self::Default
+	}
 }
 
 impl CardSharedAccessBackOff
 {
+	pub(crate) const Default: Self = Self::new(3, 5, Duration::from_secs(1), Duration::from_millis(1));
+	
 	#[inline(always)]
-	pub(crate) const fn new(remaining_retry_attempts: usize, maximum_sleep_nanoseconds: NonZeroU64, initial_sleep_nanoseconds: NonZeroU64) -> Self
+	pub(crate) const fn new(reset_retry_attempts: usize, reconnect_retry_attempts: usize, reconnect_maximum_sleep: Duration, reconnect_initial_sleep: Duration) -> Self
 	{
 		Self
 		{
-			remaining_retry_attempts,
+			reset_retry_attempts,
 			
-			maximum_sleep_nanoseconds,
+			remaining_reconnect_retry_attempts: reconnect_retry_attempts,
+			
+			reconnect_maximum_sleep,
 		
-			current_sleep_nanoseconds: initial_sleep_nanoseconds,
+			reconnect_current_sleep: reconnect_initial_sleep,
 		}
 	}
 	
 	#[inline(always)]
-	fn sleep(&mut self) -> bool
+	const fn remaining_reset_retry_attempts(&self) -> RemainingResetRetryAttempts
 	{
-		self.remaining_retry_attempts = match self.remaining_retry_attempts.checked_sub(1)
+		RemainingResetRetryAttempts(self.reset_retry_attempts)
+	}
+	
+	#[inline(always)]
+	fn reconnect_back_off_and_sleep(&mut self) -> Result<(), ConnectCardError>
+	{
+		self.remaining_reconnect_retry_attempts = match self.remaining_reconnect_retry_attempts.checked_sub(1)
 		{
-			None => return false,
+			None => return Err(ConnectCardError::GivingUpAsCanNotGetSharedAccess),
 			
 			Some(remaining_attempts) => remaining_attempts,
 		};
-		let current_sleep_nanoseconds = max(self.maximum_sleep_nanoseconds.get(), self.current_sleep_nanoseconds.get().saturating_mul(2));
-		sleep(Duration::from_nanos(current_sleep_nanoseconds));
-		self.current_sleep_nanoseconds = new_non_zero_u64(current_sleep_nanoseconds);
-		true
+		
+		const DoubleSleepForEachRetry: u32 = 2;
+		let current_sleep = max(self.reconnect_maximum_sleep, self.reconnect_current_sleep.saturating_mul(DoubleSleepForEachRetry));
+		sleep(current_sleep);
+		self.reconnect_current_sleep = current_sleep;
+		Ok(())
 	}
 }

@@ -29,6 +29,8 @@ impl Drop for ContextInner
 				
 				SCARD_F_COMM_ERROR => InternalCommunications,
 				
+				SCARD_F_INTERNAL_ERROR => InternalError,
+				
 				SCARD_E_INVALID_HANDLE => unreachable!("Invalid context handle"),
 				
 				_ => unreachable!("Undocumented error {} from SCardReleaseContext()", result),

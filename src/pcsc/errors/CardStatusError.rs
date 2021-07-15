@@ -6,7 +6,7 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) enum CardStatusError
 {
-	TooManyRetries,
+	TooManyResets,
 	
 	ReconnectionUnavailableOrCommunication(ReconnectionUnavailableOrCommunicationError),
 }
@@ -36,10 +36,10 @@ impl error::Error for CardStatusError
 	}
 }
 
-impl From<CardConnectError> for CardStatusError
+impl From<ConnectCardError> for CardStatusError
 {
 	#[inline(always)]
-	fn from(cause: CardConnectError) -> Self
+	fn from(cause: ConnectCardError) -> Self
 	{
 		CardStatusError::ReconnectionUnavailableOrCommunication(ReconnectionUnavailableOrCommunicationError::Reconnection(cause))
 	}

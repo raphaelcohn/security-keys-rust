@@ -2,61 +2,39 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[allow(missing_docs)]
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub(super) enum ActivityError
+/// None of these errors can occur if the reader states are empty or consist entirely of ignored values.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub(crate) enum ConnectCardError
 {
-	Context(ContextError),
+	PreferredProtocolsUnsupported,
 	
-	NoYubicoReaderPresent,
+	/// Only occurs if it is impossible to obtain shared access.
+	GivingUpAsCanNotGetSharedAccess,
 	
-	NoSmartCardPresent,
-	
-	Card(CardError),
+	UnavailableOrCommunication(UnavailableOrCommunicationError),
 }
 
-impl Display for ActivityError
+impl Display for ConnectCardError
 {
+	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
 		Debug::fmt(self, f)
 	}
 }
 
-impl error::Error for ActivityError
+impl error::Error for ConnectCardError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::ActivityError::*;
+		use self::ConnectCardError::*;
 		
 		match self
 		{
-			Context(cause) => Some(cause),
+			UnavailableOrCommunication(cause) => Some(cause),
 			
-			NoYubicoReaderPresent => None,
-			
-			NoSmartCardPresent => None,
-			
-			Card(cause) => Some(cause),
+			_ => None,
 		}
-	}
-}
-
-impl From<ContextError> for ActivityError
-{
-	#[inline(always)]
-	fn from(cause: ContextError) -> Self
-	{
-		ActivityError::Context(cause)
-	}
-}
-
-impl From<CardError> for ActivityError
-{
-	#[inline(always)]
-	fn from(cause: CardError) -> Self
-	{
-		ActivityError::Card(cause)
 	}
 }

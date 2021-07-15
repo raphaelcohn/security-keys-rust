@@ -8,7 +8,7 @@ pub(crate) enum CardTransmissionError
 {
 	DataExchangeWithCardFailed,
 	
-	ReconnectionUnavailableOrCommunication(ReconnectionUnavailableOrCommunicationError),
+	CardStatus(CardStatusError),
 }
 
 impl Display for CardTransmissionError
@@ -29,18 +29,27 @@ impl error::Error for CardTransmissionError
 		
 		match self
 		{
-			ReconnectionUnavailableOrCommunication(cause) => Some(cause),
+			CardStatus(cause) => Some(cause),
 			
 			_ => None,
 		}
 	}
 }
 
-impl From<CardConnectError> for CardTransmissionError
+impl From<CardStatusError> for CardTransmissionError
 {
 	#[inline(always)]
-	fn from(cause: CardConnectError) -> Self
+	fn from(cause: CardStatusError) -> Self
 	{
-		CardTransmissionError::ReconnectionUnavailableOrCommunication(ReconnectionUnavailableOrCommunicationError::Reconnection(cause))
+		CardTransmissionError::CardStatus(cause)
+	}
+}
+
+impl From<ConnectCardError> for CardTransmissionError
+{
+	#[inline(always)]
+	fn from(cause: ConnectCardError) -> Self
+	{
+		CardTransmissionError::CardStatus(CardStatusError::ReconnectionUnavailableOrCommunication(ReconnectionUnavailableOrCommunicationError::Reconnection(cause)))
 	}
 }

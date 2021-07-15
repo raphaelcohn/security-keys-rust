@@ -2,14 +2,13 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use super::CardOrTransactionExt;
-use crate::open_pgp::ApplicationIdentifier;
-use crate::open_pgp::Sex;
 use self::response_code::ResponseCode;
 use super::CardError;
-use super::VecExt;
+use super::CardOrTransactionExt;
+use crate::VecExt;
+use crate::open_pgp::ApplicationIdentifier;
+use crate::open_pgp::Sex;
 use likely::unlikely;
-use pcsc::MAX_BUFFER_SIZE_EXTENDED;
 use std::borrow::Cow;
 use std::collections::TryReserveError;
 #[allow(deprecated)] use std::mem::uninitialized;

@@ -5,7 +5,7 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) enum ReconnectionUnavailableOrCommunicationError
 {
-	Reconnection(CardConnectError),
+	Reconnection(ConnectCardError),
 	
 	UnavailableOrCommunication(UnavailableOrCommunicationError),
 }
@@ -35,10 +35,10 @@ impl error::Error for ReconnectionUnavailableOrCommunicationError
 	}
 }
 
-impl From<CardConnectError> for ReconnectionUnavailableOrCommunicationError
+impl From<ConnectCardError> for ReconnectionUnavailableOrCommunicationError
 {
 	#[inline(always)]
-	fn from(cause: CardConnectError) -> Self
+	fn from(cause: ConnectCardError) -> Self
 	{
 		ReconnectionUnavailableOrCommunicationError::Reconnection(cause)
 	}

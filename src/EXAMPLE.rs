@@ -2,45 +2,49 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-// See <https://crates.io/crates/openpgp-card>
+// See also <https://crates.io/crates/openpgp-card>
 #[allow(missing_docs)]
 fn EXAMPLE() -> Result<(), ActivityError>
 {
-	let yubico_reader_name = CString::new("Yubico Yubikey 4 OTP U2F CCID").unwrap();
+	let card_shared_access_back_off = CardSharedAccessBackOff::default();
+	let reconnect_card_disposition = CardDisposition::Leave;
+	let share_mode_and_preferred_protocols = ShareModeAndPreferredProtocols::SharedAnyProtocol;
 	
-	let context = Context::new_user_scope()?;
-	let yubico_present = context.use_reader_names(|reader_names|
+	let context = Context::establish_activity(Scope::System)?;
+	context.initial_card_reader_states_activity(|card_reader_name, insertions_and_removals_count, card_reader_state|
 	{
-		for reader_name in reader_names
-		{
-			if reader_name == yubico_reader_name.as_c_str()
-			{
-				return true
-			}
-		}
-		false
+		println!("Card Reader Name: {} with {} insertions or removals and state {:?}", card_reader_name.into_c_string().into_string().unwrap(), insertions_and_removals_count, card_reader_state);
 	})?;
+	let card_reader_name = CardReaderName::new(b"Yubico Yubikey 4 OTP U2F CCID" as &[u8])?;
+	let connected_card = context.connect_card_activity(card_shared_access_back_off, reconnect_card_disposition, &card_reader_name, share_mode_and_preferred_protocols)?;
 	
-	if !yubico_present
+	println!("Active Protocol: {:?}", connected_card.active_protocol());
+	
+	let (connected_card, status) = connected_card.status_or_disconnect_activity(|card_reader_name, insertions_and_removals_count, card_status, active_protocol, answer_to_reset|
 	{
-		return Err(ActivityError::NoYubicoReaderPresent)
-	}
-	
-	let mut card = context.connect_to_card_reader_shared(&yubico_reader_name)?.ok_or(ActivityError::NoSmartCardPresent)?;
-	
-	card.get_status(|_reader_names, _protocol, _answer_to_reset|
-	{
+		println!("Card Reader Name: {} with {} insertions or removals, state {:?}, active protocol {:?} and answer to reset {:?}", card_reader_name.into_c_string().into_string().unwrap(), insertions_and_removals_count, card_status, active_protocol, answer_to_reset);
 	})?;
+	println!("Status: {:?}", status);
 	
-	card.start_transaction(|transaction|
-	{
-		transaction.get_status(|_reader_names, _protocol, _answer_to_reset|
-		{
-		})?;
+	let transaction = connected_card.begin_transaction_or_disconnect_activity()?;
+	
+	let attribute_identifier = AttributeIdentifier::ChannelIdentifier;
+	
+	let (transaction, _attribute) = transaction.get_attribute_or_disconnect_activity(attribute_identifier, |attribute_value| {
 		
-		
-		Ok(())
+		println!("Attribute value {:?}", attribute_value)
 	})?;
+	
+	let attribute_value = ArrayVec::new_const();
+	let (transaction, _exists) = transaction.set_attribute_or_disconnect_activity(attribute_identifier, &attribute_value)?;
+	
+	let send_buffer = Vec::new();
+	let mut receive_buffer = Vec::new_buffer(Context::MaximumExtendedSendOrReceiveBufferSize).unwrap();
+	let (transaction, _received) = transaction.transmit_application_protocol_data_unit_or_disconnect_activity(&send_buffer, &mut receive_buffer)?;
+	
+	transaction.end_activity(CardDisposition::ColdReset)?;
+	
+	drop(context);
 	
 	Ok(())
 }
