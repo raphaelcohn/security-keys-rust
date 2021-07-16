@@ -131,6 +131,7 @@ use libloading::{Library, Symbol};
 use std::fmt::{Display, Formatter, Debug};
 use std::{fmt, error};
 use crate::ifdhandler::c::types::{RESPONSECODE, DWORD};
+use std::mem::forget;
 
 
 pub(in crate::ifdhandler) mod constants;
@@ -145,7 +146,5 @@ pub(in crate::ifdhandler) mod structs;
 pub(in crate::ifdhandler) mod types;
 
 
-
-
 include!("DriverLocation.rs");
-include!("IFDHandler.rs");
+include!("RawSymbol.rs");

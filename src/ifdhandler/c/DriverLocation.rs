@@ -142,8 +142,26 @@ impl DriverLocation
 		}
 		
 		let library = unsafe { Library::new(library_file_path)? };
-		let IFDHCloseChannel: Symbol<unsafe extern fn(DWORD) -> RESPONSECODE> = Self::get_symbol(&library, b"IFDHCloseChannel\0")?;
-		let IFDHControl: Symbol<unsafe extern fn(DWORD, DWORD, *mut u8, DWORD, *mut u8, DWORD, *mut DWORD) -> RESPONSECODE> = Self::get_symbol(&library, b"IFDHControl\0")?;
+		
+		struct Driver
+		{
+			IFDHCloseChannel: RawSymbol<unsafe extern fn(DWORD) -> RESPONSECODE>,
+			
+			IFDHControl: RawSymbol<unsafe extern fn(DWORD, DWORD, *mut u8, DWORD, *mut u8, DWORD, *mut DWORD) -> RESPONSECODE>
+		}
+		
+		let driver = Driver
+		{
+			IFDHCloseChannel: Self::get_symbol(&library, b"IFDHCloseChannel\0")?,
+			
+			IFDHControl: Self::get_symbol(&library, b"IFDHControl\0")?,
+		};
+		
+		// TODO: More of these symbol functions
+		
+		forget(library);
+		
+		Ok(x)
 	}
 	
 	fn parse_remaining_info_plist_fields(dict: Dictionary) -> Result<(u32, Vec<(u16, u16, String)>), LoadDriverError>
@@ -237,11 +255,17 @@ impl DriverLocation
 		u32::parse_hexadecimal_number_upper_or_lower_case_with_0x_prefix(hexadecimal_bytes).map_err(error_prefix)
 	}
 	
-	fn get_symbol<'lib, T>(library: &'lib Library, symbol: &'static [u8]) -> Result<Symbol<T>, LoadDriverError>
+	fn get_symbol<T>(library: &Library, symbol: &[u8]) -> Result<RawSymbol<T>, LoadDriverError>
 	{
 		let last_index = symbol.len() - 1;
 		debug_assert_eq!(symbol.get(last_index), 0x00);
-		(unsafe { library.get(b"IFDHCloseChannel\0") }).map_err(|cause| LoadDriverError::GetSymbol { cause, symbol_name: &symbol[ .. last_index] })
+		
+		match unsafe { library.get(symbol) }
+		{
+			Ok(symbol) => Ok(unsafe { symbol.into_raw() }),
+			
+			Err(cause) => Err(LoadDriverError::GetSymbol { cause, symbol_name: &symbol[ .. last_index] })
+		}
 	}
 }
 
