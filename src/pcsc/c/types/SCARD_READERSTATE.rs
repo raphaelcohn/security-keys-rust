@@ -4,8 +4,8 @@
 
 /// * [pcsclite](https://pcsclite.apdu.fr/api/group__API.html#ga33247d5d1257d59e55647c3bb717db24)
 /// * [MSDN](https://msdn.microsoft.com/en-us/library/aa379808.aspx)
-#[cfg_attr(not(target_os = "macos"), repr(C))]
-#[cfg_attr(target_os = "macos", repr(C, packed))]
+#[cfg_attr(not(any(target_os = "ios", target_os = "macos")), repr(C))]
+#[cfg_attr(any(target_os = "ios", target_os = "macos"), repr(C, packed))]
 pub(in crate::pcsc) struct SCARD_READERSTATE
 {
 	pub(in crate::pcsc) szReader: *const c_char,

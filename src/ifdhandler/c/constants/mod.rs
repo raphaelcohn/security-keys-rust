@@ -2,11 +2,11 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[cfg_attr(not(any(target_os = "ios", target_os = "macos")), repr(C))]
-#[cfg_attr(any(target_os = "ios", target_os = "macos"), repr(C, packed))]
-pub(in crate::pcsc) struct SCARD_IO_REQUEST
-{
-	dwProtocol: DWORD,
-	
-	cbPciLength: DWORD,
-}
+pub(in crate::ifdhandler) mod response_codes;
+
+
+include!("IFD_HVERSION_.rs");
+include!("IFD_NEGOTIATE_.rs");
+include!("IFD_power.rs");
+include!("MAX_ATR_SIZE.rs");
+include!("TAG_IFD_.rs");

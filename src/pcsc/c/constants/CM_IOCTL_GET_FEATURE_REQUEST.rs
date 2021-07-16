@@ -2,11 +2,5 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[cfg_attr(not(any(target_os = "ios", target_os = "macos")), repr(C))]
-#[cfg_attr(any(target_os = "ios", target_os = "macos"), repr(C, packed))]
-pub(in crate::pcsc) struct SCARD_IO_REQUEST
-{
-	dwProtocol: DWORD,
-	
-	cbPciLength: DWORD,
-}
+/// On Windows, this value is 0x313520.
+pub(in crate::pcsc) const CM_IOCTL_GET_FEATURE_REQUEST: DWORD = SCARD_CTL_CODE(3400);

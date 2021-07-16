@@ -72,8 +72,6 @@ impl ConnectedCardTransaction
 	}
 	
 	/// Returns `None` if the attribute is unsupported.
-	///
-	/// The CCID project at <https://salsa.debian.org/rousseau/CCID.git> contains a partial list of attribute value formats in [`SCARDGETATTRIB.txt`](https://salsa.debian.org/rousseau/CCID/-/blob/master/SCARDGETATTRIB.txt).
 	#[inline(always)]
 	pub fn get_attribute<AttributeUser: for <'a> FnOnce(&'a [u8]) -> R, R>(&self, attribute_identifier: AttributeIdentifier, attribute_user: AttributeUser) -> Result<Option<R>, CardTransmissionError>
 	{
@@ -371,8 +369,6 @@ impl ConnectedCardTransaction
 	/// Sends a command directly to the IFD Handler (Card Reader driver) to be processed by the Card Reader.
 	///
 	/// Ideally, make sure `receive_buffer` is `Context::MaximumSendOrReceiveBufferSizeExtended`.
-	///
-	/// The CCID project at <https://salsa.debian.org/rousseau/CCID.git> contains a partial list of control codes in [`SCARDCONTROL.txt`](https://salsa.debian.org/rousseau/CCID/-/blob/master/SCARDCONTOL.txt).
 	pub fn transmit_control<'receive_buffer>(&self, control_code: ControlCode, send_buffer: &[u8], receive_buffer: &'receive_buffer mut [MaybeUninit<u8>]) -> Result<&'receive_buffer [u8], CardCommandError>
 	{
 		let send_buffer_length = send_buffer.len();

@@ -3,7 +3,14 @@
 
 
 use self::c::constants::ATR_BUFFER_SIZE;
+use self::c::constants::CM_IOCTL_GET_FEATURE_REQUEST;
 use self::c::constants::INFINITE;
+use self::c::constants::IOCTL_FEATURE_GET_TLV_PROPERTIES;
+use self::c::constants::IOCTL_FEATURE_IFD_PIN_PROPERTIES;
+use self::c::constants::IOCTL_FEATURE_MCT_READER_DIRECT;
+use self::c::constants::IOCTL_FEATURE_MODIFY_PIN_DIRECT;
+use self::c::constants::IOCTL_FEATURE_VERIFY_PIN_DIRECT;
+use self::c::constants::IOCTL_SMARTCARD_VENDOR_IFD_EXCHANGE;
 use self::c::constants::MAX_BUFFER_SIZE;
 use self::c::constants::MAX_BUFFER_SIZE_EXTENDED;
 use self::c::constants::MAX_READERNAME;
@@ -40,7 +47,6 @@ use self::c::constants::SCARD_W_REMOVED_CARD;
 use self::c::constants::SCARD_W_RESET_CARD;
 use self::c::constants::SCARD_W_UNPOWERED_CARD;
 use self::c::constants::SCARD_W_UNRESPONSIVE_CARD;
-use self::c::functions::SCARD_CTL_CODE;
 use self::c::functions::SCardBeginTransaction;
 use self::c::functions::SCardCancel;
 use self::c::functions::SCardConnect;

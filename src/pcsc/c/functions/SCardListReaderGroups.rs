@@ -2,11 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[cfg_attr(not(any(target_os = "ios", target_os = "macos")), repr(C))]
-#[cfg_attr(any(target_os = "ios", target_os = "macos"), repr(C, packed))]
-pub(in crate::pcsc) struct SCARD_IO_REQUEST
+#[cfg_attr(target_os = "windows", link(name = "winscard"))]
+extern "system"
 {
-	dwProtocol: DWORD,
-	
-	cbPciLength: DWORD,
+	pub(in crate::pcsc) fn SCardListReaderGroups(hContext: SCARDCONTEXT, mszGroups: *mut c_char, pcchGroups: *mut DWORD) -> LONG;
 }

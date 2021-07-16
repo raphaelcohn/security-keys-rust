@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use super::functions::SCARD_CTL_CODE;
 use super::fundamental_types::DWORD;
 use super::fundamental_types::LONG;
 use super::fundamental_types::ULONG;
@@ -9,7 +10,11 @@ use super::fundamental_types::ULONG;
 
 include!("ATR_BUFFER_SIZE.rs");
 include!("AttributeClassShift.rs");
+include!("CLASS2_IOCTL_MAGIC.rs");
+include!("CM_IOCTL_GET_FEATURE_REQUEST.rs");
+include!("FEATURE_.rs");
 include!("INFINITE.rs");
+include!("IOCTL_.rs");
 include!("MAX_ATR_SIZE.rs");
 include!("MAX_BUFFER_SIZE.rs");
 include!("MAX_BUFFER_SIZE_EXTENDED.rs");

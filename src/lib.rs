@@ -39,6 +39,9 @@
 use std::collections::TryReserveError;
 
 
+pub mod ifdhandler;
+
+
 /// PC/SC lite C library wrapper.
 pub mod pcsc;
 
