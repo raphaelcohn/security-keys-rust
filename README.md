@@ -12,4 +12,4 @@ Many thanks to the authors of the [pcsc Rust crate](https://crates.io/crates/pcs
 
 The license for this project is MIT.
 
-[security-keys-rust]: https://github.com/lemonrock/security-keys-rust "security-keys-rust GitHub page"
+[security-keys-rust]: https://github.com/raphaelcohn/security-keys-rust "security-keys-rust GitHub page"

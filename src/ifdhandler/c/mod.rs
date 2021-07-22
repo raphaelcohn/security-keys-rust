@@ -1,5 +1,5 @@
-// This file is part of security-keys-rust. It is subject to the license terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT. No part of security-keys-rust, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
-// Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
+// This file is part of security-keys-rust. It is subject to the license terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT. No part of security-keys-rust, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+// Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT.
 
 
 //! ## Understanding the relationship between the PCSC and (CCID)(https://salsa.debian.org/rousseau/CCID.git) projects.
@@ -111,27 +111,7 @@
 //!		 	* RFBindFunctions(sReadersContexts[dwContext]) (dynamically binds functions to functions pointers in sReadersContexts[dwContext])
 //! 		* IFDOpenIFD
 //! 			* Opens by device (name) if possible
-//! 			* Otherwise opens by slot
-
-
-use crate::VecExt;
-use libc::c_long;
-use likely::likely;
-use likely::unlikely;
-use plist::Dictionary;
-use plist::Value;
-use std::path::Path;
-use std::path::PathBuf;
-use std::ffi::CString;
-use std::ffi::OsStr;
-use swiss_army_knife::get_unchecked::GetUnchecked;
-use swiss_army_knife::path::PathBufExt;
-use swiss_army_knife::strings::parse_number::{ParseNumber, ParseNumberError};
-use libloading::{Library, Symbol};
-use std::fmt::{Display, Formatter, Debug};
-use std::{fmt, error};
-use crate::ifdhandler::c::types::{RESPONSECODE, DWORD};
-use std::mem::forget;
+//! 			* Otherwise opens by port
 
 
 pub(in crate::ifdhandler) mod constants;
@@ -144,7 +124,3 @@ pub(in crate::ifdhandler) mod structs;
 
 
 pub(in crate::ifdhandler) mod types;
-
-
-include!("DriverLocation.rs");
-include!("RawSymbol.rs");
