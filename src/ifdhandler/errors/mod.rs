@@ -6,7 +6,6 @@ use super::c::constants::response_codes::IFD_RESPONSE_TIMEOUT;
 use super::c::constants::response_codes::IFD_NOT_SUPPORTED;
 use super::c::constants::response_codes::IFD_ICC_PRESENT;
 use super::c::constants::response_codes::IFD_ICC_NOT_PRESENT;
-use super::c::constants::response_codes::IFD_NO_SUCH_DEVICE;
 use super::c::constants::response_codes::IFD_ERROR_TAG;
 use super::c::constants::response_codes::IFD_ERROR_SET_FAILURE;
 use super::c::constants::response_codes::IFD_ERROR_VALUE_READ_ONLY;

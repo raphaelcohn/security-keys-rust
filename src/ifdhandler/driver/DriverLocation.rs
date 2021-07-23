@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT.
 
 
+/// Represents a set of locations to search for drivers.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct CcidClassDriverLocation
 {
@@ -46,6 +47,7 @@ impl Default for CcidClassDriverLocation
 
 impl CcidClassDriverLocation
 {
+	/// Create a new instance.
 	#[inline(always)]
 	pub fn new(search_path: PathBuf) -> Self
 	{
@@ -66,7 +68,7 @@ impl CcidClassDriverLocation
 	/// ```
 	///
 	/// Only errors if what seems to be a driver is detected and can not be loaded.
-	pub fn load_drivers(&self) -> Result<Vec<Driver>, LoadDriverError>
+	pub(in crate::ifdhandler) fn load_drivers(&self) -> Result<Vec<Driver>, LoadDriverError>
 	{
 		let mut drivers = Vec::new();
 		self.loop_over_search_path_subfolders(|folder_entry|

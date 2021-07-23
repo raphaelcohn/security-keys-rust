@@ -18,7 +18,7 @@ pub(in super) fn validate_info_plist_ifd_ccid(info_plist: &Dictionary) -> Result
 			return Err(incorrect_length)
 		}
 		
-		let value = u16::parse_hexadecimal_number_upper_or_lower_case_with_0x_prefix(value.as_bytes()).map_err(|_| not_a_hexadecimal_number)?;
+		let value = u16::parse_hexadecimal_number_upper_or_lower_case_with_0x_prefix(value).map_err(|_| not_a_hexadecimal_number)?;
 		validate_value(value)
 	}
 	
@@ -29,8 +29,10 @@ pub(in super) fn validate_info_plist_ifd_ccid(info_plist: &Dictionary) -> Result
 		{
 			validate_u16_string(u16_string, incorrect_length, not_a_hexadecimal_number, validate_value)
 		}
-		
-		Err(not_a_string)
+		else
+		{
+			Err(not_a_string)
+		}
 	}
 	
 	#[inline(always)]
@@ -107,12 +109,16 @@ pub(in super) fn validate_info_plist_ifd_ccid(info_plist: &Dictionary) -> Result
 	}
 	
 	#[inline(always)]
-	fn validate_LIBCCID_ifdLogLevel()
+	fn validate_LIBCCID_ifdLogLevel() -> Result<(), &'static str>
 	{
 		if let Some(ifdLogLevel) = var_os("LIBCCID_ifdLogLevel")
 		{
 			let string = ifdLogLevel.into_string().map_err(|_| "LIBCCID_ifdLogLevel is not a UTF-8 string")?;
 			validate_u16_string(&string, "LIBCCID_ifdLogLevel is not the correct length", "ifdLogLevel is not a hexadecimal number starting 0x", |log_level| validate_log_level(log_level, "LIBCCID_ifdLogLevel includes invalid log levels"))
+		}
+		else
+		{
+			Ok(())
 		}
 	}
 	

@@ -55,8 +55,6 @@ use std::ops::Deref;
 use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::RwLock;
-use std::sync::RwLockWriteGuard;
 use swiss_army_knife::path::PathBufExt;
 use swiss_army_knife::strings::parse_number::ParseNumber;
 use swiss_army_knife::strings::parse_number::ParseNumberError;

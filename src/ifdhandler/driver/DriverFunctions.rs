@@ -90,7 +90,7 @@ impl DriverFunctions
 	///* `IOCTL_FEATURE_MCT_READER_DIRECT`: PC/SC v2.02.07 Part 10: Multifunctional Card Terminal. The transmit buffer contains an Application Protocol Data Unit (APDU).
 	///
 	///
-	/// ## Multifunctional Card Terminal Application Protocol Data Unit (APDU).
+	/// ## Multifunctional Card Terminal (MCT) Application Protocol Data Unit (APDU).
 	///
 	/// * `CLA`: `0x20`.
 	/// * `INS`:  One of:-
@@ -103,6 +103,65 @@ impl DriverFunctions
 	/// * `P2`: `0x00`.
 	/// * `Lind`: `0x00`.
 	///
+	///
+	/// ### Tag `IOCTL_FEATURE_GET_TLV_PROPERTIES`
+	///
+	/// This includes the following structures:-
+	///
+	/// * `PCSCv2_PART10_PROPERTY_wLcdLayout`.
+	/// 	* Always present (but zero if no LCD).
+	/// 	* Value of USB `wLcdLayout`.
+	/// 	* Always little-endian u16 (even on big-endian machines).
+	/// 	* `PCSCv2_PART10_PROPERTY_wLcdMaxCharacters`.
+	/// 		* Present if `PCSCv2_PART10_PROPERTY_wLcdLayout` is non-zero.
+	/// 		* Value of USB `wLcdLayout & 0xFF`.
+	/// 		* Always little-endian u16 (even on big-endian machines).
+	/// 	* `PCSCv2_PART10_PROPERTY_wLcdMaxLines`.
+	/// 		* Present if `PCSCv2_PART10_PROPERTY_wLcdLayout` is non-zero.
+	/// 		* Value of USB `wLcdLayout >> 8`.
+	/// 		* Always little-endian u16 (even on big-endian machines).
+	/// * `PCSCv2_PART10_PROPERTY_bTimeOut2`.
+	/// 	* Always present.
+	/// 	* Value always `0`.
+	/// 	* u8.
+	/// * `PCSCv2_PART10_PROPERTY_sFirmwareID`
+	/// 	* Present for vendor `VENDOR_GEMALTO`.
+	/// 	* Variable length up to 256 bytes.
+	/// * `PCSCv2_PART10_PROPERTY_bMinPINSize` and `PCSCv2_PART10_PROPERTY_bMaxPINSize`.
+	/// 	* Present and hardcoded for:-
+	/// 		* vendor and product `GEMPCPINPAD` with USB `bcdDevice` of `0x0100.
+	/// 		* vendor and product `VEGAALPHA`.
+	/// 		* vendor and product `CHERRYST2000`.
+	/// 		* vendor and product `CHERRY_KC1000SC`.
+	/// 		* vendor and product `HID_OMNIKEY_3821`.
+	/// 	* Present and variable for:-
+	/// 		* Gemalto 'gemalto_firmware_features'
+	/// 	* Always an u8.
+	/// * `PCSCv2_PART10_PROPERTY_bEntryValidationCondition` (validation key pressed).
+	/// 	* Present and hardcoded for:-
+	/// 		* vendor and product `GEMPCPINPAD` with USB `bcdDevice` of `0x0100.
+	/// 		* vendor and product `VEGAALPHA`.
+	/// 		* vendor and product `CHERRYST2000`.
+	/// 		* ***Not supported*** for `CHERRY_KC1000SC` or `HID_OMNIKEY_3821`.
+	/// 	* Present and variable for:-
+	/// 		* Gemalto 'gemalto_firmware_features'
+	/// 	* Always an u8.
+	/// * `PCSCv2_PART10_PROPERTY_bPPDUSupport`.
+	/// 	* Always present.
+	/// 	* Value always either `0` or `1`; reflects whether `DRIVER_OPTION_CCID_EXCHANGE_AUTHORIZED` has been specified in `Info.plist`.
+	/// 	* u8.
+	/// * `PCSCv2_PART10_PROPERTY_wIdVendor`
+	/// 	* Always present.
+	/// 	* USB Vendor Identifier.
+	/// 	* Always little-endian u16 (even on big-endian machines).
+	/// * `PCSCv2_PART10_PROPERTY_wIdProduct`
+	/// 	* Always present.
+	/// 	* USB Product Identifier.
+	/// 	* Always little-endian u16 (even on big-endian machines).
+	/// * `PCSCv2_PART10_PROPERTY_dwMaxAPDUDataSize`
+	/// 	* Always present.
+	/// 	* Zero unless USB dwFeatures supports `CCID_CLASS_EXTENDED_APDU` or `CCID_CLASS_TPDU`, in which case it is 65,536.
+	/// 	* Always little-endian u32 (even on big-endian machines).
 	///
 	/// # Return Codes
 	///

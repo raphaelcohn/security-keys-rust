@@ -2,19 +2,23 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT.
 
 
+use self::features::Features;
+use enumflags2::bitflags;
+use enumflags2::BitFlags;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::num::NonZeroU8;
-use std::num::NonZeroUsize;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
-pub(in crate::ifdhandler) mod fixed_usb_device_capabilities;
+pub(in crate::ifdhandler) mod features;
 
 
 include!("FixedUsbDeviceCapabilities.rs");
+include!("MechanicalFeature.rs");
+include!("Protocol.rs");
 include!("UsbDeviceInformationDatabase.rs");
 include!("UsbDeviceName.rs");
 include!("UsbInterfaceNumber.rs");

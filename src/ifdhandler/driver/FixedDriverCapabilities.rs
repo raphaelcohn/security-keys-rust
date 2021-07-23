@@ -20,9 +20,9 @@ impl FixedDriverCapabilities
 	#[inline(always)]
 	fn unknown() -> &'static Self
 	{
-		static Singleton: SyncLazy<Self> = SyncLazy::new(||
+		static Singleton: SyncLazy<FixedDriverCapabilities> = SyncLazy::new(||
 		{
-			Self
+			FixedDriverCapabilities
 			{
 				TAG_IFD_SIMULTANEOUS_ACCESS: new_non_zero_usize(1),
 				
@@ -30,7 +30,7 @@ impl FixedDriverCapabilities
 				
 				TAG_IFD_SLOT_THREAD_SAFE: false,
 				
-				usb_device_information_database: UsbDeviceInformationDatabase::default(),
+				usb_device_information_database: UsbDeviceInformationDatabase::empty(),
 			}
 		});
 		

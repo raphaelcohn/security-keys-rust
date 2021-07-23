@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT.
 
 
+#[repr(C)]
 pub(in crate::ifdhandler) struct SCARD_IO_HEADER
 {
 	Protocol: DWORD,

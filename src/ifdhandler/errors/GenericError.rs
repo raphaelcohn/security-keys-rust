@@ -3,6 +3,7 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[allow(missing_docs)]
 pub enum GenericError<UnexpectedError: error::Error + Debug + Copy + Ord + Eq + Hash>
 {
 	Communication,
@@ -12,7 +13,7 @@ pub enum GenericError<UnexpectedError: error::Error + Debug + Copy + Ord + Eq + 
 	Unexpected(UnexpectedError)
 }
 
-impl<UnexpectedError: error::Error> Display for GenericError<UnexpectedError>
+impl<UnexpectedError: error::Error + Debug + Copy + Ord + Eq + Hash> Display for GenericError<UnexpectedError>
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -21,7 +22,7 @@ impl<UnexpectedError: error::Error> Display for GenericError<UnexpectedError>
 	}
 }
 
-impl<UnexpectedError: error::Error> error::Error for GenericErrorUnexpectedError<UnexpectedError>
+impl<UnexpectedError: 'static + error::Error + Debug + Copy + Ord + Eq + Hash> error::Error for GenericError<UnexpectedError>
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>

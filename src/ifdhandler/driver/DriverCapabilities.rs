@@ -3,6 +3,7 @@
 
 
 /// Capabilities.
+#[allow(missing_docs)]
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[bitflags]
 #[repr(u32)]

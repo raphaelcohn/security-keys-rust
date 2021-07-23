@@ -63,15 +63,15 @@ extract_protocols()
 		;;
 		
 		'0x0000 0x0001')
-			printf 'T1'
+			printf 'T0'
 		;;
 		
 		'0x0000 0x0002')
-			printf 'T2'
+			printf 'T1'
 		;;
 		
 		'0x0000 0x0003')
-			printf 'T1 | T2'
+			printf 'T0 | T1'
 		;;
 		
 		*)
@@ -79,12 +79,12 @@ extract_protocols()
 				
 				# Has value 0x0002 0x0003.
 				'Identive_Technologies_Multi-ISO_HF_Reader_USB.txt')
-					printf 'T1 | T2'
+					printf 'T0 | T1'
 				;;
 				
 				# Has value 0x0000 0x0300.
 				'MySmartPad.txt')
-					printf 'T1 | T2'
+					printf 'T0 | T1'
 				;;
 				
 				*)
@@ -115,7 +115,7 @@ extract_mechanical()
 		;;
 		
 		'0x00000003')
-			printf 'Eject|Accept'
+			printf 'Eject | Accept'
 		;;
 		
 		'0x00000004')
@@ -123,15 +123,15 @@ extract_mechanical()
 		;;
 		
 		'0x00000005')
-			printf 'Capture|Accept'
+			printf 'Capture | Accept'
 		;;
 		
 		'0x00000006')
-			printf 'Capture|Eject'
+			printf 'Capture | Eject'
 		;;
 		
 		'0x00000007')
-			printf 'Capture|Eject|Accept'
+			printf 'Capture | Eject | Accept'
 		;;
 		
 		'0x00000008')
@@ -139,31 +139,31 @@ extract_mechanical()
 		;;
 		
 		'0x00000009')
-			printf 'LockAndUnlock|Accept'
+			printf 'LockAndUnlock | Accept'
 		;;
 		
 		'0x0000000A')
-			printf 'LockAndUnlock|Eject'
+			printf 'LockAndUnlock | Eject'
 		;;
 		
 		'0x0000000B')
-			printf 'LockAndUnlock|Eject|Accept'
+			printf 'LockAndUnlock | Eject | Accept'
 		;;
 		
 		'0x0000000C')
-			printf 'LockAndUnlock|Capture'
+			printf 'LockAndUnlock | Capture'
 		;;
 		
 		'0x0000000D')
-			printf 'LockAndUnlock|Capture|Accept'
+			printf 'LockAndUnlock | Capture | Accept'
 		;;
 		
 		'0x0000000E')
-			printf 'LockAndUnlock|Capture|Eject'
+			printf 'LockAndUnlock | Capture | Eject'
 		;;
 		
 		'0x0000000F')
-			printf 'LockAndUnlock|Capture|Eject|Accept'
+			printf 'LockAndUnlock | Capture | Eject | Accept'
 		;;
 		
 		*)
@@ -225,6 +225,24 @@ parse_txt_file()
 		printf ', '
 		
 		extract_first_field 'bMaxSlotIndex'
+		printf ', '
+		
+		# Composite multi-slot readers, as in `src/ifdhandler.c`, function `IFDHGetCapabilities()` (list defined as if ladder guarded by #define `USE_COMPOSITE_AS_MULTISLOT`).
+		case "$txt_file" in
+			
+			'GemProxDU.txt'|'GemProxSU.txt'|'HID_OMNIKEY_5422.txt')
+				printf 'Some(new_non_zero_u8(2))'
+			;;
+			
+			'Feitian_R502.txt')
+				printf 'Some(new_non_zero_u8(4))'
+			;;
+			
+			*)
+				printf 'None'
+			;;
+			
+		esac
 		printf ', '
 		
 		extract_protocols

@@ -3,7 +3,7 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(in crate::ifdhandle) struct LogicalUnitNumber
+pub(in crate::ifdhandler) struct LogicalUnitNumber
 {
 	/// Confusingly also called `slot_index` in PCSC.
 	device_index: u16,

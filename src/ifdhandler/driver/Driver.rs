@@ -12,33 +12,32 @@ pub(in crate::ifdhandler) struct Driver
 	fixed_driver_capabilities: &'static FixedDriverCapabilities,
 	
 	functions: DriverFunctions,
-	
-	lock: RwLock<()>,
 }
 
 impl Driver
 {
+	// TAG_IFD_SIMULTANEOUS_ACCESS: Could we use this with a Rust equivalent of Java's java.util.concurrent.Semaphore? It is effectively the number of instances of a driver.
+	// TAG_IFD_THREAD_SAFE true unless mac os. What does it mean?
+	// TAG_IFD_SLOT_THREAD_SAFE: slot access is thread safe in a multi-slot card reader, ie we don't need to lock for a slot.
+		// Always false; would only be true for a very small number of CCID USB devices in any event (bMaxCCIDBusySlots).
+		/*
+  bMaxCCIDBusySlots: 0   - clearly bogus data.
+  bMaxCCIDBusySlots: 1
+  bMaxCCIDBusySlots: 1
+  bMaxCCIDBusySlots: 1
+  bMaxCCIDBusySlots: 2
+  bMaxCCIDBusySlots: 5
+  bMaxCCIDBusySlots: 8
+		 */
+	// TAG_IFD_SLOTS_NUMBER: How many slots a card reader has (composite or not)
+	
+	// TODO: Consider reading the code for parse.c and making use of it.
+	
 	#[inline(always)]
 	pub(in crate::ifdhandler) fn create_channel_using_ignored_channel_identifier(&self, logical_unit_number: LogicalUnitNumber) -> Result<(), GenericError<CreateChannelUnexpectedError>>
 	{
-		// TODO: Even this is wrong; locking is pthread_mutex_lock(rContext->mMutex); an rContext is one-to-one with a Lun; rContext is a reader-context, an instance of a reader driver and an instance of it; there is one instance for each possible permutation of a device (eg vid, pid, interface)
-		
-		// The only reason for a taking a lock here is to prevent multiple instantiations for the same USB device.
-		
-		// Additionally, ifd_ccid handles locking on create and free.
-		let lock = self.write_lock();
-		
-		
-		
 		let response_code = self.functions.IFDHCreateChannel(logical_unit_number.into_DWORD(), DriverFunctions::IgnoredChannel);
-		drop(lock);
 		Self::process_create_channel_response_code(response_code)
-	}
-	
-	#[inline(always)]
-	fn write_lock(&self) -> RwLockWriteGuard<()>
-	{
-		self.lock.write().unwrap()
 	}
 	
 	#[inline(always)]
@@ -89,7 +88,7 @@ impl Driver
 			// There is no card reader for the device name.
 			IFD_NO_SUCH_DEVICE => Err(NoSuchDevice),
 			
-			_ => Err(Unexpected(PresenceUnexpectedError::parse(response_code))),
+			response_code @ _ => Err(Unexpected(PresenceUnexpectedError::parse(response_code))),
 		}
 	}
 	

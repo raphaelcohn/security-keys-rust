@@ -3,6 +3,7 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[allow(missing_docs)]
 pub enum KnownSymbolName
 {
 	IFDHCloseChannel,

@@ -3,6 +3,7 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[allow(missing_docs)]
 pub enum PresenceUnexpectedError
 {
 	ResponseTimeout,
@@ -50,7 +51,7 @@ impl error::Error for PresenceUnexpectedError
 impl PresenceUnexpectedError
 {
 	#[inline(always)]
-	pub(in crate::ifdhandler::driver) fn parse(error: RESPONSECODE) -> Self
+	pub(in crate::ifdhandler) fn parse(error: RESPONSECODE) -> Self
 	{
 		use self::PresenceUnexpectedError::*;
 		

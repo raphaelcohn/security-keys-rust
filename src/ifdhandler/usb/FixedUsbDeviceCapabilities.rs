@@ -5,9 +5,19 @@
 /// This trait represents device capabilities that can only be discovered using `IFDHGetCapabilities()` with a `Lun`, yet are nothing to do with either a device or a slot.
 ///
 /// However, they are logically linked to a driver.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub(in crate::ifdhandler) struct FixedUsbDeviceCapabilities
 {
-	bMaxSlotIndex: u8,
+	txt_file_name: &'static str,
+	
+	/// `iManufacturer`.
+	vendor_name: &'static str,
+	
+	/// `iProduct`.
+	product_name: &'static str,
+	
+	/// `bMaxSlotIndex`.
+	maximum_slot_index: u8,
 	
 	/// PC/SC's ifd-ccid driver models composite devices as if they have multiple slots.
 	///
@@ -32,22 +42,65 @@ pub(in crate::ifdhandler) struct FixedUsbDeviceCapabilities
 	/// These composite devices have four slots:-
 	///
 	/// * FEITIANR502DUAL (Vendor 0x096E, Product Identifier: 0x060D).
-	composite_maximum_slots_number: Option<NonZeroU8>,
+	composite_maximum_number_of_slots: Option<NonZeroU8>,
+
+	/// `dwProtocols`.
+	protocols: BitFlags<Protocol>,
+
+	/// `dwMechanical`.
+	mechanical_features: BitFlags<MechanicalFeature>,
+
+	features: Features,
+	
+	/// `dwMaxIFSD`.
+	t1_protocol_maximum_ifsd: usize,
+	
+	/// For extended APDU level the value shall be between 261 + 10 (header) and 65544 +10, otherwise the minimum value is the wMaxPacketSize of the Bulk-OUT endpoint.
+	///
+	/// `dwMaxCCIDMessageLength`.
+	maximum_ccid_message_length: usize,
 }
 
 impl FixedUsbDeviceCapabilities
 {
+	#[inline(always)]
+	pub(in crate::ifdhandler) fn new(txt_file_name: &'static str, vendor_name: &'static str, product_name: &'static str, maximum_slot_index: u8, composite_maximum_number_of_slots: Option<NonZeroU8>, protocols: BitFlags<Protocol>, mechanical_features: BitFlags<MechanicalFeature>, features: Features, t1_protocol_maximum_ifsd: usize, maximum_ccid_message_length: usize) -> Self
+	{
+		Self
+		{
+			txt_file_name,
+		
+			vendor_name,
+		
+			product_name,
+		
+			maximum_slot_index,
+			
+			composite_maximum_number_of_slots,
+			
+			protocols,
+			
+			mechanical_features,
+			
+			features,
+			
+			t1_protocol_maximum_ifsd,
+			
+			maximum_ccid_message_length,
+		}
+	}
+	
 	/// This is the number of slots (USB descriptor value `bMaxSlotIndex + 1`) except for a small number of composite card readers.
 	///
 	/// In practice, this value has not been observed to exceed 8 either non-composite or composite card readers.
 	#[inline(always)]
 	pub(in crate::ifdhandler) fn TAG_IFD_SLOTS_NUMBER(&self) -> NonZeroU8
 	{
-		match self.composite_maximum_slots_number
+		match self.composite_maximum_number_of_slots
 		{
-			None => new_non_zero_u8(self.bMaxSlotIndex + 1),
+			None => new_non_zero_u8(self.maximum_slot_index + 1),
 			
-			Some(composite_maximum_slots_index) => composite_maximum_slots_number
+			Some(composite_maximum_number_of_slots) => composite_maximum_number_of_slots
 		}
 	}
 }

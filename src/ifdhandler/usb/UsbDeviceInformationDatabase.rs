@@ -8,6 +8,12 @@ pub(in crate::ifdhandler) struct UsbDeviceInformationDatabase<T>(HashMap<(UsbVen
 impl<T> UsbDeviceInformationDatabase<T>
 {
 	#[inline(always)]
+	pub(in crate::ifdhandler) fn empty() -> Self
+	{
+		Self(HashMap::new())
+	}
+	
+	#[inline(always)]
 	pub(in crate::ifdhandler) fn from_hash_map(hash_map: HashMap<(UsbVendorIdentifier, UsbProductIdentifier), T>) -> Self
 	{
 		Self(hash_map)

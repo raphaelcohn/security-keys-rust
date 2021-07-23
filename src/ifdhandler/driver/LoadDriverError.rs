@@ -4,6 +4,7 @@
 
 /// Load driver error.
 #[derive(Debug)]
+#[allow(missing_docs)]
 pub enum LoadDriverError
 {
 	CouldNotAllocateMemoryForOurDriverName(TryReserveError),
