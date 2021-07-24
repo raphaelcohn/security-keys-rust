@@ -63,13 +63,13 @@ impl<T: UsbContext> UsbStringFinder<T>
 	}
 	
 	#[inline(always)]
-	fn into_languages(self) -> Option<Vec<Language>>
+	fn into_languages(self) -> Option<Vec<UsbLanguage>>
 	{
 		use self::UsbStringFinder::*;
 		
 		match self
 		{
-			Opened { languages, .. } => Some(languages),
+			Opened { languages, .. } => Some(UsbLanguage::convert_languages(languages)),
 			
 			FailedToOpenDeviceHandle => None,
 		}

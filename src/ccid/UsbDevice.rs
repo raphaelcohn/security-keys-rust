@@ -29,7 +29,7 @@ pub(crate) struct UsbDevice
 
 	protocol_code: u8,
 	
-	languages: Option<Vec<Language>>,
+	languages: Option<Vec<UsbLanguage>>,
 	
 	manufacturer_string: Option<UsbStringOrIndex>,
 	
@@ -40,12 +40,12 @@ pub(crate) struct UsbDevice
 	configurations: Vec<UsbConfiguration>,
 }
 
-impl TryFrom for UsbDevice
+impl<T: UsbContext> TryFrom<Device<T>> for UsbDevice
 {
 	type Error = UsbError;
 	
 	#[inline(always)]
-	fn try_from(device: Device<impl UsbContext>) -> Result<Self, Self::Error>
+	fn try_from(device: Device<T>) -> Result<Self, Self::Error>
 	{
 		use self::UsbError::*;
 		
@@ -97,7 +97,7 @@ impl TryFrom for UsbDevice
 				
 				serial_number_string: usb_string_finder.find(device_descriptor.serial_number_string_index())?,
 				
-				configurations: UsbConfiguration::usb_configurations_try_from(device_descriptor, &usb_string_finder)?,
+				configurations: UsbConfiguration::usb_configurations_try_from(&device, device_descriptor, &usb_string_finder)?,
 				
 				languages: usb_string_finder.into_languages(),
 			}

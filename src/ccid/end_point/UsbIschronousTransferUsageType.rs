@@ -3,12 +3,35 @@
 
 
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum UsbStringOrIndex
+pub(crate) enum UsbIschronousTransferUsageType
 {
-	HaveString(UsbString),
+	/// Data endpoint.
+	Data,
 	
-	CouldNotOpenDeviceHandle
+	/// Feedback endpoint.
+	Feedback,
+	
+	/// Explicit feedback data endpoint.
+	FeedbackData,
+	
+	/// Reserved.
+	Reserved,
+}
+
+impl From<UsageType> for UsbIschronousTransferUsageType
+{
+	#[inline(always)]
+	fn from(usage_type: UsageType) -> Self
 	{
-		index: u8
-	},
+		match usage_type
+		{
+			UsageType::Data => UsbIschronousTransferUsageType::Data,
+			
+			UsageType::Feedback => UsbIschronousTransferUsageType::Feedback,
+			
+			UsageType::FeedbackData => UsbIschronousTransferUsageType::FeedbackData,
+			
+			UsageType::Reserved => UsbIschronousTransferUsageType::Reserved,
+		}
+	}
 }

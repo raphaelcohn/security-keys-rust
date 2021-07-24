@@ -2,13 +2,26 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum UsbStringOrIndex
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub(crate) enum UsbDirection
 {
-	HaveString(UsbString),
+	/// Direction for read (device to host) transfers.
+	In,
 	
-	CouldNotOpenDeviceHandle
+	/// Direction for write (host to device) transfers.
+	Out,
+}
+
+impl From<Direction> for UsbDirection
+{
+	#[inline(always)]
+	fn from(direction: Direction) -> Self
 	{
-		index: u8
-	},
+		match direction
+		{
+			Direction::In => UsbDirection::In,
+			
+			Direction::Out => UsbDirection::Out,
+		}
+	}
 }

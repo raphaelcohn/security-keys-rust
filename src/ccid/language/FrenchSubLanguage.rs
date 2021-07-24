@@ -2,13 +2,27 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum UsbStringOrIndex
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub(crate) enum FrenchSubLanguage
 {
-	HaveString(UsbString),
+	#[allow(missing_docs)]
+	Standard,
 	
-	CouldNotOpenDeviceHandle
-	{
-		index: u8
-	},
+	#[allow(missing_docs)]
+	Belgium,
+	
+	#[allow(missing_docs)]
+	Canada,
+	
+	#[allow(missing_docs)]
+	Switzerland,
+	
+	#[allow(missing_docs)]
+	Luxembourg,
+	
+	#[allow(missing_docs)]
+	Monaco,
+	
+	#[allow(missing_docs)]
+	Unknown(u6),
 }

@@ -2,13 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum UsbStringOrIndex
-{
-	HaveString(UsbString),
-	
-	CouldNotOpenDeviceHandle
-	{
-		index: u8
-	},
-}
+use rusb::{Direction, InterfaceDescriptor};
+use rusb::EndpointDescriptor;
+use rusb::TransferType;
+use rusb::SyncType;
+use rusb::UsageType;
+
+
+include!("UsbDirection.rs");
+include!("UsbEndPoint.rs");
+include!("UsbTransferType.rs");
+include!("UsbIschronousTransferSyncType.rs");
+include!("UsbIschronousTransferUsageType.rs");

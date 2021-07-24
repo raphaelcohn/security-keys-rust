@@ -2,24 +2,39 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use rusb::{devices, DeviceHandle, Speed, Version, DeviceDescriptor, ConfigDescriptor, InterfaceDescriptor, Interface, Direction, EndpointDescriptor, SyncType, UsageType};
-use rusb::Language;
+use self::language::UsbLanguage;
+use self::end_point::UsbEndPoint;
+use rusb::ConfigDescriptor;
 use rusb::Device;
-use rusb::TransferType;
+use rusb::DeviceDescriptor;
+use rusb::DeviceHandle;
+use rusb::Interface;
+use rusb::InterfaceDescriptor;
+use rusb::Language;
+use rusb::Speed;
 use rusb::UsbContext;
+use rusb::Version;
+use rusb::devices;
+use std::collections::HashMap;
+use std::cmp::Ordering;
+use std::convert::TryFrom;
 use std::error;
-use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use std::fmt;
+use std::hash::Hash;
+use std::hash::Hasher;
 use std::time::Duration;
-use std::collections::HashMap;
-use std::convert::TryFrom;
 
 
-include!("UsbConfiguration.rs");
-include!("UsbDevice.rs");
-include!("UsbEndPoint.rs");
+pub(crate) mod end_point;
+
+
+pub(crate) mod language;
+
+
+include!("UsbConfiguration.rs");include!("UsbDevice.rs");
 include!("UsbError.rs");
 include!("UsbInterface.rs");
 include!("UsbInterfaceAlternateSetting.rs");

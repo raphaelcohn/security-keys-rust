@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) struct UsbConfiguration
 {
 	bConfigurationValue: u8,
@@ -23,7 +23,6 @@ impl UsbConfiguration
 	#[inline(always)]
 	fn try_from(configuration_descriptor: ConfigDescriptor, usb_string_finder: &UsbStringFinder<impl UsbContext>) -> Result<Self, UsbError>
 	{
-		use self::UsbError::*;
 		Ok
 		(
 			Self
@@ -44,7 +43,7 @@ impl UsbConfiguration
 	}
 	
 	#[inline(always)]
-	fn usb_configurations_try_from(device_descriptor: DeviceDescriptor, usb_string_finder: &UsbStringFinder<impl UsbContext>) -> Result<Vec<Self>, UsbError>
+	fn usb_configurations_try_from<T: UsbContext>(device: &Device<T>, device_descriptor: DeviceDescriptor, usb_string_finder: &UsbStringFinder<T>) -> Result<Vec<Self>, UsbError>
 	{
 		use self::UsbError::*;
 		

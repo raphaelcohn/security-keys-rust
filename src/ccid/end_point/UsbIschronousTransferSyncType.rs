@@ -3,12 +3,35 @@
 
 
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) enum UsbStringOrIndex
+pub(crate) enum UsbIschronousTransferSyncType
 {
-	HaveString(UsbString),
+	/// No synchronisation.
+	NoSync,
 	
-	CouldNotOpenDeviceHandle
+	/// Asynchronous.
+	Asynchronous,
+	
+	/// Adaptive.
+	Adaptive,
+	
+	/// Synchronous.
+	Synchronous,
+}
+
+impl From<SyncType> for UsbIschronousTransferSyncType
+{
+	#[inline(always)]
+	fn from(sync_type: SyncType) -> Self
 	{
-		index: u8
-	},
+		match sync_type
+		{
+			SyncType::NoSync => UsbIschronousTransferSyncType::NoSync,
+			
+			SyncType::Asynchronous => UsbIschronousTransferSyncType::Asynchronous,
+			
+			SyncType::Adaptive => UsbIschronousTransferSyncType::Adaptive,
+			
+			SyncType::Synchronous => UsbIschronousTransferSyncType::Synchronous,
+		}
+	}
 }
