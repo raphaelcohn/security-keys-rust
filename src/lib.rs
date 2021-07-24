@@ -27,6 +27,7 @@
 #![feature(const_cstr_unchecked)]
 #![feature(const_fn_transmute)]
 #![feature(core_intrinsics)]
+#![feature(const_panic)]
 #![feature(macro_attributes_in_derive_output)]
 #![feature(maybe_uninit_ref)]
 #![feature(maybe_uninit_slice)]

@@ -53,12 +53,17 @@ impl<T: UsbContext> UsbStringFinder<T>
 		{
 			None => Ok(None),
 		
-			Some(index) => match self
+			Some(index) =>
 			{
-				Opened { device_handle, languages } => Ok(Some(HaveString(UsbString::read(index, device_handle, languages)?))),
+				debug_assert_ne!(index, 0, "string index 0 is reserved for obtaining an array of LANG_ID");
 				
-				FailedToOpenDeviceHandle => Ok(Some(CouldNotOpenDeviceHandle { index })),
-			},
+				match self
+				{
+					Opened { device_handle, languages } => Ok(Some(HaveString(UsbString::read(index, device_handle, languages)?))),
+					
+					FailedToOpenDeviceHandle => Ok(Some(CouldNotOpenDeviceHandle { index })),
+				}
+			}
 		}
 	}
 	

@@ -4,10 +4,7 @@
 
 use super::FixedDriverCapabilities;
 use super::OurDriverName;
-use super::super::usb::features::Features;
 use super::super::usb::FixedUsbDeviceCapabilities;
-use super::super::usb::MechanicalFeature;
-use super::super::usb::Protocol;
 use super::super::usb::UsbDeviceInformationDatabase;
 use likely::unlikely;
 use maplit::hashmap;
@@ -15,11 +12,10 @@ use plist::Dictionary;
 use plist::Value;
 use std::env::var_os;
 use std::mem::size_of;
+use std::num::NonZeroU8;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use swiss_army_knife::non_zero::new_non_zero_usize;
 use swiss_army_knife::strings::parse_number::ParseNumber;
-use std::num::NonZeroU8;
-use enumflags2::BitFlags;
 
 
 include!("entry.rs");

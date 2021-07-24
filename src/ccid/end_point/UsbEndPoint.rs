@@ -5,21 +5,22 @@
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) struct UsbEndPoint
 {
-	end_point_address: u8,
-
-	end_point_number: u8,
-
+	/// Ignored for control end points.
 	direction: UsbDirection,
 
 	transfer_type: UsbTransferType,
 
-	maximum_packet_size: u16,
+	maximum_packet_size: u11,
+	
+	additional_transaction_opportunities_per_microframe: IsochronousAndInterrruptAdditionalTransactionOpportunitiesPerMicroframe,
 
 	polling_interval: u8,
 	
 	audio_device_synchronization_feedback_refresh_rate: u8,
 	
 	audio_device_synchronization_address: u8,
+
+	pub(super) extra: Vec<u8>,
 }
 
 impl<'a> From<EndpointDescriptor<'a>> for UsbEndPoint
@@ -27,23 +28,36 @@ impl<'a> From<EndpointDescriptor<'a>> for UsbEndPoint
 	#[inline(always)]
 	fn from(end_point_descriptor: EndpointDescriptor) -> Self
 	{
+		let max_packet_size = end_point_descriptor.max_packet_size();
+		let maximum_packet_size = max_packet_size & 0b0111_1111_1111;
+		let additional_transaction_opportunities_per_microframe = unsafe { transmute(((max_packet_size >> 11) & 0b11) as u8) };
+		
 		Self
 		{
-			end_point_address: end_point_descriptor.address(),
-		
-			end_point_number: end_point_descriptor.number(),
-		
 			direction: UsbDirection::from(end_point_descriptor.direction()),
 		
 			transfer_type: UsbTransferType::from(&end_point_descriptor),
 			
-			maximum_packet_size: end_point_descriptor.max_packet_size(),
+			maximum_packet_size,
+			
+			additional_transaction_opportunities_per_microframe,
 			
 			polling_interval: end_point_descriptor.interval(),
 			
 			audio_device_synchronization_feedback_refresh_rate: end_point_descriptor.refresh(),
 			
 			audio_device_synchronization_address: end_point_descriptor.synch_address(),
+			
+			extra: match end_point_descriptor.extra()
+			{
+				None => Vec::new(),
+				
+				Some(bytes) =>
+				{
+					debug_assert_ne!(bytes.len(), 0);
+					bytes.to_vec()
+				}
+			},
 		}
 	}
 }
@@ -51,14 +65,15 @@ impl<'a> From<EndpointDescriptor<'a>> for UsbEndPoint
 impl UsbEndPoint
 {
 	#[inline(always)]
-	pub(super) fn usb_end_points_from(interface_descriptor: InterfaceDescriptor) -> Vec<Self>
+	pub(super) fn usb_end_points_from(interface_descriptor: InterfaceDescriptor) -> IndexMap<NonZeroU4, Self>
 	{
-		let number_of_end_points = interface_descriptor.num_endpoints();
-		let mut end_points = Vec::with_capacity(number_of_end_points as usize);
+		let number_of_end_points_excluding_end_point_zero = interface_descriptor.num_endpoints();
+		let mut end_points = IndexMap::with_capacity(number_of_end_points_excluding_end_point_zero as usize);
 		
 		for end_point_descriptor in interface_descriptor.endpoint_descriptors()
 		{
-			end_points.push(Self::from(end_point_descriptor));
+			let end_point_number = new_non_zero_u4(end_point_descriptor.number());
+			let _ = end_points.insert(end_point_number, Self::from(end_point_descriptor));
 		}
 		
 		end_points

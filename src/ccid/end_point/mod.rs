@@ -2,15 +2,24 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use rusb::{Direction, InterfaceDescriptor};
+use indexmap::IndexMap;
+use rusb::Direction;
 use rusb::EndpointDescriptor;
+use rusb::InterfaceDescriptor;
 use rusb::TransferType;
 use rusb::SyncType;
 use rusb::UsageType;
+use std::num::NonZeroU8;
+use swiss_army_knife::non_zero::new_non_zero_u8;
+use std::mem::transmute;
 
 
+include!("IsochronousAndInterrruptAdditionalTransactionOpportunitiesPerMicroframe.rs");
+include!("new_non_zero_u4.rs");
+include!("NonZeroU4.rs");
+include!("u11.rs");
 include!("UsbDirection.rs");
 include!("UsbEndPoint.rs");
 include!("UsbTransferType.rs");
-include!("UsbIschronousTransferSyncType.rs");
+include!("UsbIschronousTransferSynchronizationType.rs");
 include!("UsbIschronousTransferUsageType.rs");

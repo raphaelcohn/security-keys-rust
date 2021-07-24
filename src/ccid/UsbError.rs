@@ -42,6 +42,10 @@ pub(crate) enum UsbError
 		
 		index: u8,
 	},
+
+	ActiveConfigurationNotInConfiguations,
+	
+	InvalidCcidDeviceDescriptor(&'static str),
 }
 
 impl Display for UsbError
@@ -77,6 +81,8 @@ impl error::Error for UsbError
 			OpenDevice { cause, .. } => Some(cause),
 			
 			CouldNotReadString { cause, .. } => Some(cause),
+			
+			_ => None,
 		}
 	}
 }

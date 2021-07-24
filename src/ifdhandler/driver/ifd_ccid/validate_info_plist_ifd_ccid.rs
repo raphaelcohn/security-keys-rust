@@ -98,7 +98,7 @@ pub(in super) fn validate_info_plist_ifd_ccid(info_plist: &Dictionary) -> Result
 	#[inline(always)]
 	fn validate_string_key_is_present(info_plist: &Dictionary, key: &'static str, error: &'static str) -> Result<(), &'static str>
 	{
-		if let Some(Value::String(_)) = info_plist.get("key")
+		if let Some(Value::String(_)) = info_plist.get(key)
 		{
 			Ok(())
 		}

@@ -2,8 +2,12 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use self::language::UsbLanguage;
+use self::ccid_device_descriptor::CcidDeviceDescriptor;
+use self::ccid_device_descriptor::CcidProtocol;
+use self::end_point::NonZeroU4;
 use self::end_point::UsbEndPoint;
+use self::language::UsbLanguage;
+use indexmap::IndexMap;
 use rusb::ConfigDescriptor;
 use rusb::Device;
 use rusb::DeviceDescriptor;
@@ -15,8 +19,8 @@ use rusb::Speed;
 use rusb::UsbContext;
 use rusb::Version;
 use rusb::devices;
-use std::collections::HashMap;
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::error;
 use std::fmt::Debug;
@@ -25,7 +29,14 @@ use std::fmt::Formatter;
 use std::fmt;
 use std::hash::Hash;
 use std::hash::Hasher;
+use std::mem::transmute;
+use std::num::NonZeroU8;
 use std::time::Duration;
+use swiss_army_knife::non_zero::new_non_zero_u8;
+use swiss_army_knife::get_unchecked::GetUnchecked;
+
+
+pub(crate) mod ccid_device_descriptor;
 
 
 pub(crate) mod end_point;
@@ -34,7 +45,9 @@ pub(crate) mod end_point;
 pub(crate) mod language;
 
 
-include!("UsbConfiguration.rs");include!("UsbDevice.rs");
+include!("UsbClassAndProtocol.rs");
+include!("UsbConfiguration.rs");
+include!("UsbDevice.rs");
 include!("UsbError.rs");
 include!("UsbInterface.rs");
 include!("UsbInterfaceAlternateSetting.rs");

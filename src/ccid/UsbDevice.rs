@@ -23,11 +23,7 @@ pub(crate) struct UsbDevice
 	
 	manufacturer_device_version: Version,
 	
-	class_code: u8,
-
-	sub_class_code: u8,
-
-	protocol_code: u8,
+	class_and_protocol: UsbClassAndProtocol,
 	
 	languages: Option<Vec<UsbLanguage>>,
 	
@@ -37,7 +33,9 @@ pub(crate) struct UsbDevice
 	
 	serial_number_string: Option<UsbStringOrIndex>,
 	
-	configurations: Vec<UsbConfiguration>,
+	active_configuration: Option<NonZeroU8>,
+	
+	configurations: HashMap<NonZeroU8, UsbConfiguration>,
 }
 
 impl<T: UsbContext> TryFrom<Device<T>> for UsbDevice
@@ -84,18 +82,30 @@ impl<T: UsbContext> TryFrom<Device<T>> for UsbDevice
 				maximum_supported_usb_version: device_descriptor.usb_version(),
 				
 				manufacturer_device_version: device_descriptor.device_version(),
-			
-				class_code: device_descriptor.class_code(),
-			
-				sub_class_code: device_descriptor.sub_class_code(),
-			
-				protocol_code: device_descriptor.protocol_code(),
+				
+				class_and_protocol: UsbClassAndProtocol
+				{
+					class_code: device_descriptor.class_code(),
+					
+					sub_class_code: device_descriptor.sub_class_code(),
+					
+					protocol_code: device_descriptor.protocol_code(),
+				},
 				
 				manufacturer_string: usb_string_finder.find(device_descriptor.manufacturer_string_index())?,
 				
 				product_string: usb_string_finder.find(device_descriptor.product_string_index())?,
 				
 				serial_number_string: usb_string_finder.find(device_descriptor.serial_number_string_index())?,
+				
+				active_configuration: match device.active_config_descriptor()
+				{
+					Ok(config_descriptor) => Some(new_non_zero_u8(config_descriptor.number())),
+					
+					Err(rusb::Error::NotFound) => None,
+					
+					Err(cause) => return Err(GetDeviceActiveConfigDescriptor(cause)),
+				},
 				
 				configurations: UsbConfiguration::usb_configurations_try_from(&device, device_descriptor, &usb_string_finder)?,
 				
@@ -107,6 +117,35 @@ impl<T: UsbContext> TryFrom<Device<T>> for UsbDevice
 
 impl UsbDevice
 {
+	#[inline(always)]
+	pub(crate) fn is_currently_configured_as_circuit_card_interface_device(&self) -> Result<Vec<CcidDeviceDescriptor>, UsbError>
+	{
+		match self.cached_active_configuration()?
+		{
+			None => return Ok(Vec::new()),
+			
+			Some(active_configuration) => active_configuration.is_circuit_card_interface_device().map_err(UsbError::InvalidCcidDeviceDescriptor),
+		}
+	}
+	
+	#[inline(always)]
+	pub(crate) fn cached_active_configuration(&self) -> Result<Option<&UsbConfiguration>, UsbError>
+	{
+		if let Some(active_configuration) = self.active_configuration
+		{
+			match self.configurations.get(&active_configuration)
+			{
+				Some(configuration) => Ok(Some(configuration)),
+				
+				None => Err(UsbError::ActiveConfigurationNotInConfiguations)
+			}
+		}
+		else
+		{
+			Ok(None)
+		}
+	}
+	
 	#[inline(always)]
 	pub(crate) fn usb_devices_try_from() -> Result<Vec<Self>, UsbError>
 	{

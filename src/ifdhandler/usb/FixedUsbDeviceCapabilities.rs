@@ -8,17 +8,6 @@
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub(in crate::ifdhandler) struct FixedUsbDeviceCapabilities
 {
-	txt_file_name: &'static str,
-	
-	/// `iManufacturer`.
-	vendor_name: &'static str,
-	
-	/// `iProduct`.
-	product_name: &'static str,
-	
-	/// `bMaxSlotIndex`.
-	maximum_slot_index: u8,
-	
 	/// PC/SC's ifd-ccid driver models composite devices as if they have multiple slots.
 	///
 	/// The following devices are known to be composite:-
@@ -43,50 +32,16 @@ pub(in crate::ifdhandler) struct FixedUsbDeviceCapabilities
 	///
 	/// * FEITIANR502DUAL (Vendor 0x096E, Product Identifier: 0x060D).
 	composite_maximum_number_of_slots: Option<NonZeroU8>,
-
-	/// `dwProtocols`.
-	protocols: BitFlags<Protocol>,
-
-	/// `dwMechanical`.
-	mechanical_features: BitFlags<MechanicalFeature>,
-
-	features: Features,
-	
-	/// `dwMaxIFSD`.
-	t1_protocol_maximum_ifsd: usize,
-	
-	/// For extended APDU level the value shall be between 261 + 10 (header) and 65544 +10, otherwise the minimum value is the wMaxPacketSize of the Bulk-OUT endpoint.
-	///
-	/// `dwMaxCCIDMessageLength`.
-	maximum_ccid_message_length: usize,
 }
 
 impl FixedUsbDeviceCapabilities
 {
 	#[inline(always)]
-	pub(in crate::ifdhandler) fn new(txt_file_name: &'static str, vendor_name: &'static str, product_name: &'static str, maximum_slot_index: u8, composite_maximum_number_of_slots: Option<NonZeroU8>, protocols: BitFlags<Protocol>, mechanical_features: BitFlags<MechanicalFeature>, features: Features, t1_protocol_maximum_ifsd: usize, maximum_ccid_message_length: usize) -> Self
+	pub(in crate::ifdhandler) const fn new(composite_maximum_number_of_slots: Option<NonZeroU8>) -> FixedUsbDeviceCapabilities
 	{
 		Self
 		{
-			txt_file_name,
-		
-			vendor_name,
-		
-			product_name,
-		
-			maximum_slot_index,
-			
-			composite_maximum_number_of_slots,
-			
-			protocols,
-			
-			mechanical_features,
-			
-			features,
-			
-			t1_protocol_maximum_ifsd,
-			
-			maximum_ccid_message_length,
+			composite_maximum_number_of_slots
 		}
 	}
 	
@@ -94,11 +49,11 @@ impl FixedUsbDeviceCapabilities
 	///
 	/// In practice, this value has not been observed to exceed 8 either non-composite or composite card readers.
 	#[inline(always)]
-	pub(in crate::ifdhandler) fn TAG_IFD_SLOTS_NUMBER(&self) -> NonZeroU8
+	pub(in crate::ifdhandler) fn TAG_IFD_SLOTS_NUMBER(&self, maximum_slot_index: u8) -> NonZeroU8
 	{
 		match self.composite_maximum_number_of_slots
 		{
-			None => new_non_zero_u8(self.maximum_slot_index + 1),
+			None => new_non_zero_u8(maximum_slot_index + 1),
 			
 			Some(composite_maximum_number_of_slots) => composite_maximum_number_of_slots
 		}

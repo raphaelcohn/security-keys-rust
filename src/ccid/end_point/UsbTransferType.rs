@@ -11,7 +11,7 @@ pub(crate) enum UsbTransferType
 	/// Isochronous endpoint.
 	Isochronous
 	{
-		sync_type: UsbIschronousTransferSyncType,
+		sync_type: UsbIschronousTransferSynchronizationType,
 		
 		usage_type: UsbIschronousTransferUsageType,
 	},
@@ -34,7 +34,7 @@ impl<'a> From<&'a EndpointDescriptor<'a>> for UsbTransferType
 			
 			TransferType::Isochronous => UsbTransferType::Isochronous
 			{
-				sync_type: UsbIschronousTransferSyncType::from(end_point_descriptor.sync_type()),
+				sync_type: UsbIschronousTransferSynchronizationType::from(end_point_descriptor.sync_type()),
 				
 				usage_type: UsbIschronousTransferUsageType::from(end_point_descriptor.usage_type()),
 			},

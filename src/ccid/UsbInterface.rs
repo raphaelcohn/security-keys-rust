@@ -2,9 +2,10 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct UsbInterface
 {
+	/// Should linearly increase from zero for each configuration.
 	interface_number: u8,
 
 	interface_alternate_settings: Vec<UsbInterfaceAlternateSetting>
@@ -12,6 +13,13 @@ pub(crate) struct UsbInterface
 
 impl UsbInterface
 {
+	/// Does not check the alternate settings of the interface.
+	#[inline(always)]
+	fn is_circuit_card_interface_device(&self) -> Result<Option<CcidDeviceDescriptor>, &'static str>
+	{
+		self.interface_alternate_settings.get_unchecked_safe(0).is_circuit_card_interface_device()
+	}
+	
 	#[inline(always)]
 	fn try_from(interface: Interface, usb_string_finder: &UsbStringFinder<impl UsbContext>) -> Result<Self, UsbError>
 	{
@@ -35,6 +43,7 @@ impl UsbInterface
 		{
 			interfaces.push(Self::try_from(interface, usb_string_finder)?);
 		}
+		debug_assert!(interfaces.len() > 0, "No interfaces for configuration");
 		Ok(interfaces)
 	}
 }

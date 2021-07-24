@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-fn entry(txt_file_name: &'static str, vendor_name: &'static str, product_name: &'static str, maximum_slot_index: u8, composite_maximum_number_of_slots: Option<NonZeroU8>, protocols: BitFlags<Protocol>, mechanical_features: BitFlags<MechanicalFeature>, features: u32, t1_protocol_maximum_ifsd: usize, maximum_ccid_message_length: usize) -> FixedUsbDeviceCapabilities
+fn entry(composite_maximum_number_of_slots: Option<NonZeroU8>) -> FixedUsbDeviceCapabilities
 {
-	FixedUsbDeviceCapabilities::new(txt_file_name, vendor_name, product_name, maximum_slot_index, composite_maximum_number_of_slots, protocols, mechanical_features, Features::parse(features).unwrap(), t1_protocol_maximum_ifsd, maximum_ccid_message_length)
+	FixedUsbDeviceCapabilities::new(composite_maximum_number_of_slots)
 }

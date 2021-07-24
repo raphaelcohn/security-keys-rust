@@ -12,7 +12,7 @@ pub(crate) enum UsbIschronousTransferUsageType
 	Feedback,
 	
 	/// Explicit feedback data endpoint.
-	FeedbackData,
+	ImplicitFeedbackData,
 	
 	/// Reserved.
 	Reserved,
@@ -29,7 +29,7 @@ impl From<UsageType> for UsbIschronousTransferUsageType
 			
 			UsageType::Feedback => UsbIschronousTransferUsageType::Feedback,
 			
-			UsageType::FeedbackData => UsbIschronousTransferUsageType::FeedbackData,
+			UsageType::FeedbackData => UsbIschronousTransferUsageType::ImplicitFeedbackData,
 			
 			UsageType::Reserved => UsbIschronousTransferUsageType::Reserved,
 		}
