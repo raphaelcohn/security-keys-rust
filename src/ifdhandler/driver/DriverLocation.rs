@@ -4,12 +4,12 @@
 
 /// Represents a set of locations to search for drivers.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct CcidClassDriverLocation
+pub struct DriverLocation
 {
 	search_paths: Vec<PathBuf>,
 }
 
-impl Default for CcidClassDriverLocation
+impl Default for DriverLocation
 {
 	#[inline(always)]
 	fn default() -> Self
@@ -45,7 +45,7 @@ impl Default for CcidClassDriverLocation
 	}
 }
 
-impl CcidClassDriverLocation
+impl DriverLocation
 {
 	/// Create a new instance.
 	#[inline(always)]

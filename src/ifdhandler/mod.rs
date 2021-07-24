@@ -2,15 +2,28 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT.
 
 
-use std::borrow::Borrow;
-use std::sync::Arc;
 use self::c::constants::MAX_DEVICENAME;
 use self::c::types::DWORD;
 use self::driver::Driver;
-use self::usb::UsbDeviceName;
+use self::driver::DriverLocation;
+use self::driver::DriverUsbDeviceName;
+use self::driver::LoadDriverError;
+use self::usb::UsbDevice;
+use self::usb::UsbDeviceError;
+use self::usb::UsbError;
+use std::error;
+use std::fmt::Debug;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt;
+use std::sync::Arc;
 
 
 mod c;
+
+
+/// CCID (Chip Card Interface Device).
+pub mod ccid_device_descriptor;
 
 
 /// Driver.
@@ -26,4 +39,6 @@ pub mod usb;
 
 
 include!("Context.rs");
+include!("EXP.rs");
+include!("LoadError.rs");
 include!("LogicalUnitNumber.rs");

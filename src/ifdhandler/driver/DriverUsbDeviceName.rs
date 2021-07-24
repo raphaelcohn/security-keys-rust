@@ -3,13 +3,13 @@
 
 
 #[cfg(any(target_os = "ios", target_os = "macos"))]
-pub(super) struct UsbDeviceName
+pub(super) struct DriverUsbDeviceName
 {
 	friendly_name: CString,
 }
 
 #[cfg(any(target_os = "android", target_os = "linux"))]
-pub(super) struct UsbDeviceName
+pub(super) struct DriverUsbDeviceName
 {
 	/// Also known as manufacturer identifier.
 	vendor_identifier: UsbVendorIdentifier,
@@ -19,7 +19,7 @@ pub(super) struct UsbDeviceName
 	/// `udev_device_get_sysattr_value(dev, "bInterfaceNumber")`.
 	///
 	/// If not known defaults to `0`; usually `0` for most card readers.
-	interface_number: UsbInterfaceNumber,
+	interface_number: u8,
 	
 	/// Typically limited to a number between `0` and `255`.
 	bus_number: u8,
@@ -30,7 +30,7 @@ pub(super) struct UsbDeviceName
 	device_number: u16,
 }
 
-impl UsbDeviceName
+impl DriverUsbDeviceName
 {
 	#[cfg(any(target_os = "ios", target_os = "macos"))]
 	pub(super) fn as_c_str(&self) -> Cow<CStr>

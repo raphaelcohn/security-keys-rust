@@ -44,10 +44,6 @@
 use std::collections::TryReserveError;
 
 
-/// CCID (Chip Card Interface Device).
-pub mod ccid;
-
-
 /// IFD (Interface Device) handler.
 pub mod ifdhandler;
 

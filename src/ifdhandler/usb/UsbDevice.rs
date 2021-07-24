@@ -118,18 +118,18 @@ impl<T: UsbContext> TryFrom<Device<T>> for UsbDevice
 impl UsbDevice
 {
 	#[inline(always)]
-	pub(crate) fn is_currently_configured_as_circuit_card_interface_device(&self) -> Result<Vec<CcidDeviceDescriptor>, UsbError>
+	pub(crate) fn is_currently_configured_as_circuit_card_interface_device(&self) -> Result<Vec<CcidDeviceDescriptor>, UsbDeviceError>
 	{
 		match self.cached_active_configuration()?
 		{
 			None => return Ok(Vec::new()),
 			
-			Some(active_configuration) => active_configuration.is_circuit_card_interface_device().map_err(UsbError::InvalidCcidDeviceDescriptor),
+			Some(active_configuration) => active_configuration.is_circuit_card_interface_device().map_err(UsbDeviceError::InvalidCcidDeviceDescriptor),
 		}
 	}
 	
 	#[inline(always)]
-	pub(crate) fn cached_active_configuration(&self) -> Result<Option<&UsbConfiguration>, UsbError>
+	pub(crate) fn cached_active_configuration(&self) -> Result<Option<&UsbConfiguration>, UsbDeviceError>
 	{
 		if let Some(active_configuration) = self.active_configuration
 		{
@@ -137,7 +137,7 @@ impl UsbDevice
 			{
 				Some(configuration) => Ok(Some(configuration)),
 				
-				None => Err(UsbError::ActiveConfigurationNotInConfiguations)
+				None => Err(UsbDeviceError::ActiveConfigurationNotInConfiguations)
 			}
 		}
 		else

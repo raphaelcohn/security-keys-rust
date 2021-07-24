@@ -14,7 +14,7 @@ impl Context
 	/// Closely mirrors `IFDOpenIFD()` in `ifdwrapper.c`.
 	///
 	/// It is possible to pass `None` for `usb_device_name`, but it is unclear what actually then happens inside `OpenUSBByName()` in `ccid_usb.c`.
-	fn create_channel(&self, usb_device_name: Option<&UsbDeviceName>)
+	fn create_channel(&self, usb_device_name: Option<&DriverUsbDeviceName>)
 	{
 		let response_code = match usb_device_name
 		{

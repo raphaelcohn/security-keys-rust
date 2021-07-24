@@ -100,7 +100,7 @@ pub(crate) struct CcidDeviceDescriptor<'a>
 
 impl<'a> CcidDeviceDescriptor<'a>
 {
-	pub(super) const Length: usize = 54;
+	pub(crate) const Length: usize = 54;
 	
 	#[inline(always)]
 	pub(super) fn new(parent: &'a UsbInterfaceAlternateSetting, protocol: CcidProtocol, extra: &'a [u8]) -> Result<Self, &'static str>
