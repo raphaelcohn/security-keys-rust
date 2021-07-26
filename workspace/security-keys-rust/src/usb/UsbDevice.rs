@@ -26,7 +26,7 @@ pub struct UsbDevice
 	
 	manufacturer_device_version: UsbVersion,
 	
-	class_and_protocol: UsbClassAndProtocol,
+	class_and_protocol: UsbClassAndProtocol<Device>,
 	
 	languages: Option<Vec<UsbLanguage>>,
 	
@@ -41,12 +41,12 @@ pub struct UsbDevice
 	configurations: HashMap<NonZeroU8, UsbConfiguration>,
 }
 
-impl<T: UsbContext> TryFrom<Device<T>> for UsbDevice
+impl<T: UsbContext> TryFrom<rusb::Device<T>> for UsbDevice
 {
 	type Error = UsbError;
 	
 	#[inline(always)]
-	fn try_from(device: Device<T>) -> Result<Self, Self::Error>
+	fn try_from(device: rusb::Device<T>) -> Result<Self, Self::Error>
 	{
 		use self::UsbError::*;
 		
@@ -85,14 +85,14 @@ impl<T: UsbContext> TryFrom<Device<T>> for UsbDevice
 				
 				manufacturer_device_version: device_descriptor.device_version().into(),
 				
-				class_and_protocol: UsbClassAndProtocol
-				{
-					class_code: device_descriptor.class_code(),
+				class_and_protocol: UsbClassAndProtocol::new
+				(
+					device_descriptor.class_code(),
 					
-					sub_class_code: device_descriptor.sub_class_code(),
+					device_descriptor.sub_class_code(),
 					
-					protocol_code: device_descriptor.protocol_code(),
-				},
+					device_descriptor.protocol_code(),
+				),
 				
 				manufacturer_string: usb_string_finder.find(device_descriptor.manufacturer_string_index())?,
 				

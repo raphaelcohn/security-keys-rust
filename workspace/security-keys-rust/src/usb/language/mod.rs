@@ -14,7 +14,7 @@ include!("DutchSubLanguage.rs");
 include!("EnglishSubLanguage.rs");
 include!("FrenchSubLanguage.rs");
 include!("GermanSubLanguage.rs");
-include!("HIDSubLanguage.rs");
+include!("HumanInterfaceDeviceSubLanguage.rs");
 include!("ItalianSubLanguage.rs");
 include!("KoreanSubLanguage.rs");
 include!("LithuanianSubLanguage.rs");

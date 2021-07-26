@@ -71,7 +71,7 @@ impl UsbConfiguration
 	}
 	
 	#[inline(always)]
-	fn usb_configurations_try_from<T: UsbContext>(device: &Device<T>, device_descriptor: DeviceDescriptor, usb_string_finder: &UsbStringFinder<T>) -> Result<HashMap<NonZeroU8, Self>, UsbError>
+	fn usb_configurations_try_from<T: UsbContext>(device: &rusb::Device<T>, device_descriptor: DeviceDescriptor, usb_string_finder: &UsbStringFinder<T>) -> Result<HashMap<NonZeroU8, Self>, UsbError>
 	{
 		use self::UsbError::*;
 		

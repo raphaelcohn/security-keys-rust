@@ -5,53 +5,66 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub(crate) struct UsbClassAndProtocol
+pub(crate) struct UsbClassAndProtocol<DOI: DeviceOrInterface>
 {
 	class_code: u8,
 	
 	sub_class_code: u8,
 	
 	protocol_code: u8,
+
+	marker: PhantomData<DOI>,
 }
 
-impl UsbClassAndProtocol
+impl<DOI: DeviceOrInterface> UsbClassAndProtocol<DOI>
 {
-	const NoClass: u8 = 0x00;
-	const CcidClass: u8 = 0x0B;
-	const VendorSpecificClass: u8 = 0xFF;
-	
-	const NoSubClass: u8 = 0x00;
-	const VendorSpecificSubClass: u8 = 0xFF;
-	
-	const NoProtocol: u8 = 0x00;
-	const VendorSpecificProtocol: u8 = 0xFF;
-	
 	#[inline(always)]
-	fn is_device_probable_circuit_card_interface_device(&self) -> bool
+	pub(super) fn new(class_code: u8, sub_class_code: u8, protocol_code: u8) -> Self
+	{
+		Self
+		{
+			class_code,
+		
+			sub_class_code,
+		
+			protocol_code,
+			
+			marker: PhantomData,
+		}
+	}
+}
+
+impl UsbClassAndProtocol<Device>
+{
+	#[inline(always)]
+	pub(super) fn is_device_probable_circuit_card_interface_device(&self) -> bool
 	{
 		match (self.class_code, self.sub_class_code, self.protocol_code)
 		{
-			(Self::NoClass, Self::NoSubClass, Self::NoProtocol) => true,
+			(Device::UseClassInformationInTheInterfaceDescriptorsClass, Device::UseClassInformationInTheInterfaceDescriptorsSubClass, Device::UseClassInformationInTheInterfaceDescriptorsProtocol) => true,
 			
 			// "Some early Gemalto Ezio CB+ readers have bDeviceClass, bDeviceSubClass and bDeviceProtocol set to 0xFF instead of 0x00".
-			(Self::VendorSpecificClass, Self::VendorSpecificSubClass, Self::VendorSpecificProtocol) => true,
+			(Device::VendorSpecificClass, Device::VendorSpecificSubClass, Device::VendorSpecificProtocol) => true,
 			
 			_ => false,
 		}
 	}
-	
+}
+
+impl UsbClassAndProtocol<Interface>
+{
 	/// This test is only valid on details held in an Interface Descriptor.
 	///
 	/// Is this a CCID (Circuit Card Interface Device)?
 	#[inline(always)]
-	fn is_interface_circuit_card_interface_device(&self, extra_data_length_matches: bool) -> Option<CcidProtocol>
+	pub(super) fn is_interface_circuit_card_interface_device(&self, extra_data_length_matches: bool) -> Option<CcidProtocol>
 	{
 		match (self.class_code, self.sub_class_code, self.protocol_code)
 		{
-			(Self::CcidClass, 0x00, 0x00 ..= 0x02) => self.ccid_protocol(),
+			(Interface::SmartCardClass, 0x00, 0x00 ..= 0x02) => self.ccid_protocol(),
 			
 			// Exists from before standardization.
-			(Self::VendorSpecificClass, 0x00, 0x00 ..= 0x02) => if extra_data_length_matches
+			(Interface::VendorSpecificClass, 0x00, 0x00 ..= 0x02) => if extra_data_length_matches
 			{
 				self.ccid_protocol()
 			}

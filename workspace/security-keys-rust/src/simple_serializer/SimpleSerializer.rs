@@ -116,17 +116,17 @@ impl<'a, W: Write> Serializer for &'a mut SimpleSerializer<W>
 	#[inline(always)]
 	fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error>
     {
+		self.serialize_bytes(b"'")?;
 		self.serialize_character(v)?;
-		self.serialize_bytes(b"\n")
+		self.serialize_bytes(b"'\n")
 	}
-
+	
+	#[inline(always)]
 	fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error>
 	{
-		for c in v.chars()
-		{
-			self.serialize_character(c)?;
-		}
-		self.serialize_bytes(b"\n")
+		self.serialize_bytes(b"\"")?;
+		self.serialize_string(v)?;
+		self.serialize_bytes(b"\"\n")
 	}
 	
 	#[inline(always)]
@@ -164,7 +164,8 @@ impl<'a, W: Write> Serializer for &'a mut SimpleSerializer<W>
 	#[inline(always)]
 	fn serialize_unit_variant(self, _name: &'static str, _variant_index: u32, variant: &'static str) -> Result<Self::Ok, Self::Error>
 	{
-		self.serialize_str(variant)
+		self.serialize_string(variant)?;
+		self.serialize_bytes(b"\n")
 	}
 	
 	#[inline(always)]
@@ -372,7 +373,7 @@ impl<W: Write> SimpleSerializer<W>
 	#[inline(always)]
 	fn serialize_character(&mut self, v: char) -> Result<(), SimpleSerializerError>
     {
-		if v.is_control() || v.is_whitespace()
+		if v.is_control()
 		{
 			let bytes = match v
 			{
@@ -390,7 +391,7 @@ impl<W: Write> SimpleSerializer<W>
 				
 				_ =>
 				{
-					self.serialize_bytes(b"0x")?;
+					self.serialize_bytes(b"\\u{")?;
 					
 					let v: u32 = v as u32;
 					let bytes = v.to_be_bytes();
@@ -398,7 +399,9 @@ impl<W: Write> SimpleSerializer<W>
 					self.write_byte_as_hexadecimal(bytes.get_unchecked_value_safe(0))?;
 					self.write_byte_as_hexadecimal(bytes.get_unchecked_value_safe(1))?;
 					self.write_byte_as_hexadecimal(bytes.get_unchecked_value_safe(2))?;
-					return self.write_byte_as_hexadecimal(bytes.get_unchecked_value_safe(3))
+					self.write_byte_as_hexadecimal(bytes.get_unchecked_value_safe(3))?;
+					
+					return self.serialize_bytes(b"}")
 				}
 			};
 			self.serialize_bytes(bytes)
@@ -410,5 +413,15 @@ impl<W: Write> SimpleSerializer<W>
 			let string = v.encode_utf8(unsafe { from_raw_parts_mut(buffer.as_mut_ptr() as *mut u8, MaximumUtf8Length) });
 			self.serialize_bytes(string.as_bytes())
 		}
+	}
+	
+	#[inline(always)]
+	fn serialize_string(&mut self, v: &str) -> Result<(), SimpleSerializerError>
+	{
+		for c in v.chars()
+		{
+			self.serialize_character(c)?;
+		}
+		Ok(())
 	}
 }

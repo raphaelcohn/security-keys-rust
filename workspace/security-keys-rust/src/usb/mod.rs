@@ -4,15 +4,16 @@
 
 use self::ccid_device_descriptor::CcidDeviceDescriptor;
 use self::ccid_device_descriptor::CcidProtocol;
+use self::class_and_protocol::Device;
+use self::class_and_protocol::Interface;
+use self::class_and_protocol::UsbClassAndProtocol;
 use self::end_point::u4;
 use self::end_point::UsbEndPoint;
 use self::language::UsbLanguage;
 use indexmap::map::IndexMap;
 use rusb::ConfigDescriptor;
-use rusb::Device;
 use rusb::DeviceDescriptor;
 use rusb::DeviceHandle;
-use rusb::Interface;
 use rusb::InterfaceDescriptor;
 use rusb::Language;
 use rusb::Speed;
@@ -42,6 +43,10 @@ use swiss_army_knife::non_zero::new_non_zero_u8;
 pub(crate) mod ccid_device_descriptor;
 
 
+/// Class, sub-class and protocol.
+pub(crate) mod class_and_protocol;
+
+
 /// End points.
 pub(crate) mod end_point;
 
@@ -51,18 +56,17 @@ pub mod language;
 
 
 include!("FixedUsbDeviceCapabilities.rs");
-include!("UsbDeviceInformationDatabase.rs");
-include!("UsbProductIdentifier.rs");
-include!("UsbVendorIdentifier.rs");
-include!("UsbClassAndProtocol.rs");
 include!("UsbConfiguration.rs");
 include!("UsbDevice.rs");
 include!("UsbDeviceError.rs");
+include!("UsbDeviceInformationDatabase.rs");
 include!("UsbError.rs");
 include!("UsbInterface.rs");
 include!("UsbInterfaceAlternateSetting.rs");
+include!("UsbProductIdentifier.rs");
 include!("UsbSpeed.rs");
 include!("UsbString.rs");
 include!("UsbStringFinder.rs");
 include!("UsbStringOrIndex.rs");
+include!("UsbVendorIdentifier.rs");
 include!("UsbVersion.rs");

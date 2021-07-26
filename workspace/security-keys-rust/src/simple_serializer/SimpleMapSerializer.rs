@@ -40,8 +40,7 @@ impl<'a, W: Write> SerializeMap for SimpleMapSerializer<'a, W>
 		self.write_identation()?;
 		self.serialize_borrow_checker_hack(key)?;
 		self.write_identation()?;
-		self.serialize_bytes(b":\n")?;
-		self.write_identation()?;
+		self.serialize_bytes(b":")?;
 		Ok(())
 	}
 	

@@ -224,8 +224,8 @@ pub enum UsbLanguage
 	#[allow(missing_docs)]
 	Vietnamese,
 	
-	#[allow(missing_docs)]
-	HID(HIDSubLanguage),
+	/// Human Interface Device (HID).
+	HumanInterfaceDevice(HumanInterfaceDeviceSubLanguage),
 	
 	#[allow(missing_docs)]
 	Unknown(u16)
@@ -649,19 +649,19 @@ impl UsbLanguage
 			
 			0x002A => Vietnamese,
 			
-			0x00FF => HID(match sub_language_code
+			0x00FF => HumanInterfaceDevice(match sub_language_code
 			{
-				0x0400 => HIDSubLanguage::UsageDataDescriptor,
+				0x0400 => HumanInterfaceDeviceSubLanguage::UsageDataDescriptor,
 				
-				0xF000 => HIDSubLanguage::VendorDefined1,
+				0xF000 => HumanInterfaceDeviceSubLanguage::VendorDefined1,
 				
-				0xF400 => HIDSubLanguage::VendorDefined2,
+				0xF400 => HumanInterfaceDeviceSubLanguage::VendorDefined2,
 				
-				0xF800 => HIDSubLanguage::VendorDefined3,
+				0xF800 => HumanInterfaceDeviceSubLanguage::VendorDefined3,
 				
-				0xFC00 => HIDSubLanguage::VendorDefined4,
+				0xFC00 => HumanInterfaceDeviceSubLanguage::VendorDefined4,
 				
-				_ => HIDSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => HumanInterfaceDeviceSubLanguage::Unknown((sub_language_code >> 10) as u6),
 			}),
 			
 			_ => Unknown(language_identifier),

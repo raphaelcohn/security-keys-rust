@@ -23,7 +23,7 @@ impl UsbInterface
 	}
 	
 	#[inline(always)]
-	fn try_from(interface: Interface, usb_string_finder: &UsbStringFinder<impl UsbContext>) -> Result<Self, UsbError>
+	fn try_from(interface: rusb::Interface, usb_string_finder: &UsbStringFinder<impl UsbContext>) -> Result<Self, UsbError>
 	{
 		Ok
 		(

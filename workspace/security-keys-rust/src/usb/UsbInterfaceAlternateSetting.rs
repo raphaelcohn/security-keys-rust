@@ -11,7 +11,7 @@ pub(crate) struct UsbInterfaceAlternateSetting
 	/// Should linearly increase from zero for each interface.
 	alternate_setting_number: u8,
 	
-	class_and_protocol: UsbClassAndProtocol,
+	class_and_protocol: UsbClassAndProtocol<Interface>,
 
 	description: Option<UsbStringOrIndex>,
 
@@ -85,14 +85,14 @@ impl UsbInterfaceAlternateSetting
 			{
 				alternate_setting_number: interface_descriptor.setting_number(),
 				
-				class_and_protocol: UsbClassAndProtocol
-				{
-					class_code: interface_descriptor.class_code(),
+				class_and_protocol: UsbClassAndProtocol::new
+				(
+					interface_descriptor.class_code(),
 					
-					sub_class_code: interface_descriptor.sub_class_code(),
+					interface_descriptor.sub_class_code(),
 					
-					protocol_code: interface_descriptor.protocol_code(),
-				},
+					interface_descriptor.protocol_code(),
+				),
 				
 				description: usb_string_finder.find(interface_descriptor.description_string_index())?,
 			
@@ -113,7 +113,7 @@ impl UsbInterfaceAlternateSetting
 	}
 	
 	#[inline(always)]
-	fn usb_interface_alternate_settings_try_from(interface: Interface, usb_string_finder: &UsbStringFinder<impl UsbContext>) -> Result<Vec<Self>, UsbError>
+	fn usb_interface_alternate_settings_try_from(interface: rusb::Interface, usb_string_finder: &UsbStringFinder<impl UsbContext>) -> Result<Vec<Self>, UsbError>
 	{
 		let interface_alternate_settings_iterator = interface.descriptors();
 		let mut interface_alternate_settings =

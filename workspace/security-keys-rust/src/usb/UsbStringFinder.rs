@@ -19,7 +19,7 @@ impl<T: UsbContext> UsbStringFinder<T>
 	const TimeOut: Duration = Duration::from_secs(5);
 	
 	#[inline(always)]
-	fn new(device: &Device<T>) -> Self
+	fn new(device: &rusb::Device<T>) -> Self
 	{
 		use self::UsbStringFinder::*;
 		

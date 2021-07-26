@@ -2,28 +2,14 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// HID.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-#[repr(u16)]
-pub enum HIDSubLanguage
-{
-	#[allow(missing_docs)]
-	UsageDataDescriptor = 0x0400,
-	
-	#[allow(missing_docs)]
-	VendorDefined1 = 0xF000,
-	
-	#[allow(missing_docs)]
-	VendorDefined2 = 0xF400,
-	
-	#[allow(missing_docs)]
-	VendorDefined3 = 0xF800,
-	
-	#[allow(missing_docs)]
-	VendorDefined4 = 0xFC00,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
-}
+use super::ccid_device_descriptor::CcidProtocol;
+use serde::Deserialize;
+use serde::Serialize;
+use std::marker::PhantomData;
+use std::mem::transmute;
+
+
+include!("Device.rs");
+include!("DeviceOrInterface.rs");
+include!("Interface.rs");
+include!("UsbClassAndProtocol.rs");
