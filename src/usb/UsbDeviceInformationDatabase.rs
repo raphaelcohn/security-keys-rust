@@ -2,23 +2,26 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT.
 
 
-use super::FixedDriverCapabilities;
-use super::OurDriverName;
-use crate::usb::FixedUsbDeviceCapabilities;
-use crate::usb::UsbDeviceInformationDatabase;
-use likely::unlikely;
-use maplit::hashmap;
-use plist::Dictionary;
-use plist::Value;
-use std::env::var_os;
-use std::mem::size_of;
-use std::num::NonZeroU8;
-use swiss_army_knife::non_zero::new_non_zero_u8;
-use swiss_army_knife::non_zero::new_non_zero_usize;
-use swiss_army_knife::strings::parse_number::ParseNumber;
+#[derive(Default, Debug, Clone, PartialEq, Eq)]
+pub(crate) struct UsbDeviceInformationDatabase<T>(HashMap<(UsbVendorIdentifier, UsbProductIdentifier), T>);
 
-
-include!("entry.rs");
-include!("fixed_driver_capabilities_ifd_ccid.rs");
-include!("our_driver_name_ifd_ccid.rs");
-include!("validate_info_plist_ifd_ccid.rs");
+impl<T> UsbDeviceInformationDatabase<T>
+{
+	#[inline(always)]
+	pub(crate) fn empty() -> Self
+	{
+		Self(HashMap::new())
+	}
+	
+	#[inline(always)]
+	pub(crate) fn from_hash_map(hash_map: HashMap<(UsbVendorIdentifier, UsbProductIdentifier), T>) -> Self
+	{
+		Self(hash_map)
+	}
+	
+	#[inline(always)]
+	pub(crate) fn get(&self, vendor_identifier: UsbVendorIdentifier, product_identifier: UsbProductIdentifier) -> Option<&T>
+	{
+		self.0.get(&(vendor_identifier, product_identifier))
+	}
+}

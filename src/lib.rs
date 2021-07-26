@@ -59,4 +59,12 @@ mod low_level;
 //mod open_pgp;
 
 
+/// A simple serializer for dumping data to the console.
+pub mod simple_serializer;
+
+
+/// USB.
+pub mod usb;
+
+
 include!("VecExt.rs");

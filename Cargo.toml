@@ -19,21 +19,23 @@ edition = '2018'
 version = "0.0.0"
 
 [dependencies]
-arrayvec = "^0.7.1"
+arrayvec = { version = "^0.7.1", optional = true }
 enumflags2 = { version = "^0.7.1", features = ["std", "serde"] }
 errno = "^0.2.7"
 indexmap = { version = "^1.7.0", features = ["std", "serde-1"] }
+dtoa = "^0.4.8"
+itoa = { version = "^0.4.7", features = ["std", "i128"] }
 libc = "^0.2.98"
 libloading = "^0.7.0"
 likely = "^0.1.0"
 maplit = "^1.0.2"
-memchr = "^2.4.0"
+memchr = { version = "^2.4.0", optional = true }
 plist = "^1.1.0"
 rusb = "^0.8.1"
 serde = { version = "^1.0.126", features = ["derive"] }
-strum = "^0.21.0"
-strum_macros = "^0.21.0"
+strum = { version = "^0.21.0", optional = true }
+strum_macros = { version = "^0.21.0", optional = true }
 swiss-army-knife = "^0.0.21"
 
 [features]
-pcsc = []
+pcsc = ["arrayvec", "memchr", "strum", "strum_macros"]

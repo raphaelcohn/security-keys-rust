@@ -8,9 +8,9 @@ use self::driver::Driver;
 use self::driver::DriverLocation;
 use self::driver::DriverUsbDeviceName;
 use self::driver::LoadDriverError;
-use self::usb::UsbDevice;
-use self::usb::UsbDeviceError;
-use self::usb::UsbError;
+use crate::usb::UsbDevice;
+use crate::usb::UsbDeviceError;
+use crate::usb::UsbError;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;
@@ -22,20 +22,12 @@ use std::sync::Arc;
 mod c;
 
 
-/// CCID (Chip Card Interface Device).
-pub mod ccid_device_descriptor;
-
-
 /// Driver.
 pub mod driver;
 
 
 /// Errors.
 pub mod errors;
-
-
-/// USB.
-pub mod usb;
 
 
 include!("Context.rs");
