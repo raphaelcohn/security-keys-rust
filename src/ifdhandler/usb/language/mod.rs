@@ -3,6 +3,8 @@
 
 
 use rusb::Language;
+use serde::Deserialize;
+use serde::Serialize;
 
 
 include!("ArabicSubLanguage.rs");

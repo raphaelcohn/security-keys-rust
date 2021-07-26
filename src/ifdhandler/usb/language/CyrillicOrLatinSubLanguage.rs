@@ -3,6 +3,8 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) enum CyrillicOrLatinSubLanguage
 {
 	#[allow(missing_docs)]

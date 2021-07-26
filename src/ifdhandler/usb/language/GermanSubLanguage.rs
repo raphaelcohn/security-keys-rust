@@ -3,22 +3,25 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+#[repr(u16)]
 pub(crate) enum GermanSubLanguage
 {
 	#[allow(missing_docs)]
-	Standard,
+	Standard = 0x0400,
 	
 	#[allow(missing_docs)]
-	Switzerland,
+	Switzerland = 0x0800,
 	
 	#[allow(missing_docs)]
-	Austria,
+	Austria = 0x0C00,
 	
 	#[allow(missing_docs)]
-	Luxembourg,
+	Luxembourg = 0x1000,
 	
 	#[allow(missing_docs)]
-	Liechtenstein,
+	Liechtenstein = 0x1400,
 	
 	#[allow(missing_docs)]
 	Unknown(u6),

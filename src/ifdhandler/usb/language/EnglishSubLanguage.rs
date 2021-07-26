@@ -3,46 +3,49 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+#[repr(u16)]
 pub(crate) enum EnglishSubLanguage
 {
 	#[allow(missing_docs)]
-	UnitedStates,
+	UnitedStates = 0x0400,
 	
 	#[allow(missing_docs)]
-	UnitedKingdom,
+	UnitedKingdom = 0x0800,
 	
 	#[allow(missing_docs)]
-	Australia,
+	Australia = 0x0C00,
 	
 	#[allow(missing_docs)]
-	Canada,
+	Canada = 0x1000,
 	
 	#[allow(missing_docs)]
-	NewZealand,
+	NewZealand = 0x1400,
 	
 	#[allow(missing_docs)]
-	Ireland,
+	Ireland = 0x1800,
 	
 	#[allow(missing_docs)]
-	SouthAfrica,
+	SouthAfrica = 0x1C00,
 	
 	#[allow(missing_docs)]
-	Jamaica,
+	Jamaica = 0x2000,
 	
 	#[allow(missing_docs)]
-	Caribbean,
+	Caribbean = 0x2400,
 	
 	#[allow(missing_docs)]
-	Belize,
+	Belize = 0x2800,
 	
 	#[allow(missing_docs)]
-	Trinidad,
+	Trinidad = 0x2C00,
 	
 	#[allow(missing_docs)]
-	Zimbabwe,
+	Zimbabwe = 0x3000,
 	
 	#[allow(missing_docs)]
-	Philippines,
+	Philippines = 0x3400,
 	
 	#[allow(missing_docs)]
 	Unknown(u6),

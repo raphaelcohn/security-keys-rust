@@ -3,6 +3,8 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 #[bitflags]
 #[repr(u32)]
 pub(crate) enum SynchronizationProtocol

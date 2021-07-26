@@ -4,6 +4,8 @@
 
 /// Represents an Interface Descriptor.
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct UsbInterfaceAlternateSetting
 {
 	/// Should linearly increase from zero for each interface.
@@ -23,7 +25,7 @@ impl UsbInterfaceAlternateSetting
 	#[inline(always)]
 	fn is_circuit_card_interface_device(&self) -> Result<Option<CcidDeviceDescriptor>, &'static str>
 	{
-		match self.class_and_protocol.is_circuit_card_interface_device(self.extra.len() == CcidDeviceDescriptor::Length)
+		match self.class_and_protocol.is_interface_circuit_card_interface_device(self.extra.len() == CcidDeviceDescriptor::Length)
 		{
 			Some(protocol) => match self.extract_ccid_device_descriptor(protocol)
 			{

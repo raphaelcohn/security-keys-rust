@@ -3,6 +3,8 @@
 
 
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct UsbConfiguration
 {
 	maximum_power_in_milliamps: u16,

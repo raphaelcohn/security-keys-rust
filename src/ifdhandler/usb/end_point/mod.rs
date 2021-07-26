@@ -9,6 +9,8 @@ use rusb::InterfaceDescriptor;
 use rusb::TransferType;
 use rusb::SyncType;
 use rusb::UsageType;
+use serde::Deserialize;
+use serde::Serialize;
 use std::num::NonZeroU8;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use std::mem::transmute;

@@ -5,24 +5,38 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-#[repr(u16)]
-pub(crate) enum HIDSubLanguage
+pub(crate) struct UsbVersion
 {
-	#[allow(missing_docs)]
-	UsageDataDescriptor = 0x0400,
-	
-	#[allow(missing_docs)]
-	VendorDefined1 = 0xF000,
-	
-	#[allow(missing_docs)]
-	VendorDefined2 = 0xF400,
-	
-	#[allow(missing_docs)]
-	VendorDefined3 = 0xF800,
-	
-	#[allow(missing_docs)]
-	VendorDefined4 = 0xFC00,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
+	major: u8,
+
+	minor: u8,
+
+	sub_minor: u8,
+}
+
+/// This is for a little-endian `u16`.
+impl From<u16> for UsbVersion
+{
+	/// This is for a little-endian `u16`.
+	#[inline(always)]
+	fn from(binary_coded_decimal: u16) -> Self
+	{
+		Self::from(Version::from_bcd(binary_coded_decimal))
+	}
+}
+
+impl From<Version> for UsbVersion
+{
+	#[inline(always)]
+	fn from(version: Version) -> Self
+	{
+		UsbVersion
+		{
+			major: version.major(),
+			
+			minor: version.minor(),
+			
+			sub_minor: version.sub_minor(),
+		}
+	}
 }

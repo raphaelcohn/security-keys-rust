@@ -3,6 +3,8 @@
 
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct Features
 {
 	automatic: BitFlags<AutomaticFeature>,

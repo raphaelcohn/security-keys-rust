@@ -3,6 +3,8 @@
 
 
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct UsbDevice
 {
 	bus_number: u8,
@@ -13,15 +15,15 @@ pub(crate) struct UsbDevice
 
 	port_numbers: Vec<u8>,
 
-	speed: Speed,
-
-	vendor_identifier: u16,
-
-	product_identifier: u16,
+	speed: UsbSpeed,
 	
-	maximum_supported_usb_version: Version,
+	pub(crate) vendor_identifier: UsbVendorIdentifier,
 	
-	manufacturer_device_version: Version,
+	pub(crate) product_identifier: UsbProductIdentifier,
+	
+	maximum_supported_usb_version: UsbVersion,
+	
+	manufacturer_device_version: UsbVersion,
 	
 	class_and_protocol: UsbClassAndProtocol,
 	
@@ -73,15 +75,15 @@ impl<T: UsbContext> TryFrom<Device<T>> for UsbDevice
 					port_numbers
 				},
 			
-				speed: device.speed(),
+				speed: device.speed().into(),
 				
 				vendor_identifier: device_descriptor.vendor_id(),
 				
 				product_identifier: device_descriptor.product_id(),
 			
-				maximum_supported_usb_version: device_descriptor.usb_version(),
+				maximum_supported_usb_version: device_descriptor.usb_version().into(),
 				
-				manufacturer_device_version: device_descriptor.device_version(),
+				manufacturer_device_version: device_descriptor.device_version().into(),
 				
 				class_and_protocol: UsbClassAndProtocol
 				{
@@ -120,11 +122,18 @@ impl UsbDevice
 	#[inline(always)]
 	pub(crate) fn is_currently_configured_as_circuit_card_interface_device(&self) -> Result<Vec<CcidDeviceDescriptor>, UsbDeviceError>
 	{
-		match self.cached_active_configuration()?
+		if self.class_and_protocol.is_device_probable_circuit_card_interface_device()
 		{
-			None => return Ok(Vec::new()),
-			
-			Some(active_configuration) => active_configuration.is_circuit_card_interface_device().map_err(UsbDeviceError::InvalidCcidDeviceDescriptor),
+			match self.cached_active_configuration()?
+			{
+				None => return Ok(Vec::new()),
+				
+				Some(active_configuration) => active_configuration.is_circuit_card_interface_device().map_err(UsbDeviceError::InvalidCcidDeviceDescriptor),
+			}
+		}
+		else
+		{
+			Ok(Vec::new())
 		}
 	}
 	

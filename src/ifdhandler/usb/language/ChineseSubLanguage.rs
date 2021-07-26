@@ -3,22 +3,25 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+#[repr(u16)]
 pub(crate) enum ChineseSubLanguage
 {
 	#[allow(missing_docs)]
-	Taiwan,
+	Taiwan = 0x0400,
 	
 	#[allow(missing_docs)]
-	China,
+	China = 0x0800,
 	
 	#[allow(missing_docs)]
-	HongKong,
+	HongKong = 0x0C00,
 	
 	#[allow(missing_docs)]
-	Singapore,
+	Singapore = 0x1000,
 	
 	#[allow(missing_docs)]
-	Macau,
+	Macau = 0x1400,
 	
 	#[allow(missing_docs)]
 	Unknown(u6),

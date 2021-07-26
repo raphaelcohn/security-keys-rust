@@ -5,24 +5,40 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-#[repr(u16)]
-pub(crate) enum HIDSubLanguage
+pub(crate) enum UsbSpeed
 {
-	#[allow(missing_docs)]
-	UsageDataDescriptor = 0x0400,
+	/// The operating system doesn't know the device speed.
+	Unknown,
 	
-	#[allow(missing_docs)]
-	VendorDefined1 = 0xF000,
+	/// The device is operating at low speed (1.5 Mbps).
+	Low,
 	
-	#[allow(missing_docs)]
-	VendorDefined2 = 0xF400,
+	/// The device is operating at full speed (12 Mbps).
+	Full,
 	
-	#[allow(missing_docs)]
-	VendorDefined3 = 0xF800,
+	/// The device is operating at high speed (480 Mbps).
+	High,
 	
-	#[allow(missing_docs)]
-	VendorDefined4 = 0xFC00,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
+	/// The device is operating at super speed (5 Gbps).
+	Super,
+}
+
+impl From<Speed> for UsbSpeed
+{
+	#[inline(always)]
+	fn from(speed: Speed) -> Self
+	{
+		match speed
+		{
+			Speed::Unknown => UsbSpeed::Unknown,
+			
+			Speed::Low => UsbSpeed::Low,
+			
+			Speed::Full => UsbSpeed::Full,
+			
+			Speed::High => UsbSpeed::High,
+			
+			Speed::Super => UsbSpeed::Super,
+		}
+	}
 }

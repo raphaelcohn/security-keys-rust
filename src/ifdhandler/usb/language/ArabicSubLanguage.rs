@@ -3,55 +3,58 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+#[repr(u16)]
 pub(crate) enum ArabicSubLanguage
 {
 	#[allow(missing_docs)]
-	SaudiArabia,
+	SaudiArabia = 0x0400,
 	
 	#[allow(missing_docs)]
-	Iraq,
+	Iraq = 0x0800,
 	
 	#[allow(missing_docs)]
-	Egypt,
+	Egypt = 0x0C00,
 	
 	#[allow(missing_docs)]
-	Libya,
+	Libya = 0x1000,
 	
 	#[allow(missing_docs)]
-	Algeria,
+	Algeria = 0x1400,
 	
 	#[allow(missing_docs)]
-	Morocco,
+	Morocco = 0x1800,
 	
 	#[allow(missing_docs)]
-	Tunisia,
+	Tunisia = 0x1C00,
 	
 	#[allow(missing_docs)]
-	Oman,
+	Oman = 0x2000,
 	
 	#[allow(missing_docs)]
-	Yemen,
+	Yemen = 0x2400,
 	
 	#[allow(missing_docs)]
-	Syria,
+	Syria = 0x2800,
 	
 	#[allow(missing_docs)]
-	Jordan,
+	Jordan = 0x2C00,
 	
 	#[allow(missing_docs)]
-	Lebanon,
+	Lebanon = 0x3000,
 	
 	#[allow(missing_docs)]
-	Kuwait,
+	Kuwait = 0x3400,
 	
 	#[allow(missing_docs)]
-	UnitedArabEmirates,
+	UnitedArabEmirates = 0x3800,
 	
 	#[allow(missing_docs)]
-	Bahrain,
+	Bahrain = 0x3C00,
 	
 	#[allow(missing_docs)]
-	Qatar,
+	Qatar = 0x4000,
 	
 	#[allow(missing_docs)]
 	Unknown(u6),

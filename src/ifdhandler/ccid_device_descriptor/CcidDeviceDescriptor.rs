@@ -2,6 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Serialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct CcidDeviceDescriptor<'a>
 {
 	parent: &'a UsbInterfaceAlternateSetting,
@@ -16,7 +19,7 @@ pub(crate) struct CcidDeviceDescriptor<'a>
 	has_proprietary_descriptor_type: bool,
 
 	/// `bcdCCID`.
-	version: Version,
+	version: UsbVersion,
 	
 	/// `bMaxSlotIndex`.
 	///
@@ -133,7 +136,7 @@ impl<'a> CcidDeviceDescriptor<'a>
 				
 				has_proprietary_descriptor_type,
 			
-				version: Version::from_bcd(extra.u16(3)),
+				version: UsbVersion::from(extra.u16(3)),
 				
 				maximum_slot_index: extra.u8(4),
 				

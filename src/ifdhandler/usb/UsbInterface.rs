@@ -3,6 +3,8 @@
 
 
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub(crate) struct UsbInterface
 {
 	/// Should linearly increase from zero for each configuration.

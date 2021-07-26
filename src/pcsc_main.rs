@@ -2,21 +2,21 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT.
 
 
-use security_keys_rust::VecExt;
-use security_keys_rust::pcsc::CardDisposition;
-use security_keys_rust::pcsc::CardSharedAccessBackOff;
-use security_keys_rust::pcsc::ConnectedCardOrTransaction;
-use security_keys_rust::pcsc::Context;
-use security_keys_rust::pcsc::Scope;
-use security_keys_rust::pcsc::ShareModeAndPreferredProtocols;
-use security_keys_rust::pcsc::attributes::AttributeIdentifier;
-use security_keys_rust::pcsc::card_reader_name::CardReaderName;
-use security_keys_rust::pcsc::errors::ActivityError;
-use arrayvec::ArrayVec;
-
-
-fn main() -> Result<(), ActivityError>
+fn main() -> Result<(), security_keys_rust::pcsc::errors::ActivityError>
 {
+	use security_keys_rust::VecExt;
+	use security_keys_rust::pcsc::CardDisposition;
+	use security_keys_rust::pcsc::CardSharedAccessBackOff;
+	use security_keys_rust::pcsc::ConnectedCardOrTransaction;
+	use security_keys_rust::pcsc::Context;
+	use security_keys_rust::pcsc::Scope;
+	use security_keys_rust::pcsc::ShareModeAndPreferredProtocols;
+	use security_keys_rust::pcsc::attributes::AttributeIdentifier;
+	use security_keys_rust::pcsc::card_reader_name::CardReaderName;
+	use security_keys_rust::pcsc::errors::ActivityError;
+	use arrayvec::ArrayVec;
+	
+	
 	let card_shared_access_back_off = CardSharedAccessBackOff::default();
 	let reconnect_card_disposition = CardDisposition::Leave;
 	let share_mode_and_preferred_protocols = ShareModeAndPreferredProtocols::SharedAnyProtocol;

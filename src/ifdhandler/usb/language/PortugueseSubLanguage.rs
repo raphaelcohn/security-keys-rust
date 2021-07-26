@@ -3,13 +3,16 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+#[repr(u16)]
 pub(crate) enum PortugueseSubLanguage
 {
 	#[allow(missing_docs)]
-	Brazil,
+	Brazil = 0x0400,
 	
 	#[allow(missing_docs)]
-	Standard,
+	Standard = 0x0800,
 	
 	#[allow(missing_docs)]
 	Unknown(u6),

@@ -5,11 +5,13 @@
 
 use self::features::Features;
 use super::usb::UsbInterfaceAlternateSetting;
+use super::usb::UsbVersion;
 use enumflags2::bitflags;
 use enumflags2::BitFlags;
 use likely::likely;
 use likely::unlikely;
-use rusb::Version;
+use serde::Deserialize;
+use serde::Serialize;
 use std::num::NonZeroU8;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use std::mem::transmute;

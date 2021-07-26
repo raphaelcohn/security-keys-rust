@@ -24,6 +24,7 @@
 
 
 #![feature(allocator_api)]
+#![feature(arbitrary_enum_discriminant)]
 #![feature(const_cstr_unchecked)]
 #![feature(const_fn_transmute)]
 #![feature(core_intrinsics)]
@@ -49,7 +50,7 @@ pub mod ifdhandler;
 
 
 /// PC/SC lite C library wrapper.
-pub mod pcsc;
+#[cfg(feature = "pcsc")] pub mod pcsc;
 
 
 mod low_level;

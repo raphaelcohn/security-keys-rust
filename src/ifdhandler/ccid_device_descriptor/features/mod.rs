@@ -4,6 +4,8 @@
 
 use enumflags2::BitFlags;
 use enumflags2::bitflags;
+use serde::Deserialize;
+use serde::Serialize;
 
 
 include!("AutomaticFeature.rs");

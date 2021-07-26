@@ -2,13 +2,17 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum LoadError
+/// A load error.
+#[derive(Debug)]
+pub(crate) enum LoadError
 {
+	#[allow(missing_docs)]
 	LoadDriver(LoadDriverError),
 	
+	#[allow(missing_docs)]
 	FindingUsbDevices(UsbError),
 	
+	#[allow(missing_docs)]
 	InvalidCcidInterface(UsbDeviceError),
 }
 

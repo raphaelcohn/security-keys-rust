@@ -3,13 +3,16 @@
 
 
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+#[repr(u16)]
 pub(crate) enum DutchSubLanguage
 {
 	#[allow(missing_docs)]
-	Netherlands,
+	Netherlands = 0x0400,
 	
 	#[allow(missing_docs)]
-	Belgium,
+	Belgium = 0x0800,
 	
 	#[allow(missing_docs)]
 	Unknown(u6),
