@@ -4,7 +4,7 @@
 
 use security_keys_rust::simple_serializer::SimpleSerializer;
 use security_keys_rust::usb::UsbDevice;
-use security_keys_rust::usb::UsbError;
+use security_keys_rust::usb::errors::UsbError;
 use serde::Serialize;
 
 

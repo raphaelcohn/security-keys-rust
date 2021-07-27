@@ -11,6 +11,7 @@ pub trait VecExt<T>: Sized
 	/// New buffer.
 	fn new_buffer(length: usize) -> Result<Self, TryReserveError>;
 	
+	/// New from values.
 	fn new_from(values: &[T]) -> Result<Self, TryReserveError> where T: Copy;
 	
 	/// Try to push.

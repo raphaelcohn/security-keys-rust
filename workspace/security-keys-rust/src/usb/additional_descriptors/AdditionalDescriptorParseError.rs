@@ -4,7 +4,7 @@
 
 /// Descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum AdditionalDescriptorParseError<E: error::Error>
+pub enum AdditionalDescriptorParseError<E: error::Error>
 {
 	/// There are no descriptors present and this is not permitted for this additional descriptor situation.
 	NoDescriptors,

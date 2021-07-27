@@ -4,13 +4,15 @@
 
 /// Human Interface Device (HID) descriptor parse error.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub(crate) enum SmartCardInterfaceAdditionalDescriptorParseError
+pub enum SmartCardInterfaceAdditionalDescriptorParseError
 {
 	/// This type of descriptor must be 54 bytes long (including `bLength`).
 	WrongLength,
 
+	#[allow(missing_docs)]
 	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
 	
+	#[allow(missing_docs)]
 	AutomaticFeatureBit0OrBits12To15Set,
 	
 	/// Can not have more than one of AutomaticParametersNegotiationMadeByTheCcid or AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters.

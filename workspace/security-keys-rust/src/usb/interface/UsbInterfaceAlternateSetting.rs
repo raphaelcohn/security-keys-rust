@@ -131,9 +131,9 @@ impl UsbInterfaceAlternateSetting
 				// That said, these devices are now very rare (they existed at least as far back as 2010).
 				// However, we do not know if other device manufacturers do this curently.
 				// The O2 Micro Oz776 is broken in other ways - see the patch introduced in the CCID project with `#define O2MICRO_OZ776_PATCH`.
-				if let Some((end_point_extra, last_end_point_number))  = SmartCardInterfaceAdditionalDescriptor::last_end_point_matches(interface_descriptor)
+				if let Some(legacy_with_descriptor_in_last_end_point) = SmartCardInterfaceAdditionalDescriptor::last_end_point_matches(interface_descriptor, |extra, last_end_point_number| smart_card(Some(extra), raw_protocol, Some(last_end_point_number)))
 				{
-					smart_card(Some(end_point_extra), raw_protocol, Some(last_end_point_number))
+					legacy_with_descriptor_in_last_end_point
 				}
 				else
 				{

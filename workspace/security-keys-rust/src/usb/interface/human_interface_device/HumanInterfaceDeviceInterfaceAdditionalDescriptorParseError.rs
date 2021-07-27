@@ -4,7 +4,7 @@
 
 /// Human Interface Device (HID) descriptor parse error.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub(crate) enum HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
+pub enum HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 {
 	/// This type of descriptor must be at least 9 bytes long (including `bLength`).
 	TooShort,

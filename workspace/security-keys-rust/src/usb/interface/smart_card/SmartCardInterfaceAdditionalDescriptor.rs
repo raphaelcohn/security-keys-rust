@@ -119,13 +119,14 @@ impl SmartCardInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	pub(super) fn last_end_point_matches<'a, 'b: 'a>(interface_descriptor: &'a InterfaceDescriptor<'b>) -> Option<(&'a [u8], EndPointNumber)>
+	pub(super) fn last_end_point_matches<'a, 'b: 'a, R>(interface_descriptor: &'a InterfaceDescriptor<'b>, user: impl FnOnce(&[u8], EndPointNumber) -> R) -> Option<R>
 	{
 		#[inline(always)]
 		fn last_end_point<'a, 'b: 'a>(interface_descriptor: &'a InterfaceDescriptor<'b>) -> Option<EndpointDescriptor<'a>>
 		{
 			let mut last_end_point = None;
-			for end_point in interface_descriptor.endpoint_descriptors()
+			let endpoint_descriptors = interface_descriptor.endpoint_descriptors();
+			for end_point in endpoint_descriptors
 			{
 				last_end_point = Some(end_point)
 			}
@@ -137,7 +138,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 			let extra = last_end_point.extra();
 			if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra)
 			{
-				return Some((extra.unwrap(), last_end_point.number()))
+				return Some(user(extra.unwrap(), last_end_point.number()))
 			}
 		}
 		
