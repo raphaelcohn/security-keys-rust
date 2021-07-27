@@ -18,6 +18,8 @@ impl<'a> CommandLineParser<'a>
 	
 	const FormatArgumentDefault: &'static str = Self::FormatArgumentValueYaml;
 	
+	const OutputArgumentName: &'static str = "output";
+	
 	pub(super) fn parse() -> Self
 	{
 		let app = App::new("rust-security-keys")
@@ -41,8 +43,24 @@ impl<'a> CommandLineParser<'a>
 					.possible_value(Self::FormatArgumentValueYaml)
 					.possible_value(Self::FormatArgumentValueRon)
 					.possible_value(Self::FormatArgumentValueLispSExpression)
+			)
+			.arg
+			(
+				Arg::with_name(Self::OutputArgumentName)
+					.long("output")
+					.short("o")
+					.value_name("FILE")
+					.empty_values(false)
+					.takes_value(true)
+					.multiple(false)
+					
 			);
 		Self(app.get_matches())
+	}
+	
+	pub(super) fn output(&self) -> Option<&Path>
+	{
+		self.0.value_of_os(Self::OutputArgumentName).map(Path::new)
 	}
 	
 	pub(super) fn format(&self) -> &str

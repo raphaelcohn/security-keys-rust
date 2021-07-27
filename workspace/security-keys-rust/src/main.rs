@@ -26,13 +26,9 @@
 
 
 use self::binary::CommandLineParser;
-use self::binary::new_ron_serializer;
-use self::binary::serialize;
-use self::binary::usb_devices_serialize;
-use security_keys_rust::simple_serializer::SimpleSerializer;
+use self::binary::write;
 use security_keys_rust::usb::errors::UsbError;
-use serde_lexpr::to_writer as lisp_s_expression_writer;
-use serde_yaml::Serializer as YamlSerializer;
+use std::fs::File;
 use std::io::stdout;
 
 
@@ -43,27 +39,10 @@ fn main() -> Result<(), UsbError>
 {
 	let matches = CommandLineParser::parse();
 	
-	let writer = stdout();
-	
-	let format = matches.format();
-	if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueSimple)
+	match matches.output()
 	{
-		serialize(writer, SimpleSerializer::new)
-	}
-	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueYaml)
-	{
-		serialize(writer, YamlSerializer::new)
-	}
-	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueRon)
-	{
-		serialize(writer, new_ron_serializer)
-	}
-	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueLispSExpression)
-	{
-		usb_devices_serialize(writer, |writer, usb_devices| lisp_s_expression_writer(writer, usb_devices))
-	}
-	else
-	{
-		unreachable!()
+		None => write(&matches, stdout()),
+		
+		Some(file_path) => write(&matches, File::create(file_path).expect("Could not create file")),
 	}
 }

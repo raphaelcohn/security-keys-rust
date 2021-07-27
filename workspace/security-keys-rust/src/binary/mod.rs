@@ -11,15 +11,20 @@ use clap::crate_version;
 use ron::Serializer as RonSerializer;
 use ron::extensions::Extensions;
 use ron::ser::PrettyConfig;
+use security_keys_rust::simple_serializer::SimpleSerializer;
 use security_keys_rust::usb::UsbDevice;
 use security_keys_rust::usb::errors::UsbError;
 use serde::Serialize;
 use serde::Serializer;
+use serde_lexpr::to_writer as lisp_s_expression_writer;
+use serde_yaml::Serializer as YamlSerializer;
 use std::fmt::Debug;
 use std::io::Write;
+use std::path::Path;
 
 
 include!("CommandLineParser.rs");
 include!("new_ron_serializer.rs");
 include!("serialize.rs");
 include!("usb_devices_serialize.rs");
+include!("write.rs");
