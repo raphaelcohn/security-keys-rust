@@ -3,6 +3,7 @@
 
 
 use self::features::Features;
+use super::Bytes;
 use super::super::UsbVersion;
 use super::super::additional_descriptors::AdditionalDescriptorParser;
 use super::super::additional_descriptors::DescriptorType;
@@ -22,17 +23,14 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::num::NonZeroU8;
-use std::mem::transmute;
-use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
 pub(crate) mod features;
 
 
-include!("adjust_index.rs");
 include!("Baud.rs");
-include!("Bytes.rs");
+include!("BytesExt.rs");
 include!("IsoProtocol.rs");
 include!("Kilohertz.rs");
 include!("LcdLayout.rs");

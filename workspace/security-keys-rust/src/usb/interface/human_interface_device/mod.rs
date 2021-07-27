@@ -2,8 +2,13 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use crate::VecExt;
+use super::Bytes;
+use super::super::UsbVersion;
 use super::super::additional_descriptors::AdditionalDescriptorParser;
 use super::super::additional_descriptors::DescriptorType;
+use super::super::additional_descriptors::LengthAdjustment;
+use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
 use std::error;
@@ -11,8 +16,13 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use std::mem::transmute;
+use swiss_army_knife::non_zero::new_non_zero_u8;
+use swiss_army_knife::get_unchecked::GetUnchecked;
+use std::collections::TryReserveError;
 
 
+include!("HumanInterfaceDeviceCountryCode.rs");
 include!("HumanInterfaceDeviceInterfaceAdditionalDescriptor.rs");
 include!("HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError.rs");
 include!("HumanInterfaceDeviceInterfaceAdditionalDescriptorParser.rs");

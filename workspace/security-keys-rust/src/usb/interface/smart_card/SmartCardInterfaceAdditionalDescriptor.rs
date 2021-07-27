@@ -146,7 +146,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(protocol: SmartCardProtocol, has_vendor_specific_descriptor_type: bool, bytes: &[u8; SmartCardInterfaceAdditionalDescriptor::AdjustedLength]) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
+	pub(super) fn parse(protocol: SmartCardProtocol, has_vendor_specific_descriptor_type: bool, bytes: &[u8]) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
 		Ok
 		(
@@ -156,7 +156,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 				
 				has_vendor_specific_descriptor_type,
 			
-				version: UsbVersion::from(bytes.u16::<3>()),
+				version: bytes.version::<2>(),
 				
 				maximum_slot_index: bytes.u8::<4>(),
 				

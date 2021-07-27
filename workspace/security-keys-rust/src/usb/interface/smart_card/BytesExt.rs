@@ -2,20 +2,21 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) struct HumanInterfaceDeviceInterfaceAdditionalDescriptor
+trait BytesExt: Bytes
 {
-	/// Revision of the USB HID specification.
-	version: UsbVersion,
+	#[inline(always)]
+	fn kilohertz<const index: usize>(&self) -> Kilohertz
+	{
+		self.u32::<index>()
+	}
 	
-	country_code: Option<HumanInterfaceDeviceCountryCode>,
-	
-	report_descriptor_length: u16,
-	
-	/// A maximum of 254.
-	number_of_other_descriptors: u8,
-	
-	other_descriptors: Vec<u8>,
+	#[inline(always)]
+	fn baud<const index: usize>(&self) -> Baud
+	{
+		self.u32::<index>()
+	}
+}
+
+impl<'a> BytesExt for &'a [u8]
+{
 }

@@ -3,6 +3,7 @@
 
 
 use crate::VecExt;
+use super::UsbVersion;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptor;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParser;
@@ -39,6 +40,7 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::mem::transmute;
+use std::num::NonZeroU8;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
@@ -54,6 +56,8 @@ pub(crate) mod human_interface_device;
 pub(crate) mod unsupported;
 
 
+include!("adjust_index.rs");
+include!("Bytes.rs");
 include!("InterfaceAdditionalDescriptor.rs");
 include!("InterfaceAdditionalDescriptorParseError.rs");
 include!("InterfaceAdditionalDescriptorParser.rs");

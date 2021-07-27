@@ -3,7 +3,7 @@
 
 
 /// Human Interface Device (HID) descriptor parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InterfaceAdditionalDescriptorParseError
 {
 	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError),

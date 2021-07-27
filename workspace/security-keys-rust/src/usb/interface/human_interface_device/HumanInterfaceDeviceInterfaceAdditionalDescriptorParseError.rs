@@ -3,14 +3,26 @@
 
 
 /// Human Interface Device (HID) descriptor parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 {
+	#[allow(missing_docs)]
+	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
+	
 	/// This type of descriptor must be at least 9 bytes long (including `bLength`).
-	TooShort,
-
+	WrongLength,
+	
+	/// A country code of 36 or greater.
+	ReservedCountryCode(u8),
+	
 	/// `bNumDescriptors` was zero.
 	ZeroNumberOfClassDescriptors,
+	
+	/// Unrecognised report descriptor type.
+	UnrecognisedReportDescriptorType(DescriptorType),
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateSpaceForPhysicalDescriptors(TryReserveError),
 }
 
 impl Display for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
@@ -24,4 +36,16 @@ impl Display for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 
 impl error::Error for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use self::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
+		
+		match self
+		{
+			CouldNotAllocateSpaceForPhysicalDescriptors(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

@@ -5,15 +5,9 @@
 trait Bytes
 {
 	#[inline(always)]
-	fn kilohertz<const index: usize>(&self) -> Kilohertz
+	fn version<const index: usize>(&self) -> UsbVersion
 	{
-		self.u32::<index>()
-	}
-	
-	#[inline(always)]
-	fn baud<const index: usize>(&self) -> Baud
-	{
-		self.u32::<index>()
+		UsbVersion::from(self.u16::<index>())
 	}
 	
 	#[inline(always)]
@@ -29,7 +23,7 @@ trait Bytes
 	fn u32<const index: usize>(&self) -> u32;
 }
 
-impl<'a> Bytes for &'a [u8; SmartCardInterfaceAdditionalDescriptor::AdjustedLength]
+impl<'a> Bytes for &'a [u8]
 {
 	#[inline(always)]
 	fn u8<const index: usize>(&self) -> u8

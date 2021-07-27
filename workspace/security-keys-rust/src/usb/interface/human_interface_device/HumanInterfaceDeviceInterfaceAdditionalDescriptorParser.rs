@@ -26,7 +26,64 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 	#[inline(always)]
 	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
 	{
-		todo!()
+		use self::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
+		
+		match descriptor_type
+		{
+			0x21 => (),
+			
+			_ => return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type)),
+		};
+		
+		const AdjustedMinimumLength: usize = 9 - LengthAdjustment;
+		if unlikely!(bytes.len() < AdjustedMinimumLength)
+		{
+			return Err(WrongLength)
+		}
+		
+		let number_of_class_descriptors_including_mandatory_report =
+		{
+			let bNumClassDescriptors = bytes.u8::<5>();
+			if unlikely!(bNumClassDescriptors == 0)
+			{
+				return Err(ZeroNumberOfClassDescriptors)
+			}
+			new_non_zero_u8(bNumClassDescriptors)
+		};
+		
+		{
+			let report_descriptor_type = bytes.u8::<6>(); //
+			if unlikely!(report_descriptor_type != 0x22)
+			{
+				return Err(UnrecognisedReportDescriptorType(report_descriptor_type))
+			}
+		}
+		
+		Ok
+		(
+			Some
+			(
+				HumanInterfaceDeviceInterfaceAdditionalDescriptor
+				{
+					version: bytes.version::<2>(),
+					
+					country_code: match bytes.u8::<4>()
+					{
+						0 => None,
+						
+						country_code @ 1 ..= 35 => Some(unsafe { transmute(country_code) }),
+						
+						reserved => return Err(ReservedCountryCode(reserved))
+					}
+					,
+					report_descriptor_length: bytes.u16::<7>(),
+				
+					number_of_other_descriptors: number_of_class_descriptors_including_mandatory_report.get() - 1,
+				
+					other_descriptors: Vec::new_from(bytes.get_unchecked_range_safe(AdjustedMinimumLength .. )).map_err(CouldNotAllocateSpaceForPhysicalDescriptors)?,
+				}
+			)
+		)
 	}
 }
 

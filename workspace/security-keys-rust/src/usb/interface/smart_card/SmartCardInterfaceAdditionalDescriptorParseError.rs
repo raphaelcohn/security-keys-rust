@@ -6,11 +6,11 @@
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum SmartCardInterfaceAdditionalDescriptorParseError
 {
-	/// This type of descriptor must be 54 bytes long (including `bLength`).
-	WrongLength,
-
 	#[allow(missing_docs)]
 	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
+	
+	/// This type of descriptor must be 54 bytes long (including `bLength`).
+	WrongLength,
 	
 	#[allow(missing_docs)]
 	AutomaticFeatureBit0OrBits12To15Set,

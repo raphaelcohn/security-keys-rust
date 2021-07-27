@@ -28,11 +28,6 @@ impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 	{
 		use self::SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
-		if unlikely!(bytes.len() != SmartCardInterfaceAdditionalDescriptor::AdjustedLength)
-		{
-			return Err(WrongLength)
-		}
-		
 		let has_vendor_specific_descriptor_type = match descriptor_type
 		{
 			0x21 => false,
@@ -42,7 +37,10 @@ impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 			_ => return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type))
 		};
 		
-		let bytes = unsafe { & * (bytes.as_ptr() as *const [u8; SmartCardInterfaceAdditionalDescriptor::AdjustedLength]) };
+		if unlikely!(bytes.len() != SmartCardInterfaceAdditionalDescriptor::AdjustedLength)
+		{
+			return Err(WrongLength)
+		}
 		
 		Ok(Some(SmartCardInterfaceAdditionalDescriptor::parse(self.0, has_vendor_specific_descriptor_type, bytes)?))
 	}
