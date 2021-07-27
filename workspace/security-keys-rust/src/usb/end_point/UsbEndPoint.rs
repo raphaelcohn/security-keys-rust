@@ -77,7 +77,15 @@ impl UsbEndPoint
 	#[inline(always)]
 	fn parse_additional_descriptors(end_point_descriptor: &EndpointDescriptor, strip_extra: bool) -> Result<Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>, AdditionalDescriptorParseError<Infallible>>
 	{
-		let mut additional_descriptor_parser = EndPointAdditionalDescriptorParser;
-		parse_additional_descriptors(end_point_descriptor.extra(), additional_descriptor_parser)
+		let additional_descriptor_parser = EndPointAdditionalDescriptorParser;
+		let extra = if strip_extra
+		{
+			None
+		}
+		else
+		{
+			end_point_descriptor.extra()
+		};
+		parse_additional_descriptors(extra, additional_descriptor_parser)
 	}
 }

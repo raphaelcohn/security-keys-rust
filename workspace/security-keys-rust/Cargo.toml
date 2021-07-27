@@ -31,11 +31,14 @@ likely = "^0.1.0"
 maplit = "^1.0.2"
 memchr = { version = "^2.4.0", optional = true }
 plist = "^1.1.0"
-rusb = "^0.8.1"
+rusb = { version = "^0.8.1", features = ["vendored"] }
 serde = { version = "^1.0.126", features = ["derive"] }
 strum = { version = "^0.21.0", optional = true }
 strum_macros = { version = "^0.21.0", optional = true }
 swiss-army-knife = "^0.0.21"
+
+# Binary
+clap = "^2.33.3"
 
 [features]
 pcsc = ["arrayvec", "memchr", "strum", "strum_macros"]

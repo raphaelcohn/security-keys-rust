@@ -117,7 +117,7 @@
 pub(in crate::ifdhandler) mod constants;
 
 
-pub(in crate::ifdhandler) mod functions;
+//pub(in crate::ifdhandler) mod functions;
 
 
 pub(in crate::ifdhandler) mod structs;

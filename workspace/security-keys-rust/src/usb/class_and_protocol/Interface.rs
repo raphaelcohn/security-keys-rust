@@ -9,6 +9,7 @@ impl DeviceOrInterface for Interface
 {
 }
 
+#[allow(dead_code)]
 impl Interface
 {
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass01h>.

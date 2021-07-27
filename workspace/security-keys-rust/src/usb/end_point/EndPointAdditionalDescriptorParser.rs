@@ -24,7 +24,7 @@ impl AdditionalDescriptorParser for EndPointAdditionalDescriptorParser
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
+	fn parse_descriptor(&mut self, _descriptor_type: DescriptorType, _bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
 	{
 		Ok(None)
 	}

@@ -33,7 +33,7 @@ impl From<HumanInterfaceDeviceInterfaceAdditionalDescriptor> for InterfaceAdditi
 impl From<UnsupportedInterfaceAdditionalDescriptor> for InterfaceAdditionalDescriptor
 {
 	#[inline(always)]
-	fn from(value: UnsupportedInterfaceAdditionalDescriptor) -> Self
+	fn from(_value: UnsupportedInterfaceAdditionalDescriptor) -> Self
 	{
 		unreachable!("Should never be possible as it is impossible to construct an instance of UnsupportedInterfaceAdditionalDescriptor")
 	}

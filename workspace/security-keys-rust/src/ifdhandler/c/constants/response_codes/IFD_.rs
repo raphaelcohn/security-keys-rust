@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT.
 
 
+#[allow(dead_)]
 pub(in crate::ifdhandler) const IFD_PROTOCOL_NOT_SUPPORTED: RESPONSECODE = 607;
 
 pub(in crate::ifdhandler) const IFD_COMMUNICATION_ERROR: RESPONSECODE = 612;

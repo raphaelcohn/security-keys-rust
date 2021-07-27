@@ -5,11 +5,10 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
+#[bitflags]
 #[repr(u32)]
 pub(crate) enum AutomaticParametersFeature
 {
-	Off = 0x0000_0000,
-	
 	/// Use of warm or cold resets or PPS according to a manufacturer proprietary algorithm to select the communication parameters with the ICC.
 	AutomaticParametersNegotiationMadeByTheCcid = 0x0000_0040,
 	
@@ -19,20 +18,11 @@ pub(crate) enum AutomaticParametersFeature
 impl AutomaticParametersFeature
 {
 	#[inline(always)]
-	fn parse(dwFeatures: u32) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
+	fn parse(dwFeatures: u32) -> BitFlags<Self>
 	{
 		const AutomaticParametersNegotiationMadeByTheCcid: u32 = AutomaticParametersFeature::AutomaticParametersNegotiationMadeByTheCcid as u32;
 		const AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters: u32 = AutomaticParametersFeature::AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters as u32;
-		const Mask: u32 = AutomaticParametersNegotiationMadeByTheCcid | AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters;
-		match dwFeatures & Mask
-		{
-			0 => Ok(AutomaticParametersFeature::Off),
-			
-			AutomaticParametersNegotiationMadeByTheCcid => Ok(AutomaticParametersFeature::AutomaticParametersNegotiationMadeByTheCcid),
-			
-			AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters => Ok(AutomaticParametersFeature::AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters),
-			
-			_ => Err(SmartCardInterfaceAdditionalDescriptorParseError::InvalidAutomaticParametersFeature)
-		}
+		
+		BitFlags::from_bits_truncate(dwFeatures)
 	}
 }

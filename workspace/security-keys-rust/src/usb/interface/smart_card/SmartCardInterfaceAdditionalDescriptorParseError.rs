@@ -15,9 +15,6 @@ pub enum SmartCardInterfaceAdditionalDescriptorParseError
 	#[allow(missing_docs)]
 	AutomaticFeatureBit0OrBits12To15Set,
 	
-	/// Can not have more than one of AutomaticParametersNegotiationMadeByTheCcid or AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters.
-	InvalidAutomaticParametersFeature,
-	
 	/// Can not have more than one of TpduLevelExchangeWithCcid, ShortApduLevelExchangeWithCcid or ShortAndExtendedApduLevelExchangeWithCcid.
 	InvalidLevelOfExchangeFeature,
 	

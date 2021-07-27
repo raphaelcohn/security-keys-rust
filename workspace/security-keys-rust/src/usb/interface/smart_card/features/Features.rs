@@ -9,7 +9,7 @@ pub(crate) struct Features
 {
 	automatic: BitFlags<AutomaticFeature>,
 	
-	automatic_parameters: AutomaticParametersFeature,
+	automatic_parameters: BitFlags<AutomaticParametersFeature>,
 	
 	level_of_exchange: LevelOfExchangeFeature,
 
@@ -22,7 +22,7 @@ impl Features
 	pub(super) fn parse(dwFeatures: u32) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
 		let automatic = AutomaticFeature::parse(dwFeatures)?;
-		let automatic_parameters = AutomaticParametersFeature::parse(dwFeatures)?;
+		let automatic_parameters = AutomaticParametersFeature::parse(dwFeatures);
 		let level_of_exchange = LevelOfExchangeFeature::parse(dwFeatures)?;
 		let usb_wake_up_signaling_on_card_insertion_and_removal = dwFeatures & 0x00100000 != 0;
 		
@@ -30,7 +30,7 @@ impl Features
 		if level_of_exchange.is_apdu_level()
 		{
 			use self::SmartCardInterfaceAdditionalDescriptorParseError::*;
-			if automatic_parameters == AutomaticParametersFeature::Off
+			if automatic_parameters.is_empty()
 			{
 				return Err(MissingFeatureAutomaticParametersForApduLevelOfExchange)
 			}

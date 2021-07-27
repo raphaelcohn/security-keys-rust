@@ -43,6 +43,7 @@
 //! This is a rust library.
 
 
+use clap as _;
 use std::collections::TryReserveError;
 
 

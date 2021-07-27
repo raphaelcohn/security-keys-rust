@@ -80,7 +80,7 @@ impl UsbConfiguration
 	#[inline(always)]
 	fn parse_additional_descriptors(configuration_descriptor: &ConfigDescriptor) -> Result<Vec<AdditionalDescriptor<ConfigurationAdditionalDescriptor>>, AdditionalDescriptorParseError<Infallible>>
 	{
-		let mut additional_descriptor_parser = ConfigurationAdditionalDescriptorParser;
+		let additional_descriptor_parser = ConfigurationAdditionalDescriptorParser;
 		parse_additional_descriptors(configuration_descriptor.extra(), additional_descriptor_parser)
 	}
 }
