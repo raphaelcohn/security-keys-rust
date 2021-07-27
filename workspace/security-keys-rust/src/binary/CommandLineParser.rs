@@ -16,7 +16,7 @@ impl<'a> CommandLineParser<'a>
 	
 	pub(super) const FormatArgumentValueLispSExpression: &'static str = "lisp-s-expression";
 	
-	const FormatArgumentDefault: &'static str = Self::FormatArgumentValueSimple;
+	const FormatArgumentDefault: &'static str = Self::FormatArgumentValueYaml;
 	
 	pub(super) fn parse() -> Self
 	{
