@@ -26,10 +26,14 @@
 
 
 use self::binary::CommandLineParser;
+use self::binary::new_ron_serializer;
+use self::binary::serialize;
+use self::binary::usb_devices_serialize;
 use security_keys_rust::simple_serializer::SimpleSerializer;
-use security_keys_rust::usb::UsbDevice;
 use security_keys_rust::usb::errors::UsbError;
-use serde::Serialize;
+use serde_lexpr::to_writer as lisp_s_expression_writer;
+use serde_yaml::Serializer as YamlSerializer;
+use std::io::stdout;
 
 
 mod binary;
@@ -39,20 +43,27 @@ fn main() -> Result<(), UsbError>
 {
 	let matches = CommandLineParser::parse();
 	
-	let usb_devices = UsbDevice::usb_devices_try_from()?;
+	let writer = stdout();
 	
-	match matches.format()
+	let format = matches.format();
+	if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueSimple)
 	{
-		CommandLineParser::FormatArgumentValueRustLike =>
-		{
-			let mut simple_serializer = SimpleSerializer::new_for_standard_out();
-			usb_devices.serialize(&mut simple_serializer).expect("Serializing failed");
-		}
-		
-		CommandLineParser::FormatArgumentValueJson => (),
-		
-		_ => unreachable!(),
+		serialize(writer, SimpleSerializer::new)
 	}
-	
-	Ok(())
+	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueYaml)
+	{
+		serialize(writer, YamlSerializer::new)
+	}
+	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueRon)
+	{
+		serialize(writer, new_ron_serializer)
+	}
+	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueLispSExpression)
+	{
+		usb_devices_serialize(writer, |writer, usb_devices| lisp_s_expression_writer(writer, usb_devices))
+	}
+	else
+	{
+		unreachable!()
+	}
 }

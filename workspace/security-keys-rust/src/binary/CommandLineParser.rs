@@ -8,11 +8,15 @@ impl<'a> CommandLineParser<'a>
 {
 	const FormatArgumentName: &'static str = "format";
 	
-	pub(super) const FormatArgumentValueRustLike: &'static str = "Rust-Like";
+	pub(super) const FormatArgumentValueSimple: &'static str = "simple";
 	
-	pub(super) const FormatArgumentValueJson: &'static str = "JSON";
+	pub(super) const FormatArgumentValueYaml: &'static str = "YAML";
 	
-	const FormatArgumentDefault: &'static str = Self::FormatArgumentValueRustLike;
+	pub(super) const FormatArgumentValueRon: &'static str = "RON";
+	
+	pub(super) const FormatArgumentValueLispSExpression: &'static str = "lisp-s-expression";
+	
+	const FormatArgumentDefault: &'static str = Self::FormatArgumentValueSimple;
 	
 	pub(super) fn parse() -> Self
 	{
@@ -33,8 +37,10 @@ impl<'a> CommandLineParser<'a>
 					.case_insensitive(true)
 					.multiple(false)
 					.default_value(Self::FormatArgumentDefault)
-					.possible_value(Self::FormatArgumentValueRustLike)
-					.possible_value(Self::FormatArgumentValueJson)
+					.possible_value(Self::FormatArgumentValueSimple)
+					.possible_value(Self::FormatArgumentValueYaml)
+					.possible_value(Self::FormatArgumentValueRon)
+					.possible_value(Self::FormatArgumentValueLispSExpression)
 			);
 		Self(app.get_matches())
 	}

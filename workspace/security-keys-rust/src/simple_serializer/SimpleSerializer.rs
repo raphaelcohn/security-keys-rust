@@ -283,7 +283,7 @@ impl SimpleSerializer<Stdout>
 	#[inline(always)]
 	pub fn new_for_standard_out() -> Self
 	{
-		Self::new(io::stdout(), 4096)
+		Self::new(io::stdout())
 	}
 }
 
@@ -291,11 +291,11 @@ impl<W: Write> SimpleSerializer<W>
 {
 	/// New instance wrapping a write.
 	#[inline(always)]
-	pub fn new(write: W, capacity: usize) -> Self
+	pub fn new(write: W) -> Self
 	{
 		Self
 		{
-			output: BufWriter::with_capacity(capacity, write),
+			output: BufWriter::with_capacity(4096, write),
 		
 			indentation: Vec::with_capacity(256),
 		}

@@ -8,6 +8,18 @@ use clap::ArgMatches;
 use clap::crate_authors;
 use clap::crate_name;
 use clap::crate_version;
+use ron::Serializer as RonSerializer;
+use ron::extensions::Extensions;
+use ron::ser::PrettyConfig;
+use security_keys_rust::usb::UsbDevice;
+use security_keys_rust::usb::errors::UsbError;
+use serde::Serialize;
+use serde::Serializer;
+use std::fmt::Debug;
+use std::io::Write;
 
 
 include!("CommandLineParser.rs");
+include!("new_ron_serializer.rs");
+include!("serialize.rs");
+include!("usb_devices_serialize.rs");

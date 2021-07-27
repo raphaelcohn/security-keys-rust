@@ -22,7 +22,7 @@ pub(crate) struct UsbEndPoint
 	
 	audio_device_synchronization_address: u8,
 
-	extra: Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>,
+	additional_descriptors: Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>,
 }
 
 impl UsbEndPoint
@@ -52,7 +52,7 @@ impl UsbEndPoint
 				
 				audio_device_synchronization_address: end_point_descriptor.synch_address(),
 				
-				extra: Self::parse_additional_descriptors(&end_point_descriptor, strip_extra).map_err(UsbError::CouldNotParseEndPointAdditionalDescriptor)?,
+				additional_descriptors: Self::parse_additional_descriptors(&end_point_descriptor, strip_extra).map_err(UsbError::CouldNotParseEndPointAdditionalDescriptor)?,
 			}
 		)
 	}

@@ -13,7 +13,7 @@ pub(crate) struct UsbClassAndProtocol<DOI: DeviceOrInterface>
 	
 	protocol_code: u8,
 
-	marker: PhantomData<DOI>,
+	#[serde(skip)] marker: PhantomData<DOI>,
 }
 
 impl<DOI: DeviceOrInterface> UsbClassAndProtocol<DOI>
