@@ -58,7 +58,7 @@ impl<T: UsbContext> UsbStringFinder<T>
 				{
 					Opened { device_handle, languages } => Ok(Some(HaveString(UsbString::read(index, device_handle, languages)?))),
 					
-					FailedToOpenDeviceHandle => Ok(Some(CouldNotOpenDeviceHandle { index })),
+					FailedToOpenDeviceHandle => Ok(Some(CouldNotOpenDeviceHandle { index: new_non_zero_u8(index) })),
 				}
 			}
 		}

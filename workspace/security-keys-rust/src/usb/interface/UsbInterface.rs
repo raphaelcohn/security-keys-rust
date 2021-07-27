@@ -17,9 +17,9 @@ impl UsbInterface
 {
 	/// Does not check the alternate settings of the interface.
 	#[inline(always)]
-	fn is_circuit_card_interface_device(&self) -> Result<Option<CcidDeviceDescriptor>, &'static str>
+	pub(super) fn smart_card_interface_additional_descriptor(&self) -> Option<&SmartCardInterfaceAdditionalDescriptor>
 	{
-		self.interface_alternate_settings.get_unchecked_safe(0).is_circuit_card_interface_device()
+		self.interface_alternate_settings.get_unchecked_safe(0).smart_card_interface_additional_descriptor()
 	}
 	
 	#[inline(always)]
@@ -37,13 +37,19 @@ impl UsbInterface
 	}
 	
 	#[inline(always)]
-	fn usb_interfaces_try_from(configuration_descriptor: ConfigDescriptor, usb_string_finder: &UsbStringFinder<impl UsbContext>) -> Result<Vec<Self>, UsbError>
+	pub(super) fn usb_interfaces_try_from(configuration_descriptor: ConfigDescriptor, usb_string_finder: &UsbStringFinder<impl UsbContext>) -> Result<Vec<Self>, UsbError>
 	{
+		use self::UsbError::*;
+		
 		let number_of_interfaces = configuration_descriptor.num_interfaces();
+		if unlikely!(number_of_interfaces == 0)
+		{
+			return Err(NoInterfaces)
+		}
 		let mut interfaces = Vec::with_capacity(number_of_interfaces as usize);
 		for interface in configuration_descriptor.interfaces()
 		{
-			interfaces.push(Self::try_from(interface, usb_string_finder)?);
+			interfaces.try_push(Self::try_from(interface, usb_string_finder)?).map_err(CouldNotPushInterface)?;
 		}
 		debug_assert!(interfaces.len() > 0, "No interfaces for configuration");
 		Ok(interfaces)

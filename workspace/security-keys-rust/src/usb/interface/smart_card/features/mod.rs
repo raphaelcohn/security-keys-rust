@@ -2,33 +2,14 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-
-use self::features::Features;
-use super::UsbInterfaceAlternateSetting;
-use super::UsbVersion;
-use enumflags2::bitflags;
+use super::SmartCardInterfaceAdditionalDescriptorParseError;
 use enumflags2::BitFlags;
-use likely::likely;
-use likely::unlikely;
+use enumflags2::bitflags;
 use serde::Deserialize;
 use serde::Serialize;
-use std::num::NonZeroU8;
-use swiss_army_knife::non_zero::new_non_zero_u8;
-use std::mem::transmute;
-use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
-pub(crate) mod features;
-
-
-include!("Baud.rs");
-include!("CcidDeviceDescriptor.rs");
-include!("CcidProtocol.rs");
-include!("Extra.rs");
-include!("IsoProtocol.rs");
-include!("Kilohertz.rs");
-include!("LcdLayout.rs");
-include!("MechanicalFeature.rs");
-include!("PinSupport.rs");
-include!("SynchronizationProtocol.rs");
-include!("VoltageSupport.rs");
+include!("AutomaticFeature.rs");
+include!("AutomaticParametersFeature.rs");
+include!("Features.rs");
+include!("LevelOfExchangeFeature.rs");

@@ -2,33 +2,30 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use crate::VecExt;
 use super::additional_descriptors::AdditionalDescriptor;
 use super::additional_descriptors::AdditionalDescriptorParseError;
 use super::additional_descriptors::AdditionalDescriptorParser;
-use super::additional_descriptors::parse_additional_descriptors;
 use super::additional_descriptors::DescriptorType;
+use super::additional_descriptors::parse_additional_descriptors;
 use super::errors::UsbError;
-use indexmap::IndexMap;
-use rusb::Direction;
-use rusb::EndpointDescriptor;
-use rusb::InterfaceDescriptor;
-use rusb::TransferType;
-use rusb::SyncType;
-use rusb::UsageType;
+use super::interface::UsbInterface;
+use super::interface::smart_card::SmartCardInterfaceAdditionalDescriptor;
+use super::UsbStringFinder;
+use super::UsbStringOrIndex;
+use rusb::ConfigDescriptor;
+use rusb::DeviceDescriptor;
+use rusb::UsbContext;
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashMap;
+use std::collections::TryReserveError;
 use std::convert::Infallible;
-use std::mem::transmute;
+use std::num::NonZeroU8;
+use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
-include!("EndPointNumber.rs");
-include!("EndPointAdditionalDescriptor.rs");
-include!("EndPointAdditionalDescriptorParser.rs");
-include!("IsochronousAndInterrruptAdditionalTransactionOpportunitiesPerMicroframe.rs");
-include!("u4.rs");
-include!("u11.rs");
-include!("UsbDirection.rs");
-include!("UsbEndPoint.rs");
-include!("UsbTransferType.rs");
-include!("UsbIschronousTransferSynchronizationType.rs");
-include!("UsbIschronousTransferUsageType.rs");
+include!("ConfigurationAdditionalDescriptor.rs");
+include!("ConfigurationAdditionalDescriptorParser.rs");
+include!("ConfigurationNumber.rs");
+include!("UsbConfiguration.rs");

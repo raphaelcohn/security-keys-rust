@@ -19,7 +19,7 @@ pub(crate) struct Features
 impl Features
 {
 	#[inline(always)]
-	pub(super) fn parse(dwFeatures: u32) -> Result<Self, &'static str>
+	pub(super) fn parse(dwFeatures: u32) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
 		let automatic = AutomaticFeature::parse(dwFeatures)?;
 		let automatic_parameters = AutomaticParametersFeature::parse(dwFeatures)?;
@@ -29,14 +29,15 @@ impl Features
 		// cf DWG Smart Card CCID Revision 1.1, page 19.
 		if level_of_exchange.is_apdu_level()
 		{
+			use self::SmartCardInterfaceAdditionalDescriptorParseError::*;
 			if automatic_parameters == AutomaticParametersFeature::Off
 			{
-				return Err("When an APDU level of exchange is selected,  one of the values 00000040h or 00000080h must be present")
+				return Err(MissingFeatureAutomaticParametersForApduLevelOfExchange)
 			}
 			
 			if !automatic.contains(AutomaticFeature::AutomaticParameterConfigurationBasedOnAnswerToResetData)
 			{
-				return Err("When an APDU level of exchange is selected, the value 00000002h must be present")
+				return Err(MissingFeatureAutomaticParameterConfigurationBasedOnAnswerToResetDataForApduLevelOfExchange)
 			}
 		}
 		

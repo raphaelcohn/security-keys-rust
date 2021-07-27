@@ -2,15 +2,12 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub(crate) enum UsbStringOrIndex
+pub(crate) enum HumanInterfaceDeviceInterfaceAdditionalDescriptor
 {
-	HaveString(UsbString),
+	_0x21,
 	
-	CouldNotOpenDeviceHandle
-	{
-		index: NonZeroU8
-	},
+	_0x04,
 }

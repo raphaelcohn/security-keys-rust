@@ -2,15 +2,10 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) enum UsbStringOrIndex
-{
-	HaveString(UsbString),
-	
-	CouldNotOpenDeviceHandle
-	{
-		index: NonZeroU8
-	},
-}
+use super::super::additional_descriptors::AdditionalDescriptorParser;
+use super::super::additional_descriptors::DescriptorType;
+use std::convert::Infallible;
+
+
+include!("UnsupportedInterfaceAdditionalDescriptor.rs");
+include!("UnsupportedInterfaceAdditionalDescriptorParser.rs");

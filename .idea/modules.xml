@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/security-keys-rust.iml" filepath="$PROJECT_DIR$/security-keys-rust.iml" />
+      <module fileurl="file://$PROJECT_DIR$/workspace/security-keys-rust/security-keys-rust.iml" filepath="$PROJECT_DIR$/workspace/security-keys-rust/security-keys-rust.iml" />
     </modules>
   </component>
 </project>

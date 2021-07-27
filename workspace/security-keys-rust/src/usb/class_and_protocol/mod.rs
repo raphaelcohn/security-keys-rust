@@ -2,11 +2,11 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use super::ccid_device_descriptor::CcidProtocol;
+use rusb::DeviceDescriptor;
+use rusb::InterfaceDescriptor;
 use serde::Deserialize;
 use serde::Serialize;
 use std::marker::PhantomData;
-use std::mem::transmute;
 
 
 include!("Device.rs");

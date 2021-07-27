@@ -2,24 +2,30 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// USB (rusb) errors.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub(crate) enum UsbDeviceError
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub(super) struct UnsupportedInterfaceAdditionalDescriptorParser;
+
+impl AdditionalDescriptorParser for UnsupportedInterfaceAdditionalDescriptorParser
 {
-	ActiveConfigurationNotInConfiguations,
+	type Descriptor = UnsupportedInterfaceAdditionalDescriptor;
 	
-	InvalidCcidDeviceDescriptor(&'static str),
-}
-
-impl Display for UsbDeviceError
-{
+	type Error = Infallible;
+	
 	#[inline(always)]
-	fn fmt(&self, f: &mut Formatter) -> fmt::Result
+	fn no_descriptors_valid() -> bool
 	{
-		Debug::fmt(self, f)
+		true
 	}
-}
-
-impl error::Error for UsbDeviceError
-{
+	
+	#[inline(always)]
+	fn multiple_descriptors_valid() -> bool
+	{
+		true
+	}
+	
+	#[inline(always)]
+	fn parse_descriptor(&mut self, _descriptor_type: DescriptorType, _bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
+	{
+		Ok(None)
+	}
 }

@@ -9,8 +9,8 @@ fn EXP(driver_location: DriverLocation) -> Result<(), LoadError>
 	
 	for device in devices
 	{
-		let ccid_device_descriptors = device.is_currently_configured_as_circuit_card_interface_device()?;
-		if !ccid_device_descriptors.is_empty()
+		let active_smart_card_interface_additional_descriptors = device.active_smart_card_interface_additional_descriptors()?;
+		if !active_smart_card_interface_additional_descriptors.is_empty()
 		{
 			let vendor_identifier = device.vendor_identifier;
 			let product_identifier = device.product_identifier;
@@ -20,7 +20,7 @@ fn EXP(driver_location: DriverLocation) -> Result<(), LoadError>
 			//drivers.get_supported_device(vendor_identifier, product_identifier);
 			
 			
-			for ccid_device_descriptor in ccid_device_descriptors
+			for ccid_device_descriptor in active_smart_card_interface_additional_descriptors
 			{
 			
 			}

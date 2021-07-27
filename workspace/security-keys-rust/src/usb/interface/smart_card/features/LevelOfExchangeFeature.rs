@@ -19,7 +19,7 @@ pub(crate) enum LevelOfExchangeFeature
 impl LevelOfExchangeFeature
 {
 	#[inline(always)]
-	fn parse(dwFeatures: u32) -> Result<Self, &'static str>
+	fn parse(dwFeatures: u32) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
 		const TpduLevelExchangeWithCcid: u32 = LevelOfExchangeFeature::TpduLevelExchangeWithCcid as u32;
 		const ShortApduLevelExchangeWithCcid: u32 = LevelOfExchangeFeature::ShortApduLevelExchangeWithCcid as u32;
@@ -36,7 +36,7 @@ impl LevelOfExchangeFeature
 			
 			ShortAndExtendedApduLevelExchangeWithCcid => Ok(LevelOfExchangeFeature::ShortAndExtendedApduLevelExchangeWithCcid),
 			
-			_ => Err("Invalid LevelOfExchangeFeature; can not have more than one of TpduLevelExchangeWithCcid, ShortApduLevelExchangeWithCcid or ShortAndExtendedApduLevelExchangeWithCcid"),
+			_ => Err(SmartCardInterfaceAdditionalDescriptorParseError::InvalidLevelOfExchangeFeature),
 		}
 	}
 	#[inline(always)]

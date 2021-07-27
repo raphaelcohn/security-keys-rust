@@ -2,15 +2,30 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) enum UsbStringOrIndex
+#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+struct ConfigurationAdditionalDescriptorParser;
+
+impl AdditionalDescriptorParser for ConfigurationAdditionalDescriptorParser
 {
-	HaveString(UsbString),
+	type Descriptor = ConfigurationAdditionalDescriptor;
 	
-	CouldNotOpenDeviceHandle
+	type Error = Infallible;
+	
+	#[inline(always)]
+	fn no_descriptors_valid() -> bool
 	{
-		index: NonZeroU8
-	},
+		true
+	}
+	
+	#[inline(always)]
+	fn multiple_descriptors_valid() -> bool
+	{
+		true
+	}
+	
+	#[inline(always)]
+	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
+	{
+		Ok(None)
+	}
 }

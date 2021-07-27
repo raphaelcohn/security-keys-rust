@@ -25,6 +25,7 @@
 
 #![feature(allocator_api)]
 #![feature(arbitrary_enum_discriminant)]
+#![feature(associated_type_bounds)]
 #![feature(const_cstr_unchecked)]
 #![feature(const_fn_transmute)]
 #![feature(core_intrinsics)]

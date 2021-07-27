@@ -17,26 +17,26 @@ pub(crate) struct UsbConfiguration
 	
 	interfaces: Vec<UsbInterface>,
 
-	extra: Vec<u8>,
+	extra: Vec<AdditionalDescriptor<ConfigurationAdditionalDescriptor>>,
 }
 
 impl UsbConfiguration
 {
 	#[inline(always)]
-	fn is_circuit_card_interface_device(&self) -> Result<Vec<CcidDeviceDescriptor>, &'static str>
+	pub(super) fn smart_card_interface_additional_descriptors(&self) -> Result<Vec<&SmartCardInterfaceAdditionalDescriptor>, TryReserveError>
 	{
 		// A small number of cards have more than one interface.
-		let mut interfaces_with_ccid_device_descriptor = Vec::with_capacity(self.interfaces.len());
+		let mut smart_card_interface_additional_descriptors = Vec::new_with_capacity(self.interfaces.len())?;
 		for interface in self.interfaces.iter()
 		{
-			if let Some(ccid_device_descriptor) = interface.is_circuit_card_interface_device()?
+			if let Some(smart_card_interface_additional_descriptor) = interface.smart_card_interface_additional_descriptor()
 			{
-				interfaces_with_ccid_device_descriptor.push(ccid_device_descriptor);
+				smart_card_interface_additional_descriptors.push(smart_card_interface_additional_descriptor);
 			}
 		}
 		
-		interfaces_with_ccid_device_descriptor.shrink_to_fit();
-		Ok(interfaces_with_ccid_device_descriptor)
+		smart_card_interface_additional_descriptors.shrink_to_fit();
+		Ok(smart_card_interface_additional_descriptors)
 	}
 	
 	#[inline(always)]
@@ -54,16 +54,7 @@ impl UsbConfiguration
 				
 				configuration_string: usb_string_finder.find(configuration_descriptor.description_string_index())?,
 				
-				extra: match configuration_descriptor.extra()
-				{
-					None => Vec::new(),
-					
-					Some(bytes) =>
-					{
-						debug_assert_ne!(bytes.len(), 0);
-						bytes.to_vec()
-					}
-				},
+				extra: Self::parse_additional_descriptors(&configuration_descriptor).map_err(UsbError::CouldNotParseConfigurationAdditionalDescriptor)?,
 				
 				interfaces: UsbInterface::usb_interfaces_try_from(configuration_descriptor, usb_string_finder)?,
 			}
@@ -71,7 +62,7 @@ impl UsbConfiguration
 	}
 	
 	#[inline(always)]
-	fn usb_configurations_try_from<T: UsbContext>(device: &rusb::Device<T>, device_descriptor: DeviceDescriptor, usb_string_finder: &UsbStringFinder<T>) -> Result<HashMap<NonZeroU8, Self>, UsbError>
+	pub(super) fn usb_configurations_try_from<T: UsbContext>(device: &rusb::Device<T>, device_descriptor: DeviceDescriptor, usb_string_finder: &UsbStringFinder<T>) -> Result<HashMap<ConfigurationNumber, Self>, UsbError>
 	{
 		use self::UsbError::*;
 		
@@ -80,9 +71,16 @@ impl UsbConfiguration
 		for configuration_descriptor_index in 0 .. number_of_configurations
 		{
 			let configuration_descriptor = device.config_descriptor(configuration_descriptor_index).map_err(|cause| GetDeviceConfigurationDescriptor { cause, configuration_descriptor_index })?;
-			let bConfigurationValue = new_non_zero_u8(configuration_descriptor.number());
-			let _ = configurations.insert(bConfigurationValue, Self::try_from(configuration_descriptor, usb_string_finder)?);
+			let configuration_number = new_non_zero_u8(configuration_descriptor.number());
+			let _ = configurations.insert(configuration_number, Self::try_from(configuration_descriptor, usb_string_finder)?);
 		}
 		Ok(configurations)
+	}
+	
+	#[inline(always)]
+	fn parse_additional_descriptors(configuration_descriptor: &ConfigDescriptor) -> Result<Vec<AdditionalDescriptor<ConfigurationAdditionalDescriptor>>, AdditionalDescriptorParseError<Infallible>>
+	{
+		let mut additional_descriptor_parser = ConfigurationAdditionalDescriptorParser;
+		parse_additional_descriptors(configuration_descriptor.extra(), additional_descriptor_parser)
 	}
 }

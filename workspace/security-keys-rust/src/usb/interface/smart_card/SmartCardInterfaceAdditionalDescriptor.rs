@@ -3,20 +3,18 @@
 
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub(crate) struct CcidDeviceDescriptor<'a>
+pub(crate) struct SmartCardInterfaceAdditionalDescriptor
 {
-	parent: &'a UsbInterfaceAlternateSetting,
-	
 	/// If the protocol is `BulkTransfer`, then:-
 	///
 	/// * A CCID shall support a minimum of two endpoints in addition to the default (control) endpoint: one bulk-out and one bulk-in.
 	/// * A CCID that reports ICC insertion or removal events must also support an interrupt endpoint (interrupt-in).
-	protocol: CcidProtocol,
+	protocol: SmartCardProtocol,
 	
 	/// `bDescriptorType`.
-	has_proprietary_descriptor_type: bool,
+	has_vendor_specific_descriptor_type: bool,
 
 	/// `bcdCCID`.
 	version: UsbVersion,
@@ -101,83 +99,104 @@ pub(crate) struct CcidDeviceDescriptor<'a>
 	maximum_slots_that_can_be_simultaneously_used: NonZeroU8,
 }
 
-impl<'a> CcidDeviceDescriptor<'a>
+impl SmartCardInterfaceAdditionalDescriptor
 {
-	pub(crate) const Length: usize = 54;
+	const Length: usize = 54;
+	
+	const AdjustedLength: usize = Self::Length - LengthAdjustment;
 	
 	#[inline(always)]
-	pub(super) fn new(parent: &'a UsbInterfaceAlternateSetting, protocol: CcidProtocol, extra: &'a [u8]) -> Result<Self, &'static str>
+	pub(super) fn extra_has_matching_length(extra: Option<&[u8]>) -> bool
 	{
-		let extra = unsafe { & * (extra.as_ptr() as *const [u8; CcidDeviceDescriptor::Length]) };
-		
-		let bLength = extra.u8(0);
-		if unlikely!(bLength != (Self::Length as u8))
+		if let Some(extra) = extra
 		{
-			return Err("Length is not 54")
+			extra.len() == Self::Length
+		}
+		else
+		{
+			false
+		}
+	}
+	
+	#[inline(always)]
+	pub(super) fn last_end_point_matches<'a, 'b: 'a>(interface_descriptor: &'a InterfaceDescriptor<'b>) -> Option<(&'a [u8], EndPointNumber)>
+	{
+		#[inline(always)]
+		fn last_end_point<'a, 'b: 'a>(interface_descriptor: &'a InterfaceDescriptor<'b>) -> Option<EndpointDescriptor<'a>>
+		{
+			let mut last_end_point = None;
+			for end_point in interface_descriptor.endpoint_descriptors()
+			{
+				last_end_point = Some(end_point)
+			}
+			last_end_point
 		}
 		
-		let bDescriptorType = extra.u8(1);
-		let has_proprietary_descriptor_type = match bDescriptorType
+		if let Some(last_end_point) = last_end_point(interface_descriptor)
 		{
-			0x21 => false,
-			
-			0xFF => true,
-			
-			_ => return Err("bDescriptorType is neither standard nor proprietary")
-		};
+			let extra = last_end_point.extra();
+			if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra)
+			{
+				return Some((extra.unwrap(), last_end_point.number()))
+			}
+		}
 		
+		None
+	}
+	
+	#[inline(always)]
+	pub(super) fn parse(protocol: SmartCardProtocol, has_vendor_specific_descriptor_type: bool, bytes: &[u8; SmartCardInterfaceAdditionalDescriptor::AdjustedLength]) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
+	{
 		Ok
 		(
 			Self
 			{
-				parent,
-				
 				protocol,
 				
-				has_proprietary_descriptor_type,
+				has_vendor_specific_descriptor_type,
 			
-				version: UsbVersion::from(extra.u16(3)),
+				version: UsbVersion::from(bytes.u16::<3>()),
 				
-				maximum_slot_index: extra.u8(4),
+				maximum_slot_index: bytes.u8::<4>(),
 				
-				voltage_support: BitFlags::from_bits_truncate(extra.u8(5)),
-
-				iso_protocols: BitFlags::from_bits_truncate(extra.u32(6)),
+				voltage_support: BitFlags::from_bits_truncate(bytes.u8::<5>()),
+	
+				iso_protocols: BitFlags::from_bits_truncate(bytes.u32::<6>()),
 			
-				default_clock_frequency: extra.kilohertz(10),
+				default_clock_frequency: bytes.kilohertz::<10>(),
 			
-				inclusive_maximum_clock_frequency: extra.kilohertz(14),
+				inclusive_maximum_clock_frequency: bytes.kilohertz::<14>(),
 				
-				number_of_clock_frequencies_supported: extra.optional_non_zero_u8(18),
+				number_of_clock_frequencies_supported: bytes.optional_non_zero_u8::<18>(),
 				
-				default_data_rate: extra.baud(19),
+				default_data_rate: bytes.baud::<19>(),
 				
-				inclusive_maximum_data_rate: extra.baud(23),
+				inclusive_maximum_data_rate: bytes.baud::<23>(),
 				
-				number_of_data_rates_supported: extra.optional_non_zero_u8(27),
+				number_of_data_rates_supported: bytes.optional_non_zero_u8::<27>(),
 				
-				maximum_ifsd_for_protocol_t_1: extra.u32(28),
+				maximum_ifsd_for_protocol_t_1: bytes.u32::<28>(),
 				
-				synchronization_protocols: BitFlags::from_bits_truncate(extra.u32(32)),
+				synchronization_protocols: BitFlags::from_bits_truncate(bytes.u32::<32>()),
 				
-				mechanical_features: BitFlags::from_bits_truncate(extra.u32(36)),
+				mechanical_features: BitFlags::from_bits_truncate(bytes.u32::<36>()),
 				
-				features: Features::parse(extra.u32(40))?,
+				features: Features::parse(bytes.u32::<40>())?,
 				
-				maximum_message_length: extra.u32(44),
+				maximum_message_length: bytes.u32::<44>(),
 				
-				get_response_class: extra.u8(48),
+				get_response_class: bytes.u8::<48>(),
 				
-				envelope_class: extra.u8(49),
+				envelope_class: bytes.u8::<49>(),
 				
-				lcd_layout: LcdLayout::from(extra.u16(50)),
+				lcd_layout: LcdLayout::from(bytes.u16::<50>()),
 				
-				pin_support: BitFlags::from_bits_truncate(extra.u8(52)),
+				pin_support: BitFlags::from_bits_truncate(bytes.u8::<52>()),
 				
 				maximum_slots_that_can_be_simultaneously_used:
 				{
-					let raw = extra.u8(53);
-					if raw == 0
+					let raw = bytes.u8::<53>();
+					if unlikely!(raw == 0)
 					{
 						new_non_zero_u8(1)
 					}

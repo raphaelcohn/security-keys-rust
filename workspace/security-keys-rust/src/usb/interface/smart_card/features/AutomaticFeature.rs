@@ -31,11 +31,11 @@ pub(crate) enum AutomaticFeature
 impl AutomaticFeature
 {
 	#[inline(always)]
-	fn parse(dwFeatures: u32) -> Result<BitFlags<Self>, &'static str>
+	fn parse(dwFeatures: u32) -> Result<BitFlags<Self>, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
 		if dwFeatures & 0b1111_1000_0000_0001 != 0
 		{
-			Err("Bit 0 or bits 12 to 15 set")
+			Err(SmartCardInterfaceAdditionalDescriptorParseError::AutomaticFeatureBit0OrBits12To15Set)
 		}
 		else
 		{

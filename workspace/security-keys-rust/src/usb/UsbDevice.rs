@@ -36,9 +36,9 @@ pub struct UsbDevice
 	
 	serial_number_string: Option<UsbStringOrIndex>,
 	
-	active_configuration: Option<NonZeroU8>,
+	active_configuration: Option<ConfigurationNumber>,
 	
-	configurations: HashMap<NonZeroU8, UsbConfiguration>,
+	configurations: HashMap<ConfigurationNumber, UsbConfiguration>,
 }
 
 impl<T: UsbContext> TryFrom<rusb::Device<T>> for UsbDevice
@@ -85,14 +85,7 @@ impl<T: UsbContext> TryFrom<rusb::Device<T>> for UsbDevice
 				
 				manufacturer_device_version: device_descriptor.device_version().into(),
 				
-				class_and_protocol: UsbClassAndProtocol::new
-				(
-					device_descriptor.class_code(),
-					
-					device_descriptor.sub_class_code(),
-					
-					device_descriptor.protocol_code(),
-				),
+				class_and_protocol: UsbClassAndProtocol::new_from_device(&device_descriptor),
 				
 				manufacturer_string: usb_string_finder.find(device_descriptor.manufacturer_string_index())?,
 				
@@ -120,15 +113,15 @@ impl<T: UsbContext> TryFrom<rusb::Device<T>> for UsbDevice
 impl UsbDevice
 {
 	#[inline(always)]
-	pub(crate) fn is_currently_configured_as_circuit_card_interface_device(&self) -> Result<Vec<CcidDeviceDescriptor>, UsbDeviceError>
+	pub(crate) fn active_smart_card_interface_additional_descriptors(&self) -> Result<Vec<&SmartCardInterfaceAdditionalDescriptor>, UsbDeviceError>
 	{
-		if self.class_and_protocol.is_device_probable_circuit_card_interface_device()
+		if self.class_and_protocol.is_valid_smart_card_device()
 		{
 			match self.cached_active_configuration()?
 			{
 				None => return Ok(Vec::new()),
 				
-				Some(active_configuration) => active_configuration.is_circuit_card_interface_device().map_err(UsbDeviceError::InvalidCcidDeviceDescriptor),
+				Some(active_configuration) => active_configuration.smart_card_interface_additional_descriptors().map_err(UsbDeviceError::Allocation),
 			}
 		}
 		else

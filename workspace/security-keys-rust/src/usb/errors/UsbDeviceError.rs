@@ -2,15 +2,36 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) enum UsbStringOrIndex
+/// USB device errors.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum UsbDeviceError
 {
-	HaveString(UsbString),
+	ActiveConfigurationNotInConfiguations,
 	
-	CouldNotOpenDeviceHandle
+	Allocation(TryReserveError),
+}
+
+impl Display for UsbDeviceError
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		index: NonZeroU8
-	},
+		Debug::fmt(self, f)
+	}
+}
+
+impl error::Error for UsbDeviceError
+{
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use self::UsbDeviceError::*;
+		
+		match self
+		{
+			Allocation(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

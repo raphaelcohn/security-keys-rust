@@ -3,7 +3,7 @@
 
 
 /// USB (rusb) errors.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UsbError
 {
 	#[allow(missing_docs)]
@@ -56,6 +56,21 @@ pub enum UsbError
 		/// Index.
 		index: u8,
 	},
+	
+	#[allow(missing_docs)]
+	NoInterfaces,
+	
+	#[allow(missing_docs)]
+	CouldNotPushInterface(TryReserveError),
+	
+	#[allow(missing_docs)]
+	CouldNotParseConfigurationAdditionalDescriptor(AdditionalDescriptorParseError<Infallible>),
+	
+	#[allow(missing_docs)]
+	CouldNotParseInterfaceAdditionalDescriptor(AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>),
+	
+	#[allow(missing_docs)]
+	CouldNotParseEndPointAdditionalDescriptor(AdditionalDescriptorParseError<Infallible>),
 }
 
 impl Display for UsbError
@@ -89,6 +104,25 @@ impl error::Error for UsbError
 			OpenDevice { cause, .. } => Some(cause),
 			
 			CouldNotReadString { cause, .. } => Some(cause),
+			
+			NoInterfaces => None,
+			
+			CouldNotPushInterface(cause) => Some(cause),
+			
+			CouldNotParseConfigurationAdditionalDescriptor(cause) => Some(cause),
+			
+			CouldNotParseInterfaceAdditionalDescriptor(cause) => Some(cause),
+			
+			CouldNotParseEndPointAdditionalDescriptor(cause) => Some(cause),
 		}
+	}
+}
+
+impl From<AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>> for UsbError
+{
+	#[inline(always)]
+	fn from(cause: AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>) -> Self
+	{
+		UsbError::CouldNotParseInterfaceAdditionalDescriptor(cause)
 	}
 }

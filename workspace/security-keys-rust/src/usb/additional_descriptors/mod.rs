@@ -2,15 +2,22 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) enum UsbStringOrIndex
-{
-	HaveString(UsbString),
-	
-	CouldNotOpenDeviceHandle
-	{
-		index: NonZeroU8
-	},
-}
+use crate::VecExt;
+use likely::unlikely;
+use serde::Deserialize;
+use serde::Serialize;
+use std::collections::TryReserveError;
+use std::error;
+use std::fmt;
+use std::fmt::Debug;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use swiss_army_knife::get_unchecked::GetUnchecked;
+
+
+include!("AdditionalDescriptor.rs");
+include!("AdditionalDescriptorParseError.rs");
+include!("AdditionalDescriptorParser.rs");
+include!("DescriptorType.rs");
+include!("LengthAdjustment.rs");
+include!("parse_additional_descriptors.rs");

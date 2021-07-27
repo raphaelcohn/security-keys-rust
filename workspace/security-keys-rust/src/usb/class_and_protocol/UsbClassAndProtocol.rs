@@ -32,18 +32,37 @@ impl<DOI: DeviceOrInterface> UsbClassAndProtocol<DOI>
 			marker: PhantomData,
 		}
 	}
+	
+	#[inline(always)]
+	pub(super) fn codes(self) -> (u8, u8, u8)
+	{
+		(self.class_code, self.sub_class_code, self.protocol_code)
+	}
 }
 
 impl UsbClassAndProtocol<Device>
 {
 	#[inline(always)]
-	pub(super) fn is_device_probable_circuit_card_interface_device(&self) -> bool
+	pub(crate) fn new_from_device(device_descriptor: &DeviceDescriptor) -> Self
+	{
+		Self::new
+		(
+			device_descriptor.class_code(),
+			
+			device_descriptor.sub_class_code(),
+			
+			device_descriptor.protocol_code(),
+		)
+	}
+	
+	#[inline(always)]
+	pub(super) fn is_valid_smart_card_device(&self) -> bool
 	{
 		match (self.class_code, self.sub_class_code, self.protocol_code)
 		{
 			(Device::UseClassInformationInTheInterfaceDescriptorsClass, Device::UseClassInformationInTheInterfaceDescriptorsSubClass, Device::UseClassInformationInTheInterfaceDescriptorsProtocol) => true,
 			
-			// "Some early Gemalto Ezio CB+ readers have bDeviceClass, bDeviceSubClass and bDeviceProtocol set to 0xFF instead of 0x00".
+			// "Some early Gemalto Ezio CB+ readers (2011) have bDeviceClass, bDeviceSubClass and bDeviceProtocol set to 0xFF instead of 0x00".
 			(Device::VendorSpecificClass, Device::VendorSpecificSubClass, Device::VendorSpecificProtocol) => true,
 			
 			_ => false,
@@ -53,33 +72,16 @@ impl UsbClassAndProtocol<Device>
 
 impl UsbClassAndProtocol<Interface>
 {
-	/// This test is only valid on details held in an Interface Descriptor.
-	///
-	/// Is this a CCID (Circuit Card Interface Device)?
 	#[inline(always)]
-	pub(super) fn is_interface_circuit_card_interface_device(&self, extra_data_length_matches: bool) -> Option<CcidProtocol>
+	pub(crate) fn new_from_interface(interface_descriptor: &InterfaceDescriptor) -> Self
 	{
-		match (self.class_code, self.sub_class_code, self.protocol_code)
-		{
-			(Interface::SmartCardClass, 0x00, 0x00 ..= 0x02) => self.ccid_protocol(),
+		Self::new
+		(
+			interface_descriptor.class_code(),
 			
-			// Exists from before standardization.
-			(Interface::VendorSpecificClass, 0x00, 0x00 ..= 0x02) => if extra_data_length_matches
-			{
-				self.ccid_protocol()
-			}
-			else
-			{
-				None
-			},
+			interface_descriptor.sub_class_code(),
 			
-			_ => None,
-		}
-	}
-	
-	#[doc(hidden)]
-	fn ccid_protocol(&self) -> Option<CcidProtocol>
-	{
-		Some(unsafe { transmute(self.protocol_code) })
+			interface_descriptor.protocol_code(),
+		)
 	}
 }

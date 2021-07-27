@@ -3,16 +3,21 @@
 
 
 /// A vector extension traiit.
-pub trait VecExt: Sized
+pub trait VecExt<T>: Sized
 {
 	/// New with capacity.
 	fn new_with_capacity(length: usize) -> Result<Self, TryReserveError>;
 	
 	/// New buffer.
 	fn new_buffer(length: usize) -> Result<Self, TryReserveError>;
+	
+	fn new_from(values: &[T]) -> Result<Self, TryReserveError> where T: Copy;
+	
+	/// Try to push.
+	fn try_push(&mut self, value: T) -> Result<(), TryReserveError>;
 }
 
-impl<T> VecExt for Vec<T>
+impl<T> VecExt<T> for Vec<T>
 {
 	#[inline(always)]
 	fn new_with_capacity(length: usize) -> Result<Self, TryReserveError>
@@ -28,5 +33,22 @@ impl<T> VecExt for Vec<T>
 		let mut buffer = Self::new_with_capacity(length)?;
 		unsafe { buffer.set_len(length) };
 		Ok(buffer)
+	}
+	
+	#[inline(always)]
+	fn new_from(values: &[T]) -> Result<Self, TryReserveError> where T: Copy
+	{
+		let length = values.len();
+		let mut this = Self::new_buffer(length)?;
+		unsafe { this.as_mut_ptr().copy_from_nonoverlapping(values.as_ptr(), length) };
+		Ok(this)
+	}
+	
+	#[inline(always)]
+	fn try_push(&mut self, value: T) -> Result<(), TryReserveError>
+	{
+		self.try_reserve(1)?;
+		self.push(value);
+		Ok(())
 	}
 }

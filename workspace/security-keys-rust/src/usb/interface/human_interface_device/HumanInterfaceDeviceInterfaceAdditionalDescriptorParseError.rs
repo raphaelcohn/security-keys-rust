@@ -2,15 +2,26 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub(crate) enum UsbStringOrIndex
+/// Human Interface Device (HID) descriptor parse error.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub(crate) enum HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 {
-	HaveString(UsbString),
-	
-	CouldNotOpenDeviceHandle
+	/// This type of descriptor must be at least 9 bytes long (including `bLength`).
+	TooShort,
+
+	/// `bNumDescriptors` was zero.
+	ZeroNumberOfClassDescriptors,
+}
+
+impl Display for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		index: NonZeroU8
-	},
+		Debug::fmt(self, f)
+	}
+}
+
+impl error::Error for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
+{
 }

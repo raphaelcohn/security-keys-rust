@@ -19,7 +19,7 @@ pub(crate) enum AutomaticParametersFeature
 impl AutomaticParametersFeature
 {
 	#[inline(always)]
-	fn parse(dwFeatures: u32) -> Result<Self, &'static str>
+	fn parse(dwFeatures: u32) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
 		const AutomaticParametersNegotiationMadeByTheCcid: u32 = AutomaticParametersFeature::AutomaticParametersNegotiationMadeByTheCcid as u32;
 		const AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters: u32 = AutomaticParametersFeature::AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters as u32;
@@ -32,7 +32,7 @@ impl AutomaticParametersFeature
 			
 			AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters => Ok(AutomaticParametersFeature::AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters),
 			
-			_ => Err("Invalid AutomaticParametersFeature; can not have more than one of AutomaticParametersNegotiationMadeByTheCcid or AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters"),
+			_ => Err(SmartCardInterfaceAdditionalDescriptorParseError::InvalidAutomaticParametersFeature)
 		}
 	}
 }

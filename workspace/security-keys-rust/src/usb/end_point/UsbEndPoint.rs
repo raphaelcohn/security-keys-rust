@@ -22,61 +22,62 @@ pub(crate) struct UsbEndPoint
 	
 	audio_device_synchronization_address: u8,
 
-	pub(super) extra: Vec<u8>,
-}
-
-impl<'a> From<EndpointDescriptor<'a>> for UsbEndPoint
-{
-	#[inline(always)]
-	fn from(end_point_descriptor: EndpointDescriptor) -> Self
-	{
-		let max_packet_size = end_point_descriptor.max_packet_size();
-		let maximum_packet_size = max_packet_size & 0b0111_1111_1111;
-		let additional_transaction_opportunities_per_microframe = unsafe { transmute(((max_packet_size >> 11) & 0b11) as u8) };
-		
-		Self
-		{
-			direction: UsbDirection::from(end_point_descriptor.direction()),
-		
-			transfer_type: UsbTransferType::from(&end_point_descriptor),
-			
-			maximum_packet_size,
-			
-			additional_transaction_opportunities_per_microframe,
-			
-			polling_interval: end_point_descriptor.interval(),
-			
-			audio_device_synchronization_feedback_refresh_rate: end_point_descriptor.refresh(),
-			
-			audio_device_synchronization_address: end_point_descriptor.synch_address(),
-			
-			extra: match end_point_descriptor.extra()
-			{
-				None => Vec::new(),
-				
-				Some(bytes) =>
-				{
-					debug_assert_ne!(bytes.len(), 0);
-					bytes.to_vec()
-				}
-			},
-		}
-	}
+	extra: Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>,
 }
 
 impl UsbEndPoint
 {
 	#[inline(always)]
-	pub(super) fn usb_end_points_from(interface_descriptor: InterfaceDescriptor) -> IndexMap<u4, Self>
+	fn try_from(end_point_descriptor: EndpointDescriptor, strip_extra: bool) -> Result<Self, UsbError>
+	{
+		let max_packet_size = end_point_descriptor.max_packet_size();
+		let maximum_packet_size = max_packet_size & 0b0111_1111_1111;
+		let additional_transaction_opportunities_per_microframe = unsafe { transmute(((max_packet_size >> 11) & 0b11) as u8) };
+		
+		Ok
+		(
+			Self
+			{
+				direction: UsbDirection::from(end_point_descriptor.direction()),
+			
+				transfer_type: UsbTransferType::from(&end_point_descriptor),
+				
+				maximum_packet_size,
+				
+				additional_transaction_opportunities_per_microframe,
+				
+				polling_interval: end_point_descriptor.interval(),
+				
+				audio_device_synchronization_feedback_refresh_rate: end_point_descriptor.refresh(),
+				
+				audio_device_synchronization_address: end_point_descriptor.synch_address(),
+				
+				extra: Self::parse_additional_descriptors(&end_point_descriptor, strip_extra).map_err(UsbError::CouldNotParseEndPointAdditionalDescriptor)?,
+			}
+		)
+	}
+	
+	#[inline(always)]
+	pub(super) fn usb_end_points_from(interface_descriptor: InterfaceDescriptor, strip_last_end_point_of_extra: Option<EndPointNumber>) -> Result<IndexMap<EndPointNumber, Self>, UsbError>
 	{
 		let number_of_end_points_excluding_end_point_zero = interface_descriptor.num_endpoints();
 		let mut end_points = IndexMap::with_capacity(number_of_end_points_excluding_end_point_zero as usize);
 		
 		for end_point_descriptor in interface_descriptor.endpoint_descriptors()
 		{
-			let _ = end_points.insert(end_point_descriptor.number(), Self::from(end_point_descriptor));
+			let number = end_point_descriptor.number();
+			let strip_extra = Some(number) == strip_last_end_point_of_extra;
+			let usb_end_point = Self::try_from(end_point_descriptor, strip_extra)?;
+			let _ = end_points.insert(number, usb_end_point);
 		}
 		
-		end_points
+		Ok(end_points)
+	}
+	
+	#[inline(always)]
+	fn parse_additional_descriptors(end_point_descriptor: &EndpointDescriptor, strip_extra: bool) -> Result<Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>, AdditionalDescriptorParseError<Infallible>>
+	{
+		let mut additional_descriptor_parser = EndPointAdditionalDescriptorParser;
+		parse_additional_descriptors(end_point_descriptor.extra(), additional_descriptor_parser)
 	}
 }
