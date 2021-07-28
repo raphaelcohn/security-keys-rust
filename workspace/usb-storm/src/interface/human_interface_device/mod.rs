@@ -20,6 +20,7 @@ use std::mem::transmute;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use std::collections::TryReserveError;
+use std::num::NonZeroU8;
 
 
 include!("HumanInterfaceDeviceCountryCode.rs");
@@ -27,3 +28,5 @@ include!("HumanInterfaceDeviceInterfaceAdditionalDescriptor.rs");
 include!("HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError.rs");
 include!("HumanInterfaceDeviceInterfaceAdditionalDescriptorParser.rs");
 include!("HumanInterfaceDeviceInterfaceAdditionalVariant.rs");
+include!("HumanInterfaceDeviceOptionalDescriptor.rs");
+include!("HumanInterfaceDeviceOptionalDescriptorType.rs");

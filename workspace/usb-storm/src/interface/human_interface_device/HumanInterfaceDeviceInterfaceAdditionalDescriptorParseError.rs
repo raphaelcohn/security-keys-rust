@@ -22,7 +22,19 @@ pub enum HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 	UnrecognisedReportDescriptorType(DescriptorType),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateSpaceForPhysicalDescriptors(TryReserveError),
+	IncorrectNumberOfOptionalDescriptors,
+	
+	#[allow(missing_docs)]
+	ExcessBytesAfterOptionalDescriptors,
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateSpaceForOptionalDescriptors(TryReserveError),
+	
+	#[allow(missing_docs)]
+	InvalidOptionalDescriptor
+	{
+		bDescriptorType: u8,
+	},
 }
 
 impl Display for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
@@ -43,7 +55,7 @@ impl error::Error for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseErro
 		
 		match self
 		{
-			CouldNotAllocateSpaceForPhysicalDescriptors(cause) => Some(cause),
+			CouldNotAllocateSpaceForOptionalDescriptors(cause) => Some(cause),
 			
 			_ => None,
 		}

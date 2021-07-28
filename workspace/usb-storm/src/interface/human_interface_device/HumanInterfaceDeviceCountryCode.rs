@@ -72,39 +72,4 @@ pub enum HumanInterfaceDeviceCountryCode
 	
 	TurkishQ = 31,
 	TurkishF = 35,
-	/*
-	
-	
-01
-02
-03
-04
-05
-06
-07
-08
-09
-10
-11
-12
-13
-14
-15
-16
-
-Not Supported Arabic
-Belgian Canadian-Biling
-Canadian-Frenc
-Czech Republic Danish
-Finnish
-French
-German
-Greek
-Hebrew
-Hungary International (IS
-Italian
-Japan (Katakana
-Korean
-
-	 */
 }

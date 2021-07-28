@@ -2,66 +2,30 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Version.
+/// An optional descriptor.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct UsbVersion
+pub struct HumanInterfaceDeviceOptionalDescriptor
 {
-	major: u8,
+	descriptor_type: HumanInterfaceDeviceOptionalDescriptorType,
 
-	minor: u8,
-
-	sub_minor: u8,
+	length: u16,
 }
 
-/// This is for a little-endian `u16`.
-impl From<u16> for UsbVersion
+impl HumanInterfaceDeviceOptionalDescriptor
 {
-	/// This is for a little-endian `u16`.
+	#[allow(missing_docs)]
 	#[inline(always)]
-	fn from(binary_coded_decimal: u16) -> Self
+	pub const fn descriptor_type(&self) -> HumanInterfaceDeviceOptionalDescriptorType
 	{
-		Self::from(Version::from_bcd(binary_coded_decimal))
-	}
-}
-
-impl From<Version> for UsbVersion
-{
-	#[inline(always)]
-	fn from(version: Version) -> Self
-	{
-		UsbVersion
-		{
-			major: version.major(),
-			
-			minor: version.minor(),
-			
-			sub_minor: version.sub_minor(),
-		}
-	}
-}
-
-impl UsbVersion
-{
-	/// Major version.
-	#[inline(always)]
-	pub const fn major(&self) -> u8
-	{
-		self.major
+		self.descriptor_type
 	}
 	
-	/// Minor version.
+	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn minor(&self) -> u8
+	pub const fn length(&self) -> u16
 	{
-		self.minor
-	}
-	
-	/// Sub-minor version.
-	#[inline(always)]
-	pub const fn sub_minor(&self) -> u8
-	{
-		self.sub_minor
+		self.length
 	}
 }

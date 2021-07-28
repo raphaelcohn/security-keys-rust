@@ -65,6 +65,8 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 			(
 				HumanInterfaceDeviceInterfaceAdditionalDescriptor
 				{
+					variant: self.0,
+					
 					version: bytes.version::<2>(),
 					
 					country_code: match bytes.u8::<4>()
@@ -78,9 +80,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 					,
 					report_descriptor_length: bytes.u16::<7>(),
 				
-					number_of_other_descriptors: number_of_class_descriptors_including_mandatory_report.get() - 1,
-				
-					other_descriptors: Vec::new_from(bytes.get_unchecked_range_safe(AdjustedMinimumLength .. )).map_err(CouldNotAllocateSpaceForPhysicalDescriptors)?,
+					optional_descriptors: Self::parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report, bytes.get_unchecked_range_safe(AdjustedMinimumLength .. ))?,
 				}
 			)
 		)
@@ -93,5 +93,57 @@ impl HumanInterfaceDeviceInterfaceAdditionalDescriptorParser
 	pub(super) const fn new(variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Self
 	{
 		Self(variant)
+	}
+	
+	#[inline(always)]
+	fn parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report: NonZeroU8, optional_descriptors_bytes: &[u8]) -> Result<Vec<HumanInterfaceDeviceOptionalDescriptor>, HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError>
+	{
+		use self::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
+		
+		let number_of_optional_descriptors = (number_of_class_descriptors_including_mandatory_report.get() - 1) as usize;
+		
+		let optional_descriptors_bytes_length = optional_descriptors_bytes.len();
+		
+		const OptionalDescriptorTypeSize: usize = 1;
+		const OptionalDescriptorLength: usize = 2;
+		const OptionalDescriptorSize: usize = OptionalDescriptorTypeSize + OptionalDescriptorLength;
+		
+		if unlikely!(optional_descriptors_bytes_length / OptionalDescriptorSize != number_of_optional_descriptors)
+		{
+			return Err(IncorrectNumberOfOptionalDescriptors)
+		}
+		
+		if unlikely!(optional_descriptors_bytes_length % OptionalDescriptorSize != 0)
+		{
+			return Err(ExcessBytesAfterOptionalDescriptors)
+		}
+		
+		let mut optional_descriptors = Vec::new_with_capacity(number_of_optional_descriptors).map_err(CouldNotAllocateSpaceForOptionalDescriptors)?;
+		
+		let mut byte_index = 0;
+		for _ in 0 ..number_of_optional_descriptors
+		{
+			use self::HumanInterfaceDeviceOptionalDescriptorType::*;
+			optional_descriptors.push
+			(
+				HumanInterfaceDeviceOptionalDescriptor
+				{
+					descriptor_type: match optional_descriptors_bytes.u8_unadjusted(byte_index)
+					{
+						0x23 => Physical,
+						
+						reserved @ 0x24 ..= 0x2F => Reserved(reserved),
+						
+						bDescriptorType @ _ => return Err(InvalidOptionalDescriptor { bDescriptorType })
+					},
+					
+					length: optional_descriptors_bytes.u16_unadjusted(byte_index + OptionalDescriptorTypeSize),
+				}
+			);
+			
+			byte_index = byte_index + OptionalDescriptorSize
+		}
+		
+		Ok(optional_descriptors)
 	}
 }
