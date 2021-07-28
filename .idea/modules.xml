@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/workspace/security-keys-rust/security-keys-rust.iml" filepath="$PROJECT_DIR$/workspace/security-keys-rust/security-keys-rust.iml" />
+      <module fileurl="file://$PROJECT_DIR$/workspace/usb-storm/usb-storm.iml" filepath="$PROJECT_DIR$/workspace/usb-storm/usb-storm.iml" />
     </modules>
   </component>
 </project>

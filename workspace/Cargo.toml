@@ -5,4 +5,5 @@
 [workspace]
 members = [
 	"security-keys-rust",
+	"usb-storm",
 ]

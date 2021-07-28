@@ -43,13 +43,6 @@
 //! This is a rust library.
 
 
-use clap as _;
-use ron as _;
-use serde_lexpr as _;
-use serde_yaml as _;
-use std::collections::TryReserveError;
-
-
 /// IFD (Interface Device) handler.
 pub mod ifdhandler;
 
@@ -62,14 +55,3 @@ mod low_level;
 
 
 //mod open_pgp;
-
-
-/// A simple serializer for dumping data to the console.
-pub mod simple_serializer;
-
-
-/// USB.
-pub mod usb;
-
-
-include!("VecExt.rs");
