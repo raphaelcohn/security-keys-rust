@@ -10,20 +10,54 @@
 #[serde(deny_unknown_fields)]
 pub struct UsbInterfaceAlternateSetting
 {
-	/// Should linearly increase from zero for each interface.
 	alternate_setting_number: u8,
 	
 	class_and_protocol: UsbClassAndProtocol<Interface>,
 
 	description: Option<UsbStringOrIndex>,
 
-	end_points: IndexMap<EndPointNumber, UsbEndPoint>,
+	end_points: IndexMap<EndPointNumber, EndPoint>,
 	
 	additional_descriptors: Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>,
 }
 
 impl UsbInterfaceAlternateSetting
 {
+	/// Alternate setting number.
+	#[inline(always)]
+	pub const fn alternate_setting_number(&self) -> u8
+	{
+		self.alternate_setting_number
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn class_and_protocol(&self) -> UsbClassAndProtocol<Interface>
+	{
+		self.class_and_protocol
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn description(&self) -> Option<&UsbStringOrIndex>
+	{
+		self.description.as_ref()
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn end_points(&self) -> &IndexMap<EndPointNumber, EndPoint>
+	{
+		&self.end_points
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn additional_descriptors(&self) -> &[AdditionalDescriptor<InterfaceAdditionalDescriptor>]
+	{
+		&self.additional_descriptors
+	}
+	
 	#[inline(always)]
 	fn smart_card_interface_additional_descriptor(&self) -> Option<&SmartCardInterfaceAdditionalDescriptor>
 	{
@@ -59,7 +93,7 @@ impl UsbInterfaceAlternateSetting
 			
 				additional_descriptors,
 				
-				end_points: UsbEndPoint::usb_end_points_from(interface_descriptor, strip_last_end_point_of_extra)?,
+				end_points: EndPoint::usb_end_points_from(interface_descriptor, strip_last_end_point_of_extra)?,
 			}
 		)
 	}
@@ -90,7 +124,7 @@ impl UsbInterfaceAlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors(interface_descriptor: &InterfaceDescriptor, class_and_protocol: UsbClassAndProtocol<Interface>) -> (Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>, Option<EndPointNumber>)
+	fn parse_additional_descriptors(interface_descriptor: &libusb_interface_descriptor, class_and_protocol: UsbClassAndProtocol<Interface>) -> (Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>, Option<EndPointNumber>)
 	{
 		#[inline(always)]
 		fn human_interface_device(extra: Option<&[u8]>, variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> (Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>, Option<EndPointNumber>)
@@ -112,7 +146,20 @@ impl UsbInterfaceAlternateSetting
 		}
 		
 		use self::HumanInterfaceDeviceInterfaceAdditionalVariant::*;
-		let extra = interface_descriptor.extra();
+		
+		let extra =
+		{
+			let extra_length = interface_descriptor.extra_length as usize;
+			if extra_length == 0
+			{
+				None
+			}
+			else
+			{
+				Some(unsafe { from_raw_parts(interface_descriptor.extra, extra_length) })
+			}
+		};
+		
 		match class_and_protocol.codes()
 		{
 			(Interface::HumanInterfaceDeviceClass, Interface::HumanInterfaceDeviceNoSubClass, 0x00) => human_interface_device(extra, NotBoot),

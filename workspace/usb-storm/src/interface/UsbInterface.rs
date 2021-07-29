@@ -8,7 +8,6 @@
 #[serde(deny_unknown_fields)]
 pub struct UsbInterface
 {
-	/// Should linearly increase from zero for each configuration.
 	interface_number: u8,
 
 	interface_alternate_settings: Vec<UsbInterfaceAlternateSetting>
@@ -16,6 +15,20 @@ pub struct UsbInterface
 
 impl UsbInterface
 {
+	/// Interface number.
+	#[inline(always)]
+	pub const fn interface_number(&self) -> u8
+	{
+		self.interface_number
+	}
+	
+	/// Interface alternate settings; the first alternate setting is the one in use.
+	#[inline(always)]
+	pub fn interface_alternate_settings(&self) -> &[UsbInterfaceAlternateSetting]
+	{
+		&self.interface_alternate_settings
+	}
+	
 	/// Does not check the alternate settings of the interface.
 	#[inline(always)]
 	pub(super) fn smart_card_interface_additional_descriptor(&self) -> Option<&SmartCardInterfaceAdditionalDescriptor>

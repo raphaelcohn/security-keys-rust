@@ -8,7 +8,7 @@
 #[serde(deny_unknown_fields)]
 #[bitflags]
 #[repr(u32)]
-pub(crate) enum SynchronizationProtocol
+pub enum SynchronizationProtocol
 {
 	#[allow(missing_docs)]
 	TwoWire = 0x00000001,

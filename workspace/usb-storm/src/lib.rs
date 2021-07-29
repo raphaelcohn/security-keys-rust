@@ -29,6 +29,8 @@
 #![feature(macro_attributes_in_derive_output)]
 #![feature(maybe_uninit_uninit_array)]
 #![feature(try_reserve)]
+#![feature(maybe_uninit_slice)]
+#![feature(const_generics)]
 
 
 //! usb-storm is a library for enumerating USB devices and parsing USB descriptors.
@@ -48,11 +50,17 @@ use self::errors::UsbDeviceError;
 use self::errors::UsbError;
 use self::interface::smart_card::SmartCardInterfaceAdditionalDescriptor;
 use self::language::UsbLanguage;
+use self::libusb::device::device_descriptor;
+use self::libusb::device::get_bus_number;
+use self::libusb::device::get_device_address;
+use self::libusb::device::get_device_speed;
+use self::libusb::device::get_port_number;
+use self::libusb::device::get_port_numbers;
+use self::version::UsbVersion;
+use arrayvec::ArrayVec;
+use likely::likely;
 use rusb::DeviceHandle;
-use rusb::Language;
-use rusb::Speed;
 use rusb::UsbContext;
-use rusb::Version;
 use rusb::devices;
 use serde::Deserialize;
 use serde::Serialize;
@@ -65,7 +73,9 @@ use std::hash::Hash;
 use std::hash::Hasher;
 use std::num::NonZeroU8;
 use std::time::Duration;
+use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::non_zero::new_non_zero_u8;
+use std::mem::transmute;
 
 
 /// Additional descriptors, eg for Smart Cards and Human Interface Devices (HID).
@@ -96,18 +106,33 @@ pub mod interface;
 pub mod language;
 
 
+mod libusb;
+
+
 /// A simple serializer for dumping data to the console.
 pub mod simple_serializer;
 
 
+/// Transfers.
+pub mod control_transfers;
+
+
+/// USB binary coded decimal version.
+pub mod version;
+
+
 include!("FixedUsbDeviceCapabilities.rs");
+include!("MaximumDevicePortNumbers.rs");
+include!("u4.rs");
+include!("u6.rs");
+include!("u11.rs");
 include!("UsbDevice.rs");
 include!("UsbDeviceInformationDatabase.rs");
+include!("UsbPortNumber.rs");
 include!("UsbProductIdentifier.rs");
 include!("UsbSpeed.rs");
 include!("UsbString.rs");
 include!("UsbStringFinder.rs");
 include!("UsbStringOrIndex.rs");
 include!("UsbVendorIdentifier.rs");
-include!("UsbVersion.rs");
 include!("VecExt.rs");

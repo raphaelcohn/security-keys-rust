@@ -3,6 +3,7 @@
 
 
 use crate::VecExt;
+use super::control_transfers::MinimumUsbDescriptorLength;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
@@ -12,6 +13,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use std::slice::from_raw_parts;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
@@ -19,5 +21,6 @@ include!("AdditionalDescriptor.rs");
 include!("AdditionalDescriptorParseError.rs");
 include!("AdditionalDescriptorParser.rs");
 include!("DescriptorType.rs");
+include!("extra_to_slice.rs");
 include!("LengthAdjustment.rs");
 include!("parse_additional_descriptors.rs");

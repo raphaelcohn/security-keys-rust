@@ -2,15 +2,19 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// USB string, in various languages.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub(crate) enum UsbStringOrIndex
+pub enum UsbStringOrIndex
 {
+	/// Have a string.
 	HaveString(UsbString),
 	
+	/// Do not have a string because we can't get ?exclusive access.
 	CouldNotOpenDeviceHandle
 	{
-		index: NonZeroU8
+		/// The string descriptor index requested.
+		string_descriptor_index: NonZeroU8
 	},
 }

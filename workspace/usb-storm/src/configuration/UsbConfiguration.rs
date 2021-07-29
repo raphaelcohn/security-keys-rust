@@ -2,10 +2,11 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// USB configuration.
 #[derive(Debug, Clone, Eq, PartialEq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub(crate) struct UsbConfiguration
+pub struct UsbConfiguration
 {
 	maximum_power_in_milliamps: u16,
 	
@@ -17,11 +18,53 @@ pub(crate) struct UsbConfiguration
 	
 	interfaces: Vec<UsbInterface>,
 
-	extra: Vec<AdditionalDescriptor<ConfigurationAdditionalDescriptor>>,
+	additional_descriptors: Vec<AdditionalDescriptor<ConfigurationAdditionalDescriptor>>,
 }
 
 impl UsbConfiguration
 {
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn maximum_power_in_milliamps(self) -> u16
+	{
+		self.maximum_power_in_milliamps
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn is_self_powered(self) -> bool
+	{
+		self.is_self_powered
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn supports_remote_wake_up(self) -> bool
+	{
+		self.supports_remote_wake_up
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn configuration_string(self) -> Option<&UsbStringOrIndex>
+	{
+		self.configuration_string.as_ref()
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn interfaces(self) -> &[UsbInterface]
+	{
+		&self.interfaces
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn additional_descriptors(self) -> &[AdditionalDescriptor<ConfigurationAdditionalDescriptor>]
+	{
+		&self.additional_descriptors
+	}
+	
 	#[inline(always)]
 	pub(super) fn smart_card_interface_additional_descriptors(&self) -> Result<Vec<&SmartCardInterfaceAdditionalDescriptor>, TryReserveError>
 	{
@@ -54,7 +97,7 @@ impl UsbConfiguration
 				
 				configuration_string: usb_string_finder.find(configuration_descriptor.description_string_index())?,
 				
-				extra: Self::parse_additional_descriptors(&configuration_descriptor).map_err(UsbError::CouldNotParseConfigurationAdditionalDescriptor)?,
+				additional_descriptors: Self::parse_additional_descriptors(&configuration_descriptor).map_err(UsbError::CouldNotParseConfigurationAdditionalDescriptor)?,
 				
 				interfaces: UsbInterface::usb_interfaces_try_from(configuration_descriptor, usb_string_finder)?,
 			}

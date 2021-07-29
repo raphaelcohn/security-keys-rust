@@ -27,26 +27,13 @@ pub enum AutomaticFeature
 	
 	#[allow(missing_docs)]
 	CcidCanSetIccInClockStopMode = 0x0000_0100,
-	
-	/// T=1 protocol in use.
-	NadValueOtherThan00Accepted = 0x0000_0200,
-	
-	/// T=1 protocol in use.
-	AutomaticIfsdExchangeAsFirstExchange = 0x0000_0400,
 }
 
 impl AutomaticFeature
 {
 	#[inline(always)]
-	fn parse(dwFeatures: u32) -> Result<BitFlags<Self>, SmartCardInterfaceAdditionalDescriptorParseError>
+	fn parse(dwFeatures: u32) -> BitFlags<Self>
 	{
-		if dwFeatures & 0b1111_1000_0000_0001 != 0
-		{
-			Err(SmartCardInterfaceAdditionalDescriptorParseError::AutomaticFeatureBit0OrBits12To15Set)
-		}
-		else
-		{
-			Ok(BitFlags::from_bits_truncate(dwFeatures))
-		}
+		BitFlags::from_bits_truncate(dwFeatures)
 	}
 }

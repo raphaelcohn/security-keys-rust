@@ -23,7 +23,7 @@ use super::additional_descriptors::parse_additional_descriptors;
 use super::class_and_protocol::DeviceOrInterface;
 use super::class_and_protocol::Interface;
 use super::class_and_protocol::UsbClassAndProtocol;
-use super::end_point::UsbEndPoint;
+use super::end_point::EndPoint;
 use super::end_point::EndPointNumber;
 use super::errors::UsbError;
 use indexmap::map::IndexMap;
@@ -42,6 +42,8 @@ use std::fmt::Formatter;
 use std::mem::transmute;
 use std::num::NonZeroU8;
 use swiss_army_knife::get_unchecked::GetUnchecked;
+use libusb1_sys::libusb_interface_descriptor;
+use std::slice::from_raw_parts;
 
 
 /// CCID (Chip Card Interface Device).
@@ -61,5 +63,6 @@ include!("Bytes.rs");
 include!("InterfaceAdditionalDescriptor.rs");
 include!("InterfaceAdditionalDescriptorParseError.rs");
 include!("InterfaceAdditionalDescriptorParser.rs");
+include!("InterfaceNumber.rs");
 include!("UsbInterface.rs");
 include!("UsbInterfaceAlternateSetting.rs");

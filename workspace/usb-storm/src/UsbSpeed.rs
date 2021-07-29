@@ -2,43 +2,26 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// Speed.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub(crate) enum UsbSpeed
+// `#[repr(NonZeroU8)]`
+#[repr(u8)]
+pub enum UsbSpeed
 {
-	/// The operating system doesn't know the device speed.
-	Unknown,
-	
 	/// The device is operating at low speed (1.5 Mbps).
-	Low,
+	Low = 1,
 	
 	/// The device is operating at full speed (12 Mbps).
-	Full,
+	Full = 2,
 	
 	/// The device is operating at high speed (480 Mbps).
-	High,
+	High = 3,
 	
 	/// The device is operating at super speed (5 Gbps).
-	Super,
-}
-
-impl From<Speed> for UsbSpeed
-{
-	#[inline(always)]
-	fn from(speed: Speed) -> Self
-	{
-		match speed
-		{
-			Speed::Unknown => UsbSpeed::Unknown,
-			
-			Speed::Low => UsbSpeed::Low,
-			
-			Speed::Full => UsbSpeed::Full,
-			
-			Speed::High => UsbSpeed::High,
-			
-			Speed::Super => UsbSpeed::Super,
-		}
-	}
+	Super = 4,
+	
+	/// The device is operating at super speed plus (10 Gbps).
+	SuperPlus = 5,
 }

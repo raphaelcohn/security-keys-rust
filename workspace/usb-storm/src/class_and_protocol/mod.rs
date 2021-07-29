@@ -7,6 +7,7 @@ use rusb::InterfaceDescriptor;
 use serde::Deserialize;
 use serde::Serialize;
 use std::marker::PhantomData;
+use libusb1_sys::libusb_device_descriptor;
 
 
 include!("Device.rs");

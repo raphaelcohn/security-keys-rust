@@ -43,15 +43,15 @@ impl<DOI: DeviceOrInterface> UsbClassAndProtocol<DOI>
 impl UsbClassAndProtocol<Device>
 {
 	#[inline(always)]
-	pub(crate) fn new_from_device(device_descriptor: &DeviceDescriptor) -> Self
+	pub(super) fn new_from_device(device_descriptor: &libusb_device_descriptor) -> Self
 	{
 		Self::new
 		(
-			device_descriptor.class_code(),
+			device_descriptor.bDeviceClass,
 			
-			device_descriptor.sub_class_code(),
+			device_descriptor.bDeviceSubClass,
 			
-			device_descriptor.protocol_code(),
+			device_descriptor.bDeviceProtocol,
 		)
 	}
 	

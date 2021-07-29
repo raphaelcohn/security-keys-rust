@@ -2,10 +2,11 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// An USB string in ASCII and any other languages supported.
 #[derive(Debug, Clone, Eq, PartialEq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub(crate) struct UsbString
+pub struct UsbString
 {
 	ascii: Option<String>,
 	
@@ -43,21 +44,37 @@ impl UsbString
 {
 	const TimeOut: Duration = Duration::from_secs(1);
 	
+	#[allow(missing_docs)]
 	#[inline(always)]
-	fn read(index: u8, device_handle: &DeviceHandle<impl UsbContext>, languages: &[Language]) -> Result<Self, UsbError>
+	pub fn ascii(&self) -> Option<&str>
+	{
+		self.ascii.as_deref()
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn by_language(&self) -> &HashMap<UsbLanguage, String>
+	{
+		&self.by_language
+	}
+	
+	#[inline(always)]
+	fn read(string_descriptor_index: NonZeroU8, device_handle: &DeviceHandle<impl UsbContext>, languages: &[u16]) -> Result<Self, UsbError>
 	{
 		// That said, every USB device (that support string descriptors at all) is required to provide at least one supported langid on string index zero, so you could grab that, first (with langid 0), to use as a default.
 		
+		let string_descriptor_index = string_descriptor_index.get();
+		
 		// We do not error as there is no assurance that this string has an ASCII form.
-		let ascii = device_handle.read_string_descriptor_ascii(index).ok();
+		let ascii = device_handle.read_string_descriptor_ascii(string_descriptor_index).ok();
 		
 		let mut by_language = HashMap::with_capacity(languages.len());
 		for language in languages
 		{
 			let language = *language;
-			let result = device_handle.read_string_descriptor(language, index, Self::TimeOut);
+			let result = device_handle.read_string_descriptor(unsafe { transmute(language) }, string_descriptor_index, Self::TimeOut);
 			let language = language.into();
-			let string = result.map_err(|cause| UsbError::CouldNotReadString { cause, language, index })?;
+			let string = result.map_err(|cause| UsbError::CouldNotReadString { cause, language, index: string_descriptor_index })?;
 			let _ = by_language.insert(language, string);
 		}
 		

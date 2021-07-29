@@ -2,14 +2,22 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use super::Iso7816Protocol;
 use super::SmartCardInterfaceAdditionalDescriptorParseError;
 use enumflags2::BitFlags;
 use enumflags2::bitflags;
 use serde::Deserialize;
 use serde::Serialize;
+use std::error;
+use std::fmt;
+use std::fmt::Debug;
+use std::fmt::Display;
+use std::fmt::Formatter;
 
 
 include!("AutomaticFeature.rs");
 include!("AutomaticParametersFeature.rs");
 include!("Features.rs");
-include!("LevelOfExchangeFeature.rs");
+include!("FeaturesParseError.rs");
+include!("LevelOfExchange.rs");
+include!("T1ProtocolAutomaticFeature.rs");

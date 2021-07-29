@@ -5,6 +5,7 @@
 use super::additional_descriptors::AdditionalDescriptorParseError;
 use super::interface::InterfaceAdditionalDescriptorParseError;
 use super::language::UsbLanguage;
+use super::version::UsbVersionParseError;
 use std::collections::TryReserveError;
 use std::convert::Infallible;
 use std::error;

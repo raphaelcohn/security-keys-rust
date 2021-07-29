@@ -6,6 +6,8 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AdditionalDescriptorParseError<E: error::Error>
 {
+	ExtraLengthIsNegative,
+	
 	/// There are no descriptors present and this is not permitted for this additional descriptor situation.
 	NoDescriptors,
 	

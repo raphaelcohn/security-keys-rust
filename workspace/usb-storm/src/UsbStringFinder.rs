@@ -58,9 +58,30 @@ impl<T: UsbContext> UsbStringFinder<T>
 				{
 					Opened { device_handle, languages } => Ok(Some(HaveString(UsbString::read(index, device_handle, languages)?))),
 					
-					FailedToOpenDeviceHandle => Ok(Some(CouldNotOpenDeviceHandle { index: new_non_zero_u8(index) })),
+					FailedToOpenDeviceHandle => Ok(Some(CouldNotOpenDeviceHandle { string_descriptor_index: new_non_zero_u8(index) })),
 				}
 			}
+		}
+	}
+	
+	#[inline(always)]
+	fn find_string(&self, string_descriptor_index: u8) -> Result<Option<UsbStringOrIndex>, UsbError>
+	{
+		use self::UsbStringFinder::*;
+		use self::UsbStringOrIndex::*;
+		
+		if index == 0
+		{
+			return Ok(None)
+		}
+		
+		let string_descriptor_index = new_non_zero_u8(index);
+		
+		match self
+		{
+			Opened { device_handle, languages } => Ok(Some(HaveString(UsbString::read(string_descriptor_index, device_handle, languages)?))),
+			
+			FailedToOpenDeviceHandle => Ok(Some(CouldNotOpenDeviceHandle { string_descriptor_index })),
 		}
 	}
 	

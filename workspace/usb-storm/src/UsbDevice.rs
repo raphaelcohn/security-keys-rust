@@ -12,15 +12,18 @@ pub struct UsbDevice
 
 	address: u8,
 
-	port_number: u8,
+	port_number: UsbPortNumber,
 
-	port_numbers: Vec<u8>,
-
-	speed: UsbSpeed,
+	port_numbers: ArrayVec<UsbPortNumber, MaximumDevicePortNumbers>,
 	
-	pub(crate) vendor_identifier: UsbVendorIdentifier,
+	speed: Option<UsbSpeed>,
 	
-	pub(crate) product_identifier: UsbProductIdentifier,
+	/// An exponent; the maximum packet size is `2 << maximum_packet_size_exponent`.
+	control_end_point_zero_maximum_packet_size_exponent: u8,
+	
+	vendor_identifier: UsbVendorIdentifier,
+	
+	product_identifier: UsbProductIdentifier,
 	
 	maximum_supported_usb_version: UsbVersion,
 	
@@ -50,48 +53,41 @@ impl<T: UsbContext> TryFrom<rusb::Device<T>> for UsbDevice
 	{
 		use self::UsbError::*;
 		
-		let bus_number = device.bus_number();
-		let address = device.address();
-		let port_number = device.port_number();
-		
-		let device_descriptor = device.device_descriptor().map_err(GetDeviceDescriptor)?;
-		let _first_end_point_maximum_packet_size = device_descriptor.max_packet_size();
+		let libusb_device = new_non_null(device.as_raw());
+		let device_descriptor = device_descriptor(libusb_device);
 		let usb_string_finder = UsbStringFinder::new(&device);
 		
 		Ok
 		(
 			UsbDevice
 			{
-				bus_number,
+				bus_number: get_bus_number(libusb_device),
 			
-				address,
+				address: get_device_address(libusb_device),
 				
-				port_number,
+				port_number: get_port_number(libusb_device),
 			
-				port_numbers:
-				{
-					let port_numbers = device.port_numbers().map_err(GetDevicePortNumbers)?;
-					debug_assert!(port_numbers.len() <= 7);
-					port_numbers
-				},
+				port_numbers: get_port_numbers(libusb_device),
 			
-				speed: device.speed().into(),
+				speed: get_device_speed(libusb_device),
 				
-				vendor_identifier: device_descriptor.vendor_id(),
+				control_end_point_zero_maximum_packet_size_exponent: device_descriptor.bMaxPacketSize0,
 				
-				product_identifier: device_descriptor.product_id(),
+				vendor_identifier: device_descriptor.idVendor,
+				
+				product_identifier: device_descriptor.idProduct,
 			
-				maximum_supported_usb_version: device_descriptor.usb_version().into(),
+				maximum_supported_usb_version: UsbVersion::try_from(device_descriptor.bcdUSB).map_err(DeviceUsbVersion)?,
 				
-				manufacturer_device_version: device_descriptor.device_version().into(),
+				manufacturer_device_version: UsbVersion::try_from(device_descriptor.bcdDevice).map_err(DeviceFirmwareVersion)?,
 				
 				class_and_protocol: UsbClassAndProtocol::new_from_device(&device_descriptor),
 				
-				manufacturer_string: usb_string_finder.find(device_descriptor.manufacturer_string_index())?,
+				manufacturer_string: usb_string_finder.find_string(device_descriptor.iManufacturer)?,
 				
-				product_string: usb_string_finder.find(device_descriptor.product_string_index())?,
+				product_string: usb_string_finder.find_string(device_descriptor.iProduct)?,
 				
-				serial_number_string: usb_string_finder.find(device_descriptor.serial_number_string_index())?,
+				serial_number_string: usb_string_finder.find_string(device_descriptor.iSerialNumber)?,
 				
 				active_configuration: match device.active_config_descriptor()
 				{
@@ -112,6 +108,34 @@ impl<T: UsbContext> TryFrom<rusb::Device<T>> for UsbDevice
 
 impl UsbDevice
 {
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn bus_number(&self) -> u8
+	{
+		self.bus_number
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn address(&self) -> u8
+	{
+		self.address
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn port_number(&self) -> u8
+	{
+		self.port_number
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn port_numbers(&self) -> ArrayVec<u8, 7>
+	{
+		self.port_numbers
+	}
+	
 	#[inline(always)]
 	pub(crate) fn active_smart_card_interface_additional_descriptors(&self) -> Result<Vec<&SmartCardInterfaceAdditionalDescriptor>, UsbDeviceError>
 	{

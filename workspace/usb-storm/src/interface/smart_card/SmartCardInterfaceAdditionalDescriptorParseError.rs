@@ -12,17 +12,8 @@ pub enum SmartCardInterfaceAdditionalDescriptorParseError
 	/// This type of descriptor must be 54 bytes long (including `bLength`).
 	WrongLength,
 	
-	#[allow(missing_docs)]
-	AutomaticFeatureBit0OrBits12To15Set,
-	
-	/// Can not have more than one of TpduLevelExchangeWithCcid, ShortApduLevelExchangeWithCcid or ShortAndExtendedApduLevelExchangeWithCcid.
-	InvalidLevelOfExchangeFeature,
-	
-	/// When an APDU level of exchange is selected, one of the values 00000040h or 00000080h must be present.
-	MissingFeatureAutomaticParametersForApduLevelOfExchange,
-	
-	/// When an APDU level of exchange is selected, the value 00000002h must be present.
-	MissingFeatureAutomaticParameterConfigurationBasedOnAnswerToResetDataForApduLevelOfExchange,
+	/// Features are invalid.
+	Features(FeaturesParseError),
 }
 
 impl Display for SmartCardInterfaceAdditionalDescriptorParseError
@@ -36,4 +27,16 @@ impl Display for SmartCardInterfaceAdditionalDescriptorParseError
 
 impl error::Error for SmartCardInterfaceAdditionalDescriptorParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use self::SmartCardInterfaceAdditionalDescriptorParseError::*;
+		
+		match self
+		{
+			Features(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

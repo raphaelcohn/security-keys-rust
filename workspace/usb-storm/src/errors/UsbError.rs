@@ -10,10 +10,10 @@ pub enum UsbError
 	ListDevices(rusb::Error),
 	
 	#[allow(missing_docs)]
-	GetDevicePortNumbers(rusb::Error),
+	DeviceUsbVersion(UsbVersionParseError),
 	
 	#[allow(missing_docs)]
-	GetDeviceDescriptor(rusb::Error),
+	DeviceFirmwareVersion(UsbVersionParseError),
 	
 	#[allow(missing_docs)]
 	GetDeviceActiveConfigDescriptor(rusb::Error),
@@ -93,9 +93,9 @@ impl error::Error for UsbError
 		{
 			ListDevices(cause) => Some(cause),
 			
-			GetDevicePortNumbers(cause) => Some(cause),
+			DeviceUsbVersion(cause) => Some(cause),
 			
-			GetDeviceDescriptor(cause) => Some(cause),
+			DeviceFirmwareVersion(cause) => Some(cause),
 			
 			GetDeviceActiveConfigDescriptor(cause) => Some(cause),
 			

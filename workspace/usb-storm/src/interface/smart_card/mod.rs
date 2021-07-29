@@ -3,6 +3,8 @@
 
 
 use self::features::Features;
+use self::features::FeaturesParseError;
+use self::features::LevelOfExchange;
 use super::Bytes;
 use super::super::UsbVersion;
 use super::super::additional_descriptors::AdditionalDescriptorParser;
@@ -32,7 +34,7 @@ pub mod features;
 
 include!("Baud.rs");
 include!("BytesExt.rs");
-include!("IsoProtocol.rs");
+include!("Iso7816Protocol.rs");
 include!("Kilohertz.rs");
 include!("LcdLayout.rs");
 include!("MechanicalFeature.rs");
@@ -42,4 +44,6 @@ include!("SmartCardInterfaceAdditionalDescriptorParseError.rs");
 include!("SmartCardInterfaceAdditionalDescriptorParser.rs");
 include!("SmartCardProtocol.rs");
 include!("SynchronizationProtocol.rs");
+include!("T0ProtocolUnconfiguredClass.rs");
+include!("T0ProtocolUnconfiguredClasses.rs");
 include!("VoltageSupport.rs");
