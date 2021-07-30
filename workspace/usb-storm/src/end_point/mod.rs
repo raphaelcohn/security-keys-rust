@@ -12,23 +12,17 @@ use super::additional_descriptors::AdditionalDescriptorParser;
 use super::additional_descriptors::extra_to_slice;
 use super::additional_descriptors::parse_additional_descriptors;
 use super::additional_descriptors::DescriptorType;
-use super::errors::UsbError;
-use indexmap::IndexMap;
 use libusb1_sys::libusb_endpoint_descriptor;
-use libusb1_sys::libusb_interface_descriptor;
 use libusb1_sys::constants::LIBUSB_DT_ENDPOINT;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
-use std::convert::TryFrom;
 use std::convert::Infallible;
 use std::error;
 use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use std::mem::transmute;
-use std::mem::size_of;
 
 
 /// Transfer.

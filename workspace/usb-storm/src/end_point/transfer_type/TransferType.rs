@@ -76,9 +76,9 @@ For high-speed bulk/control OUT endpoints, the bInterval must specify the maximu
 				{
 					direction: Direction::from(end_point_descriptor),
 					
-					synchronization_type: IschronousTransferSynchronizationType::from(bmAttributes),
+					synchronization_type: IschronousTransferSynchronizationType::parse(bmAttributes),
 					
-					usage_type: IschronousTransferUsageType::try_from(bmAttributes)?,
+					usage_type: IschronousTransferUsageType::parse(bmAttributes)?,
 					
 					additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
 				},
@@ -90,7 +90,7 @@ For high-speed bulk/control OUT endpoints, the bInterval must specify the maximu
 				
 				LIBUSB_TRANSFER_TYPE_INTERRUPT => Interrupt
 				{
-					direction: Self::direction(end_point_descriptor),
+					direction: Direction::from(end_point_descriptor),
 					
 					additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
 				},

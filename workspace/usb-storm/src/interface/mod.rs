@@ -3,18 +3,15 @@
 
 
 use crate::u5;
-use crate::VecExt;
 use super::version::Version;
-use self::end_point::EndPointParseError;
+use super::end_point::EndPointParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptor;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParser;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalVariant;
 use self::smart_card::SmartCardInterfaceAdditionalDescriptor;
-use self::smart_card::SmartCardInterfaceAdditionalDescriptorParser;
 use self::smart_card::SmartCardInterfaceAdditionalDescriptorParseError;
 use self::unsupported::UnsupportedInterfaceAdditionalDescriptor;
-use self::unsupported::UnsupportedInterfaceAdditionalDescriptorParser;
 use super::additional_descriptors::AdditionalDescriptor;
 use super::additional_descriptors::AdditionalDescriptorParseError;
 use super::additional_descriptors::AdditionalDescriptorParser;
@@ -26,9 +23,7 @@ use super::class_and_protocol::DeviceOrAlternateSetting;
 use super::end_point::EndPoint;
 use super::end_point::EndPointNumber;
 use super::end_point::InclusiveMaximumNumberOfEndPoints;
-use super::errors::UsbError;
 use super::string::StringFinder;
-use libusb1_sys::{libusb_config_descriptor, libusb_release_interface};
 use libusb1_sys::libusb_endpoint_descriptor;
 use libusb1_sys::libusb_interface;
 use libusb1_sys::libusb_interface_descriptor;
@@ -37,7 +32,6 @@ use indexmap::map::IndexMap;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::TryReserveError;
 use std::convert::Infallible;
 use std::error;
 use std::fmt;
@@ -50,7 +44,9 @@ use std::slice::from_raw_parts;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use crate::device::DeadOrAlive;
-use crate::string::LocalizedStrings;
+use crate::string::{LocalizedStrings, GetLocalizedStringError};
+use crate::version::VersionParseError;
+use crate::interface::unsupported::UnsupportedInterfaceAdditionalDescriptorParser;
 
 
 /// CCID (Chip Card Interface Device).

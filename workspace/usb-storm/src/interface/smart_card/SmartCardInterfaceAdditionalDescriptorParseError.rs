@@ -3,17 +3,26 @@
 
 
 /// Human Interface Device (HID) descriptor parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SmartCardInterfaceAdditionalDescriptorParseError
 {
 	#[allow(missing_docs)]
 	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
+	
+	/// A country code of 36 or greater.
+	Version(VersionParseError),
 	
 	/// This type of descriptor must be 54 bytes long (including `bLength`).
 	WrongLength,
 	
 	/// Features are invalid.
 	Features(FeaturesParseError),
+	
+	#[allow(missing_docs)]
+	UnsupportedClassGetResponse(u8),
+	
+	#[allow(missing_docs)]
+	UnsupportedClassEnvelope(u8),
 }
 
 impl Display for SmartCardInterfaceAdditionalDescriptorParseError
@@ -34,6 +43,8 @@ impl error::Error for SmartCardInterfaceAdditionalDescriptorParseError
 		
 		match self
 		{
+			Version(cause) => Some(cause),
+			
 			Features(cause) => Some(cause),
 			
 			_ => None,

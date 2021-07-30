@@ -21,10 +21,10 @@ pub enum IschronousTransferSynchronizationType
 	Synchronous,
 }
 
-impl From<u8> for IschronousTransferSynchronizationType
+impl IschronousTransferSynchronizationType
 {
 	#[inline(always)]
-	fn from(bmAttributes: u8) -> Self
+	fn parse(bmAttributes: u8) -> Self
 	{
 		use IschronousTransferSynchronizationType::*;
 		

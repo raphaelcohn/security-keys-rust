@@ -10,13 +10,10 @@ use super::super::Version;
 use super::super::additional_descriptors::AdditionalDescriptorParser;
 use super::super::additional_descriptors::DescriptorType;
 use super::super::additional_descriptors::LengthAdjustment;
-use super::super::end_point::EndPointNumber;
 use enumflags2::bitflags;
 use enumflags2::BitFlags;
 use likely::likely;
 use likely::unlikely;
-use rusb::EndpointDescriptor;
-use rusb::InterfaceDescriptor;
 use serde::Deserialize;
 use serde::Serialize;
 use std::error;
@@ -26,7 +23,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::num::NonZeroU8;
 use swiss_army_knife::non_zero::new_non_zero_u8;
-use libusb1_sys::{libusb_interface_descriptor, libusb_endpoint_descriptor};
+use crate::version::VersionParseError;
 
 
 /// Features of a smart card.

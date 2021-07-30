@@ -83,7 +83,7 @@ impl error::Error for ActivityError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use ActivityError::*;
+		use Self::*;
 		
 		match self
 		{

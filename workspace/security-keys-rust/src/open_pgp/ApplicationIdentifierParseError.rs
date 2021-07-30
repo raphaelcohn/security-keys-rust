@@ -46,7 +46,7 @@ impl error::Error for ApplicationIdentifierParseError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use ApplicationIdentifierParseError::*;
+		use Self::*;
 		
 		match self
 		{

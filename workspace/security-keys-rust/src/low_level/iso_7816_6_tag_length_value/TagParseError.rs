@@ -32,7 +32,7 @@ impl error::Error for TagParseError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use TagParseError::*;
+		use Self::*;
 		
 		match self
 		{

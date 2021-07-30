@@ -3,7 +3,7 @@
 
 
 /// Interface descriptor parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InterfaceParseError
 {
 	/// Bug in libusb.
@@ -70,5 +70,14 @@ impl error::Error for InterfaceParseError
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<AlternateSettingParseError> for InterfaceParseError
+{
+	#[inline(always)]
+	fn from(cause: AlternateSettingParseError) -> Self
+	{
+		InterfaceParseError::AlternateSetting(cause)
 	}
 }

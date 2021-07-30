@@ -30,7 +30,7 @@ impl error::Error for LoadError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use LoadError::*;
+		use Self::*;
 		
 		match self
 		{

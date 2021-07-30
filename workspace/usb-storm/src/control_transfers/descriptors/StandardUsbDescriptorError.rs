@@ -47,7 +47,7 @@ impl StandardUsbDescriptorError
 	#[inline(always)]
 	fn parse<const descriptor_type: DescriptorType>(descriptor_bytes: &[u8]) -> Result<&[u8], Self>
 	{
-		use Self::*;
+		use StandardUsbDescriptorError::*;
 		
 		let length = descriptor_bytes.len() as usize;
 		if unlikely!(length < MinimumStandardUsbDescriptorLength)

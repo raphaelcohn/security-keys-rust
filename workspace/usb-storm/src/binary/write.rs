@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(super) fn write(matches: &CommandLineParser, writer: impl Write + 'static) -> Result<(), UsbError>
+pub(super) fn write(matches: &CommandLineParser, writer: impl Write + 'static) -> Result<(), ()>
 {
 	let format = matches.format();
 	if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueSimple)

@@ -37,13 +37,6 @@ impl EndPoint
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn polling_interval(&self) -> u8
-	{
-		self.polling_interval
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
 	pub const fn audio_device_synchronization_feedback_refresh_rate(&self) -> u8
 	{
 		self.audio_device_synchronization_feedback_refresh_rate
@@ -68,14 +61,14 @@ impl EndPoint
 	{
 		use EndPointParseError::*;
 		
-		const LIBUSB_DT_ENDPOINT_SIZE: usize = 7;
-		let bLength = alternate_setting.bLength;
+		const LIBUSB_DT_ENDPOINT_SIZE: u8 = 7;
+		let bLength = end_point_descriptor.bLength;
 		if unlikely!(bLength < LIBUSB_DT_ENDPOINT_SIZE)
 		{
 			return Err(WrongLength { bLength })
 		}
 		
-		let bDescriptorType = alternate_setting.bDescriptorType;
+		let bDescriptorType = end_point_descriptor.bDescriptorType;
 		if unlikely!(bDescriptorType != LIBUSB_DT_ENDPOINT)
 		{
 			return Err(WrongDescriptorType { bDescriptorType })
@@ -90,19 +83,19 @@ impl EndPoint
 		Ok
 		(
 			(
-				end_point_number: bEndpointAddress & 0b0000_1111,
+				bEndpointAddress & 0b0000_1111,
 				
 				Self
 				{
-					transfer_type: TransferType::parse(end_point_descriptor)?,
+					transfer_type: self::TransferType::parse(end_point_descriptor).map_err(TransferType)?,
 					
 					maximum_packet_size: end_point_descriptor.wMaxPacketSize & 0b0111_1111_1111,
 					
-					audio_device_synchronization_feedback_refresh_rate: end_point_descriptor.refresh(),
+					audio_device_synchronization_feedback_refresh_rate: end_point_descriptor.bRefresh,
 					
-					audio_device_synchronization_address: end_point_descriptor.synch_address(),
+					audio_device_synchronization_address: end_point_descriptor.bSynchAddress,
 					
-					additional_descriptors: Self::parse_additional_descriptors(end_point_descriptor).map_err(UsbError::CouldNotParseEndPointAdditionalDescriptor)?,
+					additional_descriptors: Self::parse_additional_descriptors(end_point_descriptor).map_err(CouldNotParseEndPointAdditionalDescriptor)?,
 				}
 			)
 		)

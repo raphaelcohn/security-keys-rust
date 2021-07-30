@@ -18,12 +18,10 @@ pub enum IschronousTransferUsageType
 	ImplicitFeedbackData,
 }
 
-impl TryFrom<u8> for IschronousTransferUsageType
+impl IschronousTransferUsageType
 {
-	type Error = TransferTypeParseError;
-	
 	#[inline(always)]
-	fn try_from(bmAttributes: u32) -> Result<Self, Self::Error>
+	fn parse(bmAttributes: u8) -> Result<Self, TransferTypeParseError>
 	{
 		use IschronousTransferUsageType::*;
 		

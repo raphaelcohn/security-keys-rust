@@ -28,7 +28,7 @@ impl error::Error for CardCommandError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use CardCommandError::*;
+		use Self::*;
 		
 		match self
 		{

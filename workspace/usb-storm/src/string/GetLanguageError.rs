@@ -3,10 +3,15 @@
 
 
 /// A serious error when getting a string.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum GetLocalizedStringError
 {
+	StringIndexNonZeroButDeviceDoesNotSupportLanguages
+	{
+		string_descriptor_index: NonZeroU8,
+	},
+	
 	/// Either the string descriptor is not internally valid in the device, or the device has decided to not support this language for this string descriptor index.
 	///
 	/// Either way, it's a broken device.

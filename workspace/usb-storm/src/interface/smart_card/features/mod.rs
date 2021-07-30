@@ -3,7 +3,6 @@
 
 
 use super::Iso7816Protocol;
-use super::SmartCardInterfaceAdditionalDescriptorParseError;
 use enumflags2::BitFlags;
 use enumflags2::bitflags;
 use serde::Deserialize;

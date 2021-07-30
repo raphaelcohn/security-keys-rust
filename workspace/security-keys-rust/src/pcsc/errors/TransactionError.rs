@@ -25,7 +25,7 @@ impl error::Error for TransactionError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use TransactionError::*;
+		use Self::*;
 		
 		match self
 		{

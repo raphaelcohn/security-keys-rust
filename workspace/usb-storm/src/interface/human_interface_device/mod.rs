@@ -5,6 +5,7 @@
 use crate::VecExt;
 use super::Bytes;
 use super::super::Version;
+use crate::version::VersionParseError;
 use super::super::additional_descriptors::AdditionalDescriptorParser;
 use super::super::additional_descriptors::DescriptorType;
 use super::super::additional_descriptors::LengthAdjustment;

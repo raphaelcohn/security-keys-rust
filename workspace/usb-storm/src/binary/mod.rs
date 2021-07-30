@@ -13,7 +13,6 @@ use ron::extensions::Extensions;
 use ron::ser::PrettyConfig;
 use usb_storm::simple_serializer::SimpleSerializer;
 use usb_storm::UsbDevice;
-use usb_storm::errors::UsbError;
 use serde::Serialize;
 use serde::Serializer;
 use serde_lexpr::to_writer as lisp_s_expression_writer;

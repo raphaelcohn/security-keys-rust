@@ -5,8 +5,8 @@
 pub(crate) struct StringFinder<'a>
 {
 	device_handle: &'a DeviceHandle,
-
-	languages: Vec<(LanguageIdentifier, Language)>,
+	
+	languages: Option<Vec<(LanguageIdentifier, Language)>>,
 }
 
 impl<'a> StringFinder<'a>
@@ -40,30 +40,50 @@ impl<'a> StringFinder<'a>
 	{
 		use DeadOrAlive::*;
 		
-		if unlikely!(index == 0)
+		if unlikely!(string_descriptor_index == 0)
 		{
 			Ok(Alive(None))
 		}
 		else
 		{
-			let mut localized_strings = HashMap::with_capacity(self.languages.len());
-			for language in self.language_identifiers
+			let string_descriptor_index = new_non_zero_u8(string_descriptor_index);
+			
+			match self.languages
 			{
-				let string = self.get_localized_string(new_non_zero_u8(string_descriptor_index), language);
+				None => return Err(GetLocalizedStringError::StringIndexNonZeroButDeviceDoesNotSupportLanguages { string_descriptor_index }),
+				
+				Some(ref languages) =>
+				{
+					let mut localized_strings = HashMap::with_capacity(languages.len());
+					for language in languages
+					{
+						let string = self.get_localized_string(string_descriptor_index, *language);
+					}
+					Ok(Alive(Some(LocalizedStrings(localized_strings))))
+				}
 			}
-			Ok(Alive(Some(LocalizedStrings(localized_strings))))
+			
 		}
 	}
 	
 	#[inline(always)]
-	pub(crate) fn into_languages(self) -> Result<Vec<Language>, TryReserveError>
+	pub(crate) fn into_languages(self) -> Result<Option<Vec<Language>>, TryReserveError>
 	{
-		let mut languages = Vec::new_with_capacity(self.languages.len())?;
-		for (_, language) in self.languages
+		match self.languages
 		{
-			languages.push(language)
+			None => return Ok(None),
+			
+			Some(languages) =>
+			{
+				let mut just_languages = Vec::new_with_capacity(languages.len())?;
+				for (_, language) in languages
+				{
+					just_languages.push(language)
+				}
+				Ok(Some(just_languages))
+			}
 		}
-		Ok(languages)
+		
 	}
 	
 	#[inline(always)]
@@ -75,7 +95,7 @@ impl<'a> StringFinder<'a>
 		use GetStandardUsbDescriptorError::ControlTransfer;
 		
 		let mut buffer = MaybeUninit::uninit_array();
-		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle.as_ptr(), &mut buffer, string_descriptor_index, language_identifier)
+		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle.as_non_null(), &mut buffer, string_descriptor_index, language_identifier)
 		{
 			Ok(remaining_bytes) => remaining_bytes,
 			
@@ -85,7 +105,7 @@ impl<'a> StringFinder<'a>
 			
 			Err(ControlTransfer(RequestedResourceNotFound)) => panic!("Should not occur for GET_DESCRIPTOR"),
 			
-			Err(ControlTransfer(TimedOut(..))) => return Ok(Dead),
+			Err(ControlTransfer(TimedOut)) => return Ok(Dead),
 			
 			Err(ControlTransfer(ControlRequestNotSupported { .. })) => return Err(StringIndexNonZeroButDeviceDoesNotSupportGettingString { string_descriptor_index, language }),
 			
@@ -113,9 +133,9 @@ impl<'a> StringFinder<'a>
 		let utf_8_bytes = Vec::new_with_capacity(maximum_number_of_utf_8_bytes).map_err(CouldNotAllocateString)?;
 		
 		let array = unsafe { from_raw_parts(remaining_bytes.as_ptr() as *const u16, array_length_in_u16) };
-		for result in decode_utf16(array)
+		for result in decode_utf16(array.iter().cloned())
 		{
-			let character = result?;
+			let character = result.map_err(InvalidUtf16LittleEndianSequence)?;
 			Self::encode_utf8_raw(character, &mut utf_8_bytes);
 		}
 		
@@ -156,7 +176,7 @@ impl<'a> StringFinder<'a>
 	}
 	
 	#[inline(always)]
-	fn get_languages(device_handle: &DeviceHandle) -> Result<DeadOrAlive<Vec<(LanguageIdentifier, Language)>>, GetLanguagesError>
+	fn get_languages(device_handle: &DeviceHandle) -> Result<DeadOrAlive<Option<Vec<(LanguageIdentifier, Language)>>>, GetLanguagesError>
 	{
 		use ControlTransferError::*;
 		use DeadOrAlive::*;
@@ -164,7 +184,7 @@ impl<'a> StringFinder<'a>
 		use GetStandardUsbDescriptorError::ControlTransfer;
 		
 		let mut buffer = MaybeUninit::uninit_array();
-		let remaining_bytes = match get_string_device_descriptor_languages(device_handle.as_ptr(), &mut buffer)
+		let remaining_bytes = match get_string_device_descriptor_languages(device_handle.as_non_null(), &mut buffer)
 		{
 			Ok(remaining_bytes) => remaining_bytes,
 			
@@ -174,9 +194,9 @@ impl<'a> StringFinder<'a>
 			
 			Err(ControlTransfer(RequestedResourceNotFound)) => panic!("Should not occur for GET_DESCRIPTOR"),
 			
-			Err(ControlTransfer(TimedOut(..))) => return Ok(Dead),
+			Err(ControlTransfer(TimedOut)) => return Ok(Dead),
 			
-			Err(ControlTransfer(ControlRequestNotSupported { .. })) => return Ok(Alive(Vec::new())),
+			Err(ControlTransfer(ControlRequestNotSupported { .. })) => return Ok(Alive(None)),
 			
 			Err(ControlTransfer(OutOfMemory)) => return Err(ControlRequestOutOfMemory),
 			
@@ -205,6 +225,6 @@ impl<'a> StringFinder<'a>
 			languages.push((language_identifier, language))
 		}
 		
-		Ok(Alive(languages))
+		Ok(Alive(Some(languages)))
 	}
 }

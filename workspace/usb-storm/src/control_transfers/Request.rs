@@ -4,8 +4,6 @@
 
 /// Transfer request.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
 #[repr(u8)]
 pub enum Request
 {

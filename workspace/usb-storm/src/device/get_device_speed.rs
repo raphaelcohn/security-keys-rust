@@ -9,7 +9,7 @@ pub(crate) fn get_device_speed(libusb_device: NonNull<libusb_device>) -> Option<
 	
 	const LIBUSB_SPEED_SUPER_PLUS: i32 = 5;
 	
-	match unsafe { libusb_get_device_speed(libusb_device.as_ptr()()) }
+	match unsafe { libusb_get_device_speed(libusb_device.as_ptr()) }
 	{
 		LIBUSB_SPEED_UNKNOWN => None,
 		

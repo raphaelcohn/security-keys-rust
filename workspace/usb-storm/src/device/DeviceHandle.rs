@@ -32,8 +32,8 @@ impl DeviceHandle
 		use DeadOrAlive::*;
 		use DeviceHandleOpenError::*;
 		
-		let mut device_handle = MaybeUninit::uninit();
-		let result = unsafe { libusb_open(libusb_device.as_ptr(), device_handle.as_mut_ptr()) };
+		let mut libusb_device_handle = MaybeUninit::uninit();
+		let result = unsafe { libusb_open(libusb_device.as_ptr(), libusb_device_handle.as_mut_ptr()) };
 		if likely!(result == 0)
 		{
 			Ok
@@ -42,7 +42,7 @@ impl DeviceHandle
 				(
 					Self
 					{
-						libusb_device_handle,
+						libusb_device_handle: new_non_null(unsafe { libusb_device_handle.assume_init() }),
 						
 						claimed_interfaces_bit_set: 0
 					}
@@ -91,6 +91,18 @@ impl DeviceHandle
 		}
 	}
 	
+	#[inline(always)]
+	pub(crate) const fn as_non_null(&self) -> NonNull<libusb_device_handle>
+	{
+		self.libusb_device_handle
+	}
+	
+	#[inline(always)]
+	pub(crate) const fn as_ptr(&self) -> *const libusb_device_handle
+	{
+		self.as_non_null().as_ptr()
+	}
+	
 	/// Calls `callback` with a zero-based index of each set bit, from least significant to most significant.
 	#[inline(always)]
 	fn loop_over_set_bits(&self, mut callback: impl FnMut(u8))
@@ -98,9 +110,9 @@ impl DeviceHandle
 		let mut bit_set = self.claimed_interfaces_bit_set;
 		while unlikely!(bit_set != 0)
 		{
-			let t = bit_set & -bit_set;
+			let t = bit_set & bit_set.wrapping_neg();
 			let set_bit_index = bit_set.trailing_zeros();
-			callback(set_bit_index);
+			callback(set_bit_index as u8);
 			bit_set ^= t;
 		}
 	}

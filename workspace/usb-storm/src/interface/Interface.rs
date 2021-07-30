@@ -17,24 +17,23 @@ impl Interface
 		&self.0
 	}
 	
-	/// Does not check the alternate settings of the interface.
-	#[inline(always)]
-	pub(super) fn smart_card_interface_additional_descriptor(&self) -> Option<&SmartCardInterfaceAdditionalDescriptor>
-	{
-		self.interface_alternate_settings.get_unchecked_safe(0).smart_card_interface_additional_descriptor()
-	}
+	// /// Does not check the alternate settings of the interface.
+	// #[inline(always)]
+	// pub(super) fn smart_card_interface_additional_descriptor(&self) -> Option<&SmartCardInterfaceAdditionalDescriptor>
+	// {
+	// 	self.interface_alternate_settings.get_unchecked_safe(0).smart_card_interface_additional_descriptor()
+	// }
 	
 	#[inline(always)]
 	pub(super) fn parse(libusb_interface: &libusb_interface, string_finder: &StringFinder, interface_index: u8) -> Result<DeadOrAlive<(InterfaceNumber, Self)>, InterfaceParseError>
 	{
 		use DeadOrAlive::*;
-		use InterfaceParseError::*;
 		
 		let (number_of_alternate_settings, alternate_settings_slice) = Self::parse_alternate_settings_slice(libusb_interface, interface_index)?;
 		
 		let mut alternate_settings = IndexMap::with_capacity(number_of_alternate_settings.get() as usize);
 		
-		let interface_number = match Self::parse_alternate_setting(string_finder, interface_index, 0, &mut alternate_settings)?
+		let interface_number = match Self::parse_alternate_setting(alternate_settings_slice, string_finder, interface_index, 0, &mut alternate_settings)?
 		{
 			Dead => return Ok(Dead),
 			
@@ -43,7 +42,7 @@ impl Interface
 		
 		for alternate_setting_index in 1 .. number_of_alternate_settings.get()
 		{
-			let parsed_interface_number = match Self::parse_alternate_setting(string_finder, interface_index, alternate_setting_index, &mut alternate_settings)?
+			let parsed_interface_number = match Self::parse_alternate_setting(alternate_settings_slice, string_finder, interface_index, alternate_setting_index, &mut alternate_settings)?
 			{
 				Dead => return Ok(Dead),
 				
@@ -59,7 +58,7 @@ impl Interface
 	}
 	
 	#[inline(always)]
-	fn parse_alternate_setting(string_finder: &StringFinder, interface_index: u8, alternate_setting_index: u8, alternate_settings: &mut IndexMap<AlternateSettingNumber, AlternateSetting>) -> Result<DeadOrAlive<InterfaceNumber>, AlternateSettingParseError>
+	fn parse_alternate_setting(alternate_settings_slice: &[libusb_interface_descriptor], string_finder: &StringFinder, interface_index: u8, alternate_setting_index: u8, alternate_settings: &mut IndexMap<AlternateSettingNumber, AlternateSetting>) -> Result<DeadOrAlive<InterfaceNumber>, AlternateSettingParseError>
 	{
 		use DeadOrAlive::*;
 		

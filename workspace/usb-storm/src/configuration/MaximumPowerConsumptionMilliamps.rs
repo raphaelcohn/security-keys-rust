@@ -3,7 +3,7 @@
 
 
 /// Maximum power consumption in milliamps.
-#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct MaximumPowerConsumptionMilliamps(NonZeroU16);

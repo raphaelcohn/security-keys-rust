@@ -25,7 +25,7 @@ impl error::Error for CardStatusError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use CardStatusError::*;
+		use Self::*;
 		
 		match self
 		{

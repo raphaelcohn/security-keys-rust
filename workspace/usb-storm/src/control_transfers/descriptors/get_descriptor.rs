@@ -3,14 +3,12 @@
 
 
 #[inline(always)]
-fn get_descriptor<const request_type: ControlTransferRequestType, const recipient: ControlTransferRecipient>(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_type: DescriptorType, descriptor_index: u8, index: u16) -> Result<&[u8], ControlTransferError>
+fn get_descriptor(request_type: ControlTransferRequestType, recipient: ControlTransferRecipient, device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_type: DescriptorType, descriptor_index: u8, index: u16) -> Result<&[u8], ControlTransferError>
 {
-	use GetStandardUsbDescriptorError::*;
-	
 	const TimeOut: Duration = Duration::from_millis(1_000);
 	
 	let descriptor_type = (descriptor_type as u16) << 8;
 	let value = descriptor_type | (descriptor_index as u16);
 	
-	let descriptor_bytes = control_transfer::<Direction::In, request_type, recipient, Request::GetDescriptor>(device_handle, TimeOut, value, index, buffer)?;
+	control_transfer(Direction::In, request_type, recipient, Request::GetDescriptor, device_handle, TimeOut, value, index, buffer)
 }

@@ -25,13 +25,6 @@ impl DeviceOrAlternateSetting for AlternateSetting
 
 impl AlternateSetting
 {
-	/// Alternate setting number.
-	#[inline(always)]
-	pub const fn alternate_setting_number(&self) -> u8
-	{
-		self.alternate_setting_number
-	}
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn class_and_protocol(&self) -> ClassAndProtocol<AlternateSetting>
@@ -81,7 +74,7 @@ impl AlternateSetting
 		use AlternateSettingParseError::*;
 		use DeadOrAlive::*;
 		
-		const LIBUSB_DT_INTERFACE_SIZE: usize = 9;
+		const LIBUSB_DT_INTERFACE_SIZE: u8 = 9;
 		let bLength = alternate_setting.bLength;
 		if unlikely!(bLength < LIBUSB_DT_INTERFACE_SIZE)
 		{
@@ -97,15 +90,14 @@ impl AlternateSetting
 		let bInterfaceNumber = alternate_setting.bInterfaceNumber;
 		if unlikely!(bInterfaceNumber >= MaximumNumberOfInterfaces)
 		{
-			Err(InterfaceNumberTooLarge { interface_index, alternate_setting_index, bInterfaceNumber })
+			return Err(InterfaceNumberTooLarge { interface_index, alternate_setting_index, bInterfaceNumber })
 		}
 		
 		let class_and_protocol = ClassAndProtocol::new_from_alternate_setting(alternate_setting);
 		
 		let end_point_descriptors = Self::parse_end_point_descriptors(alternate_setting, interface_index, alternate_setting_index)?;
 		
-		let (additional_descriptors, strip_last_end_point_of_extra) = Self::parse_additional_descriptors(interface_descriptor, class_and_protocol);
-		let additional_descriptors = additional_descriptors?;
+		let additional_descriptors = Self::parse_additional_descriptors(alternate_setting, class_and_protocol).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
 		
 		Ok
 		(
@@ -120,7 +112,7 @@ impl AlternateSetting
 					{
 						class_and_protocol,
 						
-						description: match string_finder.find_string(alternate_setting.iInterface)?
+						description: match string_finder.find_string(alternate_setting.iInterface).map_err(|cause| DescriptionString { cause, interface_index, alternate_setting_index })?
 						{
 							Dead => return Ok(Dead),
 							
@@ -179,25 +171,25 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, class_and_protocol: ClassAndProtocol<Self>) -> (Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>, Option<EndPointNumber>)
+	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, class_and_protocol: ClassAndProtocol<Self>) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 	{
 		#[inline(always)]
-		fn human_interface_device(extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> (Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>, Option<EndPointNumber>)
+		fn human_interface_device(extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			(InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(variant)), None)
+			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(variant))
 		}
 		
 		#[inline(always)]
-		fn smart_card(extra: &[u8], raw_protocol: u8, strip_last_end_point_of_extra: Option<EndPointNumber>) -> (Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>, Option<EndPointNumber>)
+		fn smart_card(extra: &[u8], raw_protocol: u8) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
 			let smart_card_protocol = unsafe { transmute(raw_protocol) };
-			(InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, SmartCardInterfaceAdditionalDescriptorParser::new(smart_card_protocol)), strip_last_end_point_of_extra)
+			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(smart_card_protocol))
 		}
 		
 		#[inline(always)]
-		fn unsupported(extra: &[u8]) -> (Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>, Option<EndPointNumber>)
+		fn unsupported(extra: &[u8]) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			(InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, UnsupportedInterfaceAdditionalDescriptorParser), None)
+			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, UnsupportedInterfaceAdditionalDescriptorParser)
 		}
 		
 		use HumanInterfaceDeviceInterfaceAdditionalVariant::*;
@@ -211,10 +203,10 @@ impl AlternateSetting
 			(ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceSubClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceKeyboardProtocol) => human_interface_device(extra, BootKeyboard),
 			(ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceSubClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceMouseProtocol) => human_interface_device(extra, BootMouse),
 			
-			(ClassAndProtocol::<AlternateSetting>::SmartCardClass, 0x00, raw_protocol @ 0x00 ..= 0x02) => smart_card(extra, raw_protocol, None),
+			(ClassAndProtocol::<AlternateSetting>::SmartCardClass, 0x00, raw_protocol @ 0x00 ..= 0x02) => smart_card(extra, raw_protocol),
 			
 			// This case exists from before standardization.
-			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x00, raw_protocol @ 0x00 ..= 0x02) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol, None),
+			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x00, raw_protocol @ 0x00 ..= 0x02) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
 			
 			// Devices such as the O2 Micro Oz776, REINER SCT (aka Reiner-SCT and Reiner SCT) and Blutronics Bludrive II (aka bludrive) put the Smart Card descriptor at the end of the end points.
 			// That said, these devices are now very rare (they existed at least as far back as 2007).

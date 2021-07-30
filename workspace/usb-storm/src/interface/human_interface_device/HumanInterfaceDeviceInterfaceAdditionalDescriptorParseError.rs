@@ -15,6 +15,9 @@ pub enum HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 	/// A country code of 36 or greater.
 	ReservedCountryCode(u8),
 	
+	/// A country code of 36 or greater.
+	Version(VersionParseError),
+	
 	/// `bNumDescriptors` was zero.
 	ZeroNumberOfClassDescriptors,
 	
@@ -55,6 +58,8 @@ impl error::Error for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseErro
 		
 		match self
 		{
+			Version(cause) => Some(cause),
+			
 			CouldNotAllocateSpaceForOptionalDescriptors(cause) => Some(cause),
 			
 			_ => None,

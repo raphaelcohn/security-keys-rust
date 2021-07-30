@@ -56,22 +56,22 @@ impl Configuration
 		&self.additional_descriptors
 	}
 	
-	#[inline(always)]
-	pub(super) fn smart_card_interface_additional_descriptors(&self) -> Result<Vec<&SmartCardInterfaceAdditionalDescriptor>, TryReserveError>
-	{
-		// A small number of cards have more than one interface.
-		let mut smart_card_interface_additional_descriptors = Vec::new_with_capacity(self.interfaces.len())?;
-		for interface in self.interfaces.iter()
-		{
-			if let Some(smart_card_interface_additional_descriptor) = interface.smart_card_interface_additional_descriptor()
-			{
-				smart_card_interface_additional_descriptors.push(smart_card_interface_additional_descriptor);
-			}
-		}
-		
-		smart_card_interface_additional_descriptors.shrink_to_fit();
-		Ok(smart_card_interface_additional_descriptors)
-	}
+	// #[inline(always)]
+	// pub(super) fn smart_card_interface_additional_descriptors(&self) -> Result<Vec<&SmartCardInterfaceAdditionalDescriptor>, TryReserveError>
+	// {
+	// 	// A small number of cards have more than one interface.
+	// 	let mut smart_card_interface_additional_descriptors = Vec::new_with_capacity(self.interfaces.len())?;
+	// 	for interface in self.interfaces.iter()
+	// 	{
+	// 		if let Some(smart_card_interface_additional_descriptor) = interface.smart_card_interface_additional_descriptor()
+	// 		{
+	// 			smart_card_interface_additional_descriptors.push(smart_card_interface_additional_descriptor);
+	// 		}
+	// 	}
+	//
+	// 	smart_card_interface_additional_descriptors.shrink_to_fit();
+	// 	Ok(smart_card_interface_additional_descriptors)
+	// }
 	
 	#[inline(always)]
 	pub(super) fn parse_configuration_number_only(configuration_descriptor: &ConfigurationDescriptor) -> Result<ConfigurationNumber, ConfigurationParseError>
@@ -83,6 +83,7 @@ impl Configuration
 	#[inline(always)]
 	pub(super) fn parse(configuration_descriptor: ConfigurationDescriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<(ConfigurationNumber, Self)>, ConfigurationParseError>
 	{
+		use ConfigurationParseError::*;
 		use DeadOrAlive::*;
 		
 		let configuration_number = Self::parse_configuration_number_only(&configuration_descriptor)?;
@@ -102,14 +103,14 @@ impl Configuration
 						
 						supports_remote_wake_up,
 						
-						description: match string_finder.find_string(configuration_descriptor.iConfiguration)?
+						description: match string_finder.find_string(configuration_descriptor.iConfiguration).map_err(DescriptionString)?
 						{
 							Dead => return Ok(Dead),
 							
 							Alive(description) => description,
 						},
 						
-						additional_descriptors: Self::parse_additional_descriptors(&configuration_descriptor).map_err(UsbError::CouldNotParseConfigurationAdditionalDescriptor)?,
+						additional_descriptors: Self::parse_additional_descriptors(&configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?,
 						
 						interfaces: match Self::parse_interfaces(&configuration_descriptor, string_finder)?
 						{
@@ -128,7 +129,7 @@ impl Configuration
 	{
 		use ConfigurationParseError::*;
 		
-		const LIBUSB_DT_CONFIG_SIZE: usize = 9;
+		const LIBUSB_DT_CONFIG_SIZE: u8 = 9;
 		let bLength = configuration_descriptor.bLength;
 		if unlikely!(bLength < LIBUSB_DT_CONFIG_SIZE)
 		{

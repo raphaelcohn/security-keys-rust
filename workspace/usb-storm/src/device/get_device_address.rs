@@ -5,5 +5,5 @@
 #[inline(always)]
 pub(crate) fn get_device_address(libusb_device: NonNull<libusb_device>) -> u8
 {
-	unsafe { libusb_get_device_address(libusb_device.as_ptr()()) }
+	unsafe { libusb_get_device_address(libusb_device.as_ptr()) }
 }

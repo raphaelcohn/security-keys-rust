@@ -5,5 +5,5 @@
 #[inline(always)]
 pub(crate) fn get_port_number(libusb_device: NonNull<libusb_device>) -> PortNumber
 {
-	unsafe { libusb_get_port_number(libusb_device.as_ptr()()) }
+	unsafe { libusb_get_port_number(libusb_device.as_ptr()) }
 }

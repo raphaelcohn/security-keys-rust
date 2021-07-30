@@ -2,11 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::VecExt;
 use crate::u3;
 use crate::u5;
-use super::StringFinder;
-use super::StringOrIndex;
 use super::additional_descriptors::AdditionalDescriptor;
 use super::additional_descriptors::AdditionalDescriptorParseError;
 use super::additional_descriptors::AdditionalDescriptorParser;
@@ -15,12 +12,11 @@ use super::additional_descriptors::extra_to_slice;
 use super::additional_descriptors::parse_additional_descriptors;
 use super::control_transfers::ControlTransferError;
 use super::device::Speed;
-use super::errors::UsbError;
 use super::interface::Interface;
 use super::interface::InterfaceNumber;
 use super::interface::InterfaceParseError;
 use super::interface::MaximumNumberOfInterfaces;
-use super::interface::smart_card::SmartCardInterfaceAdditionalDescriptor;
+use super::string::GetLocalizedStringError;
 use super::string::LocalizedStrings;
 use super::string::StringFinder;
 use super::version::Version;
@@ -47,11 +43,10 @@ use libusb1_sys::libusb_get_active_config_descriptor;
 use libusb1_sys::libusb_get_config_descriptor;
 use libusb1_sys::libusb_get_configuration;
 use libusb1_sys::libusb_interface;
+use likely::likely;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
-use std::collections::TryReserveError;
 use std::convert::Infallible;
 use std::error;
 use std::fmt::Debug;

@@ -3,7 +3,7 @@
 
 
 use crate::VecExt;
-use super::control_transfers::MinimumUsbDescriptorLength;
+use super::control_transfers::descriptors::MinimumStandardUsbDescriptorLength;
 use likely::likely;
 use likely::unlikely;
 use serde::Deserialize;

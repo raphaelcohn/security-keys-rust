@@ -261,37 +261,12 @@ impl SmartCardInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	pub(super) fn last_end_point_matches(alternate_setting: &libusb_interface_descriptor) -> Option<R>
-	{
-		#[inline(always)]
-		fn last_end_point(alternate_setting: &libusb_interface_descriptor) -> Option<&libusb_endpoint_descriptor>
-		{
-			let mut last_end_point = None;
-			let endpoint_descriptors = interface_descriptor.endpoint_descriptors();
-			for end_point in endpoint_descriptors
-			{
-				last_end_point = Some(end_point)
-			}
-			last_end_point
-		}
-		
-		if let Some(last_end_point) = last_end_point(interface_descriptor)
-		{
-			let extra = last_end_point.extra();
-			if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra)
-			{
-				return Some(user(extra.unwrap(), last_end_point.number()))
-			}
-		}
-		
-		None
-	}
-	
-	#[inline(always)]
 	fn parse(protocol: SmartCardProtocol, has_vendor_specific_descriptor_type: bool, bytes: &[u8]) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
+		use SmartCardInterfaceAdditionalDescriptorParseError::*;
+		
 		let iso_7816_protocols = BitFlags::from_bits_truncate(bytes.u32::<6>());
-		let features = Features::parse(bytes.u32::<40>(), iso_7816_protocols)?;
+		let features = crate::interface::smart_card::Features::parse(bytes.u32::<40>(), iso_7816_protocols).map_err(Features)?;
 		Ok
 		(
 			Self
@@ -300,7 +275,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 				
 				has_vendor_specific_descriptor_type,
 			
-				firmware_version: bytes.version::<2>(),
+				firmware_version: bytes.version::<2>().map_err(Version)?,
 				
 				maximum_slot_index: bytes.u8::<4>(),
 				
@@ -361,10 +336,10 @@ impl SmartCardInterfaceAdditionalDescriptor
 	
 	fn parse_get_response_class_and_envelope_class(bytes: &[u8], level_of_exchange: LevelOfExchange, iso_7816_protocols: BitFlags<Iso7816Protocol>) -> Result<Option<T0ProtocolUnconfiguredClasses>, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
+		use SmartCardInterfaceAdditionalDescriptorParseError::*;
+		
 		let value = if level_of_exchange.is_apdu_level() && iso_7816_protocols.contains(Iso7816Protocol::T0)
 		{
-			use SmartCardInterfaceAdditionalDescriptorParseError::*;
-			
 			Some
 			(
 				T0ProtocolUnconfiguredClasses

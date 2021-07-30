@@ -3,7 +3,7 @@
 
 
 /// A serious error when getting languages.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum GetLanguagesError
 {

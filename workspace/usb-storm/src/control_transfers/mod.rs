@@ -2,13 +2,10 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::additional_descriptors::DescriptorType;
-use crate::end_point::transfer_type::Direction;
+use super::end_point::transfer_type::Direction;
 use libusb1_sys::libusb_clear_halt;
 use libusb1_sys::libusb_control_transfer;
 use libusb1_sys::libusb_device_handle;
-use libusb1_sys::constants::LIBUSB_DT_BOS;
-use libusb1_sys::constants::LIBUSB_DT_STRING;
 use libusb1_sys::constants::LIBUSB_ERROR_ACCESS;
 use libusb1_sys::constants::LIBUSB_ERROR_BUSY;
 use libusb1_sys::constants::LIBUSB_ERROR_INTERRUPTED;

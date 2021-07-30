@@ -33,7 +33,7 @@ pub enum Speed
 impl Speed
 {
 	/// Is this a Gen X speed?
-	#[inline(alwayes)]
+	#[inline(always)]
 	pub fn is_gen_x_speed(self) -> bool
 	{
 		use Speed::*;

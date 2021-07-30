@@ -30,7 +30,7 @@ pub struct Device
 	
 	class_and_protocol: ClassAndProtocol<Self>,
 	
-	languages: Vec<Language>,
+	languages: Option<Vec<Language>>,
 	
 	manufacturer: Option<LocalizedStrings>,
 	
@@ -225,7 +225,7 @@ impl Device
 			Alive(device_handle) => device_handle,
 		};
 		
-		let string_finder = match StringFinder::new(&device_handle)?
+		let string_finder = match StringFinder::new(&device_handle).map_err(GetLanguages)?
 		{
 			Dead => return Ok(Dead),
 			
@@ -269,11 +269,26 @@ impl Device
 					
 					class_and_protocol: ClassAndProtocol::new_from_device(&device_descriptor),
 					
-					manufacturer: string_finder.find_string(device_descriptor.iManufacturer)?,
+					manufacturer: match string_finder.find_string(device_descriptor.iManufacturer).map_err(ManufacturerString)?
+					{
+						Dead => return Ok(Dead),
+						
+						Alive(string) => string,
+					},
 					
-					product_name: string_finder.find_string(device_descriptor.iProduct)?,
+					product_name: match string_finder.find_string(device_descriptor.iProduct).map_err(ProductNameString)?
+					{
+						Dead => return Ok(Dead),
+						
+						Alive(string) => string,
+					},
 					
-					serial_number: string_finder.find_string(device_descriptor.iSerialNumber)?,
+					serial_number: match string_finder.find_string(device_descriptor.iSerialNumber).map_err(SerialNumberString)?
+					{
+						Dead => return Ok(Dead),
+						
+						Alive(string) => string,
+					},
 					
 					active_configuration_number: match Self::get_active_configuration_number(libusb_device, &configurations)?
 					{
@@ -318,10 +333,10 @@ impl Device
 						Alive(alive) => alive,
 					};
 					
-					let outcome = configurations.inter(configuration_number, configuration);
+					let outcome = configurations.insert(configuration_number, configuration);
 					if unlikely!(outcome.is_some())
 					{
-						return Err(DuplicateConfigurationNumber { cause, configuration_index, configuration_number })
+						return Err(DuplicateConfigurationNumber { configuration_index, configuration_number })
 					}
 				},
 			}
@@ -353,16 +368,16 @@ impl Device
 		Ok(Alive(Some(configuration_number)))
 	}
 	
-	/// Obtain current USB devices on all buses.
-	#[inline(always)]
-	pub fn usb_devices_try_from() -> Result<Vec<Self>, UsbError>
-	{
-		let device_list = devices().map_err(UsbError::ListDevices)?;
-		let mut devices = Vec::with_capacity(device_list.len());
-		for device in device_list.iter()
-		{
-			devices.push(Self::try_from(device)?);
-		}
-		Ok(devices)
-	}
+	// /// Obtain current USB devices on all buses.
+	// #[inline(always)]
+	// pub fn usb_devices_try_from() -> Result<Vec<Self>, UsbError>
+	// {
+	// 	let device_list = devices().map_err(UsbError::ListDevices)?;
+	// 	let mut devices = Vec::with_capacity(device_list.len());
+	// 	for device in device_list.iter()
+	// 	{
+	// 		devices.push(Self::try_from(device)?);
+	// 	}
+	// 	Ok(devices)
+	// }
 }

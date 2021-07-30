@@ -5,9 +5,9 @@
 trait Bytes
 {
 	#[inline(always)]
-	fn version<const index: usize>(&self) -> Version
+	fn version<const index: usize>(&self) -> Result<Version, VersionParseError>
 	{
-		Version::from(self.u16::<index>())
+		Version::parse(self.u16::<index>())
 	}
 	
 	#[inline(always)]

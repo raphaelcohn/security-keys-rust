@@ -30,7 +30,7 @@ impl error::Error for CardReaderNameError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use CardReaderNameError::*;
+		use Self::*;
 		
 		match self
 		{

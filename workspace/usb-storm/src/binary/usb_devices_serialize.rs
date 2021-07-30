@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(super) fn usb_devices_serialize<W: Write, E: Debug>(writer: W, user: impl FnOnce(W, &Vec<UsbDevice>) -> Result<(), E>) -> Result<(), UsbError>
+pub(super) fn usb_devices_serialize<W: Write, E: Debug>(writer: W, user: impl FnOnce(W, &Vec<UsbDevice>) -> Result<(), E>) -> Result<(), ()>
 {
 	let usb_devices = UsbDevice::usb_devices_try_from()?;
 	user(writer, &usb_devices).expect("Serializing failed");

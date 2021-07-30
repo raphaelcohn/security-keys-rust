@@ -4,7 +4,8 @@
 
 use super::u4;
 use likely::likely;
-use std::convert::TryFrom;
+use serde::Deserialize;
+use serde::Serialize;
 use std::error;
 use std::fmt;
 use std::fmt::Debug;

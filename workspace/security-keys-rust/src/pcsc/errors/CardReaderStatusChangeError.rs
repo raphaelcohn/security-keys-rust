@@ -33,7 +33,7 @@ impl error::Error for CardReaderStatusChangeError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use CardReaderStatusChangeError::*;
+		use Self::*;
 		
 		match self
 		{

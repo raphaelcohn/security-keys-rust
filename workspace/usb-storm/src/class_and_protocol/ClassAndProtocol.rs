@@ -56,7 +56,7 @@ impl<DOI: DeviceOrAlternateSetting> ClassAndProtocol<DOI>
 	}
 }
 
-impl ClassAndProtocol<DeviceDeviceOrInterface>
+impl ClassAndProtocol<Device>
 {
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass00h>.
 	const UseClassInformationInTheInterfaceDescriptorsClass: u8 = 0x00;

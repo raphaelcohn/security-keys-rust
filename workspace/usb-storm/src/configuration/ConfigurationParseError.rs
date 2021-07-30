@@ -3,7 +3,7 @@
 
 
 /// Configuration descriptor parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ConfigurationParseError
 {
 	#[allow(missing_docs)]
@@ -48,9 +48,6 @@ pub enum ConfigurationParseError
 	/// Bug in libusb.
 	NullInterfacePointer,
 	
-	// #[allow(missing_docs)]
-	// CouldNotAllocateInterfaces(TryReserveError),
-	
 	#[allow(missing_docs)]
 	CouldNotParseInterface
 	{
@@ -66,6 +63,12 @@ pub enum ConfigurationParseError
 		
 		interface_number: InterfaceNumber,
 	},
+	
+	#[allow(missing_docs)]
+	DescriptionString(GetLocalizedStringError),
+	
+	#[allow(missing_docs)]
+	CouldNotParseConfigurationAdditionalDescriptor(AdditionalDescriptorParseError<Infallible>),
 }
 
 impl Display for ConfigurationParseError
@@ -87,6 +90,10 @@ impl error::Error for ConfigurationParseError
 		match self
 		{
 			CouldNotParseInterface { cause, .. } => Some(cause),
+			
+			DescriptionString(cause) => Some(cause),
+			
+			CouldNotParseConfigurationAdditionalDescriptor(cause) => Some(cause),
 			
 			_ => None,
 		}

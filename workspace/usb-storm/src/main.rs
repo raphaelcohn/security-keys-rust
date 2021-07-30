@@ -27,7 +27,6 @@
 
 use self::binary::CommandLineParser;
 use self::binary::write;
-use usb_storm::errors::UsbError;
 use std::fs::File;
 use std::io::stdout;
 
@@ -35,7 +34,7 @@ use std::io::stdout;
 mod binary;
 
 
-fn main() -> Result<(), UsbError>
+fn main() -> Result<(), ()>
 {
 	let matches = CommandLineParser::parse();
 	

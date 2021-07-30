@@ -19,7 +19,7 @@ edition = '2018'
 version = "0.0.0"
 
 [dependencies]
-arrayvec = "^0.7.1"
+arrayvec = {version = "^0.7.1", features = ["serde"] }
 enumflags2 = { version = "^0.7.1", features = ["std", "serde"] }
 indexmap = { version = "^1.7.0", features = ["std", "serde-1"] }
 dtoa = "^0.4.8"

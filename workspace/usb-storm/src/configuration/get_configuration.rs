@@ -20,6 +20,6 @@ fn get_configuration(libusb_device_handle: NonNull<libusb_device_handle>) -> Res
 	else
 	{
 		// This works because `libusb_get_configuration()` wraps a control transfer internally.
-		Err(ControlTransferError::parse(result, ))
+		Err(ControlTransferError::parse(result, libusb_device_handle))
 	}
 }

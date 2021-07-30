@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-pub(crate) fn control_transfer<const direction: Direction, const request_type: ControlTransferRequestType, const recipient: ControlTransferRecipient, const request: Request>(device_handle: NonNull<libusb_device_handle>, time_out: Duration, value: u16, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<&[u8], ControlTransferError>
+pub(crate) fn control_transfer(direction: Direction, request_type: ControlTransferRequestType, recipient: ControlTransferRecipient, request: Request, device_handle: NonNull<libusb_device_handle>, time_out: Duration, value: u16, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<&[u8], ControlTransferError>
 {
 	let length = buffer.len();
 	debug_assert!(length < 4096);
@@ -13,7 +13,7 @@ pub(crate) fn control_transfer<const direction: Direction, const request_type: C
 	let request_type = (direction as u8) | (request_type as u8) | (recipient as u8);
 	
 	// Internally, calls `libusb_submit_transfer()`.
-	let result = unsafe { libusb_control_transfer(device_handle.as_ptr(), request_type,request as u8, descriptor_type | (desc_index as u16), langid, data, length as u16, time_out) };
+	let result = unsafe { libusb_control_transfer(device_handle.as_ptr(), request_type,request as u8, value, index, buffer.as_mut_ptr() as *mut u8, length as u16, time_out) };
 	
 	if likely!(result >= 0)
 	{

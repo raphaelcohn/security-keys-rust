@@ -3,17 +3,29 @@
 
 
 /// Device descriptor parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DeviceParseError
 {
 	#[allow(missing_docs)]
 	DeviceHandleOpen(DeviceHandleOpenError),
 	
 	#[allow(missing_docs)]
+	GetLanguages(GetLanguagesError),
+	
+	#[allow(missing_docs)]
 	MaximumSupportedUsbVersion(VersionParseError),
 	
 	#[allow(missing_docs)]
 	FirmwareVersion(VersionParseError),
+	
+	#[allow(missing_docs)]
+	ManufacturerString(GetLocalizedStringError),
+	
+	#[allow(missing_docs)]
+	ProductNameString(GetLocalizedStringError),
+	
+	#[allow(missing_docs)]
+	SerialNumberString(GetLocalizedStringError),
 	
 	#[allow(missing_docs)]
 	GetConfigurationDescriptor
@@ -34,8 +46,6 @@ pub enum DeviceParseError
 	#[allow(missing_docs)]
 	DuplicateConfigurationNumber
 	{
-		cause: ConfigurationParseError,
-		
 		configuration_index: u3,
 		
 		configuration_number: ConfigurationNumber,
@@ -54,7 +64,7 @@ pub enum DeviceParseError
 	},
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForLanguages,
+	CouldNotAllocateMemoryForLanguages(TryReserveError),
 }
 
 impl Display for DeviceParseError
@@ -75,19 +85,29 @@ impl error::Error for DeviceParseError
 		
 		match self
 		{
+			DeviceHandleOpen(cause) => Some(cause),
+			
+			GetLanguages(cause) => Some(cause),
+			
 			MaximumSupportedUsbVersion(cause) => Some(cause),
 			
 			FirmwareVersion(cause) => Some(cause),
+			
+			ManufacturerString(cause) => Some(cause),
+			
+			ProductNameString(cause) => Some(cause),
+			
+			SerialNumberString(cause) => Some(cause),
 			
 			GetConfigurationDescriptor { cause, .. } => Some(cause),
 			
 			ParseConfigurationDescriptor { cause, .. } => Some(cause),
 			
-			DuplicateConfigurationNumber { cause, .. } => Some(cause),
-			
 			GetActiveConfigurationDescriptor(cause) => Some(cause),
 			
 			ParseConfigurationNumberOfActiveConfigurationDescriptor(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForLanguages(cause) => Some(cause),
 			
 			_ => None,
 		}

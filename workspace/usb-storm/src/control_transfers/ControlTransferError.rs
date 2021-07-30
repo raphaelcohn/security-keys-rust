@@ -17,7 +17,7 @@ pub enum ControlTransferError
 	RequestedResourceNotFound,
 	
 	/// `LIBUSB_ERROR_TIMEOUT`.
-	TimedOut(Duration),
+	TimedOut,
 	
 	/// `LIBUSB_ERROR_OVERFLOW`.
 	BufferOverflow,
@@ -82,7 +82,7 @@ impl ControlTransferError
 			LIBUSB_ERROR_BUSY => unreachable!("Should not have been called from an event handling context"),
 			
 			// Documented.
-			LIBUSB_ERROR_TIMEOUT => TimedOut(TimeOut),
+			LIBUSB_ERROR_TIMEOUT => TimedOut,
 			
 			LIBUSB_ERROR_OVERFLOW => BufferOverflow,
 			

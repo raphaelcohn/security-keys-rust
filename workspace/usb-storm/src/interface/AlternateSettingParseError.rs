@@ -3,7 +3,7 @@
 
 
 /// Interface descriptor parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AlternateSettingParseError
 {
 	/// ?Bug in libusb.
@@ -89,6 +89,26 @@ pub enum AlternateSettingParseError
 		#[allow(missing_docs)]
 		end_point_number: EndPointNumber,
 	},
+	
+	#[allow(missing_docs)]
+	DescriptionString
+	{
+		cause: GetLocalizedStringError,
+		
+		interface_index: u8,
+		
+		alternate_setting_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	CouldNotParseAlternateSettingAdditionalDescriptor
+	{
+		cause: AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>,
+		
+		interface_index: u8,
+		
+		alternate_setting_index: u8,
+	}
 }
 
 impl Display for AlternateSettingParseError
@@ -109,7 +129,11 @@ impl error::Error for AlternateSettingParseError
 		
 		match self
 		{
-			EndPoint { cause, .. } => Some(cause),
+			EndPointParse { cause, .. } => Some(cause),
+			
+			DescriptionString { cause, .. } => Some(cause),
+			
+			CouldNotParseAlternateSettingAdditionalDescriptor { cause, .. } => Some(cause),
 			
 			_ => None,
 		}

@@ -67,7 +67,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 				{
 					variant: self.0,
 					
-					version: bytes.version::<2>(),
+					version: bytes.version::<2>().map_err(Version)?,
 					
 					country_code: match bytes.u8::<4>()
 					{

@@ -3,7 +3,7 @@
 
 
 /// End Point descriptor parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EndPointParseError
 {
 	/// ?Bug in libusb.
@@ -23,6 +23,9 @@ pub enum EndPointParseError
 	
 	/// Transfer type.
 	TransferType(TransferTypeParseError),
+	
+	#[allow(missing_docs)]
+	CouldNotParseEndPointAdditionalDescriptor(AdditionalDescriptorParseError<Infallible>),
 }
 
 impl Display for EndPointParseError
@@ -44,6 +47,8 @@ impl error::Error for EndPointParseError
 		match self
 		{
 			TransferType(cause) => Some(cause),
+			
+			CouldNotParseEndPointAdditionalDescriptor(cause) => Some(cause),
 			
 			_ => None,
 		}

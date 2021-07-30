@@ -30,7 +30,6 @@
 #![feature(maybe_uninit_uninit_array)]
 #![feature(try_reserve)]
 #![feature(maybe_uninit_slice)]
-#![feature(const_generics)]
 
 
 //! usb-storm is a library for enumerating USB devices and parsing USB descriptors.
@@ -42,31 +41,14 @@ use serde_lexpr as _;
 use serde_yaml as _;
 
 
-use self::class_and_protocol::ClassAndProtocol;
-use self::class_and_protocol::DeviceOrAlternateSetting;
-use self::configuration::ConfigurationNumber;
-use self::configuration::Configuration;
-use self::errors::UsbDeviceError;
-use self::errors::UsbError;
-use self::interface::smart_card::SmartCardInterfaceAdditionalDescriptor;
-use self::language::Language;
+use self::device::ProductIdentifier;
+use self::device::VendorIdentifier;
 use self::version::Version;
-use arrayvec::ArrayVec;
-use likely::likely;
-use rusb::devices;
-use serde::Deserialize;
-use serde::Serialize;
-use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::TryReserveError;
-use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::hash::Hash;
-use std::hash::Hasher;
-use std::mem::transmute;
 use std::num::NonZeroU8;
-use std::time::Duration;
-use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
@@ -94,10 +76,6 @@ pub mod device;
 pub(crate) mod end_point;
 
 
-/// Errors.
-pub mod errors;
-
-
 /// USB interfaces.
 pub mod interface;
 
@@ -114,8 +92,7 @@ pub mod string;
 pub mod version;
 
 
-include!("DeviceInformationDatabase.rs");
-include!("FixedUsbDeviceCapabilities.rs");
+include!("DeviceInformationDatabase.rs");include!("FixedUsbDeviceCapabilities.rs");
 include!("VecExt.rs");
 include!("u3.rs");
 include!("u4.rs");

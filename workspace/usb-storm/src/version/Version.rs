@@ -69,7 +69,7 @@ impl Version
 		}
 		
 		#[inline(always)]
-		fn parse_digit<const index: u16>(binary_coded_decimal: u16, error: impl FnOnce(u8) -> VersionParseError) -> Result<u4, VersionParseError>
+		fn parse_digit<E: FnOnce(u8) -> VersionParseError, const index: u16>(binary_coded_decimal: u16, error: E) -> Result<u4, VersionParseError>
 		{
 			let raw_digit = extract_digit::<index>(binary_coded_decimal);
 			if likely!(raw_digit < Base10)
@@ -88,14 +88,14 @@ impl Version
 			{
 				major:
 				{
-					let major_left_hand_digit = parse_digit::<3>(binary_coded_decimal, MajorLeftHandDigitOutOfRange)?;
-					let major_right_hand_digit = parse_digit::<2>(binary_coded_decimal, MajorRightHandDigitOutOfRange)?;
+					let major_left_hand_digit = parse_digit::<_, 3>(binary_coded_decimal, MajorLeftHandDigitOutOfRange)?;
+					let major_right_hand_digit = parse_digit::<_, 2>(binary_coded_decimal, MajorRightHandDigitOutOfRange)?;
 					(major_left_hand_digit * Base10) + major_right_hand_digit
 				},
 			
-				minor: parse_digit::<1>(binary_coded_decimal, MinorOutOfRange)?,
+				minor: parse_digit::<_, 1>(binary_coded_decimal, MinorOutOfRange)?,
 			
-				sub_minor: parse_digit::<0>(binary_coded_decimal, SubMinorOutOfRange)?,
+				sub_minor: parse_digit::<_, 0>(binary_coded_decimal, SubMinorOutOfRange)?,
 			}
 		)
 	}
