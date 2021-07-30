@@ -6,7 +6,7 @@ use self::features::Features;
 use self::features::FeaturesParseError;
 use self::features::LevelOfExchange;
 use super::Bytes;
-use super::super::UsbVersion;
+use super::super::Version;
 use super::super::additional_descriptors::AdditionalDescriptorParser;
 use super::super::additional_descriptors::DescriptorType;
 use super::super::additional_descriptors::LengthAdjustment;
@@ -26,6 +26,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::num::NonZeroU8;
 use swiss_army_knife::non_zero::new_non_zero_u8;
+use libusb1_sys::{libusb_interface_descriptor, libusb_endpoint_descriptor};
 
 
 /// Features of a smart card.

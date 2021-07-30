@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-pub(crate) fn get_human_interface_device_report_interface_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>; MaximumUsbDescriptorLength], interface_number: InterfaceNumber) -> Result<&[u8], GetDescriptorError>
+pub(crate) fn get_human_interface_device_report_interface_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], interface_number: InterfaceNumber) -> Result<&[u8], ControlTransferError>
 {
 	get_standard_interface_descriptor(device_handle, buffer, LIBUSB_DT_REPORT, 0, interface_number)
 }

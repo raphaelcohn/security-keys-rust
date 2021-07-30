@@ -5,9 +5,9 @@
 trait Bytes
 {
 	#[inline(always)]
-	fn version<const index: usize>(&self) -> UsbVersion
+	fn version<const index: usize>(&self) -> Version
 	{
-		UsbVersion::from(self.u16::<index>())
+		Version::from(self.u16::<index>())
 	}
 	
 	#[inline(always)]

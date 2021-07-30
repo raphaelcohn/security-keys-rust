@@ -145,7 +145,7 @@ impl<'data> ApplicationProtocolDataUnitCommand<'data>
 		Self::new_put_data_object_0x00(0x5B, iso_name)
 	}
 	
-	/// A language is usually a lower-case 2 character ISO code, eg `en`.
+	/// A string.language is usually a lower-case 2 character ISO code, eg `en`.
 	#[inline(always)]
 	pub(super) fn put_data_object_language(iso_language_code: impl Into<Cow<'data, [u8]>>) -> Self
 	{

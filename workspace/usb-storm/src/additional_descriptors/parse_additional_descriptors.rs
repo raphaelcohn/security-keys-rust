@@ -3,29 +3,26 @@
 
 
 #[inline(always)]
-pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(extra: Option<&[u8]>, mut additional_descriptor_parser: ADP) -> Result<Vec<AdditionalDescriptor<ADP::Descriptor>>, AdditionalDescriptorParseError<ADP::Error>>
+pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(extra: &[u8], mut additional_descriptor_parser: ADP) -> Result<Vec<AdditionalDescriptor<ADP::Descriptor>>, AdditionalDescriptorParseError<ADP::Error>>
 {
 	use self::AdditionalDescriptor::*;
 	use self::AdditionalDescriptorParseError::*;
 	
-	let mut additional_descriptors = Vec::new();
-	
-	let mut extra = match extra
+	let mut extra_length = extra.len();
+	if likely!(extra_length == 0)
 	{
-		None => return if ADP::no_descriptors_valid()
+		return if ADP::no_descriptors_valid()
 		{
-			Ok(additional_descriptors)
+			Ok(Vec::new())
 		}
 		else
 		{
 			Err(NoDescriptors)
-		},
-		
-		Some(extra) => extra,
-	};
+		}
+	}
+	let mut additional_descriptors = Vec::new();
+	let mut remaining_length = extra_length;
 	
-	let mut remaining_length = extra.len();
-	debug_assert_ne!(remaining_length, 0);
 	loop
 	{
 		if unlikely!(remaining_length < LengthAdjustment)

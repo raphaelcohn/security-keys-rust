@@ -4,7 +4,7 @@
 
 /// Prefer the use of `libusb_get_bos_descriptor()`.
 #[inline(always)]
-pub(crate) fn get_hub_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>; MaximumUsbDescriptorLength]) -> Result<&[u8], GetDescriptorError>
+pub(crate) fn get_hub_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>]) -> Result<&[u8], ControlTransferError>
 {
 	get_class_device_descriptor(device_handle, buffer, LIBUSB_DT_HUB, 0, 0)
 }

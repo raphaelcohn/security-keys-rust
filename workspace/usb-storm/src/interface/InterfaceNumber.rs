@@ -3,4 +3,4 @@
 
 
 /// Interface number.
-pub type InterfaceNumber = u8;
+pub type InterfaceNumber = u5;

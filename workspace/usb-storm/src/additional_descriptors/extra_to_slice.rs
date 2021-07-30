@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-pub(crate) fn extra_to_slice<'a>(extra: *const u8, extra_length: i32) -> Result<Option<&'a [u8]>, AdditionalDescriptorParseError>
+pub(crate) fn extra_to_slice<'a>(extra: *const u8, extra_length: i32) -> Result<&'a [u8], AdditionalDescriptorParseError>
 {
 	use self::AdditionalDescriptorParseError::*;
 	
@@ -18,13 +18,5 @@ pub(crate) fn extra_to_slice<'a>(extra: *const u8, extra_length: i32) -> Result<
 	}
 	
 	let extra_length = extra_length as usize;
-	let result = if extra_length == 0
-	{
-		None
-	}
-	else
-	{
-		Some(unsafe { from_raw_parts(extra, extra_length) })
-	};
-	Ok(result)
+	Ok(unsafe { from_raw_parts(extra, extra_length) })
 }

@@ -6,6 +6,10 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AdditionalDescriptorParseError<E: error::Error>
 {
+	/// libusb returned null for extra; should not be possible, but trusting third party C libraries is the way to madness.
+	ExtraIsNull,
+	
+	/// libusb returned a negative length for extra; should not be possible, but trusting third party C libraries is the way to madness.
 	ExtraLengthIsNegative,
 	
 	/// There are no descriptors present and this is not permitted for this additional descriptor situation.

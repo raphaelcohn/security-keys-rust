@@ -10,7 +10,7 @@ pub struct HumanInterfaceDeviceInterfaceAdditionalDescriptor
 {
 	variant: HumanInterfaceDeviceInterfaceAdditionalVariant,
 	
-	version: UsbVersion,
+	version: Version,
 	
 	country_code: Option<HumanInterfaceDeviceCountryCode>,
 	
@@ -30,7 +30,7 @@ impl HumanInterfaceDeviceInterfaceAdditionalDescriptor
 	
 	/// Revision of the USB Human Interface Device (HID) specification.
 	#[inline(always)]
-	pub const fn version(&self) -> UsbVersion
+	pub const fn version(&self) -> Version
 	{
 		self.version
 	}

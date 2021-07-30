@@ -42,7 +42,7 @@ impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescr
 impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>> InterfaceAdditionalDescriptorParser<Inner>
 {
 	#[inline(always)]
-	fn parse_additional_descriptors(extra: Option<&[u8]>, inner: Inner) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+	fn parse_additional_descriptors(extra: &[u8], inner: Inner) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 	{
 		let this = Self
 		{

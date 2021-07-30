@@ -2,15 +2,24 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Human Interface Device (HID) descriptor parse error.
+/// End Point descriptor parse error.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum EndPointParseError
 {
+	/// ?Bug in libusb.
+	WrongLength
+	{
+		bLength: u8
+	},
+	
+	/// ?Bug in libusb.
+	WrongDescriptorType
+	{
+		bDescriptorType: DescriptorType
+	},
+	
 	/// Reserved bits are set in `bEndpointAddress`.
 	EndpointAddressHasReservedBits,
-	
-	/// This can happen if the end point is repeated with two different directions.
-	DuplicateEndPointNumber(EndPointNumber),
 	
 	/// Transfer type.
 	TransferType(TransferTypeParseError),

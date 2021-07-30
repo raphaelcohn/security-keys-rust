@@ -10,12 +10,6 @@ pub enum UsbError
 	ListDevices(rusb::Error),
 	
 	#[allow(missing_docs)]
-	DeviceUsbVersion(UsbVersionParseError),
-	
-	#[allow(missing_docs)]
-	DeviceFirmwareVersion(UsbVersionParseError),
-	
-	#[allow(missing_docs)]
 	GetDeviceActiveConfigDescriptor(rusb::Error),
 	
 	#[allow(missing_docs)]
@@ -51,14 +45,11 @@ pub enum UsbError
 		cause: rusb::Error,
 		
 		/// Language.
-		language: UsbLanguage,
+		language: Language,
 		
 		/// Index.
 		index: u8,
 	},
-	
-	#[allow(missing_docs)]
-	NoInterfaces,
 	
 	#[allow(missing_docs)]
 	CouldNotPushInterface(TryReserveError),

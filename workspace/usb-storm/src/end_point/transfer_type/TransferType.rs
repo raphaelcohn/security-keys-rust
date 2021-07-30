@@ -43,12 +43,10 @@ pub enum TransferType
 	},
 }
 
-impl<'a> TryFrom<&'a libusb_endpoint_descriptor> for TransferType
+impl TransferType
 {
-	type Error = TransferTypeParseError;
-	
 	#[inline(always)]
-	fn try_from(end_point_descriptor: &libusb_endpoint_descriptor) -> Result<Self, Self::Error>
+	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor) -> Result<Self, TransferTypeParseError>
 	{
 		/*
 		Interval for polling endpoint for data transfers. Expressed in frames or microframes depending on the device operating speed (i.e., either 1 millisecond or 125 μs units).
@@ -101,10 +99,7 @@ For high-speed bulk/control OUT endpoints, the bInterval must specify the maximu
 			}
 		)
 	}
-}
-
-impl TransferType
-{
+	
 	// TODO: Fix for USB 3.0
 	#[inline(always)]
 	fn additional_transaction_opportunities_per_microframe(end_point_descriptor: &libusb_endpoint_descriptor) -> AdditionalTransactionOpportunitiesPerMicroframe

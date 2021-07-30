@@ -2,9 +2,11 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Prefer the use of `libusb_get_bos_descriptor()`.
+/// Prefer the use of `libusb_get_bos_descriptor()` which correctly handles `wTotalLen`.
 #[inline(always)]
-pub(crate) fn get_binary_object_store_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>; MaximumUsbDescriptorLength]) -> Result<&[u8], GetDescriptorError>
+pub(crate) fn get_binary_object_store_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>]) -> Result<&[u8], GetStandardUsbDescriptorError>
 {
-	get_standard_device_descriptor(device_handle, buffer, LIBUSB_DT_BOS, 0, 0)
+	const descriptor_type: DescriptorType = LIBUSB_DT_BOS;
+	let descriptor_bytes = get_standard_device_descriptor(device_handle, buffer, descriptor_type, 0, 0)?;
+	Ok(StandardUsbDescriptorError::parse::<descriptor_type>(descriptor_bytes)?)
 }

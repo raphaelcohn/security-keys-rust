@@ -14,7 +14,7 @@ pub struct SmartCardInterfaceAdditionalDescriptor
 	has_vendor_specific_descriptor_type: bool,
 
 	/// `bcdCCID`.
-	firmware_version: UsbVersion,
+	firmware_version: Version,
 	
 	/// `bMaxSlotIndex`.
 	///
@@ -109,7 +109,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 	
 	/// Firmware version.
 	#[inline(always)]
-	pub const fn firmware_version(&self) -> UsbVersion
+	pub const fn firmware_version(&self) -> Version
 	{
 		self.firmware_version
 	}
@@ -255,23 +255,16 @@ impl SmartCardInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	pub(super) fn extra_has_matching_length(extra: Option<&[u8]>) -> bool
+	pub(super) fn extra_has_matching_length(extra: &[u8]) -> bool
 	{
-		if let Some(extra) = extra
-		{
-			extra.len() == Self::Length
-		}
-		else
-		{
-			false
-		}
+		extra.len() == Self::Length
 	}
 	
 	#[inline(always)]
-	pub(super) fn last_end_point_matches<'a, 'b: 'a, R>(interface_descriptor: &'a InterfaceDescriptor<'b>, user: impl FnOnce(&[u8], EndPointNumber) -> R) -> Option<R>
+	pub(super) fn last_end_point_matches(alternate_setting: &libusb_interface_descriptor) -> Option<R>
 	{
 		#[inline(always)]
-		fn last_end_point<'a, 'b: 'a>(interface_descriptor: &'a InterfaceDescriptor<'b>) -> Option<EndpointDescriptor<'a>>
+		fn last_end_point(alternate_setting: &libusb_interface_descriptor) -> Option<&libusb_endpoint_descriptor>
 		{
 			let mut last_end_point = None;
 			let endpoint_descriptors = interface_descriptor.endpoint_descriptors();

@@ -4,13 +4,13 @@
 
 use super::u4;
 use likely::likely;
+use std::convert::TryFrom;
 use std::error;
 use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use std::convert::TryFrom;
 
 
-include!("UsbVersion.rs");
-include!("UsbVersionParseError.rs");
+include!("Version.rs");
+include!("VersionParseError.rs");

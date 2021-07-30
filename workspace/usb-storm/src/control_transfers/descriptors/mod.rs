@@ -44,20 +44,7 @@ include!("get_standard_interface_descriptor.rs");
 include!("get_string_device_descriptor.rs");
 include!("get_string_device_descriptor_language.rs");
 include!("get_string_device_descriptor_languages.rs");
-include!("GetDescriptorError.rs");
-include!("MaximumUsbDescriptorLength.rs");
-include!("MinimumUsbDescriptorLength.rs");
-
-
-xxxx;
-
-
-/*
-
-pub const LIBUSB_DT_SUPERSPEED_HUB: u8 = 0x2A;
-
-
-// not got, but can exist on an end point.
-// libusb_get_ss_endpoint_companion_descriptor
-pub const LIBUSB_DT_SS_ENDPOINT_COMPANION: u8 = 0x30;
- */
+include!("GetStandardUsbDescriptorError.rs");
+include!("MaximumStandardUsbDescriptorLength.rs");
+include!("MinimumStandardUsbDescriptorLength.rs");
+include!("StandardUsbDescriptorError.rs");

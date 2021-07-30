@@ -4,7 +4,7 @@
 
 use crate::VecExt;
 use super::Bytes;
-use super::super::UsbVersion;
+use super::super::Version;
 use super::super::additional_descriptors::AdditionalDescriptorParser;
 use super::super::additional_descriptors::DescriptorType;
 use super::super::additional_descriptors::LengthAdjustment;

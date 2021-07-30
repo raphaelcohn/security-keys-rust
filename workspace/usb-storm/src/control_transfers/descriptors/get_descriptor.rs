@@ -3,34 +3,14 @@
 
 
 #[inline(always)]
-fn get_descriptor<const request_type: ControlTransferRequestType, const recipient: ControlTransferRecipient>(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>; MaximumUsbDescriptorLength], descriptor_type: DescriptorType, descriptor_index: u8, index: u16) -> Result<&[u8], GetDescriptorError>
+fn get_descriptor<const request_type: ControlTransferRequestType, const recipient: ControlTransferRecipient>(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_type: DescriptorType, descriptor_index: u8, index: u16) -> Result<&[u8], ControlTransferError>
 {
-	use self::GetDescriptorError::*;
+	use self::GetStandardUsbDescriptorError::*;
 	
 	const TimeOut: Duration = Duration::from_millis(1_000);
 	
 	let descriptor_type = (descriptor_type as u16) << 8;
 	let value = descriptor_type | (descriptor_index as u16);
 	
-	let descriptor_bytes = control_transfer::<Direction::In, ControlTransferRequestType::Standard, recipient, Request::GetDescriptor>(device_handle, TimeOut, value, index, buffer)?;
-	
-	let length = descriptor_bytes.len() as usize;
-	if unlikely!(length < MinimumUsbDescriptorLength)
-	{
-		return Err(TooShort)
-	}
-	
-	let bLength = descriptor_bytes.get_unchecked_value_safe(0) as usize;
-	if unlikely!(bLength > length)
-	{
-		return Err(LengthMismatch)
-	}
-	
-	let bDescriptorType = descriptor_bytes.get_unchecked_value_safe(1);
-	if unlikely!(bDescriptorType != descriptor_type)
-	{
-		return Err(LengthMismatch)
-	}
-	let remaining_bytes = descriptor_bytes.get_unchecked_range_safe(MinimumUsbDescriptorLength .. );
-	Ok(remaining_bytes)
+	let descriptor_bytes = control_transfer::<Direction::In, request_type, recipient, Request::GetDescriptor>(device_handle, TimeOut, value, index, buffer)?;
 }
