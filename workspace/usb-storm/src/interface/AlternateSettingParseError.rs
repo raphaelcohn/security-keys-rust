@@ -6,7 +6,7 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AlternateSettingParseError
 {
-	/// ?Bug in libusb.
+	#[allow(missing_docs)]
 	WrongLength
 	{
 		interface_index: u8,
@@ -16,7 +16,7 @@ pub enum AlternateSettingParseError
 		bLength: u8
 	},
 	
-	/// ?Bug in libusb.
+	#[allow(missing_docs)]
 	WrongDescriptorType
 	{
 		interface_index: u8,

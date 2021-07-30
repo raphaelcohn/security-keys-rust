@@ -3,12 +3,12 @@
 
 
 #[inline(always)]
-pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(extra: &[u8], mut additional_descriptor_parser: ADP) -> Result<Vec<AdditionalDescriptor<ADP::Descriptor>>, AdditionalDescriptorParseError<ADP::Error>>
+pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(mut extra: &[u8], mut additional_descriptor_parser: ADP) -> Result<Vec<AdditionalDescriptor<ADP::Descriptor>>, AdditionalDescriptorParseError<ADP::Error>>
 {
 	use AdditionalDescriptor::*;
 	use AdditionalDescriptorParseError::*;
 	
-	let mut extra_length = extra.len();
+	let extra_length = extra.len();
 	if likely!(extra_length == 0)
 	{
 		return if ADP::no_descriptors_valid()

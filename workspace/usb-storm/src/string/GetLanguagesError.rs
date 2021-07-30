@@ -18,6 +18,11 @@ pub enum GetLanguagesError
 	NotACorrectArraySize,
 	
 	CouldNotAllocateLanguages(TryReserveError),
+	
+	DuplicateLanguage
+	{
+		language: Language,
+	},
 }
 
 impl Display for GetLanguagesError

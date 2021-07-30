@@ -27,9 +27,9 @@ impl AlternateSetting
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn class_and_protocol(&self) -> ClassAndProtocol<AlternateSetting>
+	pub fn class_and_protocol(&self) -> ClassAndProtocol<AlternateSetting>
 	{
-		self.class_and_protocol
+		self.class_and_protocol.clone()
 	}
 	
 	#[allow(missing_docs)]
@@ -53,20 +53,20 @@ impl AlternateSetting
 		&self.additional_descriptors
 	}
 	
-	#[inline(always)]
-	fn smart_card_interface_additional_descriptor(&self) -> Option<&SmartCardInterfaceAdditionalDescriptor>
-	{
-		for additional_descriptor in self.additional_descriptors.iter()
-		{
-			use AdditionalDescriptor::*;
-			use InterfaceAdditionalDescriptor::*;
-			if let Known(SmartCard(smart_card_interface_additional_descriptor)) = additional_descriptor
-			{
-				return Some(smart_card_interface_additional_descriptor)
-			}
-		}
-		None
-	}
+	// #[inline(always)]
+	// fn smart_card_interface_additional_descriptor(&self) -> Option<&SmartCardInterfaceAdditionalDescriptor>
+	// {
+	// 	for additional_descriptor in self.additional_descriptors.iter()
+	// 	{
+	// 		use AdditionalDescriptor::*;
+	// 		use InterfaceAdditionalDescriptor::*;
+	// 		if let Known(SmartCard(smart_card_interface_additional_descriptor)) = additional_descriptor
+	// 		{
+	// 			return Some(smart_card_interface_additional_descriptor)
+	// 		}
+	// 	}
+	// 	None
+	// }
 	
 	#[inline(always)]
 	fn parse(string_finder: &StringFinder, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8) -> Result<DeadOrAlive<(InterfaceNumber, AlternateSettingNumber, Self)>, AlternateSettingParseError>
@@ -97,7 +97,7 @@ impl AlternateSetting
 		
 		let end_point_descriptors = Self::parse_end_point_descriptors(alternate_setting, interface_index, alternate_setting_index)?;
 		
-		let additional_descriptors = Self::parse_additional_descriptors(alternate_setting, class_and_protocol).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
+		let additional_descriptors = Self::parse_additional_descriptors(alternate_setting, class_and_protocol.clone()).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
 		
 		Ok
 		(
@@ -183,7 +183,7 @@ impl AlternateSetting
 		fn smart_card(extra: &[u8], raw_protocol: u8) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
 			let smart_card_protocol = unsafe { transmute(raw_protocol) };
-			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(smart_card_protocol))
+			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, SmartCardInterfaceAdditionalDescriptorParser::new(smart_card_protocol))
 		}
 		
 		#[inline(always)]
@@ -205,6 +205,18 @@ impl AlternateSetting
 			
 			(ClassAndProtocol::<AlternateSetting>::SmartCardClass, 0x00, raw_protocol @ 0x00 ..= 0x02) => smart_card(extra, raw_protocol),
 			
+			// Product Name (Vendor Identifier, Product Identifier) CCID Descriptor Type.
+			// ActivCard USB Reader V2 (0x09C3, 0x0008) 0x21.
+			(ClassAndProtocol::<AlternateSetting>::SmartCardClass, 0x01, raw_protocol @ 0x01) => smart_card(extra, raw_protocol),
+			
+			// Product Name (Vendor Identifier, Product Identifier) CCID Descriptor Type.
+			// Dell USB Smartcard Keyboard (0x413C, 0x2100) 0xFF.
+			// Gem e-Seal Pro USB Token (0x08E6, 0x2202) 0xFF.
+			// MySMART PAD V2.0 (0x09BE, 0x0002) 0xFF.
+			// Token GEM USB COMBI-M (0x08E6, 0x1359) 0xFF.
+			// Token GEM USB COMBI (0x08E6, 0xACE0) 0xFF.
+			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x5C, raw_protocol @ 0x01) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
+			
 			// This case exists from before standardization.
 			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x00, raw_protocol @ 0x00 ..= 0x02) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
 			
@@ -213,7 +225,7 @@ impl AlternateSetting
 			// However, we do not know if other device manufacturers do this curently.
 			// The O2 Micro Oz776 is broken in other ways - see the patch introduced in the CCID project with `#define O2MICRO_OZ776_PATCH`.
 			// We do not support them here.
-			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x00, raw_protocol @ 0x00 ..= 0x02) if extra.len() == 0 => unsupported(extra),
+			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x00, _raw_protocol @ 0x00 ..= 0x02) if extra.len() == 0 => unsupported(extra),
 			
 			_ => unsupported(extra),
 		}

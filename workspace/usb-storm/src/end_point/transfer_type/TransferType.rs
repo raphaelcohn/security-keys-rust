@@ -3,7 +3,7 @@
 
 
 /// USB end point transfer type.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum TransferType
@@ -23,6 +23,7 @@ pub enum TransferType
 		/// Usage type.
 		usage_type: IschronousTransferUsageType,
 		
+		#[allow(missing_docs)]
 		additional_transaction_opportunities_per_microframe: AdditionalTransactionOpportunitiesPerMicroframe,
 	},
 	
@@ -39,6 +40,7 @@ pub enum TransferType
 		/// Direction.
 		direction: Direction,
 		
+		#[allow(missing_docs)]
 		additional_transaction_opportunities_per_microframe: AdditionalTransactionOpportunitiesPerMicroframe,
 	},
 }

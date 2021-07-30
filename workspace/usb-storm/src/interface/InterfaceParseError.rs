@@ -9,18 +9,21 @@ pub enum InterfaceParseError
 	/// Bug in libusb.
 	NullAlternateSettingsPointer
 	{
+		#[allow(missing_docs)]
 		interface_index: u8,
 	},
 	
 	/// Bug in libusb.
 	NegativeNumberOfAlternateSettings
 	{
+		#[allow(missing_docs)]
 		interface_index: u8,
 	},
 	
 	/// Bug in libusb.
 	NoAlternateSettings
 	{
+		#[allow(missing_docs)]
 		interface_index: u8,
 	},
 	
@@ -29,6 +32,7 @@ pub enum InterfaceParseError
 	/// libusb only checks for u32::MAX for an alternate setting number, yet an alternate setting number can not exceed u8::MAX.
 	TooManyAlternateSettings
 	{
+		#[allow(missing_docs)]
 		interface_index: u8,
 	},
 	

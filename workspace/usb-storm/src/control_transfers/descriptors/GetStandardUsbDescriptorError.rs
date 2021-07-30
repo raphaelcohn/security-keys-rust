@@ -32,6 +32,8 @@ impl error::Error for GetStandardUsbDescriptorError
 		match self
 		{
 			ControlTransfer(cause) => Some(cause),
+			
+			StandardUsbDescriptor(cause) => Some(cause),
 		}
 	}
 }

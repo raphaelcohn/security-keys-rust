@@ -101,7 +101,7 @@ impl ControlTransferError
 			
 			LIBUSB_ERROR_NOT_SUPPORTED => unreachable!("Operating System driver does not support a control transfer"),
 			
-			-13 ..= -98 => panic!("Newly defined error code {}", result),
+			-98 ..= -13 => panic!("Newly defined error code {}", result),
 			
 			// Failed to arm timer (eg using `timerfd_settime()`).
 			// `darwin_to_libusb()` error that library didn't know what to do with.

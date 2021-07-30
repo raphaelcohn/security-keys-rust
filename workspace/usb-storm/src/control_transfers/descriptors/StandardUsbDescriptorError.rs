@@ -16,11 +16,14 @@ pub enum StandardUsbDescriptorError
 	/// A descriptor's `bLength` field exceeds the number of bytes returned (the standard permits the opposite, however).
 	ReportedLengthTooLong
 	{
+		#[allow(missing_docs)]
 		length: usize,
 		
+		#[allow(missing_docs)]
 		bLength: u8,
 	},
 	
+	#[allow(missing_docs)]
 	DescriptorMismatch
 	{
 		descriptor_type: DescriptorType,

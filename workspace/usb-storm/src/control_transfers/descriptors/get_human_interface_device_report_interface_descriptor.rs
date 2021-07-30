@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+#[allow(dead_code)]
 #[inline(always)]
 pub(crate) fn get_human_interface_device_report_interface_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], interface_number: InterfaceNumber) -> Result<&[u8], ControlTransferError>
 {

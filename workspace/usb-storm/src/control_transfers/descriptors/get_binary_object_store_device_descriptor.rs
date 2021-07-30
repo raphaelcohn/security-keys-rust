@@ -3,6 +3,7 @@
 
 
 /// Prefer the use of `libusb_get_bos_descriptor()` which correctly handles `wTotalLen`.
+#[allow(dead_code)]
 #[inline(always)]
 pub(crate) fn get_binary_object_store_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>]) -> Result<&[u8], GetStandardUsbDescriptorError>
 {

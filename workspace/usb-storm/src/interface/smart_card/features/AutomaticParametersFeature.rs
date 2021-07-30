@@ -13,9 +13,11 @@
 pub enum AutomaticParametersFeature
 {
 	/// Use of warm or cold resets or PPS according to a manufacturer proprietary algorithm to select the communication parameters with the ICC.
+	#[allow(dead_code)]
 	AutomaticParametersNegotiationMadeByTheCcid = 0x0000_0040,
 	
 	#[allow(missing_docs)]
+	#[allow(dead_code)]
 	AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters = 0x0000_0080,
 }
 
@@ -24,9 +26,6 @@ impl AutomaticParametersFeature
 	#[inline(always)]
 	fn parse(dwFeatures: u32) -> BitFlags<Self>
 	{
-		const AutomaticParametersNegotiationMadeByTheCcid: u32 = AutomaticParametersFeature::AutomaticParametersNegotiationMadeByTheCcid as u32;
-		const AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters: u32 = AutomaticParametersFeature::AutomaticPpsMadeByTheCcidAccordingToTheActiveParameters as u32;
-		
 		BitFlags::from_bits_truncate(dwFeatures)
 	}
 }

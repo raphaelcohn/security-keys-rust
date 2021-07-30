@@ -76,7 +76,7 @@ impl GetConfigurationDescriptorBackendError
 				
 				LIBUSB_ERROR_NOT_SUPPORTED => unreachable!("Operating System driver does not support get configuration"),
 				
-				-13 ..= -98 => panic!("Newly defined error code {}", result),
+				-98 ..= -13 => panic!("Newly defined error code {}", result),
 				
 				LIBUSB_ERROR_OTHER => Err(Unanticipated(LIBUSB_ERROR_OTHER)),
 				

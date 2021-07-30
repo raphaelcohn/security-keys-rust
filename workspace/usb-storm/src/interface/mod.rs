@@ -47,6 +47,7 @@ use crate::device::DeadOrAlive;
 use crate::string::{LocalizedStrings, GetLocalizedStringError};
 use crate::version::VersionParseError;
 use crate::interface::unsupported::UnsupportedInterfaceAdditionalDescriptorParser;
+use crate::interface::smart_card::SmartCardInterfaceAdditionalDescriptorParser;
 
 
 /// CCID (Chip Card Interface Device).

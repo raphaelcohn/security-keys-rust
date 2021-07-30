@@ -2,10 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[allow(dead_code)]
-#[inline(always)]
-pub(crate) fn get_device(libusb_device_handle: NonNull<libusb_device_handle>) -> NonNull<libusb_device>
+#[derive(Debug)]
+#[repr(transparent)]
+pub struct DeviceReference(NonNull<libusb_device>);
+
+impl DeviceReference
 {
-	let device = unsafe { libusb_get_device(libusb_device_handle.as_ptr()) };
-	new_non_null(device)
+	#[inline(always)]
+	pub fn parse(&self) -> Result<DeadOrAlive<Device>, DeviceParseError>
+	{
+		Device::parse(self.0)
+	}
 }

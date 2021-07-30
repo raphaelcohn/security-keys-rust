@@ -78,7 +78,7 @@ impl DeviceHandle
 				
 				LIBUSB_ERROR_NOT_SUPPORTED => unreachable!("Operating System driver does not support a control transfer"),
 				
-				-13 ..= -98 => panic!("Newly defined error code {}", result),
+				-98 ..= -13 => panic!("Newly defined error code {}", result),
 				
 				LIBUSB_ERROR_OTHER => Err(Other),
 				
@@ -95,12 +95,6 @@ impl DeviceHandle
 	pub(crate) const fn as_non_null(&self) -> NonNull<libusb_device_handle>
 	{
 		self.libusb_device_handle
-	}
-	
-	#[inline(always)]
-	pub(crate) const fn as_ptr(&self) -> *const libusb_device_handle
-	{
-		self.as_non_null().as_ptr()
 	}
 	
 	/// Calls `callback` with a zero-based index of each set bit, from least significant to most significant.
@@ -154,7 +148,7 @@ impl DeviceHandle
 				
 				LIBUSB_ERROR_NOT_SUPPORTED => unreachable!("Operating System driver does not support a control transfer"),
 				
-				-13 ..= -98 => Err(()),
+				-98 ..= -13 => Err(()),
 				
 				LIBUSB_ERROR_OTHER => Err(()),
 				

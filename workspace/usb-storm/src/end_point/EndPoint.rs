@@ -51,7 +51,7 @@ impl EndPoint
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn additional_descriptors(&self) -> &[AdditionalDescriptor<EndPointAdditionalDescriptor>]
+	pub fn additional_descriptors(&self) -> &[AdditionalDescriptor<EndPointAdditionalDescriptor>]
 	{
 		&self.additional_descriptors
 	}

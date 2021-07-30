@@ -9,12 +9,14 @@ pub enum EndPointParseError
 	/// ?Bug in libusb.
 	WrongLength
 	{
+		#[allow(missing_docs)]
 		bLength: u8
 	},
 	
 	/// ?Bug in libusb.
 	WrongDescriptorType
 	{
+		#[allow(missing_docs)]
 		bDescriptorType: DescriptorType
 	},
 	

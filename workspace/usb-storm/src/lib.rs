@@ -73,7 +73,7 @@ pub mod device;
 
 
 /// USB end points.
-pub(crate) mod end_point;
+pub mod end_point;
 
 
 /// USB interfaces.
@@ -92,7 +92,8 @@ pub mod string;
 pub mod version;
 
 
-include!("DeviceInformationDatabase.rs");include!("FixedUsbDeviceCapabilities.rs");
+include!("DeviceInformationDatabase.rs");
+include!("FixedUsbDeviceCapabilities.rs");
 include!("VecExt.rs");
 include!("u3.rs");
 include!("u4.rs");

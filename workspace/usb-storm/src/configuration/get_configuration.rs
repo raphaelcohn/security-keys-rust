@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+#[allow(dead_code)]
 #[inline(always)]
 fn get_configuration(libusb_device_handle: NonNull<libusb_device_handle>) -> Result<Option<ConfigurationNumber>, ControlTransferError>
 {

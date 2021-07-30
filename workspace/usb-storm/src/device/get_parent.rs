@@ -3,6 +3,7 @@
 
 
 /// NOTE: Only valid if a device list is currently held!
+#[allow(dead_code)]
 #[inline(always)]
 pub(super) fn get_parent(libusb_device: NonNull<libusb_device>) -> Option<NonNull<libusb_device>>
 {

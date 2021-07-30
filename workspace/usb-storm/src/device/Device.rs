@@ -72,9 +72,9 @@ impl Device
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn port_numbers(&self) -> ArrayVec<PortNumber, MaximumDevicePortNumbers>
+	pub const fn port_numbers(&self) -> &ArrayVec<PortNumber, MaximumDevicePortNumbers>
 	{
-		self.port_numbers
+		&self.port_numbers
 	}
 	
 	#[allow(missing_docs)]
@@ -121,9 +121,9 @@ impl Device
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn class_and_protocol(&self) -> ClassAndProtocol<Self>
+	pub fn class_and_protocol(&self) -> ClassAndProtocol<Self>
 	{
-		self.class_and_protocol
+		self.class_and_protocol.clone()
 	}
 	
 	#[allow(missing_docs)]
@@ -212,8 +212,46 @@ impl Device
 	// 	}
 	// }
 	
+	pub fn devices()
+	{
+		
+		
+		
+		
+		
+		
+		/*
+		Returns a list of USB devices currently attached to the system. This is your entry point into finding a USB device to operate.
+
+You are expected to unreference all the devices when you are done with them, and then free the list with libusb_free_device_list(). Note that libusb_free_device_list() can unref all the devices for you. Be careful not to unreference a device you are about to open until after you have opened it.
+
+This return value of this function indicates the number of devices in the resultant list. The list is actually one element larger, as it is NULL-terminated.
+		 */
+		
+		/*
+		 pub fn new_with_context(context: T) -> crate::Result<DeviceList<T>> {
+        let mut list = mem::MaybeUninit::<*const *mut libusb_device>::uninit();
+
+        let len = unsafe { libusb_get_device_list(context.as_raw(), list.as_mut_ptr()) };
+
+        if len < 0 {
+            Err(error::from_libusb(len as c_int))
+        } else {
+            Ok(unsafe {
+                DeviceList {
+                    context,
+                    list: list.assume_init(),
+                    len: len as usize,
+                }
+            })
+        }
+    }
+		 */
+	}
+	
+	/// Parse a libusb device.
 	#[inline(always)]
-	pub(super) fn parse(libusb_device: NonNull<libusb_device>) -> Result<DeadOrAlive<Self>, DeviceParseError>
+	fn parse(libusb_device: NonNull<libusb_device>) -> Result<DeadOrAlive<Self>, DeviceParseError>
 	{
 		use DeadOrAlive::*;
 		use DeviceParseError::*;
@@ -324,6 +362,8 @@ impl Device
 			{
 				Dead => return Ok(Dead),
 				
+				Alive(None) => (),
+				
 				Alive(Some(configuration_descriptor)) =>
 				{
 					let (configuration_number, configuration) = match Configuration::parse(configuration_descriptor, maximum_supported_usb_version, speed, string_finder).map_err(|cause| ParseConfigurationDescriptor { cause, configuration_index })?
@@ -338,7 +378,7 @@ impl Device
 					{
 						return Err(DuplicateConfigurationNumber { configuration_index, configuration_number })
 					}
-				},
+				}
 			}
 		}
 		
@@ -367,17 +407,4 @@ impl Device
 		
 		Ok(Alive(Some(configuration_number)))
 	}
-	
-	// /// Obtain current USB devices on all buses.
-	// #[inline(always)]
-	// pub fn usb_devices_try_from() -> Result<Vec<Self>, UsbError>
-	// {
-	// 	let device_list = devices().map_err(UsbError::ListDevices)?;
-	// 	let mut devices = Vec::with_capacity(device_list.len());
-	// 	for device in device_list.iter()
-	// 	{
-	// 		devices.push(Self::try_from(device)?);
-	// 	}
-	// 	Ok(devices)
-	// }
 }

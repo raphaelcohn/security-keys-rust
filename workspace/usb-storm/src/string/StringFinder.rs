@@ -57,7 +57,13 @@ impl<'a> StringFinder<'a>
 					let mut localized_strings = HashMap::with_capacity(languages.len());
 					for language in languages
 					{
-						let string = self.get_localized_string(string_descriptor_index, *language);
+						let string = match self.get_localized_string(string_descriptor_index, *language)?
+						{
+							Dead => return Ok(Dead),
+							
+							Alive(string) => string,
+						};
+						let _ = localized_strings.insert(language.1, string);
 					}
 					Ok(Alive(Some(LocalizedStrings(localized_strings))))
 				}
@@ -87,7 +93,7 @@ impl<'a> StringFinder<'a>
 	}
 	
 	#[inline(always)]
-	fn get_localized_string(&self, string_descriptor_index: NonZeroU8, (language_identifier, language): (LanguageIdentifier, Language)) -> Result<DeadOrAlive<Option<String>>, GetLocalizedStringError>
+	fn get_localized_string(&self, string_descriptor_index: NonZeroU8, (language_identifier, language): (LanguageIdentifier, Language)) -> Result<DeadOrAlive<String>, GetLocalizedStringError>
 	{
 		use ControlTransferError::*;
 		use DeadOrAlive::*;
@@ -130,7 +136,7 @@ impl<'a> StringFinder<'a>
 		// Surrogate pairs encode from 2 x u16 to 4 x bytes; no change.
 		// UTF-16 LE 0xFFFF encodes to three bytes; 1.5x growth.
 		let maximum_number_of_utf_8_bytes = array_length_in_bytes * 3;
-		let utf_8_bytes = Vec::new_with_capacity(maximum_number_of_utf_8_bytes).map_err(CouldNotAllocateString)?;
+		let mut utf_8_bytes = Vec::new_with_capacity(maximum_number_of_utf_8_bytes).map_err(CouldNotAllocateString)?;
 		
 		let array = unsafe { from_raw_parts(remaining_bytes.as_ptr() as *const u16, array_length_in_u16) };
 		for result in decode_utf16(array.iter().cloned())
@@ -139,7 +145,7 @@ impl<'a> StringFinder<'a>
 			Self::encode_utf8_raw(character, &mut utf_8_bytes);
 		}
 		
-		Ok(Alive(Some(unsafe { String::from_utf8_unchecked(utf_8_bytes) })))
+		Ok(Alive(unsafe { String::from_utf8_unchecked(utf_8_bytes) }))
 	}
 	
 	#[inline(always)]
@@ -222,6 +228,12 @@ impl<'a> StringFinder<'a>
 		{
 			let language_identifier = u16::from_le(array.get_unchecked_value_safe(index));
 			let language = Language::parse(language_identifier);
+			
+			if unlikely!(languages.contains(&(language_identifier, language)))
+			{
+				return Err(DuplicateLanguage { language })
+			}
+			
 			languages.push((language_identifier, language))
 		}
 		

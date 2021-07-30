@@ -53,7 +53,8 @@ use std::mem::MaybeUninit;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
-pub(crate) mod descriptors;
+/// Descriptors.
+pub mod descriptors;
 
 
 include!("control_transfer.rs");
