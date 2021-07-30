@@ -82,7 +82,7 @@ impl error::Error for ConfigurationParseError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::ConfigurationParseError::*;
+		use ConfigurationParseError::*;
 		
 		match self
 		{

@@ -5,7 +5,7 @@
 #[inline(always)]
 fn get_descriptor<const request_type: ControlTransferRequestType, const recipient: ControlTransferRecipient>(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_type: DescriptorType, descriptor_index: u8, index: u16) -> Result<&[u8], ControlTransferError>
 {
-	use self::GetStandardUsbDescriptorError::*;
+	use GetStandardUsbDescriptorError::*;
 	
 	const TimeOut: Duration = Duration::from_millis(1_000);
 	

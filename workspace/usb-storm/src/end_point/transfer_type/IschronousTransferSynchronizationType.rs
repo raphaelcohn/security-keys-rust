@@ -26,7 +26,7 @@ impl From<u8> for IschronousTransferSynchronizationType
 	#[inline(always)]
 	fn from(bmAttributes: u8) -> Self
 	{
-		use self::IschronousTransferSynchronizationType::*;
+		use IschronousTransferSynchronizationType::*;
 		
 		match (bmAttributes & LIBUSB_ISO_SYNC_TYPE_MASK) >> 2
 		{

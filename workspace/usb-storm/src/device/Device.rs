@@ -30,13 +30,13 @@ pub struct Device
 	
 	class_and_protocol: ClassAndProtocol<Self>,
 	
-	languages: Option<Vec<Language>>,
+	languages: Vec<Language>,
 	
-	manufacturer: Option<StringOrIndex>,
+	manufacturer: Option<LocalizedStrings>,
 	
-	product_name: Option<StringOrIndex>,
+	product_name: Option<LocalizedStrings>,
 	
-	serial_number: Option<StringOrIndex>,
+	serial_number: Option<LocalizedStrings>,
 	
 	configurations: IndexMap<ConfigurationNumber, Configuration>,
 	
@@ -140,21 +140,21 @@ impl Device
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn manufacturer(&self) -> Option<&StringOrIndex>
+	pub fn manufacturer(&self) -> Option<&LocalizedStrings>
 	{
 		self.manufacturer.as_ref()
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn product_name(&self) -> Option<&StringOrIndex>
+	pub fn product_name(&self) -> Option<&LocalizedStrings>
 	{
 		self.product_name.as_ref()
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn serial_number(&self) -> Option<&StringOrIndex>
+	pub fn serial_number(&self) -> Option<&LocalizedStrings>
 	{
 		self.serial_number.as_ref()
 	}
@@ -213,63 +213,88 @@ impl Device
 	// }
 	
 	#[inline(always)]
-	pub(super) fn parse(libusb_device: NonNull<libusb_device>) -> Result<Self, DeviceParseError>
+	pub(super) fn parse(libusb_device: NonNull<libusb_device>) -> Result<DeadOrAlive<Self>, DeviceParseError>
 	{
-		use self::DeviceParseError::*;
+		use DeadOrAlive::*;
+		use DeviceParseError::*;
+		
+		let device_handle = match DeviceHandle::open(libusb_device)?
+		{
+			Dead => return Ok(Dead),
+			
+			Alive(device_handle) => device_handle,
+		};
+		
+		let string_finder = match StringFinder::new(&device_handle)?
+		{
+			Dead => return Ok(Dead),
+			
+			Alive(string_finder) => string_finder
+		};
 		
 		let device_descriptor = get_device_descriptor(libusb_device);
-		
-		let languages = x;
-		let string_finder = StringFinder::new(libusb_device);
-		
 		let maximum_supported_usb_version = Version::parse(device_descriptor.bcdUSB).map_err(MaximumSupportedUsbVersion)?;
 		let speed = get_device_speed(libusb_device);
-		let configurations = Self::get_configurations(libusb_device, device_descriptor, maximum_supported_usb_version, speed, &string_finder)?;
+		let configurations = match Self::get_configurations(libusb_device, &device_descriptor, maximum_supported_usb_version, speed, &string_finder)?
+		{
+			Dead => return Ok(Dead),
+			
+			Alive(configurations) => configurations,
+		};
 		Ok
 		(
-			Device
-			{
-				bus_number: get_bus_number(libusb_device),
-			
-				address: get_device_address(libusb_device),
+			Alive
+			(
+				Device
+				{
+					bus_number: get_bus_number(libusb_device),
 				
-				port_number: get_port_number(libusb_device),
-			
-				port_numbers: get_port_numbers(libusb_device),
-			
-				speed,
+					address: get_device_address(libusb_device),
+					
+					port_number: get_port_number(libusb_device),
 				
-				control_end_point_zero_maximum_packet_size_exponent: device_descriptor.bMaxPacketSize0,
+					port_numbers: get_port_numbers(libusb_device),
 				
-				vendor_identifier: device_descriptor.idVendor,
+					speed,
+					
+					control_end_point_zero_maximum_packet_size_exponent: device_descriptor.bMaxPacketSize0,
+					
+					vendor_identifier: device_descriptor.idVendor,
+					
+					product_identifier: device_descriptor.idProduct,
 				
-				product_identifier: device_descriptor.idProduct,
-			
-				maximum_supported_usb_version,
-				
-				manufacturer_device_version: Version::parse(device_descriptor.bcdDevice).map_err(FirmwareVersion)?,
-				
-				class_and_protocol: ClassAndProtocol::new_from_device(&device_descriptor),
-				
-				manufacturer: string_finder.find_string(device_descriptor.iManufacturer)?,
-				
-				product_name: string_finder.find_string(device_descriptor.iProduct)?,
-				
-				serial_number: string_finder.find_string(device_descriptor.iSerialNumber)?,
-				
-				active_configuration_number: Self::get_active_configuration_number(libusb_device, &configurations)?,
-				
-				configurations,
-				
-				languages,
-			}
+					maximum_supported_usb_version,
+					
+					manufacturer_device_version: Version::parse(device_descriptor.bcdDevice).map_err(FirmwareVersion)?,
+					
+					class_and_protocol: ClassAndProtocol::new_from_device(&device_descriptor),
+					
+					manufacturer: string_finder.find_string(device_descriptor.iManufacturer)?,
+					
+					product_name: string_finder.find_string(device_descriptor.iProduct)?,
+					
+					serial_number: string_finder.find_string(device_descriptor.iSerialNumber)?,
+					
+					active_configuration_number: match Self::get_active_configuration_number(libusb_device, &configurations)?
+					{
+						Dead => return Ok(Dead),
+						
+						Alive(active_configuration_number) => active_configuration_number,
+					},
+					
+					configurations,
+					
+					languages: string_finder.into_languages().map_err(CouldNotAllocateMemoryForLanguages)?,
+				}
+			)
 		)
 	}
 	
 	#[inline(always)]
-	fn get_configurations(libusb_device: NonNull<libusb_device>, device_descriptor: libusb_device_descriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<IndexMap<ConfigurationNumber, Configuration>, DeviceParseError>
+	fn get_configurations(libusb_device: NonNull<libusb_device>, device_descriptor: &libusb_device_descriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<IndexMap<ConfigurationNumber, Configuration>>, DeviceParseError>
 	{
-		use self::DeviceParseError::*;
+		use DeadOrAlive::*;
+		use DeviceParseError::*;
 		
 		let bNumConfigurations = device_descriptor.bNumConfigurations;
 		if unlikely!(bNumConfigurations > MaximumNumberOfConfigurations)
@@ -280,39 +305,52 @@ impl Device
 		let mut configurations = IndexMap::with_capacity(bNumConfigurations as usize);
 		for configuration_index in 0 .. bNumConfigurations
 		{
-			if let Some(configuration_descriptor) = get_config_descriptor(libusb_device, configuration_index).map_err(|cause| GetConfigurationDescriptor { cause, configuration_index })?
+			match get_config_descriptor(libusb_device, configuration_index).map_err(|cause| GetConfigurationDescriptor { cause, configuration_index })?
 			{
-				let (configuration_number, configuration) = Configuration::parse(configuration_descriptor, maximum_supported_usb_version, speed, string_finder).map_err(|cause| ParseConfigurationDescriptor { cause, configuration_index })?;
+				Dead => return Ok(Dead),
 				
-				let outcome = configurations.inter(configuration_number, configuration);
-				if unlikely!(outcome.is_some())
+				Alive(Some(configuration_descriptor)) =>
 				{
-					return Err(DuplicateConfigurationNumber { cause, configuration_index, configuration_number })
-				}
+					let (configuration_number, configuration) = match Configuration::parse(configuration_descriptor, maximum_supported_usb_version, speed, string_finder).map_err(|cause| ParseConfigurationDescriptor { cause, configuration_index })?
+					{
+						Dead => return Ok(Dead),
+						
+						Alive(alive) => alive,
+					};
+					
+					let outcome = configurations.inter(configuration_number, configuration);
+					if unlikely!(outcome.is_some())
+					{
+						return Err(DuplicateConfigurationNumber { cause, configuration_index, configuration_number })
+					}
+				},
 			}
 		}
 		
-		Ok(configurations)
+		Ok(Alive(configurations))
 	}
 	
 	#[inline(always)]
-	fn get_active_configuration_number(libusb_device: NonNull<libusb_device>, configurations: &IndexMap<ConfigurationNumber, Configuration>) -> Result<Option<ConfigurationNumber>, DeviceParseError>
+	fn get_active_configuration_number(libusb_device: NonNull<libusb_device>, configurations: &IndexMap<ConfigurationNumber, Configuration>) -> Result<DeadOrAlive<Option<ConfigurationNumber>>, DeviceParseError>
 	{
-		use self::DeviceParseError::*;
+		use DeadOrAlive::*;
+		use DeviceParseError::*;
 		
 		if unlikely!(configurations.is_empty())
 		{
-			return Ok(None)
+			return Ok(Alive(None))
 		}
 		
 		let configuration_number = match get_active_config_descriptor(libusb_device).map_err(GetActiveConfigurationDescriptor)?
 		{
-			None => return Ok(None),
+			Dead => return Ok(Dead),
 			
-			Some(configuration_descriptor) => Configuration::parse_configuration_number_only(&configuration_descriptor).map_err(ParseConfigurationNumberOfActiveConfigurationDescriptor)?,
+			Alive(None) => return Ok(Alive(None)),
+			
+			Alive(Some(configuration_descriptor)) => Configuration::parse_configuration_number_only(&configuration_descriptor).map_err(ParseConfigurationNumberOfActiveConfigurationDescriptor)?,
 		};
 		
-		Ok(Some(configuration_number))
+		Ok(Alive(Some(configuration_number)))
 	}
 	
 	/// Obtain current USB devices on all buses.

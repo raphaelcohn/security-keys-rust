@@ -30,7 +30,7 @@ impl Timeout
 	#[inline(always)]
 	fn into_DWORD(self) -> DWORD
 	{
-		use self::Timeout::*;
+		use Timeout::*;
 		
 		match self
 		{

@@ -5,7 +5,7 @@
 #[inline(always)]
 pub(crate) fn get_device_speed(libusb_device: NonNull<libusb_device>) -> Option<Speed>
 {
-	use self::Speed::*;
+	use Speed::*;
 	
 	const LIBUSB_SPEED_SUPER_PLUS: i32 = 5;
 	

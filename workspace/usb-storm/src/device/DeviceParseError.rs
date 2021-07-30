@@ -7,6 +7,9 @@
 pub enum DeviceParseError
 {
 	#[allow(missing_docs)]
+	DeviceHandleOpen(DeviceHandleOpenError),
+	
+	#[allow(missing_docs)]
 	MaximumSupportedUsbVersion(VersionParseError),
 	
 	#[allow(missing_docs)]
@@ -48,7 +51,10 @@ pub enum DeviceParseError
 	TooManyConfigurations
 	{
 		bNumConfigurations: u8,
-	}
+	},
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForLanguages,
 }
 
 impl Display for DeviceParseError
@@ -65,7 +71,7 @@ impl error::Error for DeviceParseError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::DeviceParseError::*;
+		use DeviceParseError::*;
 		
 		match self
 		{
@@ -85,5 +91,14 @@ impl error::Error for DeviceParseError
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<DeviceHandleOpenError> for DeviceParseError
+{
+	#[inline(always)]
+	fn from(cause: DeviceHandleOpenError) -> DeviceParseError
+	{
+		DeviceParseError::DeviceHandleOpen(cause)
 	}
 }

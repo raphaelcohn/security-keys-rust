@@ -35,7 +35,7 @@ impl ReceiveBuffers
 	#[inline(always)]
 	pub(super) fn reserve_receive(&mut self, response_length_encoding: ResponseLengthEncoding) -> &mut [u8]
 	{
-		use self::ResponseLengthEncoding::*;
+		use ResponseLengthEncoding::*;
 		
 		match response_length_encoding
 		{

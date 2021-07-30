@@ -66,7 +66,7 @@ impl Features
 		// cf DWG Smart Card CCID Revision 1.1, page 19.
 		if level_of_exchange.is_apdu_level()
 		{
-			use self::FeaturesParseError::*;
+			use FeaturesParseError::*;
 			
 			if !automatic.contains(AutomaticFeature::AutomaticParameterConfigurationBasedOnAnswerToResetData)
 			{

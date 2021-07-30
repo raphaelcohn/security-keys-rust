@@ -27,7 +27,7 @@ impl<UnexpectedError: 'static + error::Error + Debug + Copy + Ord + Eq + Hash> e
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::GenericError::*;
+		use GenericError::*;
 		
 		match self
 		{

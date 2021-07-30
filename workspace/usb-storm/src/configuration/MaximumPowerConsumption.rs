@@ -29,7 +29,7 @@ impl MaximumPowerConsumption
 			MaximumPowerConsumptionMilliamps::new(new_non_zero_u8(bMaxPower), speed)
 		}
 	
-		use self::MaximumPowerConsumption::*;
+		use MaximumPowerConsumption::*;
 		
 		let bMaxPower = configuration_descriptor.bMaxPower;
 		let no_power = bMaxPower == 0;

@@ -31,7 +31,7 @@ impl ShareModeAndPreferredProtocols
 	#[inline(always)]
 	fn into_DWORDs(self) -> (DWORD, DWORD, bool, bool)
 	{
-		use self::ShareModeAndPreferredProtocols::*;
+		use ShareModeAndPreferredProtocols::*;
 		
 		#[cfg(not(target_os = "windows"))] const IsDirectModeShared: bool = false;
 		#[cfg(target_os = "windows")] const IsDirectModeShared: bool = true;

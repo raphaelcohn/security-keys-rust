@@ -30,7 +30,7 @@ impl error::Error for SmartCardInterfaceAdditionalDescriptorParseError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::SmartCardInterfaceAdditionalDescriptorParseError::*;
+		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
 		match self
 		{

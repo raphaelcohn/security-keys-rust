@@ -23,7 +23,7 @@ impl<CardOrTransaction: CardOrTransactionExt> SmartCardConnection<CardOrTransact
 	
 	pub(super) fn get_application_open_pgp_data(&mut self) -> Result<ConstructedValues, GetApplicationOpenPgpDataError>
 	{
-		use self::GetApplicationOpenPgpDataError::*;
+		use GetApplicationOpenPgpDataError::*;
 		
 		self.card.send_command(ApplicationProtocolDataUnitCommand::GetDataObjectApplicationRelatedData, ResponseLengthEncoding::Short, &mut self.send_buffer, &mut self.receive_buffers, &mut self.response, CommandChaining::Unsupported);
 		

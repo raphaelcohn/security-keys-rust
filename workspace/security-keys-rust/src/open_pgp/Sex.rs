@@ -44,7 +44,7 @@ impl Into<&'static [u8; 1]> for Sex
 	#[inline(always)]
 	fn into(self) -> &'static [u8; 1]
 	{
-		use self::Sex::*;
+		use Sex::*;
 		
 		match self
 		{

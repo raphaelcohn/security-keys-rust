@@ -25,7 +25,7 @@ impl error::Error for UnavailableOrCommunicationError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::UnavailableOrCommunicationError::*;
+		use UnavailableOrCommunicationError::*;
 		
 		match self
 		{

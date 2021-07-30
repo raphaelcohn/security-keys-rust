@@ -57,7 +57,7 @@ impl CreateChannelUnexpectedError
 	#[inline(always)]
 	pub(in crate::ifdhandler) fn parse(error: RESPONSECODE) -> Self
 	{
-		use self::CreateChannelUnexpectedError::*;
+		use CreateChannelUnexpectedError::*;
 		
 		match error
 		{

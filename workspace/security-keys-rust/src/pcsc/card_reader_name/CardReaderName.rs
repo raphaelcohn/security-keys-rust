@@ -62,7 +62,7 @@ impl<'a> CardReaderName<'a>
 	#[inline(always)]
 	fn validate(c_str: &CStr) -> Result<(), CardReaderNameError>
 	{
-		use self::CardReaderNameError::*;
+		use CardReaderNameError::*;
 		
 		let bytes = c_str.to_bytes_with_nul();
 		let length = bytes.len();

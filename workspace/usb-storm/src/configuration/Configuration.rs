@@ -12,7 +12,7 @@ pub struct Configuration
 	
 	supports_remote_wake_up: bool,
 	
-	configuration_string: Option<StringOrIndex>,
+	description: Option<LocalizedStrings>,
 	
 	additional_descriptors: Vec<AdditionalDescriptor<ConfigurationAdditionalDescriptor>>,
 	
@@ -23,35 +23,35 @@ impl Configuration
 {
 	/// `None` if the device is not bus-powered.
 	#[inline(always)]
-	pub const fn maximum_power_consumption(self) -> MaximumPowerConsumption
+	pub const fn maximum_power_consumption(&self) -> MaximumPowerConsumption
 	{
 		self.maximum_power_consumption
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn supports_remote_wake_up(self) -> bool
+	pub const fn supports_remote_wake_up(&self) -> bool
 	{
 		self.supports_remote_wake_up
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn configuration_string(self) -> Option<&StringOrIndex>
+	pub fn description(&self) -> Option<&LocalizedStrings>
 	{
-		self.configuration_string.as_ref()
+		self.description.as_ref()
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn interfaces(self) -> &IndexMap<InterfaceNumber, Interface>
+	pub fn interfaces(&self) -> &IndexMap<InterfaceNumber, Interface>
 	{
 		&self.interfaces
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn additional_descriptors(self) -> &[AdditionalDescriptor<ConfigurationAdditionalDescriptor>]
+	pub fn additional_descriptors(&self) -> &[AdditionalDescriptor<ConfigurationAdditionalDescriptor>]
 	{
 		&self.additional_descriptors
 	}
@@ -81,13 +81,17 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(configuration_descriptor: ConfigurationDescriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<(ConfigurationNumber, Self), ConfigurationParseError>
+	pub(super) fn parse(configuration_descriptor: ConfigurationDescriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<(ConfigurationNumber, Self)>, ConfigurationParseError>
 	{
+		use DeadOrAlive::*;
+		
 		let configuration_number = Self::parse_configuration_number_only(&configuration_descriptor)?;
 		
 		let (supports_remote_wake_up, is_self_powered_or_self_powered_and_bus_powered) = Self::parse_attributes(&configuration_descriptor)?;
 		
 		Ok
+		(
+			Alive
 			(
 				(
 					configuration_number,
@@ -98,20 +102,31 @@ impl Configuration
 						
 						supports_remote_wake_up,
 						
-						configuration_string: string_finder.find_string(configuration_descriptor.iConfiguration)?,
+						description: match string_finder.find_string(configuration_descriptor.iConfiguration)?
+						{
+							Dead => return Ok(Dead),
+							
+							Alive(description) => description,
+						},
 						
 						additional_descriptors: Self::parse_additional_descriptors(&configuration_descriptor).map_err(UsbError::CouldNotParseConfigurationAdditionalDescriptor)?,
 						
-						interfaces: Self::parse_interfaces(&configuration_descriptor, string_finder)?,
+						interfaces: match Self::parse_interfaces(&configuration_descriptor, string_finder)?
+						{
+							Dead => return Ok(Dead),
+							
+							Alive(interfaces) => interfaces,
+						},
 					}
 				)
 			)
+		)
 	}
 	
 	#[inline(always)]
 	fn validate_configuration_descriptor(configuration_descriptor: &libusb_config_descriptor) -> Result<(), ConfigurationParseError>
 	{
-		use self::ConfigurationParseError::*;
+		use ConfigurationParseError::*;
 		
 		const LIBUSB_DT_CONFIG_SIZE: usize = 9;
 		let bLength = configuration_descriptor.bLength;
@@ -138,7 +153,7 @@ impl Configuration
 	#[inline(always)]
 	fn parse_number_of_interfaces(configuration_descriptor: &libusb_config_descriptor) -> Result<NonZeroU8, ConfigurationParseError>
 	{
-		use self::ConfigurationParseError::*;
+		use ConfigurationParseError::*;
 		
 		let bNumInterfaces = configuration_descriptor.bNumInterfaces;
 		
@@ -172,7 +187,7 @@ impl Configuration
 	#[inline(always)]
 	fn parse_attributes(configuration_descriptor: &libusb_config_descriptor) -> Result<(bool, bool), ConfigurationParseError>
 	{
-		use self::ConfigurationParseError::*;
+		use ConfigurationParseError::*;
 		
 		let bmAttributes = configuration_descriptor.bmAttributes;
 		
@@ -202,9 +217,10 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder) -> Result<IndexMap<InterfaceNumber, Interface>, ConfigurationParseError>
+	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder) -> Result<DeadOrAlive<IndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
 	{
-		use self::ConfigurationParseError::*;
+		use ConfigurationParseError::*;
+		use DeadOrAlive::*;
 		
 		let number_of_interfaces = Self::parse_number_of_interfaces(configuration_descriptor)?;
 		let libusb_interfaces = Self::libusb_interfaces_as_slice(configuration_descriptor, number_of_interfaces)?;
@@ -213,7 +229,12 @@ impl Configuration
 		for interface_index in 0 .. number_of_interfaces.get()
 		{
 			let libusb_interface = libusb_interfaces.get_unchecked_safe(interface_index);
-			let (interface_number, interface) = Interface::parse(libusb_interface, string_finder, interface_index).map_err(|cause| CouldNotParseInterface { cause, interface_index })?;
+			let (interface_number, interface) = match Interface::parse(libusb_interface, string_finder, interface_index).map_err(|cause| CouldNotParseInterface { cause, interface_index })?
+			{
+				Dead => return Ok(Dead),
+				
+				Alive(alive) => alive,
+			};
 			
 			let outcome = interfaces.insert(interface_number, interface);
 			if unlikely!(outcome.is_some())
@@ -222,7 +243,7 @@ impl Configuration
 			}
 		}
 		
-		Ok(interfaces)
+		Ok(Alive(interfaces))
 	}
 	
 	#[inline(always)]

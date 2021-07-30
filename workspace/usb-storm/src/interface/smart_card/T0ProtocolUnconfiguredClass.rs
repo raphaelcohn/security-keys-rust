@@ -21,7 +21,7 @@ impl T0ProtocolUnconfiguredClass
 	#[inline(always)]
 	fn parse(class: u8, error: impl FnOnce(u8) -> SmartCardInterfaceAdditionalDescriptorParseError) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
-		use self::T0ProtocolUnconfiguredClass::*;
+		use T0ProtocolUnconfiguredClass::*;
 		let parsed = match class
 		{
 			0x00 => Zero,

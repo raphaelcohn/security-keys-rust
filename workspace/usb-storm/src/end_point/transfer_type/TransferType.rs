@@ -64,7 +64,7 @@ For high-speed bulk/control OUT endpoints, the bInterval must specify the maximu
 		 */
 		let _polling_interval = end_point_descriptor.bInterval;
 		
-		use self::TransferType::*;
+		use TransferType::*;
 		let bmAttributes = end_point_descriptor.bmAttributes;
 		Ok
 		(

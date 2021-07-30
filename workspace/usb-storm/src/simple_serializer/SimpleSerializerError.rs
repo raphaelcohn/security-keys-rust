@@ -27,7 +27,7 @@ impl error::Error for SimpleSerializerError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::SimpleSerializerError::*;
+		use SimpleSerializerError::*;
 		
 		match self
 		{

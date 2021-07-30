@@ -21,7 +21,7 @@ impl StateOfNonVolatileMemoryUnchangedError
 	#[inline(always)]
 	fn categorize_response_code(sw2: u8) -> Self
 	{
-		use self::StateOfNonVolatileMemoryUnchangedError::*;
+		use StateOfNonVolatileMemoryUnchangedError::*;
 		
 		match sw2
 		{

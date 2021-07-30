@@ -4,7 +4,7 @@
 
 /// Returns `None` if the `configuration_index` does not have a configuration.
 #[inline(always)]
-pub(crate) fn get_config_descriptor(libusb_device: NonNull<libusb_device>, configuration_index: u3) -> Result<Option<ConfigurationDescriptor>, GetConfigurationDescriptorBackendError>
+pub(crate) fn get_config_descriptor(libusb_device: NonNull<libusb_device>, configuration_index: u3) -> Result<DeadOrAlive<Option<ConfigurationDescriptor>>, GetConfigurationDescriptorBackendError>
 {
 	let mut config_descriptor = MaybeUninit::uninit();
 	let result = unsafe { libusb_get_config_descriptor(libusb_device.as_ptr(), configuration_index, config_descriptor.as_mut_ptr()) };

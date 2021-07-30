@@ -62,7 +62,7 @@ impl StateOfNonVolatileMemoryUnchangedWarning
 	#[inline(always)]
 	fn categorize_response_code(sw2: u8) -> Self
 	{
-		use self::StateOfNonVolatileMemoryUnchangedWarning::*;
+		use StateOfNonVolatileMemoryUnchangedWarning::*;
 		
 		match sw2
 		{

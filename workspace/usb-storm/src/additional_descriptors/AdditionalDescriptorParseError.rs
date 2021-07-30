@@ -48,7 +48,7 @@ impl<E: 'static + error::Error> error::Error for AdditionalDescriptorParseError<
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::AdditionalDescriptorParseError::*;
+		use AdditionalDescriptorParseError::*;
 		
 		match self
 		{

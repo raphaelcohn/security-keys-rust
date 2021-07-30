@@ -51,7 +51,7 @@ impl error::Error for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseErro
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
+		use HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
 		
 		match self
 		{

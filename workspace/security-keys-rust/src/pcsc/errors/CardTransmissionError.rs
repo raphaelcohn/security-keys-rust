@@ -25,7 +25,7 @@ impl error::Error for CardTransmissionError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::CardTransmissionError::*;
+		use CardTransmissionError::*;
 		
 		match self
 		{

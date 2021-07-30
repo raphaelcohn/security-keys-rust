@@ -39,7 +39,7 @@ impl error::Error for EndPointParseError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::EndPointParseError::*;
+		use EndPointParseError::*;
 		
 		match self
 		{

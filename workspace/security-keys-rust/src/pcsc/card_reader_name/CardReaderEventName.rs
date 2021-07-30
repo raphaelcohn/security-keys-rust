@@ -20,7 +20,7 @@ impl<'a> CardReaderEventName<'a>
 	#[inline(always)]
 	pub(in crate::pcsc) fn raw_reader_name_or_special(self) -> *const c_char
 	{
-		use self::CardReaderEventName::*;
+		use CardReaderEventName::*;
 		
 		match self
 		{
@@ -33,7 +33,7 @@ impl<'a> CardReaderEventName<'a>
 	#[inline(always)]
 	pub(in crate::pcsc) fn recreate(raw_reader_name_or_special: *const c_char) -> Self
 	{
-		use self::CardReaderEventName::*;
+		use CardReaderEventName::*;
 		
 		if unlikely!(raw_reader_name_or_special == Self::special_reader_name_for_detecting_card_reader_insertions_and_removals())
 		{
@@ -55,7 +55,7 @@ impl<'a> CardReaderEventName<'a>
 	#[inline(always)]
 	pub(in crate::pcsc) fn state_change(self) -> CardReaderName<'a>
 	{
-		use self::CardReaderEventName::*;
+		use CardReaderEventName::*;
 		
 		match self
 		{

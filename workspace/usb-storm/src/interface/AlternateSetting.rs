@@ -12,7 +12,7 @@ pub struct AlternateSetting
 {
 	class_and_protocol: ClassAndProtocol<AlternateSetting>,
 
-	description: Option<StringOrIndex>,
+	description: Option<LocalizedStrings>,
 	
 	additional_descriptors: Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>,
 
@@ -41,7 +41,7 @@ impl AlternateSetting
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn description(&self) -> Option<&StringOrIndex>
+	pub fn description(&self) -> Option<&LocalizedStrings>
 	{
 		self.description.as_ref()
 	}
@@ -65,8 +65,8 @@ impl AlternateSetting
 	{
 		for additional_descriptor in self.additional_descriptors.iter()
 		{
-			use self::AdditionalDescriptor::*;
-			use self::InterfaceAdditionalDescriptor::*;
+			use AdditionalDescriptor::*;
+			use InterfaceAdditionalDescriptor::*;
 			if let Known(SmartCard(smart_card_interface_additional_descriptor)) = additional_descriptor
 			{
 				return Some(smart_card_interface_additional_descriptor)
@@ -76,9 +76,10 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse(string_finder: &StringFinder, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8) -> Result<(InterfaceNumber, AlternateSettingNumber, Self), AlternateSettingParseError>
+	fn parse(string_finder: &StringFinder, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8) -> Result<DeadOrAlive<(InterfaceNumber, AlternateSettingNumber, Self)>, AlternateSettingParseError>
 	{
-		use self::AlternateSettingParseError::*;
+		use AlternateSettingParseError::*;
+		use DeadOrAlive::*;
 		
 		const LIBUSB_DT_INTERFACE_SIZE: usize = 9;
 		let bLength = alternate_setting.bLength;
@@ -108,21 +109,29 @@ impl AlternateSetting
 		
 		Ok
 		(
+			Alive
 			(
-				bInterfaceNumber,
-				
-				alternate_setting.bAlternateSetting,
-				
-				Self
-				{
-					class_and_protocol,
+				(
+					bInterfaceNumber,
 					
-					description: string_finder.find_string(alternate_setting.iInterface)?,
+					alternate_setting.bAlternateSetting,
 					
-					additional_descriptors,
-					
-					end_points: Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index)?,
-				}
+					Self
+					{
+						class_and_protocol,
+						
+						description: match string_finder.find_string(alternate_setting.iInterface)?
+						{
+							Dead => return Ok(Dead),
+							
+							Alive(description) => description,
+						},
+						
+						additional_descriptors,
+						
+						end_points: Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index)?,
+					}
+				)
 			)
 		)
 	}
@@ -130,7 +139,7 @@ impl AlternateSetting
 	#[inline(always)]
 	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8) -> Result<IndexMap<EndPointNumber, EndPoint>, AlternateSettingParseError>
 	{
-		use self::AlternateSettingParseError::*;
+		use AlternateSettingParseError::*;
 		
 		let mut end_points = IndexMap::with_capacity(end_point_descriptors.len());
 		
@@ -152,7 +161,7 @@ impl AlternateSetting
 	#[inline(always)]
 	fn parse_end_point_descriptors(alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8) -> Result<&[libusb_endpoint_descriptor], AlternateSettingParseError>
 	{
-		use self::AlternateSettingParseError::*;
+		use AlternateSettingParseError::*;
 		
 		let end_pointer_pointer = alternate_setting.endpoint;
 		if unlikely!(end_pointer_pointer.is_null())
@@ -191,7 +200,7 @@ impl AlternateSetting
 			(InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, UnsupportedInterfaceAdditionalDescriptorParser), None)
 		}
 		
-		use self::HumanInterfaceDeviceInterfaceAdditionalVariant::*;
+		use HumanInterfaceDeviceInterfaceAdditionalVariant::*;
 		
 		let extra = extra_to_slice(alternate_setting.extra, alternate_setting.extra_length)?;
 		

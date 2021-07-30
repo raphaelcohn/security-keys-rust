@@ -15,7 +15,7 @@ impl<'a> Values<'a>
 	#[inline(always)]
 	fn into_owned(self) -> Result<Values<'static>, TryReserveError>
 	{
-		use self::Values::*;
+		use Values::*;
 		
 		Ok
 		(
@@ -32,7 +32,7 @@ impl<'a> Values<'a>
 	{
 		let value = input.take_bytes_error(length as usize, || TagLengthValueParseError::Value { length })?;
 		
-		use self::TagType::*;
+		use TagType::*;
 		
 		let this = match tag_type
 		{

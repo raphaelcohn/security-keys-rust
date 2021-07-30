@@ -54,8 +54,6 @@ use self::version::Version;
 use arrayvec::ArrayVec;
 use likely::likely;
 use rusb::devices;
-use rusb::DeviceHandle;
-use rusb::UsbContext;
 use serde::Deserialize;
 use serde::Serialize;
 use std::cmp::Ordering;

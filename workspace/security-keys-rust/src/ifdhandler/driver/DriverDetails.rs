@@ -15,7 +15,7 @@ impl DriverDetails
 	#[inline(always)]
 	fn parse_remaining_info_plist_fields(info_plist: &Dictionary) -> Result<Self, LoadDriverError>
 	{
-		use self::LoadDriverError::*;
+		use LoadDriverError::*;
 		
 		let capabilities = Self::parse_capabilities(info_plist)?;
 		
@@ -58,7 +58,7 @@ impl DriverDetails
 	#[inline(always)]
 	fn parse_capabilities(info_plist: &Dictionary) -> Result<BitFlags<DriverCapabilities>, LoadDriverError>
 	{
-		use self::LoadDriverError::*;
+		use LoadDriverError::*;
 		
 		let capabilities_string = dictionary_get_string(info_plist, "ifdCapabilities", MissingCapabilitiesString)?;
 		let capabilities_u32 = Self::convert_hexadecimal(capabilities_string, CapabilitiesIsNot10Bytes, CapabilitiesIsNotHexadecimal)?;

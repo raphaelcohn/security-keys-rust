@@ -502,7 +502,7 @@ impl DriverFunctions
 	{
 		let library = unsafe { Library::new(library_file_path)? };
 		
-		use self::KnownSymbolName::*;
+		use KnownSymbolName::*;
 		
 		let this = Self
 		{

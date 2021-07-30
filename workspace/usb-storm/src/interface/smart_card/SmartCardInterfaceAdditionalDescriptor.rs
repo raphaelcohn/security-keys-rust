@@ -363,7 +363,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 	{
 		let value = if level_of_exchange.is_apdu_level() && iso_7816_protocols.contains(Iso7816Protocol::T0)
 		{
-			use self::SmartCardInterfaceAdditionalDescriptorParseError::*;
+			use SmartCardInterfaceAdditionalDescriptorParseError::*;
 			
 			Some
 			(

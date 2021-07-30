@@ -20,7 +20,7 @@ impl WrongParametersVariant2Error
 	#[inline(always)]
 	fn categorize_response_code(sw2: u8) -> Self
 	{
-		use self::WrongParametersVariant2Error::*;
+		use WrongParametersVariant2Error::*;
 		
 		match sw2
 		{

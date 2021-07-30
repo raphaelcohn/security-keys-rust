@@ -49,7 +49,7 @@ impl LevelOfExchange
 	#[inline(always)]
 	pub fn is_apdu_level(self) -> bool
 	{
-		use self::LevelOfExchange::*;
+		use LevelOfExchange::*;
 		
 		self == ShortApduLevelExchangeWithCcid || self.is_extended_apdu_level()
 	}
@@ -58,7 +58,7 @@ impl LevelOfExchange
 	#[inline(always)]
 	pub fn is_extended_apdu_level(self) -> bool
 	{
-		use self::LevelOfExchange::*;
+		use LevelOfExchange::*;
 		
 		self == ShortAndExtendedApduLevelExchangeWithCcid
 	}

@@ -2,8 +2,27 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use super::end_point::transfer_type::Direction;
-use libusb1_sys::constants::{LIBUSB_RECIPIENT_DEVICE, LIBUSB_DT_BOS, LIBUSB_DT_STRING};
+use crate::additional_descriptors::DescriptorType;
+use crate::end_point::transfer_type::Direction;
+use libusb1_sys::libusb_clear_halt;
+use libusb1_sys::libusb_control_transfer;
+use libusb1_sys::libusb_device_handle;
+use libusb1_sys::constants::LIBUSB_DT_BOS;
+use libusb1_sys::constants::LIBUSB_DT_STRING;
+use libusb1_sys::constants::LIBUSB_ERROR_ACCESS;
+use libusb1_sys::constants::LIBUSB_ERROR_BUSY;
+use libusb1_sys::constants::LIBUSB_ERROR_INTERRUPTED;
+use libusb1_sys::constants::LIBUSB_ERROR_INVALID_PARAM;
+use libusb1_sys::constants::LIBUSB_ERROR_IO;
+use libusb1_sys::constants::LIBUSB_ERROR_NOT_FOUND;
+use libusb1_sys::constants::LIBUSB_ERROR_NOT_SUPPORTED;
+use libusb1_sys::constants::LIBUSB_ERROR_NO_DEVICE;
+use libusb1_sys::constants::LIBUSB_ERROR_NO_MEM;
+use libusb1_sys::constants::LIBUSB_ERROR_OTHER;
+use libusb1_sys::constants::LIBUSB_ERROR_OVERFLOW;
+use libusb1_sys::constants::LIBUSB_ERROR_PIPE;
+use libusb1_sys::constants::LIBUSB_ERROR_TIMEOUT;
+use libusb1_sys::constants::LIBUSB_RECIPIENT_DEVICE;
 use libusb1_sys::constants::LIBUSB_RECIPIENT_ENDPOINT;
 use libusb1_sys::constants::LIBUSB_RECIPIENT_INTERFACE;
 use libusb1_sys::constants::LIBUSB_RECIPIENT_OTHER;
@@ -23,21 +42,6 @@ use libusb1_sys::constants::LIBUSB_REQUEST_TYPE_CLASS;
 use libusb1_sys::constants::LIBUSB_REQUEST_TYPE_STANDARD;
 use libusb1_sys::constants::LIBUSB_REQUEST_TYPE_VENDOR;
 use libusb1_sys::constants::LIBUSB_SET_ISOCH_DELAY;
-use libusb1_sys::constants::LIBUSB_ERROR_IO;
-use libusb1_sys::constants::LIBUSB_ERROR_INVALID_PARAM;
-use libusb1_sys::constants::LIBUSB_ERROR_ACCESS;
-use libusb1_sys::constants::LIBUSB_ERROR_NO_DEVICE;
-use libusb1_sys::constants::LIBUSB_ERROR_BUSY;
-use libusb1_sys::constants::LIBUSB_ERROR_TIMEOUT;
-use libusb1_sys::constants::LIBUSB_ERROR_NOT_FOUND;
-use libusb1_sys::constants::LIBUSB_ERROR_OVERFLOW;
-use libusb1_sys::constants::LIBUSB_ERROR_PIPE;
-use libusb1_sys::constants::LIBUSB_ERROR_INTERRUPTED;
-use libusb1_sys::constants::LIBUSB_ERROR_NO_MEM;
-use libusb1_sys::constants::LIBUSB_ERROR_NOT_SUPPORTED;
-use libusb1_sys::constants::LIBUSB_ERROR_OTHER;
-use libusb1_sys::libusb_control_transfer;
-use libusb1_sys::libusb_device_handle;
 use likely::likely;
 use likely::unlikely;
 use std::cmp::min;
@@ -50,7 +54,6 @@ use std::ptr::NonNull;
 use std::time::Duration;
 use std::mem::MaybeUninit;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use crate::additional_descriptors::DescriptorType;
 
 
 pub(crate) mod descriptors;

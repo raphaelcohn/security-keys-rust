@@ -126,7 +126,7 @@ impl Tag
 	#[inline(always)]
 	fn parse_multi_byte_tag_number(input: &mut Input, mut tag_number: u64) -> Result<u64, TagParseError>
 	{
-		use self::TagParseError::*;
+		use TagParseError::*;
 		
 		const LowerSevenBits: u8 = 0b0111_1111;
 		const TopBit: u8 = 0b1000_0000;

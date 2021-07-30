@@ -5,6 +5,7 @@
 use crate::u5;
 use crate::VecExt;
 use super::version::Version;
+use self::end_point::EndPointParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptor;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParser;
@@ -27,12 +28,12 @@ use super::end_point::EndPointNumber;
 use super::end_point::InclusiveMaximumNumberOfEndPoints;
 use super::errors::UsbError;
 use super::string::StringFinder;
-use super::string::StringOrIndex;
-use indexmap::map::IndexMap;
-use libusb1_sys::{libusb_interface_descriptor, libusb_endpoint_descriptor};
-use libusb1_sys::libusb_config_descriptor;
+use libusb1_sys::{libusb_config_descriptor, libusb_release_interface};
+use libusb1_sys::libusb_endpoint_descriptor;
 use libusb1_sys::libusb_interface;
+use libusb1_sys::libusb_interface_descriptor;
 use libusb1_sys::constants::LIBUSB_DT_INTERFACE;
+use indexmap::map::IndexMap;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
@@ -48,7 +49,8 @@ use std::num::NonZeroU8;
 use std::slice::from_raw_parts;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u8;
-use crate::end_point::EndPointParseError;
+use crate::device::DeadOrAlive;
+use crate::string::LocalizedStrings;
 
 
 /// CCID (Chip Card Interface Device).

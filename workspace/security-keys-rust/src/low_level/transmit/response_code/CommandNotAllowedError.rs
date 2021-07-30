@@ -59,7 +59,7 @@ impl CommandNotAllowedError
 	#[inline(always)]
 	fn categorize_response_code(sw2: u8) -> Self
 	{
-		use self::CommandNotAllowedError::*;
+		use CommandNotAllowedError::*;
 		
 		match sw2
 		{

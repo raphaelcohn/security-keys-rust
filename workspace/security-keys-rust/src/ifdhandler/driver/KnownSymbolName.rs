@@ -32,7 +32,7 @@ impl KnownSymbolName
 	#[inline(always)]
 	fn c_string_bytes(self) -> &'static [u8]
 	{
-		use self::KnownSymbolName::*;
+		use KnownSymbolName::*;
 		
 		match self
 		{

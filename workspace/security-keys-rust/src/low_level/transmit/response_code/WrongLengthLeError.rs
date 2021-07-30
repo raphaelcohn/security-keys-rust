@@ -19,7 +19,7 @@ impl WrongLengthLeError
 	#[inline(always)]
 	fn categorize_response_code(sw2: u8) -> Self
 	{
-		use self::WrongLengthLeError::*;
+		use WrongLengthLeError::*;
 		
 		match sw2
 		{

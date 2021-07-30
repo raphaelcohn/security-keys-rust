@@ -21,6 +21,8 @@ use super::interface::InterfaceNumber;
 use super::interface::InterfaceParseError;
 use super::interface::MaximumNumberOfInterfaces;
 use super::interface::smart_card::SmartCardInterfaceAdditionalDescriptor;
+use super::string::LocalizedStrings;
+use super::string::StringFinder;
 use super::version::Version;
 use indexmap::map::IndexMap;
 use libusb1_sys::constants::LIBUSB_DT_CONFIG;
@@ -67,7 +69,7 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::non_zero::new_non_zero_u16;
 use swiss_army_knife::non_zero::new_non_zero_u8;
-use crate::string::{StringOrIndex, StringFinder};
+use crate::device::DeadOrAlive;
 
 
 include!("Configuration.rs");

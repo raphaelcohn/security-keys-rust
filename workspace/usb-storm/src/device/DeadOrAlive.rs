@@ -2,11 +2,10 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Returns `None` if the device is not configured.
-#[inline(always)]
-pub(crate) fn get_active_config_descriptor(libusb_device: NonNull<libusb_device>) -> Result<DeadOrAlive<Option<ConfigurationDescriptor>>, GetConfigurationDescriptorBackendError>
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub(crate) enum DeadOrAlive<T>
 {
-	let mut config_descriptor = MaybeUninit::uninit();
-	let result = unsafe { libusb_get_active_config_descriptor(libusb_device.as_ptr(), config_descriptor.as_mut_ptr()) };
-	GetConfigurationDescriptorBackendError::parse(result, config_descriptor)
+	Dead,
+
+	Alive(T),
 }

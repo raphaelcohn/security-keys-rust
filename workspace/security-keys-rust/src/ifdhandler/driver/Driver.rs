@@ -55,7 +55,7 @@ impl Driver
 			return Ok(())
 		}
 		
-		use self::GenericError::*;
+		use GenericError::*;
 		
 		let error = match response_code
 		{
@@ -74,7 +74,7 @@ impl Driver
 	#[inline(always)]
 	pub(in crate::ifdhandler) fn presence(&self, logical_unit_number: LogicalUnitNumber) -> Result<bool, GenericError<PresenceUnexpectedError>>
 	{
-		use self::GenericError::*;
+		use GenericError::*;
 		
 		match self.functions.IFDHICCPresence(logical_unit_number.into_DWORD())
 		{
@@ -141,7 +141,7 @@ impl Driver
 	#[inline(always)]
 	fn library_file_path(info_plist: &Dictionary, contents_folder_path: PathBuf) -> Result<PathBuf, LoadDriverError>
 	{
-		use self::LoadDriverError::*;
+		use LoadDriverError::*;
 		
 		let library_file_path =
 		{

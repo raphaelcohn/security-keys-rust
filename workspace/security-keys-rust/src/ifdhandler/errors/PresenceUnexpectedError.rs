@@ -53,7 +53,7 @@ impl PresenceUnexpectedError
 	#[inline(always)]
 	pub(in crate::ifdhandler) fn parse(error: RESPONSECODE) -> Self
 	{
-		use self::PresenceUnexpectedError::*;
+		use PresenceUnexpectedError::*;
 		
 		match error
 		{

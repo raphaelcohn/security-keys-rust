@@ -36,7 +36,7 @@ impl Speed
 	#[inline(alwayes)]
 	pub fn is_gen_x_speed(self) -> bool
 	{
-		use self::Speed::*;
+		use Speed::*;
 		
 		self == Super || self == SuperPlus
 	}

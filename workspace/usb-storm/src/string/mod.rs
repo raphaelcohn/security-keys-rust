@@ -10,6 +10,7 @@ use super::control_transfers::descriptors::get_string_device_descriptor_language
 use super::control_transfers::descriptors::get_string_device_descriptor_languages;
 use super::control_transfers::descriptors::GetStandardUsbDescriptorError;
 use super::control_transfers::descriptors::StandardUsbDescriptorError;
+use super::device::DeviceHandle;
 use libusb1_sys::libusb_device_handle;
 use likely::unlikely;
 use std::collections::HashMap;
@@ -28,6 +29,7 @@ use std::ops::Deref;
 use std::slice::from_raw_parts;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u8;
+use crate::device::DeadOrAlive;
 
 
 /// USB language.
@@ -37,5 +39,4 @@ pub mod language;
 include!("GetLanguageError.rs");
 include!("GetLanguagesError.rs");
 include!("StringFinder.rs");
-include!("StringOrIndex.rs");
 include!("GetLocalizedStringError.rs");

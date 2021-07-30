@@ -12,11 +12,6 @@ pub enum GetConfigurationDescriptorBackendError
 	/// `LIBUSB_ERROR_NO_MEM`.
 	OutOfMemory,
 	
-	/// An error type defined after this code was written.
-	///
-	/// A value between -13 and -98 inclusive.
-	NewlyDefined(i32),
-	
 	/// An unanticipated (undocumented) error code.
 	Unanticipated(i32),
 }
@@ -37,51 +32,53 @@ impl error::Error for GetConfigurationDescriptorBackendError
 impl GetConfigurationDescriptorBackendError
 {
 	#[inline(always)]
-	fn parse(result: i32, config_descriptor: MaybeUninit<*const libusb_config_descriptor>) -> Result<Option<ConfigurationDescriptor>, GetConfigurationDescriptorBackendError>
+	fn parse(result: i32, config_descriptor: MaybeUninit<*const libusb_config_descriptor>) -> Result<DeadOrAlive<Option<ConfigurationDescriptor>>, GetConfigurationDescriptorBackendError>
 	{
+		use DeadOrAlive::*;
+		
 		debug_assert!(result < 0);
 		
 		if likely!(result == 0)
 		{
 			let pointer = unsafe { config_descriptor.assume_init() };
-			Ok(Some(ConfigurationDescriptor(new_non_null(pointer as *mut _))))
+			Ok(Alive(Some(ConfigurationDescriptor(new_non_null(pointer as *mut _)))))
 		}
 		else if likely!(result < 0)
 		{
-			use self::GetConfigurationDescriptorBackendError::*;
+			use GetConfigurationDescriptorBackendError::*;
 			
 			match result
 			{
-				LIBUSB_ERROR_IO => Unanticipated(LIBUSB_ERROR_IO),
+				LIBUSB_ERROR_IO => Err(Unanticipated(LIBUSB_ERROR_IO)),
 				
-				LIBUSB_ERROR_INVALID_PARAM => Unanticipated(LIBUSB_ERROR_INVALID_PARAM),
+				LIBUSB_ERROR_INVALID_PARAM => Err(Unanticipated(LIBUSB_ERROR_INVALID_PARAM)),
 				
 				LIBUSB_ERROR_ACCESS => panic!("Access denied"),
 				
-				LIBUSB_ERROR_NO_DEVICE => Unanticipated(LIBUSB_ERROR_NO_DEVICE),
+				LIBUSB_ERROR_NO_DEVICE => Ok(Dead),
 				
-				LIBUSB_ERROR_NOT_FOUND => return Ok(None),
+				LIBUSB_ERROR_NOT_FOUND => Ok(Alive(None)),
 				
 				LIBUSB_ERROR_BUSY => unreachable!("Should not have been called from an event handling context"),
 				
-				LIBUSB_ERROR_TIMEOUT => Unanticipated(LIBUSB_ERROR_TIMEOUT),
+				LIBUSB_ERROR_TIMEOUT => Err(Unanticipated(LIBUSB_ERROR_TIMEOUT)),
 				
-				LIBUSB_ERROR_OVERFLOW => Unanticipated(LIBUSB_ERROR_OVERFLOW),
+				LIBUSB_ERROR_OVERFLOW => Err(Unanticipated(LIBUSB_ERROR_OVERFLOW)),
 				
 				// Documented as an unsupported control request, which seems to be a mistake.
-				LIBUSB_ERROR_PIPE => Unanticipated(LIBUSB_ERROR_PIPE),
+				LIBUSB_ERROR_PIPE => Err(Unanticipated(LIBUSB_ERROR_PIPE)),
 				
 				// Only ever occurs in `handle_events()`
 				LIBUSB_ERROR_INTERRUPTED => unreachable!("Does not invoke handle_events()"),
 				
 				// could not allocate memory.
-				LIBUSB_ERROR_NO_MEM => OutOfMemory,
+				LIBUSB_ERROR_NO_MEM => Err(OutOfMemory),
 				
 				LIBUSB_ERROR_NOT_SUPPORTED => unreachable!("Operating System driver does not support get configuration"),
 				
-				-13 ..= -98 => NewlyDefined(result),
+				-13 ..= -98 => panic!("Newly defined error code {}", result),
 				
-				LIBUSB_ERROR_OTHER => Unanticipated(LIBUSB_ERROR_OTHER),
+				LIBUSB_ERROR_OTHER => Err(Unanticipated(LIBUSB_ERROR_OTHER)),
 				
 				_ => unreachable!("LIBUSB_ERROR out of range: {}", result),
 			}

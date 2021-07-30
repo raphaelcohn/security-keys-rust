@@ -105,7 +105,7 @@ impl error::Error for AlternateSettingParseError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::AlternateSettingParseError::*;
+		use AlternateSettingParseError::*;
 		
 		match self
 		{

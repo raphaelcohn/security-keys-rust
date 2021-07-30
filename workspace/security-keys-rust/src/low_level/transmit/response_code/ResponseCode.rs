@@ -72,8 +72,8 @@ impl ResponseCode
 	#[inline(always)]
 	fn level(self) -> ResponseLevel
 	{
-		use self::ResponseCode::*;
-		use self::ResponseLevel::*;
+		use ResponseCode::*;
+		use ResponseLevel::*;
 		
 		match self
 		{
@@ -155,9 +155,9 @@ impl ResponseCode
 	#[inline(always)]
 	pub(super) fn categorize_status_word((sw1, sw2): (u8, u8)) -> Self
 	{
-		use self::ApplicationError::*;
-		use self::ApplicationInformation::*;
-		use self::ApplicationWarning::*;
+		use ApplicationError::*;
+		use ApplicationInformation::*;
+		use ApplicationWarning::*;
 		
 		match sw1
 		{

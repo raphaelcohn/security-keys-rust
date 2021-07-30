@@ -53,7 +53,7 @@ impl Version
 	#[inline(always)]
 	pub(super) fn parse(binary_coded_decimal: u16) -> Result<Self, VersionParseError>
 	{
-		use self::VersionParseError::*;
+		use VersionParseError::*;
 		
 		const Base10: u8 = 10;
 		

@@ -239,7 +239,7 @@ impl Language
 		const PRIMARY_LANGUAGE_MASK: u16 = 0x03FF;
 		const SUB_LANGUAGE_MASK: u16 = 0xFC00;
 		
-		use self::Language::*;
+		use Language::*;
 		
 		let sub_language_code = language_identifier & SUB_LANGUAGE_MASK;
 		match language_identifier & PRIMARY_LANGUAGE_MASK

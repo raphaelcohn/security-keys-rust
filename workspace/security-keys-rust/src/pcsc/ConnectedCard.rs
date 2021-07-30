@@ -78,11 +78,11 @@ impl ConnectedCardOrTransaction for ConnectedCard
 			}
 			else
 			{
-				use self::CardStatusError::*;
-				use self::ReconnectionUnavailableOrCommunicationError::*;
-				use self::UnavailableError::*;
-				use self::UnavailableOrCommunicationError::*;
-				use self::CommunicationError::*;
+				use CardStatusError::*;
+				use ReconnectionUnavailableOrCommunicationError::*;
+				use UnavailableError::*;
+				use UnavailableOrCommunicationError::*;
+				use CommunicationError::*;
 				
 				let error = match result
 				{
@@ -141,9 +141,9 @@ impl ConnectedCard
 			return Ok(())
 		}
 		
-		use self::CommunicationError::*;
-		use self::UnavailableError::*;
-		use self::UnavailableOrCommunicationError::*;
+		use CommunicationError::*;
+		use UnavailableError::*;
+		use UnavailableOrCommunicationError::*;
 		
 		let error = match result
 		{
@@ -225,12 +225,12 @@ impl ConnectedCard
 				return Ok(self.begun_transaction())
 			}
 			
-			use self::CardStatusError::*;
-			use self::ReconnectionUnavailableOrCommunicationError::*;
-			use self::TransactionError::*;
-			use self::UnavailableError::*;
-			use self::UnavailableOrCommunicationError::*;
-			use self::CommunicationError::*;
+			use CardStatusError::*;
+			use ReconnectionUnavailableOrCommunicationError::*;
+			use TransactionError::*;
+			use UnavailableError::*;
+			use UnavailableOrCommunicationError::*;
+			use CommunicationError::*;
 			
 			let error = match result
 			{
@@ -311,10 +311,10 @@ impl ConnectedCard
 				return Ok(())
 			}
 			
-			use self::ConnectCardError::*;
-			use self::CommunicationError::*;
-			use self::UnavailableError::*;
-			use self::UnavailableOrCommunicationError::*;
+			use ConnectCardError::*;
+			use CommunicationError::*;
+			use UnavailableError::*;
+			use UnavailableOrCommunicationError::*;
 			
 			let error = match result
 			{

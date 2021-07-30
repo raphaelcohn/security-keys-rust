@@ -12,6 +12,10 @@ pub enum ControlTransferError
 	/// `LIBUSB_ERROR_NO_DEVICE`.
 	DeviceDisconnected,
 	
+	/// eg occurs with an operation like `HID_GET_REPORT`.
+	/// Does not occur with `GET_DESCRIPTOR`.
+	RequestedResourceNotFound,
+	
 	/// `LIBUSB_ERROR_TIMEOUT`.
 	TimedOut(Duration),
 	
@@ -21,17 +25,18 @@ pub enum ControlTransferError
 	/// `LIBUSB_ERROR_PIPE`.
 	///
 	/// Internally, this is an USB `STALL`.
-	ControlRequestNotSupported,
+	///
+	/// The stall will have been cleared.
+	ControlRequestNotSupported
+	{
+		/// Result of clearing the halt.
+		clear_halt_result_code: i32,
+	},
 	
 	/// Failed to allocate heap memory.
 	///
 	/// `LIBUSB_ERROR_NO_MEM`.
 	OutOfMemory,
-	
-	/// An error type defined after this code was written.
-	///
-	/// A value between -13 and -98 inclusive.
-	NewlyDefined(i32),
 	
 	/// `LIBUSB_ERROR_OTHER`.
 	Other,
@@ -53,11 +58,11 @@ impl error::Error for ControlTransferError
 impl ControlTransferError
 {
 	#[inline(always)]
-	pub(crate) fn parse(result: i32) -> Self
+	pub(crate) fn parse(result: i32, device_handle: NonNull<libusb_device_handle>) -> Self
 	{
 		debug_assert!(result < 0);
 		
-		use self::ControlTransferError::*;
+		use ControlTransferError::*;
 		
 		match result
 		{
@@ -71,7 +76,7 @@ impl ControlTransferError
 			// Documented.
 			LIBUSB_ERROR_NO_DEVICE => DeviceDisconnected,
 			
-			LIBUSB_ERROR_NOT_FOUND => unreachable!("Probably bug in libusb"),
+			LIBUSB_ERROR_NOT_FOUND => RequestedResourceNotFound,
 			
 			// Documented.
 			LIBUSB_ERROR_BUSY => unreachable!("Should not have been called from an event handling context"),
@@ -81,8 +86,12 @@ impl ControlTransferError
 			
 			LIBUSB_ERROR_OVERFLOW => BufferOverflow,
 			
-			// Documented as an unsupported control request, which seems to be a mistake.
-			LIBUSB_ERROR_PIPE => ControlRequestNotSupported,
+			// Documented as an unsupported control request.
+			LIBUSB_ERROR_PIPE =>
+			{
+				let clear_halt_result_code = unsafe { libusb_clear_halt(device_handle.as_ptr(), 0) };
+				ControlRequestNotSupported { clear_halt_result_code }
+			},
 			
 			// Only ever occurs in `handle_events()`
 			LIBUSB_ERROR_INTERRUPTED => unreachable!("Does not invoke handle_events()"),
@@ -92,7 +101,7 @@ impl ControlTransferError
 			
 			LIBUSB_ERROR_NOT_SUPPORTED => unreachable!("Operating System driver does not support a control transfer"),
 			
-			-13 ..= -98 => NewlyDefined(result),
+			-13 ..= -98 => panic!("Newly defined error code {}", result),
 			
 			// Failed to arm timer (eg using `timerfd_settime()`).
 			// `darwin_to_libusb()` error that library didn't know what to do with.

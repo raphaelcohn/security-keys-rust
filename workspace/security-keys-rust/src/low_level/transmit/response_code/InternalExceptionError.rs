@@ -25,7 +25,7 @@ impl InternalExceptionError
 	#[inline(always)]
 	fn categorize_response_code(sw2: u8) -> Self
 	{
-		use self::InternalExceptionError::*;
+		use InternalExceptionError::*;
 		
 		match sw2
 		{

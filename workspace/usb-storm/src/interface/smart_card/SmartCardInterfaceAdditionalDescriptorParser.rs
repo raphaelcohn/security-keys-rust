@@ -26,7 +26,7 @@ impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 	#[inline(always)]
 	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
 	{
-		use self::SmartCardInterfaceAdditionalDescriptorParseError::*;
+		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
 		let has_vendor_specific_descriptor_type = match descriptor_type
 		{

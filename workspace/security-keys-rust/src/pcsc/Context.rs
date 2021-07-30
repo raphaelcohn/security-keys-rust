@@ -42,7 +42,7 @@ impl Context
 			return Ok(Self(Rc::new(ContextInner(handle))))
 		}
 		
-		use self::CommunicationError::*;
+		use CommunicationError::*;
 		let error = match result
 		{
 			SCARD_E_NO_MEMORY => OutOfMemory,
@@ -128,7 +128,7 @@ impl Context
 			return Ok(CardReaderNames::from_valid_buffer(reader_names, reader_names_length))
 		}
 		
-		use self::CommunicationError::*;
+		use CommunicationError::*;
 		
 		let error = match result
 		{
@@ -223,10 +223,10 @@ impl Context
 				break
 			}
 			
-			use self::ConnectCardError::*;
-			use self::CommunicationError::*;
-			use self::UnavailableError::*;
-			use self::UnavailableOrCommunicationError::*;
+			use ConnectCardError::*;
+			use CommunicationError::*;
+			use UnavailableError::*;
+			use UnavailableOrCommunicationError::*;
 			
 			let error = match result
 			{

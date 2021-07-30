@@ -118,7 +118,7 @@ impl<'card_reader_names, UserData> CardReaderStates<'card_reader_names, UserData
 	{
 		let reader_state = self.0.get_unchecked_mut_safe(index);
 		
-		use self::ChangeCardReaderStateNotification::*;
+		use ChangeCardReaderStateNotification::*;
 		
 		reader_state.dwCurrentState = match change_reader_state_notification
 		{
@@ -142,10 +142,10 @@ impl<'card_reader_names, UserData> CardReaderStates<'card_reader_names, UserData
 			return Ok(())
 		}
 		
-		use self::CardReaderStatusChangeError::*;
-		use self::UnavailableOrCommunicationError::*;
-		use self::UnavailableError::*;
-		use self::CommunicationError::*;
+		use CardReaderStatusChangeError::*;
+		use UnavailableOrCommunicationError::*;
+		use UnavailableError::*;
+		use CommunicationError::*;
 		let error = match result
 		{
 			SCARD_E_UNKNOWN_READER => UnknownCardReader,
@@ -194,7 +194,7 @@ impl<'card_reader_names, UserData> CardReaderStates<'card_reader_names, UserData
 		
 		let event_state = event_state as DWORD;
 		
-		use self::CardReaderState::*;
+		use CardReaderState::*;
 		
 		// Will be 0 (SCARD_STATE_UNAWARE) if dwCurrentState was SCARD_STATE_IGNORE, as dwEventState is reset to 0 on entry.
 		if event_state == 0
@@ -230,7 +230,7 @@ impl<'card_reader_names, UserData> CardReaderStates<'card_reader_names, UserData
 		let is_present = has_bit_set(event_state, SCARD_STATE_PRESENT);
 		if is_present
 		{
-			use self::PresentExclusivity::*;
+			use PresentExclusivity::*;
 			let is_exclusive = has_bit_set(event_state, SCARD_STATE_EXCLUSIVE);
 			let is_in_use = has_bit_set(event_state, SCARD_STATE_INUSE);
 			let exclusivity = match (is_exclusive, is_in_use)

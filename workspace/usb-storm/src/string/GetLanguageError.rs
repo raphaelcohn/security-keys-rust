@@ -19,8 +19,6 @@ pub enum GetLocalizedStringError
 	
 	ControlRequestOutOfMemory,
 	
-	ControlRequestNewlyDefined(i32),
-	
 	ControlRequestOther,
 	
 	ControlRequestBufferOverflow,
@@ -48,7 +46,7 @@ impl error::Error for GetLocalizedStringError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::GetLocalizedStringError::*;
+		use GetLocalizedStringError::*;
 		
 		match self
 		{

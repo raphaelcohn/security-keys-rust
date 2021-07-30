@@ -17,7 +17,7 @@ impl CommandChaining
 	#[inline(always)]
 	pub(super) fn send_command(self, card_or_transaction: &impl CardOrTransactionExt, command: ApplicationProtocolDataUnitCommand, response_length_encoding: ResponseLengthEncoding, send_buffer: &mut SendBuffer, receive_buffers: &mut ReceiveBuffers, response: &mut Response) -> Result<bool, CardError>
 	{
-		use self::CommandChaining::*;
+		use CommandChaining::*;
 		
 		response.clear();
 		

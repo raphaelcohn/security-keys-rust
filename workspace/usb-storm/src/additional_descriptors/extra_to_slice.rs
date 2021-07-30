@@ -5,7 +5,7 @@
 #[inline(always)]
 pub(crate) fn extra_to_slice<'a>(extra: *const u8, extra_length: i32) -> Result<&'a [u8], AdditionalDescriptorParseError>
 {
-	use self::AdditionalDescriptorParseError::*;
+	use AdditionalDescriptorParseError::*;
 	
 	if unlikely!(extra.is_null())
 	{

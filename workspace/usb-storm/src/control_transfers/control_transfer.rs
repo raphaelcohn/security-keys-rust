@@ -26,6 +26,6 @@ pub(crate) fn control_transfer<const direction: Direction, const request_type: C
 	}
 	else
 	{
-		Err(ControlTransferError::parse(result))
+		Err(ControlTransferError::parse(result, device_handle))
 	}
 }

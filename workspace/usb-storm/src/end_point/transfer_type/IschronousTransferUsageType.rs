@@ -25,7 +25,7 @@ impl TryFrom<u8> for IschronousTransferUsageType
 	#[inline(always)]
 	fn try_from(bmAttributes: u32) -> Result<Self, Self::Error>
 	{
-		use self::IschronousTransferUsageType::*;
+		use IschronousTransferUsageType::*;
 		
 		match (bmAttributes & LIBUSB_ISO_USAGE_TYPE_MASK) >> 4
 		{

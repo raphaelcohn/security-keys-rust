@@ -35,7 +35,7 @@ impl Protocol
 	#[inline(always)]
 	fn get_protocol_pci(self) -> &'static SCARD_IO_REQUEST
 	{
-		use self::Protocol::*;
+		use Protocol::*;
 		
 		match self
 		{

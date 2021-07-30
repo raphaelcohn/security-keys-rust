@@ -26,7 +26,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 	#[inline(always)]
 	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
 	{
-		use self::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
+		use HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
 		
 		match descriptor_type
 		{
@@ -98,7 +98,7 @@ impl HumanInterfaceDeviceInterfaceAdditionalDescriptorParser
 	#[inline(always)]
 	fn parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report: NonZeroU8, optional_descriptors_bytes: &[u8]) -> Result<Vec<HumanInterfaceDeviceOptionalDescriptor>, HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError>
 	{
-		use self::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
+		use HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
 		
 		let number_of_optional_descriptors = (number_of_class_descriptors_including_mandatory_report.get() - 1) as usize;
 		
@@ -123,7 +123,7 @@ impl HumanInterfaceDeviceInterfaceAdditionalDescriptorParser
 		let mut byte_index = 0;
 		for _ in 0 ..number_of_optional_descriptors
 		{
-			use self::HumanInterfaceDeviceOptionalDescriptorType::*;
+			use HumanInterfaceDeviceOptionalDescriptorType::*;
 			optional_descriptors.push
 			(
 				HumanInterfaceDeviceOptionalDescriptor

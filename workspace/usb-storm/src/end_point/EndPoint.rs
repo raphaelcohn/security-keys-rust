@@ -66,7 +66,7 @@ impl EndPoint
 	#[inline(always)]
 	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor) -> Result<(EndPointNumber, Self), EndPointParseError>
 	{
-		use self::EndPointParseError::*;
+		use EndPointParseError::*;
 		
 		const LIBUSB_DT_ENDPOINT_SIZE: usize = 7;
 		let bLength = alternate_setting.bLength;

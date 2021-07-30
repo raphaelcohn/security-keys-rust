@@ -28,7 +28,7 @@ impl error::Error for GetApplicationOpenPgpDataError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::GetApplicationOpenPgpDataError::*;
+		use GetApplicationOpenPgpDataError::*;
 		
 		match self
 		{

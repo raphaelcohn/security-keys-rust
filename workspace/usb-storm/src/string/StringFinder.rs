@@ -2,55 +2,47 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(crate) struct StringFinder
+pub(crate) struct StringFinder<'a>
 {
-	device_handle: NonNull<libusb_device_handle>,
+	device_handle: &'a DeviceHandle,
 
 	languages: Vec<(LanguageIdentifier, Language)>,
 }
 
-impl StringFinder
+impl<'a> StringFinder<'a>
 {
 	#[inline(always)]
-	fn new(device: X) -> Self
+	pub(crate) fn new(device_handle: &'a DeviceHandle) -> Result<DeadOrAlive<Self>, GetLanguagesError>
 	{
-		use self::StringFinder::*;
+		use DeadOrAlive::*;
 		
-		match device.open()
-		{
-			Err(_) => FailedToOpenDeviceHandle,
-			
-			Ok(device_handle) =>
-			{
-				let mut buffer = MaybeUninit::uninit_array();
-				// Experimentation shows that `GetDescriptorError::ControlTransfer(ControlTransferError::ControlRequestNotSupported)` can occur.
-				let result = match get_string_device_descriptor_languages(device_handle, &mut buffer)
+		Ok
+		(
+			Alive
+			(
+				Self
 				{
-					Ok(bytes) => (),
-					
-					Err(GetDescriptorError::ControlTransfer)
-				}
-				
-				Opened
-				{
-					// Experimentation shows `read_languages()` can error with `Pipe`.
-					languages: device_handle.read_languages(Self::TimeOut).unwrap_or(Vec::new()),
-					
 					device_handle,
+					
+					languages: match Self::get_languages(device_handle)?
+					{
+						Alive(languages) => languages,
+						
+						Dead => return Ok(Dead)
+					}
 				}
-			}
-		}
+			)
+		)
 	}
 	
 	#[inline(always)]
-	pub(crate) fn find_string(&self, string_descriptor_index: u8) -> Result<LocalizedStrings, GetLocalizedStringError>
+	pub(crate) fn find_string(&self, string_descriptor_index: u8) -> Result<DeadOrAlive<Option<LocalizedStrings>>, GetLocalizedStringError>
 	{
-		use self::StringFinder::*;
-		use self::StringOrIndex::*;
+		use DeadOrAlive::*;
 		
 		if unlikely!(index == 0)
 		{
-			Ok(None)
+			Ok(Alive(None))
 		}
 		else
 		{
@@ -59,39 +51,45 @@ impl StringFinder
 			{
 				let string = self.get_localized_string(new_non_zero_u8(string_descriptor_index), language);
 			}
-			Ok(localized_strings)
+			Ok(Alive(Some(LocalizedStrings(localized_strings))))
 		}
 	}
 	
 	#[inline(always)]
-	fn get_localized_string(&self, string_descriptor_index: NonZeroU8, (language_identifier, language): (LanguageIdentifier, Language)) -> Result<Option<String>, GetLocalizedStringError>
+	pub(crate) fn into_languages(self) -> Result<Vec<Language>, TryReserveError>
+	{
+		let mut languages = Vec::new_with_capacity(self.languages.len())?;
+		for (_, language) in self.languages
+		{
+			languages.push(language)
+		}
+		Ok(languages)
+	}
+	
+	#[inline(always)]
+	fn get_localized_string(&self, string_descriptor_index: NonZeroU8, (language_identifier, language): (LanguageIdentifier, Language)) -> Result<DeadOrAlive<Option<String>>, GetLocalizedStringError>
 	{
 		use ControlTransferError::*;
+		use DeadOrAlive::*;
 		use GetLocalizedStringError::*;
 		use GetStandardUsbDescriptorError::ControlTransfer;
 		
-		#[inline(always)]
-		const fn get_string_device_dead() -> Option<String>
-		{
-			None
-		}
-		
 		let mut buffer = MaybeUninit::uninit_array();
-		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle, &mut buffer, string_descriptor_index, language_identifier)
+		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle.as_ptr(), &mut buffer, string_descriptor_index, language_identifier)
 		{
 			Ok(remaining_bytes) => remaining_bytes,
 			
-			Err(ControlTransfer(TransferInputOutputErrorOrTransferCancelled)) => return Ok(get_string_device_dead()),
+			Err(ControlTransfer(TransferInputOutputErrorOrTransferCancelled)) => return Ok(Dead),
 			
-			Err(ControlTransfer(DeviceDisconnected)) => return Ok(get_string_device_dead()),
+			Err(ControlTransfer(DeviceDisconnected)) => return Ok(Dead),
 			
-			Err(ControlTransfer(TimedOut(..))) => return Ok(get_string_device_dead()),
+			Err(ControlTransfer(RequestedResourceNotFound)) => panic!("Should not occur for GET_DESCRIPTOR"),
 			
-			Err(ControlTransfer(ControlRequestNotSupported)) => return Err(StringIndexNonZeroButDeviceDoesNotSupportGettingString { string_descriptor_index, language }),
+			Err(ControlTransfer(TimedOut(..))) => return Ok(Dead),
+			
+			Err(ControlTransfer(ControlRequestNotSupported { .. })) => return Err(StringIndexNonZeroButDeviceDoesNotSupportGettingString { string_descriptor_index, language }),
 			
 			Err(ControlTransfer(OutOfMemory)) => return Err(ControlRequestOutOfMemory),
-			
-			Err(ControlTransfer(NewlyDefined(error_code))) => return Err(ControlRequestNewlyDefined(error_code)),
 			
 			Err(ControlTransfer(Other)) => return Err(ControlRequestOther),
 			
@@ -121,7 +119,7 @@ impl StringFinder
 			Self::encode_utf8_raw(character, &mut utf_8_bytes);
 		}
 		
-		Ok(Some(unsafe { String::from_utf8_unchecked(utf_8_bytes) }))
+		Ok(Alive(Some(unsafe { String::from_utf8_unchecked(utf_8_bytes) })))
 	}
 	
 	#[inline(always)]
@@ -158,34 +156,29 @@ impl StringFinder
 	}
 	
 	#[inline(always)]
-	fn get_languages(device_handle: NonNull<libusb_device_handle>) -> Result<Vec<(LanguageIdentifier, Language)>, GetLanguagesError>
+	fn get_languages(device_handle: &DeviceHandle) -> Result<DeadOrAlive<Vec<(LanguageIdentifier, Language)>>, GetLanguagesError>
 	{
 		use ControlTransferError::*;
+		use DeadOrAlive::*;
 		use GetLanguagesError::*;
 		use GetStandardUsbDescriptorError::ControlTransfer;
 		
-		#[inline(always)]
-		const fn get_languages_device_dead() -> Vec<(LanguageIdentifier, Language)>
-		{
-			Vec::new()
-		}
-		
 		let mut buffer = MaybeUninit::uninit_array();
-		let remaining_bytes = match get_string_device_descriptor_languages(device_handle, &mut buffer)
+		let remaining_bytes = match get_string_device_descriptor_languages(device_handle.as_ptr(), &mut buffer)
 		{
 			Ok(remaining_bytes) => remaining_bytes,
 			
-			Err(ControlTransfer(TransferInputOutputErrorOrTransferCancelled)) => return Ok(get_languages_device_dead()),
+			Err(ControlTransfer(TransferInputOutputErrorOrTransferCancelled)) => return Ok(Dead),
 			
-			Err(ControlTransfer(DeviceDisconnected)) => return Ok(get_languages_device_dead()),
+			Err(ControlTransfer(DeviceDisconnected)) => return Ok(Dead),
 			
-			Err(ControlTransfer(TimedOut(..))) => return Ok(get_languages_device_dead()),
+			Err(ControlTransfer(RequestedResourceNotFound)) => panic!("Should not occur for GET_DESCRIPTOR"),
 			
-			Err(ControlTransfer(ControlRequestNotSupported)) => return Ok(Vec::new()),
+			Err(ControlTransfer(TimedOut(..))) => return Ok(Dead),
+			
+			Err(ControlTransfer(ControlRequestNotSupported { .. })) => return Ok(Alive(Vec::new())),
 			
 			Err(ControlTransfer(OutOfMemory)) => return Err(ControlRequestOutOfMemory),
-			
-			Err(ControlTransfer(NewlyDefined(error_code))) => return Err(ControlRequestNewlyDefined(error_code)),
 			
 			Err(ControlTransfer(Other)) => return Err(ControlRequestOther),
 			
@@ -212,6 +205,6 @@ impl StringFinder
 			languages.push((language_identifier, language))
 		}
 		
-		Ok(languages)
+		Ok(Alive(languages))
 	}
 }

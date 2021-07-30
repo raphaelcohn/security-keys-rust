@@ -27,8 +27,8 @@ impl ApplicationIdentifier
 	
 	fn parse(values: &Values) -> Result<Self, ApplicationIdentifierParseError>
 	{
-		use self::ApplicationIdentifierParseError::*;
-		use self::Values::*;
+		use ApplicationIdentifierParseError::*;
+		use Values::*;
 		
 		let data = match values
 		{

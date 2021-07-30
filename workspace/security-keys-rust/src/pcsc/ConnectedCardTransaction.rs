@@ -94,12 +94,12 @@ impl ConnectedCardTransaction
 				return Ok(Some(attribute_user(attribute_value)))
 			}
 			
-			use self::CardStatusError::*;
-			use self::CardTransmissionError::*;
-			use self::ReconnectionUnavailableOrCommunicationError::*;
-			use self::UnavailableOrCommunicationError::*;
-			use self::UnavailableError::*;
-			use self::CommunicationError::*;
+			use CardStatusError::*;
+			use CardTransmissionError::*;
+			use ReconnectionUnavailableOrCommunicationError::*;
+			use UnavailableOrCommunicationError::*;
+			use UnavailableError::*;
+			use CommunicationError::*;
 			let error = match result
 			{
 				SCARD_W_RESET_CARD if self.connected_card.is_shared =>
@@ -183,12 +183,12 @@ impl ConnectedCardTransaction
 				return Ok(true)
 			}
 			
-			use self::CardStatusError::*;
-			use self::CardTransmissionError::*;
-			use self::CommunicationError::*;
-			use self::ReconnectionUnavailableOrCommunicationError::*;
-			use self::UnavailableOrCommunicationError::*;
-			use self::UnavailableError::*;
+			use CardStatusError::*;
+			use CardTransmissionError::*;
+			use CommunicationError::*;
+			use ReconnectionUnavailableOrCommunicationError::*;
+			use UnavailableOrCommunicationError::*;
+			use UnavailableError::*;
 			let error = match result
 			{
 				// Not defined in pcsclite documentation.
@@ -292,13 +292,13 @@ impl ConnectedCardTransaction
 				return Ok(receive_buffer)
 			}
 			
-			use self::CardCommandError::*;
-			use self::CardStatusError::*;
-			use self::CardTransmissionError::*;
-			use self::ReconnectionUnavailableOrCommunicationError::*;
-			use self::UnavailableOrCommunicationError::*;
-			use self::UnavailableError::*;
-			use self::CommunicationError::*;
+			use CardCommandError::*;
+			use CardStatusError::*;
+			use CardTransmissionError::*;
+			use ReconnectionUnavailableOrCommunicationError::*;
+			use UnavailableOrCommunicationError::*;
+			use UnavailableError::*;
+			use CommunicationError::*;
 			let error = match result
 			{
 				SCARD_W_RESET_CARD if self.connected_card.is_shared =>
@@ -400,13 +400,13 @@ impl ConnectedCardTransaction
 				return Ok(receive_buffer)
 			}
 			
-			use self::CardCommandError::*;
-			use self::CardStatusError::*;
-			use self::CardTransmissionError::*;
-			use self::ReconnectionUnavailableOrCommunicationError::*;
-			use self::UnavailableOrCommunicationError::*;
-			use self::UnavailableError::*;
-			use self::CommunicationError::*;
+			use CardCommandError::*;
+			use CardStatusError::*;
+			use CardTransmissionError::*;
+			use ReconnectionUnavailableOrCommunicationError::*;
+			use UnavailableOrCommunicationError::*;
+			use UnavailableError::*;
+			use CommunicationError::*;
 			let error = match result
 			{
 				SCARD_W_RESET_CARD if self.connected_card.is_shared =>
@@ -497,12 +497,12 @@ impl ConnectedCardTransaction
 				return Ok(connected_card)
 			}
 			
-			use self::CardStatusError::*;
-			use self::CommunicationError::*;
-			use self::ReconnectionUnavailableOrCommunicationError::*;
-			use self::TransactionError::*;
-			use self::UnavailableOrCommunicationError::*;
-			use self::UnavailableError::*;
+			use CardStatusError::*;
+			use CommunicationError::*;
+			use ReconnectionUnavailableOrCommunicationError::*;
+			use TransactionError::*;
+			use UnavailableOrCommunicationError::*;
+			use UnavailableError::*;
 			let error = match result
 			{
 				SCARD_W_RESET_CARD if connected_card.is_shared => match remaining_reset_retry_attempts.card_was_reset::<TransactionError>(&connected_card)

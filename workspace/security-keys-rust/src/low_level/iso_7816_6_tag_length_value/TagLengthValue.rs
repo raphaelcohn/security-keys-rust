@@ -27,7 +27,7 @@ impl<'a> TagLengthValue<'a>
 			return Some(&self.values)
 		}
 		
-		use self::Values::*;
+		use Values::*;
 		
 		match self.values
 		{
@@ -103,7 +103,7 @@ impl<'a> TagLengthValue<'a>
 	#[inline(always)]
 	fn parse_length(input : &mut Input) -> Result<u16, TagLengthValueParseError>
 	{
-		use self::TagLengthValueParseError::*;
+		use TagLengthValueParseError::*;
 		
 		let length_first_byte = input.take_error(OutOfDataForLengthFirstByte)?;
 		

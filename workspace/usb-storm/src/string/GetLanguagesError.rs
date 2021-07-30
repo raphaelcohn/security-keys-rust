@@ -9,8 +9,6 @@ pub enum GetLanguagesError
 {
 	ControlRequestOutOfMemory,
 	
-	ControlRequestNewlyDefined(i32),
-	
 	ControlRequestOther,
 	
 	ControlRequestBufferOverflow,
@@ -36,7 +34,7 @@ impl error::Error for GetLanguagesError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::GetLanguagesError::*;
+		use GetLanguagesError::*;
 		
 		match self
 		{

@@ -90,7 +90,7 @@ impl error::Error for LoadDriverError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::LoadDriverError::*;
+		use LoadDriverError::*;
 		
 		match self
 		{

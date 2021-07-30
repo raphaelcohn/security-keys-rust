@@ -19,7 +19,7 @@ impl Drop for ContextInner
 		}
 		else
 		{
-			use self::CommunicationError::*;
+			use CommunicationError::*;
 			
 			let _error = match result
 			{

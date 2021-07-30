@@ -78,7 +78,7 @@ impl error::Error for UsbError
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use self::UsbError::*;
+		use UsbError::*;
 		
 		match self
 		{
