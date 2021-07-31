@@ -7,6 +7,9 @@
 pub enum DeviceParseError
 {
 	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForDevices(TryReserveError),
+	
+	#[allow(missing_docs)]
 	DeviceHandleOpen(DeviceHandleOpenError),
 	
 	#[allow(missing_docs)]
@@ -108,6 +111,8 @@ impl error::Error for DeviceParseError
 			ParseConfigurationNumberOfActiveConfigurationDescriptor(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForLanguages(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForDevices(cause) => Some(cause),
 			
 			_ => None,
 		}

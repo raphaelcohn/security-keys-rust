@@ -212,43 +212,6 @@ impl Device
 	// 	}
 	// }
 	
-	pub fn devices()
-	{
-		
-		
-		
-		
-		
-		
-		/*
-		Returns a list of USB devices currently attached to the system. This is your entry point into finding a USB device to operate.
-
-You are expected to unreference all the devices when you are done with them, and then free the list with libusb_free_device_list(). Note that libusb_free_device_list() can unref all the devices for you. Be careful not to unreference a device you are about to open until after you have opened it.
-
-This return value of this function indicates the number of devices in the resultant list. The list is actually one element larger, as it is NULL-terminated.
-		 */
-		
-		/*
-		 pub fn new_with_context(context: T) -> crate::Result<DeviceList<T>> {
-        let mut list = mem::MaybeUninit::<*const *mut libusb_device>::uninit();
-
-        let len = unsafe { libusb_get_device_list(context.as_raw(), list.as_mut_ptr()) };
-
-        if len < 0 {
-            Err(error::from_libusb(len as c_int))
-        } else {
-            Ok(unsafe {
-                DeviceList {
-                    context,
-                    list: list.assume_init(),
-                    len: len as usize,
-                }
-            })
-        }
-    }
-		 */
-	}
-	
 	/// Parse a libusb device.
 	#[inline(always)]
 	fn parse(libusb_device: NonNull<libusb_device>) -> Result<DeadOrAlive<Self>, DeviceParseError>

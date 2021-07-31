@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// A list of devices.
 #[derive(Debug)]
 pub struct Devices
 {
@@ -34,8 +35,9 @@ impl Devices
 {
 	/// Find all attached USB devices.
 	#[inline(always)]
-	pub fn global() -> Result<Self, i32>
+	pub fn global() -> Result<Self, ListDevicesError>
 	{
+		use ListDevicesError::*;
 		#[inline(always)]
 		const fn global_context() -> *mut libusb_context
 		{
@@ -56,25 +58,25 @@ impl Devices
 				}
 			)
 		}
-		else
+		else if likely!(result < (i32::MAX as isize))
 		{
-			match result
+			let error = match result as i32
 			{
-				LIBUSB_ERROR_IO => DEAD,
+				LIBUSB_ERROR_IO => Unlistable,
 				
 				LIBUSB_ERROR_INVALID_PARAM => unreachable!("Windows and Linux have a 4096 byte transfer limit (including setup byte)"),
 				
 				LIBUSB_ERROR_ACCESS => AccessDenied,
 				
-				LIBUSB_ERROR_NO_DEVICE => DEAD,
+				LIBUSB_ERROR_NO_DEVICE => Unlistable,
 				
-				LIBUSB_ERROR_NOT_FOUND => DEAD,
+				LIBUSB_ERROR_NOT_FOUND => Unlistable,
 				
 				LIBUSB_ERROR_BUSY => unreachable!("Should not have been called from an event handling context"),
 				
-				LIBUSB_ERROR_TIMEOUT => DEAD,
+				LIBUSB_ERROR_TIMEOUT => Unlistable,
 				
-				LIBUSB_ERROR_OVERFLOW => DEAD,
+				LIBUSB_ERROR_OVERFLOW => OutOfMemory,
 				
 				LIBUSB_ERROR_PIPE => unreachable!("Should not have caused a stall"),
 				
@@ -82,7 +84,7 @@ impl Devices
 				LIBUSB_ERROR_INTERRUPTED => unreachable!("Does not invoke handle_events()"),
 				
 				// could not allocate memory.
-				LIBUSB_ERROR_NO_MEM => TryReserveError,
+				LIBUSB_ERROR_NO_MEM => OutOfMemory,
 				
 				LIBUSB_ERROR_NOT_SUPPORTED => unreachable!("Operating System driver does not support a control transfer"),
 				
@@ -93,7 +95,31 @@ impl Devices
 				LIBUSB_ERROR_OTHER => Other,
 				
 				_ => unreachable!("LIBUSB_ERROR out of range: {}", result)
+			};
+			Err(error)
+		}
+		else
+		{
+			unreachable!("Too negative (larger than i32): {}", result)
+		}
+	}
+	
+	/// Parse the list, removing any devices which are dead.
+	#[inline(always)]
+	pub fn parse(&self) -> Result<Vec<Device>, DeviceParseError>
+	{
+		use DeadOrAlive::*;
+		
+		let device_references = self.deref();
+		let mut devices = Vec::new_with_capacity(device_references.len()).map_err(DeviceParseError::CouldNotAllocateMemoryForDevices)?;
+		for device_reference in device_references
+		{
+			if let Alive(device) = device_reference.parse()?
+			{
+				devices.push(device);
 			}
 		}
+		devices.shrink_to_fit();
+		Ok(devices)
 	}
 }

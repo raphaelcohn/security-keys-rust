@@ -26,6 +26,7 @@
 
 
 use self::binary::CommandLineParser;
+use self::binary::ProgramError;
 use self::binary::write;
 use std::fs::File;
 use std::io::stdout;
@@ -34,14 +35,16 @@ use std::io::stdout;
 mod binary;
 
 
-fn main() -> Result<(), ()>
+fn main() -> Result<(), ProgramError>
 {
 	let matches = CommandLineParser::parse();
 	
 	match matches.output()
 	{
-		None => write(&matches, stdout()),
+		None => write(&matches, stdout())?,
 		
-		Some(file_path) => write(&matches, File::create(file_path).expect("Could not create output file")),
+		Some(file_path) => write(&matches, File::create(file_path).map_err(ProgramError::CouldNotCreateOutputFile)?)?,
 	}
+	
+	Ok(())
 }

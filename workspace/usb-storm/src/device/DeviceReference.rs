@@ -2,12 +2,14 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// A pointer abstraction for a libusb concept.
 #[derive(Debug)]
 #[repr(transparent)]
 pub struct DeviceReference(NonNull<libusb_device>);
 
 impl DeviceReference
 {
+	/// Parse.
 	#[inline(always)]
 	pub fn parse(&self) -> Result<DeadOrAlive<Device>, DeviceParseError>
 	{

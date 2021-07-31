@@ -2,9 +2,32 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(super) fn usb_devices_serialize<W: Write, E: Debug>(writer: W, user: impl FnOnce(W, &Vec<UsbDevice>) -> Result<(), E>) -> Result<(), ()>
+/// Can not list devices.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum ListDevicesError
 {
-	let usb_devices = UsbDevice::usb_devices_try_from()?;
-	user(writer, &usb_devices).expect("Serializing failed");
-	Ok(())
+	#[allow(missing_docs)]
+	Unlistable,
+	
+	#[allow(missing_docs)]
+	AccessDenied,
+	
+	#[allow(missing_docs)]
+	OutOfMemory,
+	
+	#[allow(missing_docs)]
+	Other,
+}
+
+impl Display for ListDevicesError
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
+	{
+		Debug::fmt(self, f)
+	}
+}
+
+impl error::Error for ListDevicesError
+{
 }
