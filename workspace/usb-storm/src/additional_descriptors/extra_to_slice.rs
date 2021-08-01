@@ -7,16 +7,23 @@ pub(crate) fn extra_to_slice<'a, E: error::Error>(extra: *const u8, extra_length
 {
 	use AdditionalDescriptorParseError::*;
 	
-	if unlikely!(extra.is_null())
-	{
-		return Err(ExtraIsNull)
-	}
-	
 	if unlikely!(extra_length < 0)
 	{
 		return Err(ExtraLengthIsNegative)
 	}
 	
-	let extra_length = extra_length as usize;
-	Ok(unsafe { from_raw_parts(extra, extra_length) })
+	if unlikely!(extra.is_null())
+	{
+		if unlikely!(extra_length != 0)
+		{
+			return Err(ExtraIsNullButLengthIsNonZero)
+		}
+		static Empty: &'static [u8] = b"";
+		Ok(Empty)
+	}
+	else
+	{
+		let extra_length = extra_length as usize;
+		Ok(unsafe { from_raw_parts(extra, extra_length) })
+	}
 }
