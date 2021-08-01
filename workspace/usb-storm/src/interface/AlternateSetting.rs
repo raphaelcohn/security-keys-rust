@@ -155,19 +155,26 @@ impl AlternateSetting
 	{
 		use AlternateSettingParseError::*;
 		
-		let end_pointer_pointer = alternate_setting.endpoint;
-		if unlikely!(end_pointer_pointer.is_null())
-		{
-			return Err(EndPointsPointerIsNull { interface_index, alternate_setting_index })
-		}
-		
 		let bNumEndpoints = alternate_setting.bNumEndpoints;
 		if unlikely!(bNumEndpoints > InclusiveMaximumNumberOfEndPoints)
 		{
 			return Err(TooManyEndPoints { interface_index, alternate_setting_index, bNumEndpoints  })
 		}
 		
-		Ok(unsafe { from_raw_parts(end_pointer_pointer, bNumEndpoints as usize) })
+		let end_pointer_pointer = alternate_setting.endpoint;
+		if unlikely!(end_pointer_pointer.is_null())
+		{
+			if unlikely!(bNumEndpoints != 0)
+			{
+				return Err(EndPointsPointerIsNullBuNumberOfEndPointsIsNotZero { interface_index, alternate_setting_index, bNumEndpoints })
+			}
+			
+			Ok(unsafe { from_raw_parts(NonNull::dangling().as_ptr() as *const _, 0) })
+		}
+		else
+		{
+			Ok(unsafe { from_raw_parts(end_pointer_pointer, bNumEndpoints as usize) })
+		}
 	}
 	
 	#[inline(always)]

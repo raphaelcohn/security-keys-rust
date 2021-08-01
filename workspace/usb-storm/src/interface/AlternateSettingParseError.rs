@@ -55,11 +55,13 @@ pub enum AlternateSettingParseError
 	},
 	
 	#[allow(missing_docs)]
-	EndPointsPointerIsNull
+	EndPointsPointerIsNullBuNumberOfEndPointsIsNotZero
 	{
 		interface_index: u8,
 		
 		alternate_setting_index: u8,
+		
+		bNumEndpoints: u8,
 	},
 	
 	#[allow(missing_docs)]
