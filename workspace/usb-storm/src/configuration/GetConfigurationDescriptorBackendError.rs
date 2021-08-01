@@ -36,8 +36,6 @@ impl GetConfigurationDescriptorBackendError
 	{
 		use DeadOrAlive::*;
 		
-		debug_assert!(result < 0);
-		
 		if likely!(result == 0)
 		{
 			let pointer = unsafe { config_descriptor.assume_init() };

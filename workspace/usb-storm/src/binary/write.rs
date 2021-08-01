@@ -4,7 +4,7 @@
 
 pub(super) fn write(matches: &CommandLineParser, writer: impl Write + 'static) -> Result<(), ProgramError>
 {
-	let devices = Devices::global()?;
+	let devices = Devices::list(Context::default()?)?;
 	let devices = devices.parse()?;
 
 	let format = matches.format();

@@ -23,13 +23,18 @@
 #![warn(unused_crate_dependencies)]
 
 
+#![feature(allocator_api)]
 #![feature(arbitrary_enum_discriminant)]
 #![feature(associated_type_bounds)]
+#![feature(const_ptr_is_null)]
 #![feature(core_intrinsics)]
 #![feature(macro_attributes_in_derive_output)]
-#![feature(maybe_uninit_uninit_array)]
-#![feature(try_reserve)]
 #![feature(maybe_uninit_slice)]
+#![feature(maybe_uninit_uninit_array)]
+#![feature(once_cell)]
+#![feature(slice_ptr_get)]
+#![feature(slice_ptr_len)]
+#![feature(try_reserve)]
 
 
 //! usb-storm is a library for enumerating USB devices and parsing USB descriptors.
@@ -58,6 +63,10 @@ pub mod additional_descriptors;
 
 /// Class, sub-class and protocol.
 pub mod class_and_protocol;
+
+
+/// libusb context.
+pub mod context;
 
 
 /// USB configuration.

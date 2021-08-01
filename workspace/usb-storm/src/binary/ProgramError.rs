@@ -10,6 +10,9 @@ pub(super) enum ProgramError
 	CouldNotCreateOutputFile(io::Error),
 	
 	#[allow(missing_docs)]
+	ContextInitialization(ContextInitializationError),
+	
+	#[allow(missing_docs)]
 	ListDevices(ListDevicesError),
 	
 	#[allow(missing_docs)]
@@ -39,12 +42,23 @@ impl error::Error for ProgramError
 		{
 			CouldNotCreateOutputFile(cause) => Some(cause),
 			
+			ContextInitialization(cause) => Some(cause),
+			
 			ListDevices(cause) => Some(cause),
 			
 			DeviceParse(cause) => Some(cause),
 			
 			Serializing(cause) => Some(cause),
 		}
+	}
+}
+
+impl From<ContextInitializationError> for ProgramError
+{
+	#[inline(always)]
+	fn from(cause: ContextInitializationError) -> Self
+	{
+		ProgramError::ContextInitialization(cause)
 	}
 }
 

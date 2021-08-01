@@ -6,6 +6,8 @@
 #[derive(Debug)]
 pub struct Devices
 {
+	context: Context,
+	
 	list: NonNull<NonNull<libusb_device>>,
 	
 	length: usize,
@@ -35,23 +37,20 @@ impl Devices
 {
 	/// Find all attached USB devices.
 	#[inline(always)]
-	pub fn global() -> Result<Self, ListDevicesError>
+	pub fn list(context: Context) -> Result<Self, ListDevicesError>
 	{
 		use ListDevicesError::*;
-		#[inline(always)]
-		const fn global_context() -> *mut libusb_context
-		{
-			null_mut()
-		}
 		
 		let mut list = MaybeUninit::uninit();
-		let result = unsafe { libusb_get_device_list(global_context(), list.as_mut_ptr()) };
+		let result = unsafe { libusb_get_device_list(context.as_ptr(), list.as_mut_ptr()) };
 		if likely!(result >= 0)
 		{
 			Ok
 			(
 				Self
 				{
+					context,
+					
 					list: new_non_null(unsafe { list.assume_init() as *mut NonNull<libusb_device> }),
 					
 					length: result as usize,

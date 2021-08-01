@@ -70,7 +70,7 @@ impl StandardUsbDescriptorError
 			return Err(DescriptorMismatch { descriptor_type, bDescriptorType })
 		}
 		
-		let remaining_bytes = descriptor_bytes.get_unchecked_range_safe(MinimumStandardUsbDescriptorLength .. );
+		let remaining_bytes = descriptor_bytes.get_unchecked_range_safe(MinimumStandardUsbDescriptorLength .. (bLength as usize));
 		Ok(remaining_bytes)
 	}
 }
