@@ -20,5 +20,6 @@ pub enum HumanInterfaceDeviceInterfaceSubClass
 	/// A boot device.
 	Boot(HumanInterfaceDeviceInterfaceBootProtocol),
 
+	/// Unrecognized.
 	Unrecognized(UnrecognizedSubClass),
 }

@@ -2,29 +2,29 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use super::device::Device;
-use super::interface::AlternateSetting;
 use libusb1_sys::libusb_device_descriptor;
 use libusb1_sys::libusb_interface_descriptor;
 use serde::Deserialize;
 use serde::Serialize;
-use std::marker::PhantomData;
 use std::num::NonZeroU8;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
 include!("ApplicationSpecificInterfaceSubClass.rs");
+include!("AssociationProtocol.rs");
 include!("AudioVideoInterfaceSubClass.rs");
 include!("BluetoothProtocol.rs");
-include!("ClassAndProtocol.rs");
+include!("DeviceClass.rs");
 include!("DiagnosticProtocol.rs");
+include!("DvbCommonDeviceProtocol.rs");
 include!("DvbCommonInterfaceProtocol.rs");
 include!("DiagnosticSubClass.rs");
 include!("DebugDiagnosticProtocol.rs");
-include!("DeviceOrAlternateSetting.rs");
 include!("HumanInterfaceDeviceInterfaceBootProtocol.rs");
 include!("HumanInterfaceDeviceInterfaceSubClass.rs");
 include!("InterfaceClass.rs");
+include!("KnownOrUnknownSubClassAndProtocol.rs");
+include!("MiscellaneousDeviceSubClass.rs");
 include!("MiscellaneousInterfaceSubClass.rs");
 include!("RndisProtocol.rs");
 include!("SmartCardInterfaceSubClass.rs");

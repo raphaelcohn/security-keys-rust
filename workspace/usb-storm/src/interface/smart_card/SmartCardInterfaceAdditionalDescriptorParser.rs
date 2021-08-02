@@ -3,7 +3,12 @@
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub(super) struct SmartCardInterfaceAdditionalDescriptorParser(SmartCardProtocol);
+pub(super) struct SmartCardInterfaceAdditionalDescriptorParser
+{
+	smart_card_protocol: SmartCardProtocol,
+	
+	expected: u8,
+}
 
 impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 {
@@ -28,29 +33,30 @@ impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 	{
 		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
-		let has_vendor_specific_descriptor_type = match descriptor_type
+		if unlikely!(descriptor_type != self.expected)
 		{
-			0x21 => false,
-			
-			0xFF => true,
-			
-			_ => return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type))
-		};
+			return Err(DescriptorIsNeitherOfficialOrVendorSpecific { actual: descriptor_type, expected: self.expected })
+		}
 		
 		if unlikely!(bytes.len() != SmartCardInterfaceAdditionalDescriptor::AdjustedLength)
 		{
 			return Err(WrongLength)
 		}
 		
-		Ok(Some(SmartCardInterfaceAdditionalDescriptor::parse(self.0, has_vendor_specific_descriptor_type, bytes)?))
+		Ok(Some(SmartCardInterfaceAdditionalDescriptor::parse(self.smart_card_protocol, bytes)?))
 	}
 }
 
 impl SmartCardInterfaceAdditionalDescriptorParser
 {
 	#[inline(always)]
-	pub(super) const fn new(smart_card_protocol: SmartCardProtocol) -> Self
+	pub(super) const fn new(smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Self
 	{
-		Self(smart_card_protocol)
+		Self
+		{
+			smart_card_protocol,
+			
+			expected: bDescriptorType,
+		}
 	}
 }

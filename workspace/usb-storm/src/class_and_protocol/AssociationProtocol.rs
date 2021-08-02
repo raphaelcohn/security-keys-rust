@@ -2,21 +2,18 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Boot protocol.
+/// Association protocol.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum HumanInterfaceDeviceInterfaceBootProtocol
+pub enum AssociationProtocol
 {
-	/// None.
-	None,
+	#[allow(missing_docs)]
+	InterfaceAssociationDescriptor,
 	
-	/// Keyboard.
-	Keyboard,
+	#[allow(missing_docs)]
+	WireAdapterMultifunctionPeripheralProgrammingInterface,
 	
-	/// Mouse.
-	Mouse,
-	
-	/// Unrecognized.
-	Unrecognized(u8),
+	#[allow(missing_docs)]
+	UnrecognizedProtocol(u8),
 }

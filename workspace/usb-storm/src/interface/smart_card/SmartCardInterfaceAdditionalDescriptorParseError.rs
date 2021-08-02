@@ -7,7 +7,12 @@
 pub enum SmartCardInterfaceAdditionalDescriptorParseError
 {
 	#[allow(missing_docs)]
-	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
+	DescriptorIsNeitherOfficialOrVendorSpecific
+	{
+		actual: DescriptorType,
+	
+		expected: DescriptorType,
+	},
 	
 	/// A country code of 36 or greater.
 	Version(VersionParseError),

@@ -2,21 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Boot protocol.
+/// Known or unknown.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum HumanInterfaceDeviceInterfaceBootProtocol
+pub enum KnownOrUnknownSubClassAndProtocol
 {
-	/// None.
-	None,
+	#[allow(missing_docs)]
+	Known,
 	
-	/// Keyboard.
-	Keyboard,
-	
-	/// Mouse.
-	Mouse,
-	
-	/// Unrecognized.
-	Unrecognized(u8),
+	#[allow(missing_docs)]
+	Unrecognized(UnrecognizedSubClass)
 }

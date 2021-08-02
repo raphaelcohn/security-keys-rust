@@ -11,6 +11,9 @@ pub enum InterfaceClass
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass01h>.
 	Audio(UnrecognizedSubClass),
 	
+	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass02h>.
+	CommunicationsDeviceClassControl(UnrecognizedSubClass),
+	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass03h>.
 	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass),
 	
@@ -47,7 +50,7 @@ pub enum InterfaceClass
 	AudioVideo(AudioVideoInterfaceSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass12h>.
-	UsbTypeCBridgeDevice(Option<UnrecognizedSubClass>),
+	UsbTypeCBridgeDevice(KnownOrUnknownSubClassAndProtocol),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClassDCh>.
 	DiagnosticDevice(DiagnosticSubClass),
@@ -85,6 +88,7 @@ pub enum InterfaceClass
 
 impl InterfaceClass
 {
+	#[allow(unused_qualifications)]
 	#[inline(always)]
 	pub(crate) fn parse(alternate_setting: &libusb_interface_descriptor) -> Self
 	{
@@ -123,7 +127,7 @@ impl InterfaceClass
 			
 			(0x01, _, _) => Audio(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
-			(0x02, _, _) => InterfaceClass::Unrecognized { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
+			(0x02, _, _) => CommunicationsDeviceClassControl(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
 			(0x03, 0x00, 0x00) => HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: None }),
 			(0x03, 0x00, _) => HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: Some(new_non_zero_u8(protocol_code)) }),
@@ -133,7 +137,7 @@ impl InterfaceClass
 			(0x03, 0x01, _) => HumanInterfaceDevice(Boot(HumanInterfaceDeviceInterfaceBootProtocol::Unrecognized(protocol_code))),
 			(0x03, _, _) => HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
-			(0x04, _, _) => InterfaceClass::Unrecognized { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code }) },
+			(0x04, _, _) => InterfaceClass::Unrecognized { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
 			(0x05, _, _) => Physical(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
@@ -143,14 +147,16 @@ impl InterfaceClass
 			
 			(0x08, _, _) => MassStorage(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
-			(0x09, _, _) => InterfaceClass::ShouldBeDeviceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
+			(0x09, _, _) => ShouldBeDeviceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
 			(0x0A, _, _) => CommunicationsDeviceClassData(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
 			(0x0B, 0x00, 0x00) => SmartCard(Known(BulkTransfer)),
-			(0x0B, 0x00, 0x00) => SmartCard(Known(IccdVersionA)),
-			(0x0B, 0x00, 0x00) => SmartCard(Known(IccdVersionB)),
-			(0x0B, _, _) => SmartCard(Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			(0x0B, 0x00, 0x01) => SmartCard(Known(IccdVersionA)),
+			(0x0B, 0x00, 0x02) => SmartCard(Known(IccdVersionB)),
+			(0x0B, _, _) => SmartCard(SmartCardInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			
+			(0x0C, _, _) => InterfaceClass::Unrecognized { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
 			(0x0D, 0x00, 0x00) => ContentSecurity(None),
 			
@@ -168,10 +174,10 @@ impl InterfaceClass
 			(0x10, 0x04, _) => AudioVideo(DataAudioStreamingInterface(Some(new_non_zero_u8(protocol_code)))),
 			(0x10, _, _) => AudioVideo(AudioVideoInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
-			(0x11, _, _) => InterfaceClass::ShouldBeDeviceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
+			(0x11, _, _) => ShouldBeDeviceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
-			(0x12, 0x00, 0x00) => UsbTypeCBridgeDevice(None),
-			(0x12, _, _) => UsbTypeCBridgeDevice(Some(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			(0x12, 0x00, 0x00) => UsbTypeCBridgeDevice(KnownOrUnknownSubClassAndProtocol::Known),
+			(0x12, _, _) => UsbTypeCBridgeDevice(KnownOrUnknownSubClassAndProtocol::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x13 ..= 0xDB, _, _) => InterfaceClass::Unrecognized { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
@@ -197,8 +203,8 @@ impl InterfaceClass
 			(0xDC, 0x07, 0x00) => DiagnosticDevice(TraceOnDvC(Undefined)),
 			(0xDC, 0x07, 0x01) => DiagnosticDevice(TraceOnDvC(VendorDefined)),
 			(0xDC, 0x07, _) => DiagnosticDevice(TraceOnDvC(DiagnosticProtocol::UnrecognizedProtocol(new_non_zero_u8(protocol_code)))),
-			(0xDC, 0x08, 0x00) => DiagnosticDevice(Miscellaneous { unrecognized_protocol: None }),
-			(0xDC, 0x08, _) => DiagnosticDevice(Miscellaneous { unrecognized_protocol: Some(new_non_zero_u8(protocol_code)) }),
+			(0xDC, 0x08, 0x00) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous { unrecognized_protocol: None }),
+			(0xDC, 0x08, _) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous { unrecognized_protocol: Some(new_non_zero_u8(protocol_code)) }),
 			(0xDC, _, _) => DiagnosticDevice(DiagnosticSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0xDD ..= 0xDF, _, _) => InterfaceClass::Unrecognized { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
@@ -223,7 +229,7 @@ impl InterfaceClass
 			(0xEF, 0x01, 0x01) => InterfaceClass::Miscellaneous(Sync(Active)),
 			(0xEF, 0x01, 0x02) => InterfaceClass::Miscellaneous(Sync(Palm)),
 			(0xEF, 0x01, _) => InterfaceClass::Miscellaneous(Sync(SyncProtocol::UnrecognizedProtocol(protocol_code))),
-			(0xEF, 0x02, _) => InterfaceClass::ShouldBeDeviceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
+			(0xEF, 0x02, _) => ShouldBeDeviceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			(0xEF, 0x03, 0x00) => InterfaceClass::Miscellaneous(CableBasedAssociationFramework { unrecognized_protocol: Some(0x00) }),
 			(0xEF, 0x03, 0x01) => InterfaceClass::Miscellaneous(CableBasedAssociationFramework { unrecognized_protocol: None }),
 			(0xEF, 0x03, _) => InterfaceClass::Miscellaneous(CableBasedAssociationFramework { unrecognized_protocol: None }),
@@ -248,10 +254,11 @@ impl InterfaceClass
 			(0xEF, 0x07, 0x01) => InterfaceClass::Miscellaneous(DvbCommonInterface(CommandInterface)),
 			(0xEF, 0x07, 0x02) => InterfaceClass::Miscellaneous(DvbCommonInterface(MediaInterface)),
 			(0xEF, 0x07, _) => InterfaceClass::Miscellaneous(DvbCommonInterface(DvbCommonInterfaceProtocol::UnrecognizedProtocol(protocol_code))),
+			(0xEF, _, _) => InterfaceClass::Miscellaneous(MiscellaneousInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0xF0 ..= 0xFD, _, _) => InterfaceClass::Unrecognized { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
-			(0xFE, 0x00, _) => ApplicationSpecific(ApplicationSpecificInterfaceSubClass::Unrecognised(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			(0xFE, 0x00, _) => ApplicationSpecific(Unrecognised(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			(0xFE, 0x01, 0x00) => ApplicationSpecific(DeviceFirmwareUpgrade { unrecognised_protocol: Some(0x00) }),
 			(0xFE, 0x01, 0x01) => ApplicationSpecific(DeviceFirmwareUpgrade { unrecognised_protocol: None }),
 			(0xFE, 0x01, _) => ApplicationSpecific(DeviceFirmwareUpgrade { unrecognised_protocol: Some(protocol_code) }),
@@ -260,19 +267,9 @@ impl InterfaceClass
 			(0xFE, 0x03, 0x00) => ApplicationSpecific(TestAndMeasurementDevice(Normal)),
 			(0xFE, 0x03, 0x01) => ApplicationSpecific(TestAndMeasurementDevice(USBTMC_USB488)),
 			(0xFE, 0x03, _) => ApplicationSpecific(TestAndMeasurementDevice(TestAndMeasurementProtocol::UnrecognizedProtocol(new_non_zero_u8(protocol_code)))),
-			(0xFE, _, _) => ApplicationSpecific(ApplicationSpecificInterfaceSubClass::Unrecognised(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			(0xFE, _, _) => ApplicationSpecific(Unrecognised(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0xFF, _, _) => VendorSpecific(UnrecognizedSubClass { sub_class_code, protocol_code }),
 		}
 	}
 }
-
-/*
-	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClassE0h>.
-	#[allow(dead_code)]
-	const WirelessControllerClass: u8 = 0xE0;
-	
-	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClassFEh>.
-	#[allow(dead_code)]
-	const ApplicationSpecificClass: u8 = 0xFE;
- */

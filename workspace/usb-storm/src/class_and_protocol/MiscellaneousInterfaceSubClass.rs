@@ -21,7 +21,7 @@ pub enum MiscellaneousInterfaceSubClass
 	RNDIS(RndisProtocol),
 	
 	#[allow(missing_docs)]
-	Usb3Vision(Usb3VisionProtocol),
+	Usb3Vision(Usb3VisionControlProtocol),
 	
 	#[allow(missing_docs)]
 	StreamTransportEfficientProtocolForContentProtection(StreamTransportEfficientProtocol),

@@ -9,9 +9,6 @@
 pub struct SmartCardInterfaceAdditionalDescriptor
 {
 	protocol: SmartCardProtocol,
-	
-	/// `bDescriptorType`.
-	has_vendor_specific_descriptor_type: bool,
 
 	/// `bcdCCID`.
 	firmware_version: Version,
@@ -98,13 +95,6 @@ impl SmartCardInterfaceAdditionalDescriptor
 	pub const fn protocol(&self) -> SmartCardProtocol
 	{
 		self.protocol
-	}
-	
-	/// If `true`, then this is a Smart Card that predates standardization.
-	#[inline(always)]
-	pub const fn has_vendor_specific_descriptor_type(&self) -> bool
-	{
-		self.has_vendor_specific_descriptor_type
 	}
 	
 	/// Firmware version.
@@ -261,7 +251,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse(protocol: SmartCardProtocol, has_vendor_specific_descriptor_type: bool, bytes: &[u8]) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
+	fn parse(protocol: SmartCardProtocol, bytes: &[u8]) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
 		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
@@ -272,8 +262,6 @@ impl SmartCardInterfaceAdditionalDescriptor
 			Self
 			{
 				protocol,
-				
-				has_vendor_specific_descriptor_type,
 			
 				firmware_version: bytes.version::<2>().map_err(Version)?,
 				

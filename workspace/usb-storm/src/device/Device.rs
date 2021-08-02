@@ -28,7 +28,7 @@ pub struct Device
 	
 	manufacturer_device_version: Version,
 	
-	class_and_protocol: ClassAndProtocol<Self>,
+	device_class: DeviceClass,
 	
 	languages: Option<Vec<Language>>,
 	
@@ -41,10 +41,6 @@ pub struct Device
 	configurations: IndexMap<ConfigurationNumber, Configuration>,
 	
 	active_configuration_number: Option<ConfigurationNumber>,
-}
-
-impl DeviceOrAlternateSetting for Device
-{
 }
 
 impl Device
@@ -121,9 +117,9 @@ impl Device
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn class_and_protocol(&self) -> ClassAndProtocol<Self>
+	pub fn device_class(&self) -> DeviceClass
 	{
-		self.class_and_protocol.clone()
+		self.device_class
 	}
 	
 	#[allow(missing_docs)]
@@ -268,7 +264,7 @@ impl Device
 					
 					manufacturer_device_version: Version::parse(device_descriptor.bcdDevice).map_err(FirmwareVersion)?,
 					
-					class_and_protocol: ClassAndProtocol::new_from_device(&device_descriptor),
+					device_class: DeviceClass::parse(&device_descriptor),
 					
 					manufacturer: match string_finder.find_string(device_descriptor.iManufacturer).map_err(ManufacturerString)?
 					{

@@ -4,8 +4,7 @@
 
 use crate::u3;
 use crate::VecExt;
-use super::class_and_protocol::ClassAndProtocol;
-use super::class_and_protocol::DeviceOrAlternateSetting;
+use super::class_and_protocol::DeviceClass;
 use super::configuration::Configuration;
 use super::configuration::ConfigurationNumber;
 use super::configuration::ConfigurationParseError;

@@ -2,7 +2,24 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[doc(hidden)]
-pub trait DeviceOrAlternateSetting
+/// Miscellaneous interface sub class.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum MiscellaneousDeviceSubClass
 {
+	#[allow(missing_docs)]
+	Sync(SyncProtocol),
+	
+	#[allow(missing_docs)]
+	Association(AssociationProtocol),
+	
+	#[allow(missing_docs)]
+	StreamTransportEfficientProtocolForContentProtection(StreamTransportEfficientProtocol),
+	
+	#[allow(missing_docs)]
+	DvbCommonInterface(DvbCommonDeviceProtocol),
+	
+	#[allow(missing_docs)]
+	Unrecognized(UnrecognizedSubClass),
 }

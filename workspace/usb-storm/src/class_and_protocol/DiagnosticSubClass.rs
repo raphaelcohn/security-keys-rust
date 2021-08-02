@@ -23,16 +23,16 @@ pub enum DiagnosticSubClass
 	/// Trace on DbC.
 	TraceOnDbC(DiagnosticProtocol),
 	
-	/// Dfx on DbC.
+	/// Dfx (Design for Debug or Test) on DbC.
 	DfxOnDbC(DiagnosticProtocol),
 	
-	/// Trace over General Purpose (GP) end point on DvC.
+	/// Trace over General Purpose (GP) end point on DvC (Debug Capability on the USB device).
 	TraceOverGeneralPurposeEndPointOnDvC(TraceOverGeneralPurposeEndPointOnDvCDiagnosticProtocol),
 	
-	#[allow(missing_docs)]
+	/// Dfx (Design for Debug or Test) on DvC (Debug Capability on the USB device).
 	DfxOnDvC(DiagnosticProtocol),
 	
-	#[allow(missing_docs)]
+	/// Trace on DvC (Debug Capability on the USB device).
 	TraceOnDvC(DiagnosticProtocol),
 	
 	/// Sub class 0x08.
@@ -43,5 +43,5 @@ pub enum DiagnosticSubClass
 	},
 	
 	/// Unrecognized.
-	Unrecognized(UnrecognizedProtocol),
+	Unrecognized(UnrecognizedSubClass),
 }
