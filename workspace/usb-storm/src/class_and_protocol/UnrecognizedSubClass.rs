@@ -8,24 +8,9 @@
 #[serde(deny_unknown_fields)]
 pub struct UnrecognizedSubClass
 {
-	sub_class_code: u8,
-	
-	protocol_code: u8,
-}
-
-impl UnrecognizedSubClass
-{
 	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn sub_class_code(self) -> u8
-	{
-		self.sub_class_code
-	}
+	pub sub_class_code: u8,
 	
 	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn protocol_code(self) -> u8
-	{
-		self.protocol_code
-	}
+	pub protocol_code: u8,
 }

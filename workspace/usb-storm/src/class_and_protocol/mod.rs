@@ -27,6 +27,7 @@ include!("HumanInterfaceDeviceInterfaceSubClass.rs");
 include!("InterfaceClass.rs");
 include!("MiscellaneousInterfaceSubClass.rs");
 include!("RndisProtocol.rs");
+include!("SmartCardInterfaceSubClass.rs");
 include!("SmartCardProtocol.rs");
 include!("StreamTransportEfficientProtocol.rs");
 include!("SyncProtocol.rs");

@@ -32,7 +32,7 @@ pub enum InterfaceClass
 	CommunicationsDeviceClassData(UnrecognizedSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Bh>.
-	SmartCard(XXX),
+	SmartCard(SmartCardInterfaceSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Dh>.
 	ContentSecurity(Option<UnrecognizedSubClass>),
@@ -103,6 +103,8 @@ impl InterfaceClass
 		use HumanInterfaceDeviceInterfaceBootProtocol::Mouse;
 		use MiscellaneousInterfaceSubClass::*;
 		use RndisProtocol::*;
+		use SmartCardInterfaceSubClass::Known;
+		use SmartCardProtocol::*;
 		use StreamTransportEfficientProtocol::*;
 		use SyncProtocol::*;
 		use TestAndMeasurementProtocol::*;
@@ -145,7 +147,10 @@ impl InterfaceClass
 			
 			(0x0A, _, _) => CommunicationsDeviceClassData(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
-			(0x0B, _, _) => SmartCard(XXX),
+			(0x0B, 0x00, 0x00) => SmartCard(Known(BulkTransfer)),
+			(0x0B, 0x00, 0x00) => SmartCard(Known(IccdVersionA)),
+			(0x0B, 0x00, 0x00) => SmartCard(Known(IccdVersionB)),
+			(0x0B, _, _) => SmartCard(Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x0D, 0x00, 0x00) => ContentSecurity(None),
 			

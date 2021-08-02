@@ -3,8 +3,6 @@
 
 
 use crate::u5;
-use super::version::Version;
-use super::end_point::EndPointParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptor;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParser;
@@ -18,12 +16,24 @@ use super::additional_descriptors::AdditionalDescriptorParser;
 use super::additional_descriptors::DescriptorType;
 use super::additional_descriptors::extra_to_slice;
 use super::additional_descriptors::parse_additional_descriptors;
-use super::class_and_protocol::ClassAndProtocol;
-use super::class_and_protocol::DeviceOrAlternateSetting;
+use super::class_and_protocol::HumanInterfaceDeviceInterfaceBootProtocol;
+use super::class_and_protocol::HumanInterfaceDeviceInterfaceSubClass;
+use super::class_and_protocol::InterfaceClass;
+use super::class_and_protocol::SmartCardProtocol;
+use super::class_and_protocol::SmartCardInterfaceSubClass;
+use super::class_and_protocol::UnrecognizedSubClass;
+use super::device::DeadOrAlive;
 use super::end_point::EndPoint;
 use super::end_point::EndPointNumber;
+use super::end_point::EndPointParseError;
 use super::end_point::InclusiveMaximumNumberOfEndPoints;
+use super::interface::smart_card::SmartCardInterfaceAdditionalDescriptorParser;
+use super::interface::unsupported::UnsupportedInterfaceAdditionalDescriptorParser;
+use super::string::GetLocalizedStringError;
+use super::string::LocalizedStrings;
 use super::string::StringFinder;
+use super::version::Version;
+use super::version::VersionParseError;
 use libusb1_sys::libusb_endpoint_descriptor;
 use libusb1_sys::libusb_interface;
 use libusb1_sys::libusb_interface_descriptor;
@@ -40,15 +50,10 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::mem::transmute;
 use std::num::NonZeroU8;
+use std::ptr::NonNull;
 use std::slice::from_raw_parts;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u8;
-use crate::device::DeadOrAlive;
-use crate::string::{LocalizedStrings, GetLocalizedStringError};
-use crate::version::VersionParseError;
-use crate::interface::unsupported::UnsupportedInterfaceAdditionalDescriptorParser;
-use crate::interface::smart_card::SmartCardInterfaceAdditionalDescriptorParser;
-use std::ptr::NonNull;
 
 
 /// CCID (Chip Card Interface Device).

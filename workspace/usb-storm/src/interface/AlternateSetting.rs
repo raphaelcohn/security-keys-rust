@@ -10,7 +10,7 @@
 #[serde(deny_unknown_fields)]
 pub struct AlternateSetting
 {
-	class_and_protocol: ClassAndProtocol<AlternateSetting>,
+	interface_class: InterfaceClass,
 
 	description: Option<LocalizedStrings>,
 	
@@ -19,17 +19,13 @@ pub struct AlternateSetting
 	end_points: IndexMap<EndPointNumber, EndPoint>,
 }
 
-impl DeviceOrAlternateSetting for AlternateSetting
-{
-}
-
 impl AlternateSetting
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn class_and_protocol(&self) -> ClassAndProtocol<AlternateSetting>
+	pub fn interface_class(&self) -> InterfaceClass
 	{
-		self.class_and_protocol.clone()
+		self.interface_class
 	}
 	
 	#[allow(missing_docs)]
@@ -93,11 +89,11 @@ impl AlternateSetting
 			return Err(InterfaceNumberTooLarge { interface_index, alternate_setting_index, bInterfaceNumber })
 		}
 		
-		let class_and_protocol = ClassAndProtocol::new_from_alternate_setting(alternate_setting);
+		let interface_class = InterfaceClass::parse(alternate_setting);
 		
 		let end_point_descriptors = Self::parse_end_point_descriptors(alternate_setting, interface_index, alternate_setting_index)?;
 		
-		let additional_descriptors = Self::parse_additional_descriptors(alternate_setting, class_and_protocol.clone()).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
+		let additional_descriptors = Self::parse_additional_descriptors(alternate_setting, interface_class).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
 		
 		Ok
 		(
@@ -110,7 +106,7 @@ impl AlternateSetting
 					
 					Self
 					{
-						class_and_protocol,
+						interface_class,
 						
 						description: match string_finder.find_string(alternate_setting.iInterface).map_err(|cause| DescriptionString { cause, interface_index, alternate_setting_index })?
 						{
@@ -178,7 +174,7 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, class_and_protocol: ClassAndProtocol<Self>) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 	{
 		#[inline(always)]
 		fn human_interface_device(extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
@@ -187,10 +183,15 @@ impl AlternateSetting
 		}
 		
 		#[inline(always)]
-		fn smart_card(extra: &[u8], raw_protocol: u8) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn smart_card(extra: &[u8], smart_card_protocol: SmartCardProtocol) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			let smart_card_protocol = unsafe { transmute(raw_protocol) };
 			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, SmartCardInterfaceAdditionalDescriptorParser::new(smart_card_protocol))
+		}
+		
+		#[inline(always)]
+		fn unsupported_smart_card_with_descriptor_at_end_of_end_points(extra: &[u8]) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		{
+			unsupported(extra)
 		}
 		
 		#[inline(always)]
@@ -203,24 +204,35 @@ impl AlternateSetting
 		
 		let extra = extra_to_slice(alternate_setting.extra, alternate_setting.extra_length)?;
 		
-		match class_and_protocol.codes()
+		use HumanInterfaceDeviceInterfaceBootProtocol::BootKeyboard;
+		use HumanInterfaceDeviceInterfaceBootProtocol::BootMouse;
+		use HumanInterfaceDeviceInterfaceSubClass::Boot;
+		use InterfaceClass::*;
+		use SmartCardProtocol::*;
+		use SmartCardInterfaceSubClass::Known;
+		
+		match interface_class
 		{
-			(ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceNoSubClass, 0x00) => human_interface_device(extra, NotBoot),
-			(ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceSubClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceNoneProtocol) => human_interface_device(extra, BootNone),
-			(ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceSubClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceKeyboardProtocol) => human_interface_device(extra, BootKeyboard),
-			(ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceSubClass, ClassAndProtocol::<AlternateSetting>::HumanInterfaceDeviceBootInterfaceMouseProtocol) => human_interface_device(extra, BootMouse),
+			HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: None }) => human_interface_device(extra, NotBoot),
+			HumanInterfaceDevice(Boot(HumanInterfaceDeviceInterfaceBootProtocol::None)) => human_interface_device(extra, BootNone),
+			HumanInterfaceDevice(Boot(Keyboard)) => human_interface_device(extra, BootKeyboard),
+			HumanInterfaceDevice(Boot(Mouse)) => human_interface_device(extra, BootMouse),
 			
-			(ClassAndProtocol::<AlternateSetting>::SmartCardClass, 0x00, raw_protocol @ 0x00 ..= 0x02) => smart_card(extra, raw_protocol),
+			SmartCard(Known(BulkTransfer)) => smart_card(extra, BulkTransfer),
+			SmartCard(Known(IccdVersionA)) => smart_card(extra, IccdVersionA),
+			SmartCard(Known(IccdVersionB)) => smart_card(extra, IccdVersionB),
 			
-			// Product Name (Vendor Identifier, Product Identifier, Year Added to CCID) Descriptor Type.
-			// ActivCard USB Reader V2 (0x09C3, 0x0008, 2006) 0x21.
-			(ClassAndProtocol::<AlternateSetting>::SmartCardClass, 0x01, raw_protocol @ 0x01) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
+			// Product Name (Vendor Identifier, Product Identifier, Year Added to CCID).
+			// * USB Reader V2 (0x09C3, 0x0008, 2006).
+			//
+			// The bDescriptorType is 0x21.
+			SmartCard(SmartCardInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code: 0x01, protocol_code: 0x01 })) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra, 0x21) => smart_card(extra, IccdVersionA),
 			
 			// These pre-standardization devices have the following features:-
 			//
-			// * The bDescriptorType is 0xFF;
-			// * The sub class is 0x5C;
+			// * The sub class is 0x5C.
 			// * The protocol is always 0x00.
+			// * The bDescriptorType is 0xFF.
 			//
 			// Product Name (Vendor Identifier, Product Identifier, Year Added to CCID).
 			// * Dell USB Smartcard Keyboard (0x413C, 0x2100, 2004).
@@ -228,9 +240,13 @@ impl AlternateSetting
 			// * MySMART PAD V2.0 (0x09BE, 0x0002, 2005).
 			// * Token GEM USB COMBI (0x08E6, 0xACE0, 2005).
 			// * Token GEM USB COMBI-M (0x08E6, 0x1359, 2005).
-			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x5C, raw_protocol @ 0x00) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x5C, protocol_code: 0x00 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra, 0xFF) => smart_card(extra, BulkTransfer),
 			
-			// This case exists from before standardization.
+			// This case exists from before standardization; devices have the following features:-
+			//
+			// * The sub class is 0x00.
+			// * The protocol is always 0x00 ..= 0x02.
+			// * The bDescriptorType is 0x21 (standard).
 			//
 			// Product Name (Vendor Identifier, Product Identifier, Year Added to CCID).
 			// * SchlumbergerSema Cyberflex Access (0x0973, 0x0003, 2007).
@@ -254,20 +270,40 @@ impl AlternateSetting
 			// * \* Re-added.
 			// * †Disabled in CCID.
 			// * ‡Multiple interfaces.
-			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x00, raw_protocol @ 0x00 ..= 0x02) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x00 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra, 0x21) => smart_card(extra, BulkTransfer),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x01 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra, 0x21) => smart_card(extra, IccdVersionA),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x02 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra, 0x21) => smart_card(extra, IccdVersionB),
+			
+			// Some devices from as far back as 2007 put the Smart Card descriptor at the end of the end points yet claim to be a Smart Card.
+			// The CCID project uses a patch with `#define O2MICRO_OZ776_PATCH` to support them; they are broken in use in multiple ways.
+			// We do not support them.
+			// Devices known to be problematic include the:-
+			//
+			// * O2Micro CCID SC Reader (0x0B97, 0x7762, 2004).
+			// * O2Micro CCID SC Reader (0x0B97, 0x7772, 2007).
+			// * BLUDRIVE II CCID (0x1B0E, 0x1078, 2008).
+			// * <No product name> (0x1B0E, 0x1079, 2015).
+			//
+			// * The sub class is 0x00.
+			// * The protocol is always 0x00.
+			// * The bDescriptorType is 0x21 (standard).
+			//
+			// Notes:-
+			// * \* Does not have a manufacturer or product name string, but known as 'Blutronics Bludrive II' or 'BludriveIIv2.txt' in the CCID project; the unversioned original driver dates from 2008 and is called 'BLUDRIVE II CCID'.
+			SmartCard(Known(BulkTransfer)) if extra.len() == 0 => unsupported_smart_card_with_descriptor_at_end_of_end_points(extra),
 			
 			// Some devices from as far back as 2007 put the Smart Card descriptor at the end of the end points.
+			// The CCID project uses a patch with `#define O2MICRO_OZ776_PATCH` to support them; they are broken in use in multiple ways.
+			// We do not support them.
 			// Devices known to be problematic include the:-
 			//
 			// * cyberJack pinpad(a) (0x0C4B, 0x0300, 2007), 0x21.
 			// * cyberJack RFID standard (0x0C4B, 0x0500, 2017), 0x21.
-			// * O2 Micro Oz776 (0x0B97, 0x7762).
-			// * O2 Micro Oz776 (0x0B97, 0x7772).
-			// * Blutronics Bludrive II (aka bludrive) (?, ?).
 			//
-			// The CCID project uses a patch with `#define O2MICRO_OZ776_PATCH` to support them; they are broken in multiple ways.
-			// We do not support them here.
-			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x00, _raw_protocol @ 0x00 ..= 0x02) if extra.len() == 0 => unsupported(extra),
+			// * The sub class is 0x00.
+			// * The protocol is always 0x00.
+			// * The bDescriptorType is 0x21 (standard).
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x00 }) if extra.len() == 0 => unsupported_smart_card_with_descriptor_at_end_of_end_points(extra),
 			
 			_ => unsupported(extra),
 		}

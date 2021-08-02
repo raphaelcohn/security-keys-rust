@@ -12,5 +12,8 @@ pub enum SmartCardInterfaceSubClass
 {
 	Known(SmartCardProtocol),
 
-	Unofficial()
+	/// The only known device for which this occurs has vendor identifier 0x09C3 and product identifier 0x0008 ('ActivCard USB Reader V2'); it existed in at least 2006.
+	///
+	/// This device was superceded by the 'ActiveIdentity USB Reader V3' which is not Unrecognized.
+	Unrecognized(UnrecognizedSubClass)
 }
