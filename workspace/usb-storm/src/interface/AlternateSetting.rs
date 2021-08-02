@@ -212,25 +212,60 @@ impl AlternateSetting
 			
 			(ClassAndProtocol::<AlternateSetting>::SmartCardClass, 0x00, raw_protocol @ 0x00 ..= 0x02) => smart_card(extra, raw_protocol),
 			
-			// Product Name (Vendor Identifier, Product Identifier) CCID Descriptor Type.
-			// ActivCard USB Reader V2 (0x09C3, 0x0008) 0x21.
-			(ClassAndProtocol::<AlternateSetting>::SmartCardClass, 0x01, raw_protocol @ 0x01) => smart_card(extra, raw_protocol),
+			// Product Name (Vendor Identifier, Product Identifier, Year Added to CCID) Descriptor Type.
+			// ActivCard USB Reader V2 (0x09C3, 0x0008, 2006) 0x21.
+			(ClassAndProtocol::<AlternateSetting>::SmartCardClass, 0x01, raw_protocol @ 0x01) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
 			
-			// Product Name (Vendor Identifier, Product Identifier) CCID Descriptor Type.
-			// Dell USB Smartcard Keyboard (0x413C, 0x2100) 0xFF.
-			// Gem e-Seal Pro USB Token (0x08E6, 0x2202) 0xFF.
-			// MySMART PAD V2.0 (0x09BE, 0x0002) 0xFF.
-			// Token GEM USB COMBI-M (0x08E6, 0x1359) 0xFF.
-			// Token GEM USB COMBI (0x08E6, 0xACE0) 0xFF.
-			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x5C, raw_protocol @ 0x01) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
+			// These pre-standardization devices have the following features:-
+			//
+			// * The bDescriptorType is 0xFF;
+			// * The sub class is 0x5C;
+			// * The protocol is always 0x00.
+			//
+			// Product Name (Vendor Identifier, Product Identifier, Year Added to CCID).
+			// * Dell USB Smartcard Keyboard (0x413C, 0x2100, 2004).
+			// * Gem e-Seal Pro USB Token (0x08E6, 0x2202, 2008).
+			// * MySMART PAD V2.0 (0x09BE, 0x0002, 2005).
+			// * Token GEM USB COMBI (0x08E6, 0xACE0, 2005).
+			// * Token GEM USB COMBI-M (0x08E6, 0x1359, 2005).
+			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x5C, raw_protocol @ 0x00) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
 			
 			// This case exists from before standardization.
+			//
+			// Product Name (Vendor Identifier, Product Identifier, Year Added to CCID).
+			// * SchlumbergerSema Cyberflex Access (0x0973, 0x0003, 2007).
+			// * SmartTerminal ST-2xxx (0x046A, 0x003E, 2005).
+			// * DE-ABCM6 (0x1DB2, 0x0600, 2016)†.
+			// * Smart Card Reader USB (0x076B, 0x5340, 2016)‡.
+			// * USB Smart Chip Device (0x1A74, 0x6354, 2008).
+			// * USB Smart Chip Device (0x1A74, 0x6356, 2009).
+			// * Smart Card Reader USB (0x076B, 0x532A, 2017)†.
+			// * SCL010 Contactless Reader (0x04E6, 0x5291, 2009).
+			// * SCL01x Contactless Reader (0x04E6, 0x5292, 2010).
+			// * SDI011 Contactless Reader (0x04E6, 0x512B, 2011).
+			// * SDI011 Contactless Reader (0x04E6, 0x512C, 2013).
+			// * SCR331-DI USB Smart Card Reader (0x04E6, 0x5120, 2005).
+			// * SCR331-DI USB Smart Card Reader (0x04E6, 0x5111, 2004).
+			// * SCR3310-NTTCom USB SmartCard Reader (0x04E6, 0x511A, 2012\*).
+			// * SDI010 Smart Card Reader (0x04E6, 0x5121, 2006).
+			// * SPRx32 USB Smart Card Reader (0x04E6, 0xE003, 2003).
+			//
+			// Notes:-
+			// * \* Re-added.
+			// * †Disabled in CCID.
+			// * ‡Multiple interfaces.
 			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x00, raw_protocol @ 0x00 ..= 0x02) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, raw_protocol),
 			
-			// Devices such as the O2 Micro Oz776, REINER SCT (aka Reiner-SCT and Reiner SCT) and Blutronics Bludrive II (aka bludrive) put the Smart Card descriptor at the end of the end points.
-			// That said, these devices are now very rare (they existed at least as far back as 2007).
-			// However, we do not know if other device manufacturers do this curently.
-			// The O2 Micro Oz776 is broken in other ways - see the patch introduced in the CCID project with `#define O2MICRO_OZ776_PATCH`.
+			// Some devices from as far back as 2007 put the Smart Card descriptor at the end of the end points.
+			// Devices known to be problematic include the:-
+			//
+			// * cyberJack pinpad(a) (0x0C4B, 0x0300, 2007), 0x21.
+			// * cyberJack RFID standard (0x0C4B, 0x0500, 2017), 0x21.
+			// * O2 Micro Oz776 (0x0B97, 0x7762).
+			// * O2 Micro Oz776 (0x0B97, 0x7772).
+			// * Blutronics Bludrive II (aka bludrive) (?, ?).
+			//
+			// The CCID project uses a patch with `#define O2MICRO_OZ776_PATCH` to support them; they are broken in multiple ways.
 			// We do not support them here.
 			(ClassAndProtocol::<AlternateSetting>::VendorSpecificClass, 0x00, _raw_protocol @ 0x00 ..= 0x02) if extra.len() == 0 => unsupported(extra),
 			

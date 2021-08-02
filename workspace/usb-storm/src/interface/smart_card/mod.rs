@@ -2,14 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use crate::additional_descriptors::AdditionalDescriptorParser;
+use crate::additional_descriptors::DescriptorType;
+use crate::additional_descriptors::LengthAdjustment;
+use crate::class_and_protocol::SmartCardProtocol;
+use crate::version::Version;
 use self::features::Features;
 use self::features::FeaturesParseError;
 use self::features::LevelOfExchange;
 use super::Bytes;
-use super::super::Version;
-use super::super::additional_descriptors::AdditionalDescriptorParser;
-use super::super::additional_descriptors::DescriptorType;
-use super::super::additional_descriptors::LengthAdjustment;
 use enumflags2::bitflags;
 use enumflags2::BitFlags;
 use likely::likely;
@@ -40,7 +41,6 @@ include!("PinSupport.rs");
 include!("SmartCardInterfaceAdditionalDescriptor.rs");
 include!("SmartCardInterfaceAdditionalDescriptorParseError.rs");
 include!("SmartCardInterfaceAdditionalDescriptorParser.rs");
-include!("SmartCardProtocol.rs");
 include!("SynchronizationProtocol.rs");
 include!("T0ProtocolUnconfiguredClass.rs");
 include!("T0ProtocolUnconfiguredClasses.rs");

@@ -72,6 +72,14 @@ impl ClassAndProtocol<Device>
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass09h>.
 	#[allow(dead_code)]
 	const HubClass: u8 = 0x09;
+	#[allow(dead_code)]
+	const HubStorageSubClass: u8 = 0x00;
+	#[allow(dead_code)]
+	const HubStorageFullSpeedHubProtocol: u8 = 0x00;
+	#[allow(dead_code)]
+	const HubStorageHiSpeedHubWithSingleTTProtocol: u8 = 0x01;
+	#[allow(dead_code)]
+	const HubStorageHiSpeedHubWithMultipleTTsProtocol: u8 = 0x02;
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass11h>.
 	#[allow(dead_code)]
@@ -97,10 +105,6 @@ impl ClassAndProtocol<Device>
 
 impl ClassAndProtocol<AlternateSetting>
 {
-	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass01h>.
-	#[allow(dead_code)]
-	const AudioClass: u8 = 0x01;
-	
 	/// Human Interface Device (HID).
 	///
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass03h>.
@@ -112,36 +116,6 @@ impl ClassAndProtocol<AlternateSetting>
 	pub(crate) const HumanInterfaceDeviceBootInterfaceNoneProtocol: u8 = 0x00;
 	pub(crate) const HumanInterfaceDeviceBootInterfaceKeyboardProtocol: u8 = 0x01;
 	pub(crate) const HumanInterfaceDeviceBootInterfaceMouseProtocol: u8 = 0x02;
-	
-	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass05h>.
-	#[allow(dead_code)]
-	const PhysicalClass: u8 = 0x05;
-	
-	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass06h>.
-	#[allow(dead_code)]
-	const StillImagingClass: u8 = 0x06;
-	
-	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass07h>.
-	#[allow(dead_code)]
-	const PrinterClass: u8 = 0x07;
-	
-	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass08h>.
-	#[allow(dead_code)]
-	const MassStorageClass: u8 = 0x08;
-	#[allow(dead_code)]
-	const MassStorageSubClass: u8 = 0x00;
-	#[allow(dead_code)]
-	const MassStorageFullSpeedHubProtocol: u8 = 0x00;
-	#[allow(dead_code)]
-	const MassStorageHiSpeedHubWithSingleTTProtocol: u8 = 0x01;
-	#[allow(dead_code)]
-	const MassStorageHiSpeedHubWithMultipleTTsProtocol: u8 = 0x02;
-	
-	/// Communications Device Class (CDC) Data.
-	///
-	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Ah>.
-	#[allow(dead_code)]
-	const CommunicationsDeviceClassDataClass: u8 = 0x0A;
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Bh>.
 	pub(crate) const SmartCardClass: u8 = 0x0B;

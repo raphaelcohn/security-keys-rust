@@ -15,6 +15,15 @@ pub struct Version
 	sub_minor: u4,
 }
 
+impl Display for Version
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
+	{
+		write!(f, "{}.{}.{}", self.major, self.minor, self.sub_minor)
+	}
+}
+
 /// This is for a little-endian `u16`.
 impl Version
 {
