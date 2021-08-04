@@ -10,19 +10,31 @@ pub struct LogicalLocation
 {
 	bus_number: u8,
 
-	address: u8,
+	assigned_address: AssignedAddress,
 }
 
 impl LogicalLocation
 {
-	pub(super) fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Self
+	#[inline(always)]
+	pub(super) fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Self, DeviceParseError>
 	{
-		Self
-		{
-			bus_number: get_bus_number(libusb_device),
-			
-			address: get_device_address(libusb_device),
-		}
+		Ok
+		(
+			Self
+			{
+				bus_number: get_bus_number(libusb_device),
+				
+				assigned_address:
+				{
+					let address = get_device_address(libusb_device);
+					if unlikely!(address == 0)
+					{
+						return Err(DeviceParseError::UnassignedAddress)
+					}
+					new_non_zero_u8(address)
+				}
+			}
+		)
 	}
 	
 	/// Bus number.
@@ -34,8 +46,8 @@ impl LogicalLocation
 	
 	/// Address address.
 	#[inline(always)]
-	pub const fn address(self) -> u8
+	pub const fn assigned_address(self) -> AssignedAddress
 	{
-		self.address
+		self.assigned_address
 	}
 }

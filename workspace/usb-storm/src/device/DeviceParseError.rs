@@ -31,6 +31,9 @@ pub enum DeviceParseError
 	SerialNumberString(GetLocalizedStringError),
 	
 	#[allow(missing_docs)]
+	UnassignedAddress,
+	
+	#[allow(missing_docs)]
 	GetConfigurationDescriptor
 	{
 		cause: GetConfigurationDescriptorBackendError,

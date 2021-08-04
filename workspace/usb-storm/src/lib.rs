@@ -89,6 +89,10 @@ pub mod end_point;
 pub mod interface;
 
 
+/// Integers of unusual sizes.
+pub mod integers;
+
+
 /// A simple serializer for dumping data to the console.
 pub mod simple_serializer;
 
@@ -104,8 +108,3 @@ pub mod version;
 include!("DeviceInformationDatabase.rs");
 include!("FixedUsbDeviceCapabilities.rs");
 include!("VecExt.rs");
-include!("u3.rs");
-include!("u4.rs");
-include!("u5.rs");
-include!("u6.rs");
-include!("u11.rs");

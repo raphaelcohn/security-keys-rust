@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use super::u4;
+use super::integers::u4;
 use likely::likely;
 use serde::Deserialize;
 use serde::Serialize;

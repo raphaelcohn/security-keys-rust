@@ -2,8 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::u3;
-use crate::u5;
+use super::integers::u3;
+use super::integers::u5;
 use super::additional_descriptors::AdditionalDescriptor;
 use super::additional_descriptors::AdditionalDescriptorParseError;
 use super::additional_descriptors::AdditionalDescriptorParser;

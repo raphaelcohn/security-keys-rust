@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::u5;
+use super::integers::u5;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptor;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParser;

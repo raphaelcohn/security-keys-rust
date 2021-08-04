@@ -209,9 +209,9 @@ impl Device
 			(
 				Device
 				{
-					location: Location::from_libusb_device(libusb_device),
+					location: Location::from_libusb_device(libusb_device)?,
 					
-					parent: Location::parent_from_libusb_device(libusb_device),
+					parent: Location::parent_from_libusb_device(libusb_device)?,
 				
 					speed,
 					

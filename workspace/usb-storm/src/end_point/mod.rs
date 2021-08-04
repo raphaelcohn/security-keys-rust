@@ -2,8 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::u4;
-use crate::u11;
+use super::integers::u4;
+use super::integers::u11;
 use self::transfer_type::TransferType;
 use self::transfer_type::TransferTypeParseError;
 use super::additional_descriptors::AdditionalDescriptor;

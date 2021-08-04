@@ -15,6 +15,7 @@ pub struct PhysicalLocation
 
 impl PhysicalLocation
 {
+	#[inline(always)]
 	pub(super) fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Self
 	{
 		Self

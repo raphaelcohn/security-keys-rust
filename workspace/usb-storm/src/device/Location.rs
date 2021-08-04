@@ -30,19 +30,27 @@ impl Location
 	}
 	
 	#[inline(always)]
-	fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Self
+	fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Self, DeviceParseError>
 	{
-		Self
-		{
-			logical_location: LogicalLocation::from_libusb_device(libusb_device),
-			
-			physical_location: PhysicalLocation::from_libusb_device(libusb_device),
-		}
+		Ok
+		(
+			Self
+			{
+				logical_location: LogicalLocation::from_libusb_device(libusb_device)?,
+				
+				physical_location: PhysicalLocation::from_libusb_device(libusb_device),
+			}
+		)
 	}
 	
 	#[inline(always)]
-	fn parent_from_libusb_device(libusb_device: NonNull<libusb_device>) -> Option<Self>
+	fn parent_from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Option<Self>, DeviceParseError>
 	{
-		get_parent(libusb_device).map(|parent_libusb_device| Self::from_libusb_device(parent_libusb_device))
+		match get_parent(libusb_device)
+		{
+			None => Ok(None),
+			
+			Some(parent_libusb_device) => Self::from_libusb_device(parent_libusb_device).map(Some),
+		}
 	}
 }
