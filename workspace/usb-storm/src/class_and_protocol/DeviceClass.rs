@@ -39,6 +39,7 @@ pub enum DeviceClass
 		class_code: u8,
 		
 		#[allow(missing_docs)]
+		#[serde(flatten)]
 		unrecognized_sub_class: UnrecognizedSubClass,
 	},
 	
@@ -47,6 +48,7 @@ pub enum DeviceClass
 	{
 		class_code: u8,
 		
+		#[serde(flatten)]
 		unrecognized_sub_class: UnrecognizedSubClass,
 	},
 }
@@ -104,9 +106,9 @@ impl DeviceClass
 			(0x13 ..= 0xDB, _, _) => DeviceClass::Unrecognized { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
 			(0xDC, 0x00, _) => DiagnosticDevice(DiagnosticSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
-			(0xDC, 0x01, 0x00) => DiagnosticDevice(Usb2Compliance { unrecognized_protocol: Some(0x00) }),
-			(0xDC, 0x01, 0x01) => DiagnosticDevice(Usb2Compliance { unrecognized_protocol: None }),
-			(0xDC, 0x01, _) => DiagnosticDevice(Usb2Compliance { unrecognized_protocol: Some(protocol_code) }),
+			(0xDC, 0x01, 0x00) => DiagnosticDevice(Usb2Compliance(KnownOrUnrecognizedProtocol::Unrecognized(0x00))),
+			(0xDC, 0x01, 0x01) => DiagnosticDevice(Usb2Compliance(KnownOrUnrecognizedProtocol::Known)),
+			(0xDC, 0x01, _) => DiagnosticDevice(Usb2Compliance(KnownOrUnrecognizedProtocol::Unrecognized(protocol_code))),
 			(0xDC, 0x02, 0x00) => DiagnosticDevice(Debug(TargetVendorDefined)),
 			(0xDC, 0x02, 0x01) => DiagnosticDevice(Debug(GnuRemoteDebugCommandSet)),
 			(0xDC, 0x02, _) => DiagnosticDevice(Debug(DebugDiagnosticProtocol::UnrecognizedProtocol(new_non_zero_u8(protocol_code)))),
@@ -125,8 +127,8 @@ impl DeviceClass
 			(0xDC, 0x07, 0x00) => DiagnosticDevice(TraceOnDvC(Undefined)),
 			(0xDC, 0x07, 0x01) => DiagnosticDevice(TraceOnDvC(VendorDefined)),
 			(0xDC, 0x07, _) => DiagnosticDevice(TraceOnDvC(DiagnosticProtocol::UnrecognizedProtocol(new_non_zero_u8(protocol_code)))),
-			(0xDC, 0x08, 0x00) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous { unrecognized_protocol: None }),
-			(0xDC, 0x08, _) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous { unrecognized_protocol: Some(new_non_zero_u8(protocol_code)) }),
+			(0xDC, 0x08, 0x00) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous(KnownOrUnrecognizedProtocol::Known)),
+			(0xDC, 0x08, _) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous(KnownOrUnrecognizedProtocol::Unrecognized(protocol_code))),
 			(0xDC, _, _) => DiagnosticDevice(DiagnosticSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0xDD ..= 0xDF, _, _) => DeviceClass::Unrecognized { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },

@@ -5,6 +5,7 @@
 /// Interface class code.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum InterfaceClass
 {
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass01h>.
@@ -73,7 +74,8 @@ pub enum InterfaceClass
 		class_code: u8,
 		
 		#[allow(missing_docs)]
-		#[serde(flatten)] sub_class: UnrecognizedSubClass,
+		#[serde(flatten)]
+		sub_class: UnrecognizedSubClass,
 	},
 	
 	#[allow(missing_docs)]
@@ -81,7 +83,8 @@ pub enum InterfaceClass
 	{
 		class_code: u8,
 		
-		#[serde(flatten)] sub_class: UnrecognizedSubClass,
+		#[serde(flatten)]
+		sub_class: UnrecognizedSubClass,
 	},
 }
 
@@ -180,9 +183,9 @@ impl InterfaceClass
 			(0x13 ..= 0xDB, _, _) => InterfaceClass::Unrecognized { class_code, sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
 			(0xDC, 0x00, _) => DiagnosticDevice(DiagnosticSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
-			(0xDC, 0x01, 0x00) => DiagnosticDevice(Usb2Compliance { unrecognized_protocol: Some(0x00) }),
-			(0xDC, 0x01, 0x01) => DiagnosticDevice(Usb2Compliance { unrecognized_protocol: None }),
-			(0xDC, 0x01, _) => DiagnosticDevice(Usb2Compliance { unrecognized_protocol: Some(protocol_code) }),
+			(0xDC, 0x01, 0x00) => DiagnosticDevice(Usb2Compliance(KnownOrUnrecognizedProtocol::Unrecognized(0x00))),
+			(0xDC, 0x01, 0x01) => DiagnosticDevice(Usb2Compliance(KnownOrUnrecognizedProtocol::Known)),
+			(0xDC, 0x01, _) => DiagnosticDevice(Usb2Compliance(KnownOrUnrecognizedProtocol::Unrecognized(protocol_code))),
 			(0xDC, 0x02, 0x00) => DiagnosticDevice(Debug(TargetVendorDefined)),
 			(0xDC, 0x02, 0x01) => DiagnosticDevice(Debug(GnuRemoteDebugCommandSet)),
 			(0xDC, 0x02, _) => DiagnosticDevice(Debug(DebugDiagnosticProtocol::UnrecognizedProtocol(new_non_zero_u8(protocol_code)))),
@@ -201,8 +204,8 @@ impl InterfaceClass
 			(0xDC, 0x07, 0x00) => DiagnosticDevice(TraceOnDvC(Undefined)),
 			(0xDC, 0x07, 0x01) => DiagnosticDevice(TraceOnDvC(VendorDefined)),
 			(0xDC, 0x07, _) => DiagnosticDevice(TraceOnDvC(DiagnosticProtocol::UnrecognizedProtocol(new_non_zero_u8(protocol_code)))),
-			(0xDC, 0x08, 0x00) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous { unrecognized_protocol: None }),
-			(0xDC, 0x08, _) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous { unrecognized_protocol: Some(new_non_zero_u8(protocol_code)) }),
+			(0xDC, 0x08, 0x00) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous(KnownOrUnrecognizedProtocol::Known)),
+			(0xDC, 0x08, _) => DiagnosticDevice(DiagnosticSubClass::Miscellaneous(KnownOrUnrecognizedProtocol::Unrecognized(protocol_code))),
 			(0xDC, _, _) => DiagnosticDevice(DiagnosticSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0xDD ..= 0xDF, _, _) => InterfaceClass::Unrecognized { class_code, sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
@@ -228,9 +231,9 @@ impl InterfaceClass
 			(0xEF, 0x01, 0x02) => InterfaceClass::Miscellaneous(Sync(Palm)),
 			(0xEF, 0x01, _) => InterfaceClass::Miscellaneous(Sync(SyncProtocol::UnrecognizedProtocol(protocol_code))),
 			(0xEF, 0x02, _) => ShouldBeDeviceOnly { class_code, sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
-			(0xEF, 0x03, 0x00) => InterfaceClass::Miscellaneous(CableBasedAssociationFramework { unrecognized_protocol: Some(0x00) }),
-			(0xEF, 0x03, 0x01) => InterfaceClass::Miscellaneous(CableBasedAssociationFramework { unrecognized_protocol: None }),
-			(0xEF, 0x03, _) => InterfaceClass::Miscellaneous(CableBasedAssociationFramework { unrecognized_protocol: None }),
+			(0xEF, 0x03, 0x00) => InterfaceClass::Miscellaneous(CableBasedAssociationFramework(KnownOrUnrecognizedProtocol::Unrecognized(0x00))),
+			(0xEF, 0x03, 0x01) => InterfaceClass::Miscellaneous(CableBasedAssociationFramework(KnownOrUnrecognizedProtocol::Known)),
+			(0xEF, 0x03, _) => InterfaceClass::Miscellaneous(CableBasedAssociationFramework(KnownOrUnrecognizedProtocol::Unrecognized(protocol_code))),
 			(0xEF, 0x04, 0x00) => InterfaceClass::Miscellaneous(MiscellaneousInterfaceSubClass::RemoteNetworkDriverInterfaceSpecificationProtocol(self::RemoteNetworkDriverInterfaceSpecificationProtocol::UnrecognizedProtocol(0x00))),
 			(0xEF, 0x04, 0x01) => InterfaceClass::Miscellaneous(MiscellaneousInterfaceSubClass::RemoteNetworkDriverInterfaceSpecificationProtocol(self::RemoteNetworkDriverInterfaceSpecificationProtocol::OverEthernet)),
 			(0xEF, 0x04, 0x02) => InterfaceClass::Miscellaneous(MiscellaneousInterfaceSubClass::RemoteNetworkDriverInterfaceSpecificationProtocol(self::RemoteNetworkDriverInterfaceSpecificationProtocol::OverWiFi)),
@@ -257,11 +260,11 @@ impl InterfaceClass
 			(0xF0 ..= 0xFD, _, _) => InterfaceClass::Unrecognized { class_code, sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
 			(0xFE, 0x00, _) => ApplicationSpecific(Unrecognised(UnrecognizedSubClass { sub_class_code, protocol_code })),
-			(0xFE, 0x01, 0x00) => ApplicationSpecific(DeviceFirmwareUpgrade { unrecognised_protocol: KnownOrUnrecognizedProtocol::Unrecognized(0x00) }),
-			(0xFE, 0x01, 0x01) => ApplicationSpecific(DeviceFirmwareUpgrade { unrecognised_protocol: KnownOrUnrecognizedProtocol::Known }),
-			(0xFE, 0x01, _) => ApplicationSpecific(DeviceFirmwareUpgrade { unrecognised_protocol: KnownOrUnrecognizedProtocol::Unrecognized(protocol_code) }),
-			(0xFE, 0x02, 0x00) => ApplicationSpecific(IrdaBridgeDevice { unrecognised_protocol: KnownOrUnrecognizedProtocol::Known }),
-			(0xFE, 0x02, _) => ApplicationSpecific(IrdaBridgeDevice { unrecognised_protocol: KnownOrUnrecognizedProtocol::Unrecognized(protocol_code) }),
+			(0xFE, 0x01, 0x00) => ApplicationSpecific(DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol::Unrecognized(0x00))),
+			(0xFE, 0x01, 0x01) => ApplicationSpecific(DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol::Known)),
+			(0xFE, 0x01, _) => ApplicationSpecific(DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0xFE, 0x02, 0x00) => ApplicationSpecific(IrdaBridgeDevice(KnownOrUnrecognizedProtocol::Known)),
+			(0xFE, 0x02, _) => ApplicationSpecific(IrdaBridgeDevice(KnownOrUnrecognizedProtocol::Unrecognized(protocol_code))),
 			(0xFE, 0x03, 0x00) => ApplicationSpecific(TestAndMeasurementDevice(Normal)),
 			(0xFE, 0x03, 0x01) => ApplicationSpecific(TestAndMeasurementDevice(USBTMC_USB488)),
 			(0xFE, 0x03, _) => ApplicationSpecific(TestAndMeasurementDevice(TestAndMeasurementProtocol::UnrecognizedProtocol(new_non_zero_u8(protocol_code)))),

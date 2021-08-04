@@ -12,10 +12,7 @@ pub enum MiscellaneousInterfaceSubClass
 	Sync(SyncProtocol),
 	
 	#[allow(missing_docs)]
-	CableBasedAssociationFramework
-	{
-		unrecognized_protocol: Option<u8>,
-	},
+	CableBasedAssociationFramework(KnownOrUnrecognizedProtocol),
 	
 	#[allow(missing_docs)]
 	RemoteNetworkDriverInterfaceSpecificationProtocol(RemoteNetworkDriverInterfaceSpecificationProtocol),

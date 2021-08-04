@@ -9,10 +9,10 @@
 pub enum ApplicationSpecificInterfaceSubClass
 {
 	#[allow(missing_docs)]
-	DeviceFirmwareUpgrade { unrecognised_protocol: KnownOrUnrecognizedProtocol },
+	DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol),
 	
 	#[allow(missing_docs)]
-	IrdaBridgeDevice { unrecognised_protocol: KnownOrUnrecognizedProtocol },
+	IrdaBridgeDevice(KnownOrUnrecognizedProtocol),
 	
 	#[allow(missing_docs)]
 	TestAndMeasurementDevice(TestAndMeasurementProtocol),

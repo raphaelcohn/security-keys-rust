@@ -11,11 +11,7 @@ pub enum DiagnosticSubClass
 	/// USB2 Compliance Device.
 	///
 	/// Definition for this device can be found at <http://www.intel.com/technology/usb/spec.htm>.
-	Usb2Compliance
-	{
-		/// `None` if recognized.
-		unrecognized_protocol: Option<u8>,
-	},
+	Usb2Compliance(KnownOrUnrecognizedProtocol),
 	
 	/// Debug.
 	Debug(DebugDiagnosticProtocol),
@@ -36,11 +32,7 @@ pub enum DiagnosticSubClass
 	TraceOnDvC(DiagnosticProtocol),
 	
 	/// Sub class 0x08.
-	Miscellaneous
-	{
-		/// `None` if recognized.
-		unrecognized_protocol: Option<NonZeroU8>
-	},
+	Miscellaneous(KnownOrUnrecognizedProtocol),
 	
 	/// Unrecognized.
 	Unrecognized(UnrecognizedSubClass),
