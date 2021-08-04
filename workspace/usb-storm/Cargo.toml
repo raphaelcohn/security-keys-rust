@@ -35,3 +35,5 @@ ron = "^0.6.4"
 serde_yaml = "^0.8.17"
 serde-lexpr = "^0.1.2"
 
+[build-dependencies]
+unicode-xid = "^0.2.2"

@@ -8,69 +8,47 @@
 #[serde(deny_unknown_fields)]
 pub struct Device
 {
-	bus_number: u8,
-
-	address: u8,
-
-	port_number: PortNumber,
-
-	port_numbers: ArrayVec<PortNumber, MaximumDevicePortNumbers>,
+	location: Location,
+	
+	parent: Option<Location>,
 	
 	speed: Option<Speed>,
 	
 	control_end_point_zero_maximum_packet_size_exponent: u8,
 	
-	vendor_identifier: VendorIdentifier,
+	vendor: Vendor,
 	
-	product_identifier: ProductIdentifier,
+	product: Product,
 	
 	maximum_supported_usb_version: Version,
 	
-	manufacturer_device_version: Version,
-	
 	device_class: DeviceClass,
 	
-	languages: Option<Vec<Language>>,
-	
-	manufacturer: Option<LocalizedStrings>,
-	
-	product_name: Option<LocalizedStrings>,
+	manufacturer_device_version: Version,
 	
 	serial_number: Option<LocalizedStrings>,
 	
 	configurations: IndexMap<ConfigurationNumber, Configuration>,
 	
 	active_configuration_number: Option<ConfigurationNumber>,
+	
+	languages: Option<Vec<Language>>,
 }
 
 impl Device
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn bus_number(&self) -> u8
+	pub const fn location(&self) -> Location
 	{
-		self.bus_number
+		self.location
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn address(&self) -> u8
+	pub const fn parent(&self) -> Option<Location>
 	{
-		self.address
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn port_number(&self) -> PortNumber
-	{
-		self.port_number
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn port_numbers(&self) -> &ArrayVec<PortNumber, MaximumDevicePortNumbers>
-	{
-		&self.port_numbers
+		self.parent
 	}
 	
 	#[allow(missing_docs)]
@@ -89,16 +67,16 @@ impl Device
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn vendor_identifier(&self) -> VendorIdentifier
+	pub const fn vendor(&self) -> &Vendor
 	{
-		self.vendor_identifier
+		&self.vendor
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn product_identifier(&self) -> ProductIdentifier
+	pub const fn product(&self) -> &Product
 	{
-		self.vendor_identifier
+		&self.product
 	}
 	
 	#[allow(missing_docs)]
@@ -132,20 +110,6 @@ impl Device
 			
 			Some(ref languages) => Some(languages.get_unchecked_range_safe(..))
 		}
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub fn manufacturer(&self) -> Option<&LocalizedStrings>
-	{
-		self.manufacturer.as_ref()
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub fn product_name(&self) -> Option<&LocalizedStrings>
-	{
-		self.product_name.as_ref()
 	}
 	
 	#[allow(missing_docs)]
@@ -238,47 +202,44 @@ impl Device
 			
 			Alive(configurations) => configurations,
 		};
+		
 		Ok
 		(
 			Alive
 			(
 				Device
 				{
-					bus_number: get_bus_number(libusb_device),
-				
-					address: get_device_address(libusb_device),
+					location: Location::from_libusb_device(libusb_device),
 					
-					port_number: get_port_number(libusb_device),
-				
-					port_numbers: get_port_numbers(libusb_device),
+					parent: Location::parent_from_libusb_device(libusb_device),
 				
 					speed,
 					
 					control_end_point_zero_maximum_packet_size_exponent: device_descriptor.bMaxPacketSize0,
 					
-					vendor_identifier: device_descriptor.idVendor,
-					
-					product_identifier: device_descriptor.idProduct,
-				
-					maximum_supported_usb_version,
-					
-					manufacturer_device_version: Version::parse(device_descriptor.bcdDevice).map_err(FirmwareVersion)?,
-					
-					device_class: DeviceClass::parse(&device_descriptor),
-					
-					manufacturer: match string_finder.find_string(device_descriptor.iManufacturer).map_err(ManufacturerString)?
-					{
-						Dead => return Ok(Dead),
+					vendor: Vendor::parse
+					(
+						device_descriptor.idVendor,
 						
-						Alive(string) => string,
-					},
+						match string_finder.find_string(device_descriptor.iManufacturer).map_err(ManufacturerString)?
+						{
+							Dead => return Ok(Dead),
+							
+							Alive(string) => string,
+						}
+					),
 					
-					product_name: match string_finder.find_string(device_descriptor.iProduct).map_err(ProductNameString)?
-					{
-						Dead => return Ok(Dead),
+					product: Product::new
+					(
+						device_descriptor.idProduct,
 						
-						Alive(string) => string,
-					},
+						match string_finder.find_string(device_descriptor.iProduct).map_err(ProductNameString)?
+						{
+							Dead => return Ok(Dead),
+							
+							Alive(string) => string,
+						}
+					),
 					
 					serial_number: match string_finder.find_string(device_descriptor.iSerialNumber).map_err(SerialNumberString)?
 					{
@@ -286,6 +247,12 @@ impl Device
 						
 						Alive(string) => string,
 					},
+				
+					maximum_supported_usb_version,
+					
+					manufacturer_device_version: Version::parse(device_descriptor.bcdDevice).map_err(FirmwareVersion)?,
+					
+					device_class: DeviceClass::parse(&device_descriptor),
 					
 					active_configuration_number: match Self::get_active_configuration_number(libusb_device, &configurations)?
 					{

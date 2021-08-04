@@ -3,26 +3,7 @@
 
 
 #[inline(always)]
-fn get_device_speed(libusb_device: NonNull<libusb_device>) -> Option<Speed>
+fn get_port_number(libusb_device: NonNull<libusb_device>) -> PortNumber
 {
-	use Speed::*;
-	
-	const LIBUSB_SPEED_SUPER_PLUS: i32 = 5;
-	
-	match unsafe { libusb_get_device_speed(libusb_device.as_ptr()) }
-	{
-		LIBUSB_SPEED_UNKNOWN => None,
-		
-		LIBUSB_SPEED_LOW => Some(Low),
-		
-		LIBUSB_SPEED_FULL => Some(Full),
-		
-		LIBUSB_SPEED_HIGH => Some(High),
-		
-		LIBUSB_SPEED_SUPER => Some(Super),
-		
-		LIBUSB_SPEED_SUPER_PLUS => Some(SuperPlus),
-		
-		undocumented @ _ => unreachable!("Undocumented Speed {}", undocumented),
-	}
+	unsafe { libusb_get_port_number(libusb_device.as_ptr()) }
 }

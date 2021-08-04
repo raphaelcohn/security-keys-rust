@@ -1,0 +1,118 @@
+Aimgene Technology Co., Ltd.
+3850
+Altera Corp.
+1052
+Arys Corp.
+1129
+AT&T Microelectronics
+1225
+BD Consumer Healthcare
+3552
+Bison Electronics
+5986
+Brooktree Corp.
+1018
+Catalyst Enterprises, Inc.
+2408
+Chia Shin Technology Corp.
+1759
+Choy's Import
+10644
+Chuntex Electronic
+1092
+Club Mac/Club PC
+0003
+Davicom Semiconductor
+1476
+Diodes Inc.
+10837
+D‐Link Corp.
+2001
+Eagle Technology
+6031
+Elan Microelectronics
+1531
+Electronics For Imaging, Inc.
+2650
+Elonex Technologies Inc.
+1007
+Evermax ‐ Obsolete
+11651
+First International Computer
+1045
+Forward Electronics
+1468
+Fry's Electronics
+0001
+Fundamental Software, Inc.
+5140
+Given Imaging LTD
+3265
+Hefei Macrosilicon Technology Co., Ltd.
+21325
+Hewlett Packard
+1126
+Hosiden America Corp.
+1166
+Hyundai Electronics
+1136
+Hyundai Electronics America
+1083
+Ingram
+0002
+Inside Out Networks
+1608
+Interbiometrics Zugangssysteme GmbH
+4617
+Kensington
+1567
+L.G. Semicon Co., Ltd.
+1096
+MCS Electronics
+5840
+Motorola Computer Grp.
+1116
+National Instrument
+1517
+Nebraska Furniture Mart
+0004
+Nicolet Biomedical Inc.,a Viasys Healthcare Co.
+3884
+OKI Electric Industry
+1082
+Olivetti
+1014
+Olivetti Techcenter
+2877
+OPENMOKO, Inc.
+7504
+Pan International
+1202
+Pinnacle Systems, Inc. (2)
+2304
+Questec
+1122
+Ravicad
+1163
+Service and Quality Technology Co., Ltd.
+10096
+Silicon Graphics
+1307
+SMOS Systems
+1182
+Sony Electronics
+1248
+Taiwan OEM
+65535
+TYI Systems TD
+1492
+Umax Data Systems, Inc.
+1606
+USB‐IF
+61525
+Victor Company of Japan Ltd.
+1666
+XAC Automation Corp.
+2182
+Yamaha Corp.
+1172

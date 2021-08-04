@@ -2,27 +2,40 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[inline(always)]
-fn get_device_speed(libusb_device: NonNull<libusb_device>) -> Option<Speed>
+/// Logical location.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct LogicalLocation
 {
-	use Speed::*;
-	
-	const LIBUSB_SPEED_SUPER_PLUS: i32 = 5;
-	
-	match unsafe { libusb_get_device_speed(libusb_device.as_ptr()) }
+	bus_number: u8,
+
+	address: u8,
+}
+
+impl LogicalLocation
+{
+	pub(super) fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Self
 	{
-		LIBUSB_SPEED_UNKNOWN => None,
-		
-		LIBUSB_SPEED_LOW => Some(Low),
-		
-		LIBUSB_SPEED_FULL => Some(Full),
-		
-		LIBUSB_SPEED_HIGH => Some(High),
-		
-		LIBUSB_SPEED_SUPER => Some(Super),
-		
-		LIBUSB_SPEED_SUPER_PLUS => Some(SuperPlus),
-		
-		undocumented @ _ => unreachable!("Undocumented Speed {}", undocumented),
+		Self
+		{
+			bus_number: get_bus_number(libusb_device),
+			
+			address: get_device_address(libusb_device),
+		}
+	}
+	
+	/// Bus number.
+	#[inline(always)]
+	pub const fn bus_number(self) -> u8
+	{
+		self.bus_number
+	}
+	
+	/// Address address.
+	#[inline(always)]
+	pub const fn address(self) -> u8
+	{
+		self.address
 	}
 }

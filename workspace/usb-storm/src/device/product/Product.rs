@@ -2,27 +2,41 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[inline(always)]
-fn get_device_speed(libusb_device: NonNull<libusb_device>) -> Option<Speed>
+/// A product.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct Product
 {
-	use Speed::*;
+	identifier: ProductIdentifier,
 	
-	const LIBUSB_SPEED_SUPER_PLUS: i32 = 5;
-	
-	match unsafe { libusb_get_device_speed(libusb_device.as_ptr()) }
+	name: Option<LocalizedStrings>,
+}
+
+impl Product
+{
+	#[inline(always)]
+	pub(super) const fn new(identifier: ProductIdentifier, name: Option<LocalizedStrings>) -> Self
 	{
-		LIBUSB_SPEED_UNKNOWN => None,
+		Self
+		{
+			identifier,
 		
-		LIBUSB_SPEED_LOW => Some(Low),
-		
-		LIBUSB_SPEED_FULL => Some(Full),
-		
-		LIBUSB_SPEED_HIGH => Some(High),
-		
-		LIBUSB_SPEED_SUPER => Some(Super),
-		
-		LIBUSB_SPEED_SUPER_PLUS => Some(SuperPlus),
-		
-		undocumented @ _ => unreachable!("Undocumented Speed {}", undocumented),
+			name,
+		}
+	}
+	
+	/// Identifier.
+	#[inline(always)]
+	pub const fn identifier(&self) -> ProductIdentifier
+	{
+		self.identifier
+	}
+	
+	/// Name(s).
+	#[inline(always)]
+	pub fn name(&self) -> Option<&LocalizedStrings>
+	{
+		self.name.as_ref()
 	}
 }

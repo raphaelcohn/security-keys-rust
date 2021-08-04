@@ -3,26 +3,22 @@
 
 
 #[inline(always)]
-fn get_device_speed(libusb_device: NonNull<libusb_device>) -> Option<Speed>
+fn get_port_numbers(libusb_device: NonNull<libusb_device>) -> ArrayVec<PortNumber, MaximumDevicePortNumbers>
 {
-	use Speed::*;
-	
-	const LIBUSB_SPEED_SUPER_PLUS: i32 = 5;
-	
-	match unsafe { libusb_get_device_speed(libusb_device.as_ptr()) }
+	let mut port_numbers  = ArrayVec::new_const();
+	let result = unsafe { libusb_get_port_numbers(libusb_device.as_ptr(), port_numbers.as_mut_ptr(), MaximumDevicePortNumbers as _) };
+	if likely!(result >= 0)
 	{
-		LIBUSB_SPEED_UNKNOWN => None,
-		
-		LIBUSB_SPEED_LOW => Some(Low),
-		
-		LIBUSB_SPEED_FULL => Some(Full),
-		
-		LIBUSB_SPEED_HIGH => Some(High),
-		
-		LIBUSB_SPEED_SUPER => Some(Super),
-		
-		LIBUSB_SPEED_SUPER_PLUS => Some(SuperPlus),
-		
-		undocumented @ _ => unreachable!("Undocumented Speed {}", undocumented),
+		let count = result as usize;
+		unsafe { port_numbers.set_len(count) };
 	}
+	else if likely!(result == LIBUSB_ERROR_OVERFLOW)
+	{
+		unreachable!("USB violates specification with more than 7 ports")
+	}
+	else
+	{
+		unreachable!("Undocumented error code from libusb_get_port_numbers(), {}", result)
+	}
+	port_numbers
 }

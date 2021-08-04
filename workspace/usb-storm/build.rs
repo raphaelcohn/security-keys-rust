@@ -1,0 +1,190 @@
+// This file is part of security-keys-rust. It is subject to the license terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT. No part of security-keys-rust, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+// Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
+
+
+use std::env::var_os;
+use std::path::PathBuf;
+use std::fs::File;
+use std::io;
+use std::io::BufRead;
+use std::io::BufReader;
+use std::io::BufWriter;
+use std::io::Write;
+use std::str::FromStr;
+use unicode_xid::UnicodeXID;
+
+
+fn main()
+{
+	let mut vendors = Vec::with_capacity(u16::MAX as usize);
+	read_usb_vendor_names_and_identifiers("extant", false, &mut vendors);
+	read_usb_vendor_names_and_identifiers("obsolete", true, &mut vendors);
+	write_vendor_implementation(&vendors).unwrap();
+}
+
+fn write_vendor_implementation(vendors: &Vec<(String, u16, bool)>) -> io::Result<()>
+{
+	let mut writer = writer("VendorRegistration.rs");
+	writeln!(writer, "impl VendorRegistration\n{{")?;
+	write_vendor_registration_implementation_constants(vendors, &mut writer)?;
+	write_vendor_registration_implementation_parse(vendors, &mut writer)?;
+	writeln!(writer, "}}")?;
+	
+	Ok(())
+}
+
+fn write_vendor_registration_implementation_constants(vendors: &Vec<(String, u16, bool)>, writer: &mut BufWriter<File>) -> io::Result<()>
+{
+	for &(ref vendor_name, _vendor_identifier, is_obsolete) in vendors.iter()
+	{
+		let rust_identifier = vendor_name_to_rust_identifier(&vendor_name);
+		
+		writeln!(writer, "\t/// {}.", vendor_name)?;
+		writeln!(writer, "\tpub const {}: Self = Self::new(\"{}\", {});", rust_identifier, vendor_name, is_obsolete)?;
+		writeln!(writer)?;
+	}
+	Ok(())
+}
+
+fn write_vendor_registration_implementation_parse(vendors: &Vec<(String, u16, bool)>, writer: &mut BufWriter<File>) -> io::Result<()>
+{
+	writeln!(writer, "\tfn parse(identifier: VendorIdentifier) -> Option<Self>")?;
+	writeln!(writer, "\t{{")?;
+	writeln!(writer, "\t\tmatch identifier")?;
+	writeln!(writer, "\t\t{{")?;
+	for &(ref vendor_name, vendor_identifier, _is_obsolete) in vendors.iter()
+	{
+		let rust_identifier = vendor_name_to_rust_identifier(&vendor_name);
+		writeln!(writer, "\t\t\t{} => Some(Self::{}),", vendor_identifier, rust_identifier)?;
+		writeln!(writer)?;
+	}
+	writeln!(writer, "\t\t\t_ => None")?;
+	writeln!(writer, "\t\t}}")?;
+	writeln!(writer, "\t}}")?;
+	Ok(())
+}
+
+fn vendor_name_to_rust_identifier(vendor_name: &str) -> String
+{
+	let mut rust_identifier = String::with_capacity(vendor_name.len() + 1);
+	for (index, character) in vendor_name.chars().enumerate()
+	{
+		if index == 0
+		{
+			if character.is_xid_start()
+			{
+				rust_identifier.push(character);
+			}
+			else if character.is_xid_continue()
+			{
+				rust_identifier.push('_');
+				rust_identifier.push(character);
+			}
+			else
+			{
+				rust_identifier.push('_');
+			}
+		}
+		else
+		{
+			if character.is_xid_continue()
+			{
+				rust_identifier.push(character);
+			}
+			else
+			{
+				rust_identifier.push('_');
+			}
+		}
+	}
+	rust_identifier
+}
+
+fn writer(file_name: &'static str) -> BufWriter<File>
+{
+	let file_path = out_file_path(file_name);
+	let file = File::create(&file_path).map_err(|error| format!("Could not create file path {:?} because of error {}", &file_path, error)).unwrap();
+	BufWriter::with_capacity(4096, file)
+}
+
+fn out_file_path(file_name: &'static str) -> PathBuf
+{
+	let out_folder_path = PathBuf::from(var_os("OUT_DIR").expect("OUT_DIR should be set by Cargo"));
+	let mut file_path = out_folder_path.to_path_buf();
+	file_path.push(file_name);
+	file_path
+}
+
+fn read_usb_vendor_names_and_identifiers(file_prefix: &'static str, is_obsolete: bool, vendors: &mut Vec<(String, u16, bool)>)
+{
+	let mut reader = reader(file_prefix);
+	let mut line = 0;
+	loop
+	{
+		let (vendor_name, vendor_identifier) = match read_vendor_name_and_vendor_identifier(&mut reader, file_prefix, &mut line)
+		{
+			None => break,
+			
+			Some(x) => x
+		};
+		vendors.push((vendor_name, vendor_identifier, is_obsolete));
+	}
+}
+
+fn reader(file_prefix: &'static str) -> BufReader<File>
+{
+	let file_path = in_file_path(file_prefix);
+	let file = File::open(&file_path).map_err(|error| format!("Could not open usb-vendor-names-and-identifiers file path {:?} because of error {}", &file_path, error)).unwrap();
+	BufReader::new(file)
+}
+
+fn in_file_path(file_prefix: &'static str) -> PathBuf
+{
+	let cargo_manifest_folder_path = PathBuf::from(var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR should be set by Cargo"));
+	let mut file_path = cargo_manifest_folder_path.to_path_buf();
+	file_path.push("build");
+	let file_name = format!("{}.usb-vendor-names-and-identifiers.txt", file_prefix);
+	file_path.push(file_name);
+	file_path
+}
+
+fn read_vendor_name_and_vendor_identifier(reader: &mut BufReader<File>, file_prefix: &'static str, line: &mut usize) -> Option<(String, u16)>
+{
+	let vendor_name = read_line(reader, 32, file_prefix, line)?;
+	
+	let vendor_identifier_string = match read_line(reader, 5, file_prefix, line)
+	{
+		Some(line) => line,
+		
+		None => panic!("Missing vendor identifier in {} on line {}", file_prefix, *line)
+	};
+	
+	let vendor_identifier = match u16::from_str(&vendor_identifier_string)
+	{
+		Ok(vendor_identifier) => vendor_identifier,
+		
+		Err(parse_error) => panic!("Could not parse u16 in {} on line {} from value {} because of {}", file_prefix, *line, &vendor_identifier_string, parse_error),
+	};
+	
+	Some((vendor_name, vendor_identifier))
+}
+
+fn read_line(reader: &mut BufReader<File>, capacity: usize, file_prefix: &'static str, line: &mut usize) -> Option<String>
+{
+	let mut line_including_line_feed = String::with_capacity(capacity);
+	let result = reader.read_line(&mut line_including_line_feed);
+	let current_line = *line;
+	*line = current_line + 1;
+	match result
+	{
+		Ok(0) => None,
+		
+		Ok(_bytes_read) =>
+		{
+			line_including_line_feed.pop();
+			Some(line_including_line_feed)
+		}
+		
+		Err(_) => panic!("Could not read from {} line {} in usb-vendor-names-and-identifiers file", file_prefix, current_line)
+	}
+}

@@ -4,7 +4,7 @@
 
 #[allow(dead_code)]
 #[inline(always)]
-pub(crate) fn get_device(libusb_device_handle: NonNull<libusb_device_handle>) -> NonNull<libusb_device>
+fn get_device(libusb_device_handle: NonNull<libusb_device_handle>) -> NonNull<libusb_device>
 {
 	let device = unsafe { libusb_get_device(libusb_device_handle.as_ptr()) };
 	new_non_null(device)

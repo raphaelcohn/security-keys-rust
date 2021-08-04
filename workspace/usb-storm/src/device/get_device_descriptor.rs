@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-pub(crate) fn get_device_descriptor(libusb_device: NonNull<libusb_device>) -> libusb_device_descriptor
+fn get_device_descriptor(libusb_device: NonNull<libusb_device>) -> libusb_device_descriptor
 {
 	let mut descriptor = MaybeUninit::uninit();
 	

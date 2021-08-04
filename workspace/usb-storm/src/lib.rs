@@ -46,8 +46,8 @@ use serde_lexpr as _;
 use serde_yaml as _;
 
 
-use self::device::ProductIdentifier;
-use self::device::VendorIdentifier;
+use self::device::product::ProductIdentifier;
+use self::device::vendor::VendorIdentifier;
 use self::version::Version;
 use std::collections::HashMap;
 use std::collections::TryReserveError;

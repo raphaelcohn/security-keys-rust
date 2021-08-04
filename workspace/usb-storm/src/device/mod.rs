@@ -4,6 +4,10 @@
 
 use crate::u3;
 use crate::VecExt;
+use self::logical_location::LogicalLocation;
+use self::physical_location::PhysicalLocation;
+use self::product::Product;
+use self::vendor::Vendor;
 use super::class_and_protocol::DeviceClass;
 use super::configuration::Configuration;
 use super::configuration::ConfigurationNumber;
@@ -19,6 +23,8 @@ use super::string::GetLocalizedStringError;
 use super::string::LocalizedStrings;
 use super::string::StringFinder;
 use super::string::language::Language;
+use super::vendor::Vendor;
+use super::vendor::ProductIdentifier;
 use super::version::Version;
 use super::version::VersionParseError;
 use arrayvec::ArrayVec;
@@ -76,6 +82,22 @@ use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
+/// Bus and address.
+pub mod logical_location;
+
+
+/// Port number.
+pub mod physical_location;
+
+
+/// Product details.
+pub mod product;
+
+
+/// USB vendor.
+pub mod vendor;
+
+
 include!("DeadOrAlive.rs");
 include!("Device.rs");
 include!("DeviceHandle.rs");
@@ -83,17 +105,10 @@ include!("DeviceHandleOpenError.rs");
 include!("DeviceParseError.rs");
 include!("DeviceReference.rs");
 include!("Devices.rs");
-include!("get_bus_number.rs");
 include!("get_device.rs");
-include!("get_device_address.rs");
 include!("get_device_descriptor.rs");
 include!("get_device_speed.rs");
 include!("get_parent.rs");
-include!("get_port_number.rs");
-include!("get_port_numbers.rs");
+include!("Location.rs");
 include!("ListDevicesError.rs");
-include!("MaximumDevicePortNumbers.rs");
-include!("PortNumber.rs");
-include!("ProductIdentifier.rs");
 include!("Speed.rs");
-include!("VendorIdentifier.rs");
