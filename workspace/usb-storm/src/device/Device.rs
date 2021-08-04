@@ -28,11 +28,11 @@ pub struct Device
 	
 	serial_number: Option<LocalizedStrings>,
 	
-	configurations: IndexMap<ConfigurationNumber, Configuration>,
+	languages: Option<Vec<Language>>,
 	
 	active_configuration_number: Option<ConfigurationNumber>,
 	
-	languages: Option<Vec<Language>>,
+	configurations: IndexMap<ConfigurationNumber, Configuration>,
 }
 
 impl Device

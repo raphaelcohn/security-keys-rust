@@ -38,7 +38,7 @@ pub enum InterfaceClass
 	SmartCard(SmartCardInterfaceSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Dh>.
-	ContentSecurity(Option<UnrecognizedSubClass>),
+	ContentSecurity(KnownOrUnrecognizedSubClassAndProtocol),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Eh>.
 	Video(UnrecognizedSubClass),
@@ -159,9 +159,9 @@ impl InterfaceClass
 			
 			(0x0C, _, _) => InterfaceClass::Unrecognized { class_code, sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
-			(0x0D, 0x00, 0x00) => ContentSecurity(None),
+			(0x0D, 0x00, 0x00) => ContentSecurity(KnownOrUnrecognizedSubClassAndProtocol::Known),
 			
-			(0x0D, _, _) => ContentSecurity(Some(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			(0x0D, _, _) => ContentSecurity(KnownOrUnrecognizedSubClassAndProtocol::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x0E, _, _) => Video(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
