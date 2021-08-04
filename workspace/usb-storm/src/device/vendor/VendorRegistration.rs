@@ -8,7 +8,7 @@
 #[serde(deny_unknown_fields)]
 pub struct VendorRegistration
 {
-	registration_name: &'static str,
+	#[serde(skip_deserializing, default = "VendorRegistration::registration_name_default")] registration_name: &'static str,
 	
 	is_obsolete: bool,
 }
@@ -38,6 +38,12 @@ impl VendorRegistration
 		
 			is_obsolete,
 		}
+	}
+	
+	#[inline(always)]
+	const fn registration_name_default() -> &'static str
+	{
+		"(Skipped when deserialized)"
 	}
 }
 

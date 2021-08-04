@@ -3,7 +3,7 @@
 
 
 /// Physical location.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct PhysicalLocation
@@ -27,15 +27,15 @@ impl PhysicalLocation
 	
 	/// Bus number.
 	#[inline(always)]
-	pub const fn port_number(self) -> u8
+	pub const fn port_number(&self) -> u8
 	{
 		self.port_number
 	}
 	
 	/// Address address.
 	#[inline(always)]
-	pub const fn port_numbers(self) -> ArrayVec<PortNumber, MaximumDevicePortNumbers>
+	pub const fn port_numbers(&self) -> &ArrayVec<PortNumber, MaximumDevicePortNumbers>
 	{
-		self.port_numbers
+		&self.port_numbers
 	}
 }

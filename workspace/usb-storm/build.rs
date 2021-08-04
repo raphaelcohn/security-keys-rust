@@ -2,6 +2,30 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+#![allow(non_camel_case_types)]
+#![allow(non_snake_case)]
+#![allow(non_upper_case_globals)]
+#![deny(absolute_paths_not_starting_with_crate)]
+#![deny(invalid_html_tags)]
+#![deny(macro_use_extern_crate)]
+#![deny(missing_crate_level_docs)]
+#![deny(missing_docs)]
+#![deny(pointer_structural_match)]
+#![deny(unaligned_references)]
+#![deny(unconditional_recursion)]
+#![deny(unreachable_patterns)]
+#![deny(unused_import_braces)]
+#![deny(unused_must_use)]
+#![deny(unused_qualifications)]
+#![deny(unused_results)]
+#![warn(unreachable_pub)]
+#![warn(unused_lifetimes)]
+#![warn(unused_crate_dependencies)]
+
+
+//! Build Script.
+
+
 use std::env::var_os;
 use std::path::PathBuf;
 use std::fs::File;
@@ -37,10 +61,11 @@ fn write_vendor_registration_implementation_constants(vendors: &Vec<(String, u16
 {
 	for &(ref vendor_name, _vendor_identifier, is_obsolete) in vendors.iter()
 	{
-		let rust_identifier = vendor_name_to_rust_identifier(&vendor_name);
+		let rust_identifier = vendor_name_to_rust_identifier(&vendor_name, is_obsolete);
+		let rust_string_literal = vendor_name_to_rust_string_literal(&vendor_name);
 		
 		writeln!(writer, "\t/// {}.", vendor_name)?;
-		writeln!(writer, "\tpub const {}: Self = Self::new(\"{}\", {});", rust_identifier, vendor_name, is_obsolete)?;
+		writeln!(writer, "\tpub const {}: Self = Self::new({}, {});", rust_identifier, rust_string_literal, is_obsolete)?;
 		writeln!(writer)?;
 	}
 	Ok(())
@@ -52,9 +77,9 @@ fn write_vendor_registration_implementation_parse(vendors: &Vec<(String, u16, bo
 	writeln!(writer, "\t{{")?;
 	writeln!(writer, "\t\tmatch identifier")?;
 	writeln!(writer, "\t\t{{")?;
-	for &(ref vendor_name, vendor_identifier, _is_obsolete) in vendors.iter()
+	for &(ref vendor_name, vendor_identifier, is_obsolete) in vendors.iter()
 	{
-		let rust_identifier = vendor_name_to_rust_identifier(&vendor_name);
+		let rust_identifier = vendor_name_to_rust_identifier(&vendor_name, is_obsolete);
 		writeln!(writer, "\t\t\t{} => Some(Self::{}),", vendor_identifier, rust_identifier)?;
 		writeln!(writer)?;
 	}
@@ -64,9 +89,11 @@ fn write_vendor_registration_implementation_parse(vendors: &Vec<(String, u16, bo
 	Ok(())
 }
 
-fn vendor_name_to_rust_identifier(vendor_name: &str) -> String
+fn vendor_name_to_rust_identifier(vendor_name: &str, is_obsolete: bool) -> String
 {
-	let mut rust_identifier = String::with_capacity(vendor_name.len() + 1);
+	const ObsoletePostfix: &'static str = "_Obsolete";
+	let mut rust_identifier = String::with_capacity(1 + vendor_name.len() + ObsoletePostfix.len());
+	
 	for (index, character) in vendor_name.chars().enumerate()
 	{
 		if index == 0
@@ -97,22 +124,61 @@ fn vendor_name_to_rust_identifier(vendor_name: &str) -> String
 			}
 		}
 	}
+	
+	if is_obsolete
+	{
+		rust_identifier.push_str(ObsoletePostfix);
+	}
+	
 	rust_identifier
 }
 
-fn writer(file_name: &'static str) -> BufWriter<File>
+fn vendor_name_to_rust_string_literal(vendor_name: &str) -> String
 {
-	let file_path = out_file_path(file_name);
-	let file = File::create(&file_path).map_err(|error| format!("Could not create file path {:?} because of error {}", &file_path, error)).unwrap();
-	BufWriter::with_capacity(4096, file)
-}
-
-fn out_file_path(file_name: &'static str) -> PathBuf
-{
-	let out_folder_path = PathBuf::from(var_os("OUT_DIR").expect("OUT_DIR should be set by Cargo"));
-	let mut file_path = out_folder_path.to_path_buf();
-	file_path.push(file_name);
-	file_path
+	let mut longest_hash_count = 0;
+	let mut current_hash_count = 0;
+	for byte in vendor_name.as_bytes()
+	{
+		let byte = *byte;
+		if current_hash_count == 0
+		{
+			if byte == b'"'
+			{
+				current_hash_count = 1;
+			}
+		}
+		else
+		{
+			if byte == b'#'
+			{
+				current_hash_count += 1;
+			}
+			else
+			{
+				let hash_count = current_hash_count;
+				if hash_count > longest_hash_count
+				{
+					longest_hash_count = hash_count;
+				}
+				current_hash_count = 0;
+			}
+		}
+	}
+	
+	let mut rust_string_literal = String::with_capacity(2 + vendor_name.len() + 1 + (longest_hash_count * 2));
+	rust_string_literal.push('r');
+	for _ in 0 .. longest_hash_count
+	{
+		rust_string_literal.push('#')
+	}
+	rust_string_literal.push('"');
+	rust_string_literal.push_str(vendor_name);
+	rust_string_literal.push('"');
+	for _ in 0 .. longest_hash_count
+	{
+		rust_string_literal.push('#')
+	}
+	rust_string_literal
 }
 
 fn read_usb_vendor_names_and_identifiers(file_prefix: &'static str, is_obsolete: bool, vendors: &mut Vec<(String, u16, bool)>)
@@ -129,23 +195,6 @@ fn read_usb_vendor_names_and_identifiers(file_prefix: &'static str, is_obsolete:
 		};
 		vendors.push((vendor_name, vendor_identifier, is_obsolete));
 	}
-}
-
-fn reader(file_prefix: &'static str) -> BufReader<File>
-{
-	let file_path = in_file_path(file_prefix);
-	let file = File::open(&file_path).map_err(|error| format!("Could not open usb-vendor-names-and-identifiers file path {:?} because of error {}", &file_path, error)).unwrap();
-	BufReader::new(file)
-}
-
-fn in_file_path(file_prefix: &'static str) -> PathBuf
-{
-	let cargo_manifest_folder_path = PathBuf::from(var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR should be set by Cargo"));
-	let mut file_path = cargo_manifest_folder_path.to_path_buf();
-	file_path.push("build");
-	let file_name = format!("{}.usb-vendor-names-and-identifiers.txt", file_prefix);
-	file_path.push(file_name);
-	file_path
 }
 
 fn read_vendor_name_and_vendor_identifier(reader: &mut BufReader<File>, file_prefix: &'static str, line: &mut usize) -> Option<(String, u16)>
@@ -169,6 +218,38 @@ fn read_vendor_name_and_vendor_identifier(reader: &mut BufReader<File>, file_pre
 	Some((vendor_name, vendor_identifier))
 }
 
+fn writer(file_name: &'static str) -> BufWriter<File>
+{
+	let file_path = out_file_path(file_name);
+	let file = File::create(&file_path).map_err(|error| format!("Could not create file path {:?} because of error {}", &file_path, error)).unwrap();
+	BufWriter::with_capacity(4096, file)
+}
+
+fn out_file_path(file_name: &'static str) -> PathBuf
+{
+	let out_folder_path = PathBuf::from(var_os("OUT_DIR").expect("OUT_DIR should be set by Cargo"));
+	let mut file_path = out_folder_path.to_path_buf();
+	file_path.push(file_name);
+	file_path
+}
+
+fn reader(file_prefix: &'static str) -> BufReader<File>
+{
+	let file_path = in_file_path(file_prefix);
+	let file = File::open(&file_path).map_err(|error| format!("Could not open usb-vendor-names-and-identifiers file path {:?} because of error {}", &file_path, error)).unwrap();
+	BufReader::new(file)
+}
+
+fn in_file_path(file_prefix: &'static str) -> PathBuf
+{
+	let cargo_manifest_folder_path = PathBuf::from(var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR should be set by Cargo"));
+	let mut file_path = cargo_manifest_folder_path.to_path_buf();
+	let file_name = format!("build/{}.usb-vendor-names-and-identifiers.txt", file_prefix);
+	println!("cargo:rerun-if-changed={}", file_name);
+	file_path.push(file_name);
+	file_path
+}
+
 fn read_line(reader: &mut BufReader<File>, capacity: usize, file_prefix: &'static str, line: &mut usize) -> Option<String>
 {
 	let mut line_including_line_feed = String::with_capacity(capacity);
@@ -181,7 +262,8 @@ fn read_line(reader: &mut BufReader<File>, capacity: usize, file_prefix: &'stati
 		
 		Ok(_bytes_read) =>
 		{
-			line_including_line_feed.pop();
+			let line_feed = line_including_line_feed.pop().unwrap();
+			assert_eq!(line_feed, '\n', "{} line {} is not new-line terminated", file_prefix, current_line);
 			Some(line_including_line_feed)
 		}
 		

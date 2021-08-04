@@ -3,7 +3,7 @@
 
 
 /// Location.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Location
@@ -24,9 +24,9 @@ impl Location
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn physical_location(&self) -> PhysicalLocation
+	pub const fn physical_location(&self) -> &PhysicalLocation
 	{
-		self.physical_location
+		&self.physical_location
 	}
 	
 	#[inline(always)]

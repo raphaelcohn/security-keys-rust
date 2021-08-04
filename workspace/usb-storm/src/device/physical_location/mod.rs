@@ -6,6 +6,10 @@ use arrayvec::ArrayVec;
 use libusb1_sys::libusb_device;
 use libusb1_sys::libusb_get_port_number;
 use libusb1_sys::libusb_get_port_numbers;
+use libusb1_sys::constants::LIBUSB_ERROR_OVERFLOW;
+use likely::likely;
+use serde::Deserialize;
+use serde::Serialize;
 use std::ptr::NonNull;
 
 

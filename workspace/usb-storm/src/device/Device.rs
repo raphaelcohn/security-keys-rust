@@ -39,16 +39,16 @@ impl Device
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn location(&self) -> Location
+	pub const fn location(&self) -> &Location
 	{
-		self.location
+		&self.location
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn parent(&self) -> Option<Location>
+	pub const fn parent(&self) -> Option<&Location>
 	{
-		self.parent
+		self.parent.as_ref()
 	}
 	
 	#[allow(missing_docs)]
