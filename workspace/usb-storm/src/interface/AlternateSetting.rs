@@ -177,6 +177,12 @@ impl AlternateSetting
 	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 	{
 		#[inline(always)]
+		fn device_upgrade_firmware(extra: &[u8]) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		{
+			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
+		}
+		
+		#[inline(always)]
 		fn human_interface_device(extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
 			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(variant))
@@ -204,18 +210,20 @@ impl AlternateSetting
 		
 		let extra = extra_to_slice(alternate_setting.extra, alternate_setting.extra_length)?;
 		
+		use ApplicationSpecificInterfaceSubClass::DeviceFirmwareUpgrade;
 		use HumanInterfaceDeviceInterfaceBootProtocol::Keyboard;
 		use HumanInterfaceDeviceInterfaceBootProtocol::Mouse;
 		use HumanInterfaceDeviceInterfaceSubClass::Boot;
 		use InterfaceClass::*;
 		use SmartCardProtocol::*;
-		use SmartCardInterfaceSubClass::Known;
 		
 		const SmartCardDescriptorType: u8 = 0x21;
 		const VendorSpecificDescriptorType: u8 = 0xFF;
 		
 		match interface_class
 		{
+			ApplicationSpecific(DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol::Known)) => device_upgrade_firmware(extra),
+			
 			HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: None }) => human_interface_device(extra, NotBoot),
 			HumanInterfaceDevice(Boot(HumanInterfaceDeviceInterfaceBootProtocol::None)) => human_interface_device(extra, BootNone),
 			HumanInterfaceDevice(Boot(Keyboard)) => human_interface_device(extra, BootKeyboard),
@@ -238,11 +246,11 @@ impl AlternateSetting
 			//
 			// Notes:-
 			// * \* Does not have a manufacturer or product name string, but known as 'Blutronics Bludrive II' or 'BludriveIIv2.txt' in the CCID project; the unversioned original driver dates from 2008 and is called 'BLUDRIVE II CCID'.
-			SmartCard(Known(BulkTransfer)) if extra.is_empty() => unsupported_smart_card_with_descriptor_at_end_of_end_points(extra),
+			SmartCard(SmartCardInterfaceSubClass::Known(BulkTransfer)) if extra.is_empty() => unsupported_smart_card_with_descriptor_at_end_of_end_points(extra),
 			
-			SmartCard(Known(BulkTransfer)) => smart_card(extra, BulkTransfer, SmartCardDescriptorType),
-			SmartCard(Known(IccdVersionA)) => smart_card(extra, IccdVersionA, SmartCardDescriptorType),
-			SmartCard(Known(IccdVersionB)) => smart_card(extra, IccdVersionB, SmartCardDescriptorType),
+			SmartCard(SmartCardInterfaceSubClass::Known(BulkTransfer)) => smart_card(extra, BulkTransfer, SmartCardDescriptorType),
+			SmartCard(SmartCardInterfaceSubClass::Known(IccdVersionA)) => smart_card(extra, IccdVersionA, SmartCardDescriptorType),
+			SmartCard(SmartCardInterfaceSubClass::Known(IccdVersionB)) => smart_card(extra, IccdVersionB, SmartCardDescriptorType),
 			
 			// Product Name (Vendor Identifier, Product Identifier, Year Added to CCID).
 			// * USB Reader V2 (0x09C3, 0x0008, 2006).

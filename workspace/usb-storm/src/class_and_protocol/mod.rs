@@ -12,6 +12,8 @@ use swiss_army_knife::non_zero::new_non_zero_u8;
 
 include!("ApplicationSpecificInterfaceSubClass.rs");
 include!("AssociationProtocol.rs");
+include!("AudioProtocol.rs");
+include!("AudioSubClass.rs");
 include!("AudioVideoInterfaceSubClass.rs");
 include!("BluetoothProtocol.rs");
 include!("DeviceClass.rs");
@@ -36,5 +38,6 @@ include!("TestAndMeasurementProtocol.rs");
 include!("TraceOverGeneralPurposeEndPointOnDvCDiagnosticProtocol.rs");
 include!("UnrecognizedSubClass.rs");
 include!("Usb3VisionControlProtocol.rs");
+include!("VideoSubClass.rs");
 include!("WireAdapterProtocol.rs");
 include!("WirelessControllerSubClass.rs");

@@ -6,6 +6,9 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InterfaceAdditionalDescriptorParseError
 {
+	/// Device Firmware Upgrade (DFU).
+	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError),
+	
 	/// Human Interface Device (HID).
 	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError),
 	
@@ -31,10 +34,21 @@ impl error::Error for InterfaceAdditionalDescriptorParseError
 		
 		match self
 		{
+			DeviceFirmwareUpgrade(cause) => Some(cause),
+			
 			HumanInterfaceDevice(cause) => Some(cause),
 			
 			SmartCard(cause) => Some(cause),
 		}
+	}
+}
+
+impl From<DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError> for InterfaceAdditionalDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError) -> Self
+	{
+		InterfaceAdditionalDescriptorParseError::DeviceFirmwareUpgrade(cause)
 	}
 }
 

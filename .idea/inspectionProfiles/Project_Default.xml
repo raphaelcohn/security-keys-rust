@@ -1485,9 +1485,8 @@
     <inspection_tool class="NewStringBufferWithCharArgument" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NoExplicitFinalizeCalls" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NonAsciiCharacters" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="CHECK_FOR_NOT_ASCII_STRING_LITERAL" value="true" />
-      <option name="CHECK_FOR_NOT_ASCII_COMMENT" value="true" />
-      <option name="CHECK_FOR_DIFFERENT_LANGUAGES_IN_STRING" value="true" />
+      <option name="CHECK_FOR_NOT_ASCII_IDENTIFIER_NAME" value="false" />
+      <option name="CHECK_FOR_DIFFERENT_LANGUAGES_IN_IDENTIFIER_NAME" value="false" />
       <option name="CHECK_FOR_FILES_CONTAINING_BOM" value="true" />
     </inspection_tool>
     <inspection_tool class="NonAtomicOperationOnVolatileField" enabled="true" level="WARNING" enabled_by_default="true" />

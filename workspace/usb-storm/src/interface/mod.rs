@@ -3,6 +3,9 @@
 
 
 use super::integers::u5;
+use self::device_firmware_upgrade::DeviceFirmwareUpgradeInterfaceAdditionalDescriptor;
+use self::device_firmware_upgrade::DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError;
+use self::device_firmware_upgrade::DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptor;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalDescriptorParser;
@@ -16,9 +19,11 @@ use super::additional_descriptors::AdditionalDescriptorParser;
 use super::additional_descriptors::DescriptorType;
 use super::additional_descriptors::extra_to_slice;
 use super::additional_descriptors::parse_additional_descriptors;
+use super::class_and_protocol::ApplicationSpecificInterfaceSubClass;
 use super::class_and_protocol::HumanInterfaceDeviceInterfaceBootProtocol;
 use super::class_and_protocol::HumanInterfaceDeviceInterfaceSubClass;
 use super::class_and_protocol::InterfaceClass;
+use super::class_and_protocol::KnownOrUnrecognizedProtocol;
 use super::class_and_protocol::SmartCardProtocol;
 use super::class_and_protocol::SmartCardInterfaceSubClass;
 use super::class_and_protocol::UnrecognizedSubClass;
@@ -56,12 +61,16 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
-/// CCID (Chip Card Interface Device).
-pub mod smart_card;
+/// Device Firmware Upgrade (DFU).
+pub mod device_firmware_upgrade;
 
 
 /// Human Interface Device (HID).
 pub mod human_interface_device;
+
+
+/// CCID (Chip Card Interface Device).
+pub mod smart_card;
 
 
 /// Unsupported.

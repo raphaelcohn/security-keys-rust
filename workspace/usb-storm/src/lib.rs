@@ -45,15 +45,8 @@ use serde_lexpr as _;
 use serde_yaml as _;
 
 
-use self::device::product::ProductIdentifier;
-use self::device::vendor::VendorIdentifier;
 use self::version::Version;
-use std::collections::HashMap;
 use std::collections::TryReserveError;
-use std::fmt::Debug;
-use std::hash::Hash;
-use std::num::NonZeroU8;
-use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
 /// Additional descriptors, eg for Smart Cards and Human Interface Devices (HID).
@@ -104,6 +97,4 @@ pub mod string;
 pub mod version;
 
 
-include!("DeviceInformationDatabase.rs");
-include!("FixedUsbDeviceCapabilities.rs");
 include!("VecExt.rs");

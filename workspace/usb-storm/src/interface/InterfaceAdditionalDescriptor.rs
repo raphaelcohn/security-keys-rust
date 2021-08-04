@@ -9,18 +9,21 @@
 pub enum InterfaceAdditionalDescriptor
 {
 	#[allow(missing_docs)]
-	SmartCard(SmartCardInterfaceAdditionalDescriptor),
+	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceAdditionalDescriptor),
 	
 	#[allow(missing_docs)]
 	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceAdditionalDescriptor),
+	
+	#[allow(missing_docs)]
+	SmartCard(SmartCardInterfaceAdditionalDescriptor),
 }
 
-impl From<SmartCardInterfaceAdditionalDescriptor> for InterfaceAdditionalDescriptor
+impl From<DeviceFirmwareUpgradeInterfaceAdditionalDescriptor> for InterfaceAdditionalDescriptor
 {
 	#[inline(always)]
-	fn from(value: SmartCardInterfaceAdditionalDescriptor) -> Self
+	fn from(value: DeviceFirmwareUpgradeInterfaceAdditionalDescriptor) -> Self
 	{
-		InterfaceAdditionalDescriptor::SmartCard(value)
+		InterfaceAdditionalDescriptor::DeviceFirmwareUpgrade(value)
 	}
 }
 
@@ -30,6 +33,15 @@ impl From<HumanInterfaceDeviceInterfaceAdditionalDescriptor> for InterfaceAdditi
 	fn from(value: HumanInterfaceDeviceInterfaceAdditionalDescriptor) -> Self
 	{
 		InterfaceAdditionalDescriptor::HumanInterfaceDevice(value)
+	}
+}
+
+impl From<SmartCardInterfaceAdditionalDescriptor> for InterfaceAdditionalDescriptor
+{
+	#[inline(always)]
+	fn from(value: SmartCardInterfaceAdditionalDescriptor) -> Self
+	{
+		InterfaceAdditionalDescriptor::SmartCard(value)
 	}
 }
 

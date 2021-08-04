@@ -9,7 +9,7 @@
 pub enum InterfaceClass
 {
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass01h>.
-	Audio(UnrecognizedSubClass),
+	Audio(AudioSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass02h>.
 	CommunicationsDeviceClassControl(UnrecognizedSubClass),
@@ -41,7 +41,7 @@ pub enum InterfaceClass
 	ContentSecurity(KnownOrUnrecognizedSubClassAndProtocol),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Eh>.
-	Video(UnrecognizedSubClass),
+	Video(VideoSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Fh>.
 	PersonalHealthcare(UnrecognizedSubClass),
@@ -126,7 +126,17 @@ impl InterfaceClass
 		{
 			(0x00, _, _) => InterfaceClass::Unrecognized { class_code, sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
-			(0x01, _, _) => Audio(UnrecognizedSubClass { sub_class_code, protocol_code }),
+			(0x01, 0x01, 0x00) => Audio(AudioSubClass::Control(AudioProtocol::Version_1_0)),
+			(0x01, 0x01, 0x20) => Audio(AudioSubClass::Control(AudioProtocol::Version_2_0)),
+			(0x01, 0x01, 0x30) => Audio(AudioSubClass::Control(AudioProtocol::Version_3_0)),
+			(0x01, 0x01, _) => Audio(AudioSubClass::Control(AudioProtocol::Unrecognized(protocol_code))),
+			(0x01, 0x02, 0x00) => Audio(AudioSubClass::Streaming(AudioProtocol::Version_1_0)),
+			(0x01, 0x02, 0x20) => Audio(AudioSubClass::Streaming(AudioProtocol::Version_2_0)),
+			(0x01, 0x02, 0x30) => Audio(AudioSubClass::Streaming(AudioProtocol::Version_3_0)),
+			(0x01, 0x02, _) => Audio(AudioSubClass::Streaming(AudioProtocol::Unrecognized(protocol_code))),
+			(0x01, 0x03, 0x00) => Audio(AudioSubClass::MidiStreaming(KnownOrUnrecognizedProtocol::Known)),
+			(0x01, 0x03, _) => Audio(AudioSubClass::MidiStreaming(KnownOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x01, _, _) => Audio(AudioSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x02, _, _) => CommunicationsDeviceClassControl(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
@@ -162,8 +172,11 @@ impl InterfaceClass
 			(0x0D, 0x00, 0x00) => ContentSecurity(KnownOrUnrecognizedSubClassAndProtocol::Known),
 			
 			(0x0D, _, _) => ContentSecurity(KnownOrUnrecognizedSubClassAndProtocol::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
-			
-			(0x0E, _, _) => Video(UnrecognizedSubClass { sub_class_code, protocol_code }),
+
+			(0x0E, 0x01, 0x01) => Video(VideoSubClass::Control),
+			(0x0E, 0x02, 0x01) => Video(VideoSubClass::Streaming),
+			(0x0E, 0x03, 0x00) => Video(VideoSubClass::InterfaceCollection),
+			(0x0E, _, _) => Video(VideoSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x0F, _, _) => PersonalHealthcare(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
