@@ -2,5 +2,33 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A 6-bit unsigned integer.
-pub type u6 = u8;
+/// (Remote Network Driver Interface Specification (RNDIS) protocol)[https://en.wikipedia.org/wiki/RNDIS].
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum RemoteNetworkDriverInterfaceSpecificationProtocol
+{
+	#[allow(missing_docs)]
+	OverEthernet,
+	
+	#[allow(missing_docs)]
+	OverWiFi,
+	
+	#[allow(missing_docs)]
+	OverWiMax,
+	
+	#[allow(missing_docs)]
+	OverWWan,
+	
+	#[allow(missing_docs)]
+	OverRawIpV4,
+	
+	#[allow(missing_docs)]
+	OverRawIpV6,
+	
+	#[allow(missing_docs)]
+	OverGprs,
+	
+	#[allow(missing_docs)]
+	UnrecognizedProtocol(u8),
+}

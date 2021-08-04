@@ -5,10 +5,12 @@
 /// French dialect.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum FrenchSubLanguage
 {
+	#[default]
 	#[allow(missing_docs)]
 	Standard = 0x0400,
 	
@@ -26,7 +28,6 @@ pub enum FrenchSubLanguage
 	
 	#[allow(missing_docs)]
 	Monaco = 0x1800,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(FrenchSubLanguage);

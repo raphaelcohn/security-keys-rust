@@ -5,16 +5,17 @@
 /// Urdu variant.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum UrduSubLanguage
 {
+	#[default]
 	#[allow(missing_docs)]
 	Pakistan = 0x0400,
 	
 	#[allow(missing_docs)]
 	India = 0x0800,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(UrduSubLanguage);

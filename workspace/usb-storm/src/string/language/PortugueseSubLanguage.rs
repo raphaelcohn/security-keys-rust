@@ -5,6 +5,7 @@
 /// Portuguese dialect.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum PortugueseSubLanguage
@@ -12,9 +13,9 @@ pub enum PortugueseSubLanguage
 	#[allow(missing_docs)]
 	Brazil = 0x0400,
 	
+	#[default]
 	#[allow(missing_docs)]
 	Standard = 0x0800,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(PortugueseSubLanguage);

@@ -5,10 +5,12 @@
 /// Arabic dialect.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum ArabicSubLanguage
 {
+	#[default]
 	#[allow(missing_docs)]
 	SaudiArabia = 0x0400,
 	
@@ -56,7 +58,6 @@ pub enum ArabicSubLanguage
 	
 	#[allow(missing_docs)]
 	Qatar = 0x4000,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(ArabicSubLanguage);

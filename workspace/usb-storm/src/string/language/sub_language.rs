@@ -2,5 +2,12 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Raw language identifier.
-pub type LanguageIdentifier = u16;
+macro_rules! sub_language
+{
+	($name: ty) =>
+	{
+		impl SubLanguage for $name
+		{
+		}
+	}
+}

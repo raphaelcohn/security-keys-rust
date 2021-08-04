@@ -5,15 +5,16 @@
 /// Cyrillic or Latin alphabet.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 pub enum CyrillicOrLatinSubLanguage
 {
+	#[default]
 	#[allow(missing_docs)]
 	Latin,
 	
 	#[allow(missing_docs)]
 	Cyrillic,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(CyrillicOrLatinSubLanguage);

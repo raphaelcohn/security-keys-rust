@@ -9,13 +9,13 @@
 pub enum MaximumPowerConsumption
 {
 	#[allow(missing_docs)]
-	SelfPoweredAndBusPowered(MaximumPowerConsumptionMilliamps),
+	SelfPoweredAndBusPoweredMilliamps(MaximumPowerConsumptionMilliamps),
 	
 	#[allow(missing_docs)]
 	SelfPowered,
 	
 	#[allow(missing_docs)]
-	BusPowered(MaximumPowerConsumptionMilliamps),
+	BusPoweredMilliamps(MaximumPowerConsumptionMilliamps),
 }
 
 impl MaximumPowerConsumption
@@ -41,7 +41,7 @@ impl MaximumPowerConsumption
 			}
 			else
 			{
-				Ok(SelfPoweredAndBusPowered(milliamps(bMaxPower, speed)))
+				Ok(SelfPoweredAndBusPoweredMilliamps(milliamps(bMaxPower, speed)))
 			}
 		}
 		else
@@ -52,7 +52,7 @@ impl MaximumPowerConsumption
 			}
 			else
 			{
-				Ok(BusPowered(milliamps(bMaxPower, speed)))
+				Ok(BusPoweredMilliamps(milliamps(bMaxPower, speed)))
 			}
 		}
 	}

@@ -9,7 +9,7 @@
 pub enum DeviceClass
 {
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass00h>.
-	UseClassInformationInTheInterfaceDescriptors(KnownOrUnknownSubClassAndProtocol),
+	UseClassInformationInTheInterfaceDescriptors(KnownOrUnrecognizedSubClassAndProtocol),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass02h>.
 	CommunicationsDeviceClassControl(UnrecognizedSubClass),
@@ -18,7 +18,7 @@ pub enum DeviceClass
 	Hub,
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass11h>.
-	Billboard(KnownOrUnknownSubClassAndProtocol),
+	Billboard(KnownOrUnrecognizedSubClassAndProtocol),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClassDCh>.
 	DiagnosticDevice(DiagnosticSubClass),
@@ -64,7 +64,7 @@ impl DeviceClass
 		use DiagnosticProtocol::*;
 		use DiagnosticSubClass::*;
 		use DvbCommonDeviceProtocol::*;
-		use KnownOrUnknownSubClassAndProtocol::Known;
+		use KnownOrUnrecognizedSubClassAndProtocol::Known;
 		use MiscellaneousDeviceSubClass::*;
 		use StreamTransportEfficientProtocol::*;
 		use SyncProtocol::*;
@@ -76,7 +76,7 @@ impl DeviceClass
 		match (class_code, sub_class_code, protocol_code)
 		{
 			(0x00, 0x00, 0x00) => UseClassInformationInTheInterfaceDescriptors(Known),
-			(0x00, _, _) => UseClassInformationInTheInterfaceDescriptors(KnownOrUnknownSubClassAndProtocol::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			(0x00, _, _) => UseClassInformationInTheInterfaceDescriptors(KnownOrUnrecognizedSubClassAndProtocol::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x01, _, _) => ShouldBeInterfaceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
@@ -97,7 +97,7 @@ impl DeviceClass
 			(0x0D ..= 0x10, _, _) => ShouldBeInterfaceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
 			(0x11, 0x00, 0x00) => Billboard(Known),
-			(0x11, _, _) => Billboard(KnownOrUnknownSubClassAndProtocol::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			(0x11, _, _) => Billboard(KnownOrUnrecognizedSubClassAndProtocol::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x12, _, _) => ShouldBeInterfaceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			

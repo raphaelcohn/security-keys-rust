@@ -5,10 +5,12 @@
 /// English dialect.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum EnglishSubLanguage
 {
+	#[default]
 	#[allow(missing_docs)]
 	UnitedStates = 0x0400,
 	
@@ -47,7 +49,6 @@ pub enum EnglishSubLanguage
 	
 	#[allow(missing_docs)]
 	Philippines = 0x3400,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(EnglishSubLanguage);

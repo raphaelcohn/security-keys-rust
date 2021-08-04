@@ -4,8 +4,7 @@
 
 /// Language.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
+#[derive(AsRefStr, Display, EnumString)]
 pub enum Language
 {
 	#[allow(missing_docs)]
@@ -228,11 +227,362 @@ pub enum Language
 	HumanInterfaceDevice(HumanInterfaceDeviceSubLanguage),
 	
 	#[allow(missing_docs)]
-	Unknown(u16)
+	Unknown(LanguageIdentifier)
+}
+
+impl Default for Language
+{
+	#[inline(always)]
+	fn default() -> Self
+	{
+		Language::English(EnglishSubLanguage::default())
+	}
+}
+
+impl<'de> Deserialize<'de> for Language
+{
+	#[inline(always)]
+	fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error>
+	{
+		struct OurVisitor;
+		
+		impl<'de> Visitor<'de> for OurVisitor
+		{
+			type Value = Language;
+			
+			#[inline(always)]
+			fn expecting(&self, formatter: &mut Formatter) -> fmt::Result
+			{
+				write!(formatter, "A language string")
+			}
+			
+			#[allow(unused_qualifications)]
+			#[inline(always)]
+			fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E>
+			{
+				use ArabicSubLanguage::*;
+				use ChineseSubLanguage::*;
+				use CyrillicOrLatinSubLanguage::*;
+				use DutchSubLanguage::*;
+				use EnglishSubLanguage::*;
+				use FrenchSubLanguage::Monaco;
+				use GermanSubLanguage::*;
+				use HumanInterfaceDeviceSubLanguage::*;
+				use KoreanSubLanguage::Johab;
+				use LithuanianSubLanguage::Classic;
+				use Language::*;
+				use MalaySubLanguage::*;
+				use NorwegianSubLanguage::*;
+				use PortugueseSubLanguage::Brazil;
+				use SpanishSubLanguage::*;
+				use SwedishSubLanguage::Finland;
+				use UrduSubLanguage::*;
+				let language = match v
+				{
+					"Afrikaans" => Afrikaans,
+					
+					"Albanian" => Albanian,
+					
+					"Arabic-SaudiArabia" => Arabic(SaudiArabia),
+					"Arabic-Iraq" => Arabic(Iraq),
+					"Arabic-Egypt" => Arabic(Egypt),
+					"Arabic-Libya" => Arabic(Libya),
+					"Arabic-Algeria" => Arabic(Algeria),
+					"Arabic-Morocco" => Arabic(Morocco),
+					"Arabic-Tunisia" => Arabic(Tunisia),
+					"Arabic-Oman" => Arabic(Oman),
+					"Arabic-Yemen" => Arabic(Yemen),
+					"Arabic-Syria" => Arabic(Syria),
+					"Arabic-Jordan" => Arabic(Jordan),
+					"Arabic-Lebanon" => Arabic(Lebanon),
+					"Arabic-Kuwait" => Arabic(Kuwait),
+					"Arabic-UnitedArabEmirates" => Arabic(UnitedArabEmirates),
+					"Arabic-Bahrain" => Arabic(Bahrain),
+					"Arabic-Qatar" => Arabic(Qatar),
+					
+					"Armenian" => Armenian,
+					
+					"Assamese" => Assamese,
+					
+					"Azeri-Cyrillic" => Azeri(Cyrillic),
+					"Azeri-Latin" => Azeri(Latin),
+					
+					"Basque" => Basque,
+					
+					"Belarussian" => Belarussian,
+					
+					"Bengali" => Bengali,
+					
+					"Bulgarian" => Bulgarian,
+					
+					"Burmese" => Burmese,
+					
+					"Catalan" => Catalan,
+					
+					"Chinese-Taiwan" => Chinese(Taiwan),
+					"Chinese-China" => Chinese(China),
+					"Chinese-HongKong" => Chinese(HongKong),
+					"Chinese-Singapore" => Chinese(Singapore),
+					"Chinese-Macau" => Chinese(Macau),
+					
+					"Croatian" => Croatian,
+					
+					"Czech" => Czech,
+					
+					"Danish" => Danish,
+					
+					"Dutch-Netherlands" => Dutch(Netherlands),
+					"Dutch-Belgium" => Dutch(DutchSubLanguage::Belgium),
+					
+					"English-UnitedStates" => English(UnitedStates),
+					"English-UnitedKingdom" => English(UnitedKingdom),
+					"English-Australia" => English(Australia),
+					"English-Canada" => English(EnglishSubLanguage::Canada),
+					"English-NewZealand" => English(NewZealand),
+					"English-Ireland" => English(Ireland),
+					"English-SouthAfrica" => English(SouthAfrica),
+					"English-Jamaica" => English(Jamaica),
+					"English-Caribbean" => English(Caribbean),
+					"English-Belize" => English(Belize),
+					"English-Trinidad" => English(Trinidad),
+					"English-Zimbabwe" => English(Zimbabwe),
+					"English-Philippines" => English(Philippines),
+					
+					"Estonian" => Estonian,
+					
+					"Faeroese" => Faeroese,
+					
+					"Farsi" => Farsi,
+					
+					"French-Standard" => French(FrenchSubLanguage::Standard),
+					"French-Belgium" => French(FrenchSubLanguage::Belgium),
+					"French-Canada" => French(FrenchSubLanguage::Canada),
+					"French-Switzerland" => French(FrenchSubLanguage::Switzerland),
+					"French-Luxembourg" => French(FrenchSubLanguage::Luxembourg),
+					"French-Monaco" => French(Monaco),
+					
+					"Finnish" => Finnish,
+					
+					"Georgian" => Georgian,
+					
+					"German-Standard" => German(GermanSubLanguage::Standard),
+					"German-Switzerland" => German(GermanSubLanguage::Switzerland),
+					"German-Austria" => German(Austria),
+					"German-Luxembourg" => German(GermanSubLanguage::Luxembourg),
+					"German-Liechtenstein" => German(Liechtenstein),
+					
+					"Greek" => Greek,
+					
+					"Gujarati" => Gujarati,
+					
+					"Hebrew" => Hebrew,
+					
+					"Hindi" => Hindi,
+					
+					"Hungarian" => Hungarian,
+					
+					"Icelandic" => Icelandic,
+					
+					"Indonesian" => Indonesian,
+					
+					"Italian-Standard" => Italian(ItalianSubLanguage::Standard),
+					"Italian-Switzerland" => Italian(ItalianSubLanguage::Switzerland),
+					
+					"Japanese" => Japanese,
+					
+					"Kannada" => Kannada,
+					
+					"Kashmiri" => Kashmiri,
+					
+					"Kazakh" => Kazakh,
+					
+					"Konkani" => Konkani,
+					
+					"Korean-Standard" => Korean(KoreanSubLanguage::Standard),
+					"Korean-Johab" => Korean(Johab),
+					
+					"Latvian" => Latvian,
+					
+					"Lithuanian-Standard" => Lithuanian(LithuanianSubLanguage::Standard),
+					"Lithuanian-Classic" => Lithuanian(Classic),
+					
+					"Macedonian" => Macedonian,
+					
+					"Malay-Malaysia" => Malay(Malaysia),
+					"Malay-BruneiDarussalam" => Malay(BruneiDarussalam),
+					
+					"Malayalam" => Malayalam,
+					
+					"Manipuri" => Manipuri,
+					
+					"Marathi" => Marathi,
+					
+					"Nepali" => Nepali,
+					
+					"Norwegian-Bokmål" => Norwegian(Bokmål),
+					"Norwegian-Nynorsk" => Norwegian(Nynorsk),
+					
+					"Oriya" => Oriya,
+					
+					"Polish" => Polish,
+					
+					"Portuguese-Brazil" => Portuguese(Brazil),
+					"Portuguese-Standard" => Portuguese(PortugueseSubLanguage::Standard),
+					
+					"Punjabi" => Punjabi,
+					
+					"Romanian" => Romanian,
+					
+					"Russian" => Russian,
+					
+					"Sanskrit" => Sanskrit,
+					
+					"Serbian-Cyrillic" => Serbian(Cyrillic),
+					"Serbian-Latin" => Serbian(Cyrillic),
+					
+					"Sindhi" => Sindhi,
+					
+					"Slovak" => Slovak,
+					
+					"Slovenian" => Slovenian,
+					
+					"Spanish-Traditional" => Spanish(Traditional),
+					"Spanish-Mexico" => Spanish(Mexico),
+					"Spanish-Modern" => Spanish(Modern),
+					"Spanish-Guatemala" => Spanish(Guatemala),
+					"Spanish-CostaRica" => Spanish(CostaRica),
+					"Spanish-Panama" => Spanish(Panama),
+					"Spanish-DominicanRepublic" => Spanish(DominicanRepublic),
+					"Spanish-Venezuela" => Spanish(Venezuela),
+					"Spanish-Colombia" => Spanish(Colombia),
+					"Spanish-Peru" => Spanish(Peru),
+					"Spanish-Argentina" => Spanish(Argentina),
+					"Spanish-Ecuador" => Spanish(Ecuador),
+					"Spanish-Chile" => Spanish(Chile),
+					"Spanish-Uruguay" => Spanish(Uruguay),
+					"Spanish-Paraguay" => Spanish(Paraguay),
+					"Spanish-Bolivia" => Spanish(Bolivia),
+					"Spanish-ElSalvador" => Spanish(ElSalvador),
+					"Spanish-Honduras" => Spanish(Honduras),
+					"Spanish-Nicaragua" => Spanish(Nicaragua),
+					"Spanish-PuertoRico" => Spanish(PuertoRico),
+					
+					"Sutu" => Sutu,
+					
+					"Swahili" => Swahili,
+					
+					"Swedish-Standard" => Swedish(SwedishSubLanguage::Standard),
+					"Swedish-Classic" => Swedish(Finland),
+					
+					"Tamil" => Tamil,
+					
+					"Tatar" => Tatar,
+					
+					"Telugu" => Telugu,
+					
+					"Thai" => Thai,
+					
+					"Turkish" => Turkish,
+					
+					"Urdu-Pakistan" => Urdu(Pakistan),
+					"Urdu-India" => Urdu(India),
+					
+					"Ukrainian" => Ukrainian,
+					
+					"Uzbek-Cyrillic" => Uzbek(Cyrillic),
+					"Uzbek-Latin" => Uzbek(Latin),
+					
+					"Vietnamese" => Vietnamese,
+					
+					"HumanInterfaceDevice-UsageDataDescriptor" => HumanInterfaceDevice(UsageDataDescriptor),
+					"HumanInterfaceDevice-VendorDefined1" => HumanInterfaceDevice(VendorDefined1),
+					"HumanInterfaceDevice-VendorDefined2" => HumanInterfaceDevice(VendorDefined2),
+					"HumanInterfaceDevice-VendorDefined3" => HumanInterfaceDevice(VendorDefined3),
+					"HumanInterfaceDevice-VendorDefined4" => HumanInterfaceDevice(VendorDefined4),
+					
+					_ => match v.split_once('-')
+					{
+						Some(("Unknown", after)) => match u16::from_str(after)
+						{
+							Ok(language_identifier) => Language::parse(language_identifier),
+							
+							Err(error) => return Err(E::custom(error)),
+						},
+						
+						None => return Err(E::custom("Does not contain a hyphen")),
+						
+						_ => return Err(E::custom("Does not start with Unknown-"))
+					}
+				};
+				
+				Ok(language)
+			}
+		}
+		
+		deserializer.deserialize_str(OurVisitor)
+	}
+}
+
+impl Serialize for Language
+{
+	#[inline(always)]
+	fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error>
+	{
+		let string = self.to_string();
+		serializer.serialize_str(string.borrow())
+	}
 }
 
 impl Language
 {
+	#[inline(always)]
+	fn to_string(&self) -> Cow<str>
+	{
+		use Cow::*;
+		use Language::*;
+		
+		match self
+		{
+			Arabic(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Azeri(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Chinese(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Dutch(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			English(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			French(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			German(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Italian(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Korean(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Lithuanian(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Norwegian(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Portuguese(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Serbian(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Spanish(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Urdu(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Uzbek(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			HumanInterfaceDevice(sub_language) => Owned(format!("{}-{}", self.as_ref(), sub_language.as_ref())),
+
+			Unknown(language_identifier) => Owned(format!("Unknown-{}", language_identifier)),
+			
+			_ => Borrowed(self.as_ref()),
+		}
+	}
+	
 	#[inline(always)]
 	pub(super) fn parse(language_identifier: LanguageIdentifier) -> Self
 	{
@@ -282,7 +632,7 @@ impl Language
 				
 				0x4000 => ArabicSubLanguage::Qatar,
 				
-				_ => ArabicSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x002B => Armenian,
@@ -295,7 +645,7 @@ impl Language
 				
 				0x0800 => CyrillicOrLatinSubLanguage::Cyrillic,
 				
-				_ => CyrillicOrLatinSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x002D => Basque,
@@ -322,7 +672,7 @@ impl Language
 				
 				0x1400 => ChineseSubLanguage::Macau,
 				
-				_ => ChineseSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x001A => match sub_language_code
@@ -333,7 +683,7 @@ impl Language
 				
 				0x0800 => Serbian(CyrillicOrLatinSubLanguage::Latin),
 				
-				_ => Serbian(CyrillicOrLatinSubLanguage::Unknown((sub_language_code >> 10) as u6)),
+				_ => return Unknown(language_identifier),
 			},
 			
 			0x0005 => Czech,
@@ -346,7 +696,7 @@ impl Language
 				
 				0x0800 => DutchSubLanguage::Belgium,
 				
-				_ => DutchSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0009 => English(match sub_language_code
@@ -377,7 +727,7 @@ impl Language
 				
 				0x3400 => EnglishSubLanguage::Philippines,
 				
-				_ => EnglishSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0025 => Estonian,
@@ -402,7 +752,7 @@ impl Language
 				
 				0x1800 => FrenchSubLanguage::Monaco,
 				
-				_ => FrenchSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0037 => Georgian,
@@ -419,7 +769,7 @@ impl Language
 				
 				0x1400 => GermanSubLanguage::Liechtenstein,
 				
-				_ => GermanSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0008 => Greek,
@@ -442,7 +792,7 @@ impl Language
 				
 				0x0800 => ItalianSubLanguage::Switzerland,
 				
-				_ => ItalianSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0011 => Japanese,
@@ -461,7 +811,7 @@ impl Language
 				
 				0x0800 => KoreanSubLanguage::Johab,
 				
-				_ => KoreanSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0026 => Latvian,
@@ -472,7 +822,7 @@ impl Language
 				
 				0x0800 => LithuanianSubLanguage::Classic,
 				
-				_ => LithuanianSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x002F => Macedonian,
@@ -483,7 +833,7 @@ impl Language
 				
 				0x0800 => MalaySubLanguage::BruneiDarussalam,
 				
-				_ => MalaySubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x004C => Malayalam,
@@ -496,11 +846,11 @@ impl Language
 			
 			0x0014 => Norwegian( match sub_language_code
 			{
-				0x0400 => NorwegianSubLanguage::Bokmal,
+				0x0400 => NorwegianSubLanguage::Bokmål,
 				
 				0x0800 => NorwegianSubLanguage::Nynorsk,
 				
-				_ => NorwegianSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0048 => Oriya,
@@ -513,7 +863,7 @@ impl Language
 				
 				0x0800 => PortugueseSubLanguage::Standard,
 				
-				_ => PortugueseSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0046 => Punjabi,
@@ -572,7 +922,7 @@ impl Language
 				
 				0x5000 => SpanishSubLanguage::PuertoRico,
 				
-				_ => SpanishSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0030 => Sutu,
@@ -585,7 +935,7 @@ impl Language
 				
 				0x0800 => SwedishSubLanguage::Finland,
 				
-				_ => SwedishSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0049 => Tamil,
@@ -606,7 +956,7 @@ impl Language
 				
 				0x0800 => UrduSubLanguage::India,
 				
-				_ => UrduSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x0043 => Uzbek(match sub_language_code
@@ -615,7 +965,7 @@ impl Language
 				
 				0x0800 => CyrillicOrLatinSubLanguage::Cyrillic,
 				
-				_ => CyrillicOrLatinSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			0x002A => Vietnamese,
@@ -632,7 +982,7 @@ impl Language
 				
 				0xFC00 => HumanInterfaceDeviceSubLanguage::VendorDefined4,
 				
-				_ => HumanInterfaceDeviceSubLanguage::Unknown((sub_language_code >> 10) as u6),
+				_ => return Unknown(language_identifier),
 			}),
 			
 			_ => Unknown(language_identifier),

@@ -5,6 +5,7 @@
 /// Spanish dialect.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum SpanishSubLanguage
@@ -15,6 +16,7 @@ pub enum SpanishSubLanguage
 	#[allow(missing_docs)]
 	Mexico = 0x0800,
 	
+	#[default]
 	#[allow(missing_docs)]
 	Modern = 0x0C00,
 	
@@ -68,7 +70,6 @@ pub enum SpanishSubLanguage
 	
 	#[allow(missing_docs)]
 	PuertoRico = 0x5000,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(SpanishSubLanguage);

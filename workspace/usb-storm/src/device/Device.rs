@@ -8,6 +8,10 @@
 #[serde(deny_unknown_fields)]
 pub struct Device
 {
+	vendor: Vendor,
+	
+	product: Product,
+	
 	location: Location,
 	
 	parent: Option<Location>,
@@ -15,10 +19,6 @@ pub struct Device
 	speed: Option<Speed>,
 	
 	control_end_point_zero_maximum_packet_size_exponent: u8,
-	
-	vendor: Vendor,
-	
-	product: Product,
 	
 	maximum_supported_usb_version: Version,
 	
@@ -209,14 +209,6 @@ impl Device
 			(
 				Device
 				{
-					location: Location::from_libusb_device(libusb_device)?,
-					
-					parent: Location::parent_from_libusb_device(libusb_device)?,
-				
-					speed,
-					
-					control_end_point_zero_maximum_packet_size_exponent: device_descriptor.bMaxPacketSize0,
-					
 					vendor: Vendor::parse
 					(
 						device_descriptor.idVendor,
@@ -240,6 +232,14 @@ impl Device
 							Alive(string) => string,
 						}
 					),
+					
+					location: Location::from_libusb_device(libusb_device)?,
+					
+					parent: Location::parent_from_libusb_device(libusb_device)?,
+				
+					speed,
+					
+					control_end_point_zero_maximum_packet_size_exponent: device_descriptor.bMaxPacketSize0,
 					
 					serial_number: match string_finder.find_string(device_descriptor.iSerialNumber).map_err(SerialNumberString)?
 					{

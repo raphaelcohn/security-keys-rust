@@ -5,10 +5,12 @@
 /// Human Interface Device (HID).
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum HumanInterfaceDeviceSubLanguage
 {
+	#[default]
 	#[allow(missing_docs)]
 	UsageDataDescriptor = 0x0400,
 	
@@ -23,7 +25,6 @@ pub enum HumanInterfaceDeviceSubLanguage
 	
 	#[allow(missing_docs)]
 	VendorDefined4 = 0xFC00,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(HumanInterfaceDeviceSubLanguage);

@@ -9,5 +9,4 @@ include!("NonZeroU7.rs");
 include!("u3.rs");
 include!("u4.rs");
 include!("u5.rs");
-include!("u6.rs");
 include!("u11.rs");

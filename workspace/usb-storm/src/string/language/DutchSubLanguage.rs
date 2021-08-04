@@ -5,16 +5,17 @@
 /// Dutch dialect.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum DutchSubLanguage
 {
+	#[default]
 	#[allow(missing_docs)]
 	Netherlands = 0x0400,
 	
 	#[allow(missing_docs)]
 	Belgium = 0x0800,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(DutchSubLanguage);

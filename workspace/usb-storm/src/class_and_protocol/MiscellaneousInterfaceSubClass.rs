@@ -18,7 +18,7 @@ pub enum MiscellaneousInterfaceSubClass
 	},
 	
 	#[allow(missing_docs)]
-	RNDIS(RndisProtocol),
+	RemoteNetworkDriverInterfaceSpecificationProtocol(RemoteNetworkDriverInterfaceSpecificationProtocol),
 	
 	#[allow(missing_docs)]
 	Usb3Vision(Usb3VisionControlProtocol),

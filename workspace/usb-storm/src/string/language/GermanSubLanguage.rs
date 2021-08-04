@@ -5,10 +5,12 @@
 /// German dialect.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum GermanSubLanguage
 {
+	#[default]
 	#[allow(missing_docs)]
 	Standard = 0x0400,
 	
@@ -23,7 +25,6 @@ pub enum GermanSubLanguage
 	
 	#[allow(missing_docs)]
 	Liechtenstein = 0x1400,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(GermanSubLanguage);

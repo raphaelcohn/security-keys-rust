@@ -5,6 +5,7 @@
 /// Chinese dialect.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum ChineseSubLanguage
@@ -12,6 +13,7 @@ pub enum ChineseSubLanguage
 	#[allow(missing_docs)]
 	Taiwan = 0x0400,
 	
+	#[default]
 	#[allow(missing_docs)]
 	China = 0x0800,
 	
@@ -23,7 +25,6 @@ pub enum ChineseSubLanguage
 	
 	#[allow(missing_docs)]
 	Macau = 0x1400,
-	
-	#[allow(missing_docs)]
-	Unknown(u6),
 }
+
+sub_language!(ChineseSubLanguage);

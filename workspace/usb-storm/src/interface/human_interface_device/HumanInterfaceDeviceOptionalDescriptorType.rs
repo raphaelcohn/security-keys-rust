@@ -12,7 +12,7 @@
 pub enum HumanInterfaceDeviceOptionalDescriptorType
 {
 	/// A physical descriptor.
-	Physical = 0x23,
+	Physical,
 	
 	/// 0x24 to 0x2F inclusive.
 	Reserved(u8),
