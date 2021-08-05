@@ -112,7 +112,7 @@ impl Configuration
 						
 						additional_descriptors: Self::parse_additional_descriptors(&configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?,
 						
-						interfaces: match Self::parse_interfaces(&configuration_descriptor, string_finder)?
+						interfaces: match Self::parse_interfaces(&configuration_descriptor, string_finder, maximum_supported_usb_version)?
 						{
 							Dead => return Ok(Dead),
 							
@@ -218,7 +218,7 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder) -> Result<DeadOrAlive<IndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
+	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<IndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
 	{
 		use ConfigurationParseError::*;
 		use DeadOrAlive::*;
@@ -230,7 +230,7 @@ impl Configuration
 		for interface_index in 0 .. number_of_interfaces.get()
 		{
 			let libusb_interface = libusb_interfaces.get_unchecked_safe(interface_index);
-			let (interface_number, interface) = match Interface::parse(libusb_interface, string_finder, interface_index).map_err(|cause| CouldNotParseInterface { cause, interface_index })?
+			let (interface_number, interface) = match Interface::parse(libusb_interface, string_finder, interface_index, maximum_supported_usb_version).map_err(|cause| CouldNotParseInterface { cause, interface_index })?
 			{
 				Dead => return Ok(Dead),
 				

@@ -12,9 +12,7 @@ pub struct EndPoint
 
 	maximum_packet_size: u11,
 	
-	audio_device_synchronization_feedback_refresh_rate: u8,
-	
-	audio_device_synchronization_address: u8,
+	audio_extension: Option<EndPointAudioExtension>,
 
 	additional_descriptors: Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>,
 }
@@ -35,18 +33,11 @@ impl EndPoint
 		self.maximum_packet_size
 	}
 	
-	#[allow(missing_docs)]
+	/// Should only be present for Audio devices.
 	#[inline(always)]
-	pub const fn audio_device_synchronization_feedback_refresh_rate(&self) -> u8
+	pub const fn audio_extension(&self) -> Option<EndPointAudioExtension>
 	{
-		self.audio_device_synchronization_feedback_refresh_rate
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn audio_device_synchronization_address(&self) -> u8
-	{
-		self.audio_device_synchronization_feedback_refresh_rate
+		self.audio_extension
 	}
 	
 	#[allow(missing_docs)]
@@ -57,7 +48,7 @@ impl EndPoint
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor) -> Result<(EndPointNumber, Self), EndPointParseError>
+	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version) -> Result<(EndPointNumber, Self), EndPointParseError>
 	{
 		use EndPointParseError::*;
 		
@@ -80,6 +71,25 @@ impl EndPoint
 			return Err(EndpointAddressHasReservedBits)
 		}
 		
+		const LIBUSB_DT_ENDPOINT_AUDIO_SIZE: u8 = 9;
+		
+		let audio_extension = if unlikely!(bLength >= LIBUSB_DT_ENDPOINT_AUDIO_SIZE)
+		{
+			Some
+			(
+				EndPointAudioExtension
+				{
+					synchronization_feedback_refresh_rate: end_point_descriptor.bRefresh,
+					
+					synchronization_address: end_point_descriptor.bSynchAddress,
+				}
+			)
+		}
+		else
+		{
+			None
+		};
+		
 		Ok
 		(
 			(
@@ -87,13 +97,11 @@ impl EndPoint
 				
 				Self
 				{
-					transfer_type: self::TransferType::parse(end_point_descriptor).map_err(TransferType)?,
+					transfer_type: self::TransferType::parse(end_point_descriptor, maximum_supported_usb_version).map_err(TransferType)?,
 					
 					maximum_packet_size: end_point_descriptor.wMaxPacketSize & 0b0111_1111_1111,
 					
-					audio_device_synchronization_feedback_refresh_rate: end_point_descriptor.bRefresh,
-					
-					audio_device_synchronization_address: end_point_descriptor.bSynchAddress,
+					audio_extension,
 					
 					additional_descriptors: Self::parse_additional_descriptors(end_point_descriptor).map_err(CouldNotParseEndPointAdditionalDescriptor)?,
 				}

@@ -2,38 +2,30 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Transfer type.
+/// In a trully stupid design decision, the USB Implementors Forum redefined the endpoint descriptor to be a different size for Audio devices rather than use additional descriptors.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum IschronousTransferUsageType
+pub struct EndPointAudioExtension
 {
-	/// Data.
-	Data,
+	synchronization_feedback_refresh_rate: u8,
 	
-	/// Feedback.
-	Feedback,
-	
-	/// Explicit feedback data.
-	ImplicitFeedbackData,
+	synchronization_address: u8,
 }
 
-impl IschronousTransferUsageType
+impl EndPointAudioExtension
 {
+	#[allow(missing_docs)]
 	#[inline(always)]
-	fn parse(bmAttributes: u8) -> Result<Self, TransferTypeParseError>
+	pub const fn synchronization_feedback_refresh_rate(&self) -> u8
 	{
-		use IschronousTransferUsageType::*;
-		
-		match (bmAttributes & LIBUSB_ISO_USAGE_TYPE_MASK) >> 4
-		{
-			LIBUSB_ISO_USAGE_TYPE_DATA => Ok(Data),
-			
-			LIBUSB_ISO_USAGE_TYPE_FEEDBACK => Ok(Feedback),
-			
-			LIBUSB_ISO_USAGE_TYPE_IMPLICIT => Ok(ImplicitFeedbackData),
-			
-			_ => Err(TransferTypeParseError::ReservedIsochronousUsageType),
-		}
+		self.synchronization_feedback_refresh_rate
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn synchronization_address(&self) -> u8
+	{
+		self.synchronization_feedback_refresh_rate
 	}
 }

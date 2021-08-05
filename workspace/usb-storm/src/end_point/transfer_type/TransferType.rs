@@ -9,13 +9,52 @@
 pub enum TransferType
 {
 	/// Control endpoint.
-	Control,
+	Control
+	{
+		/// Negative Acknowledgment (NAK) Rate; `None` means the endpoint never negatively acknowledges.
+		///
+		/// `Some(negative_acknowledgment_rate)` indicates 1 NAK each `negative_acknowledgment_rate` number of microframes.
+		///
+		/// A microframe is 125 μs.
+		///
+		/// Meaningless for Enhanced SuperSpeed.
+		/// Meaningless if `Direction::In`.
+		polling_negative_acknowledgment_rate: Option<NonZeroU8>,
+	},
+	
+	/// Bulk endpoint.
+	Bulk
+	{
+		/// Direction.
+		direction: Direction,
+		
+		/// This value is not validated except as non-zero.
+		///
+		/// Negative Acknowledgment (NAK) Rate; `None` means the endpoint never negatively acknowledges.
+		///
+		/// `Some(negative_acknowledgment_rate)` indicates 1 NAK each `negative_acknowledgment_rate` number of microframes.
+		///
+		/// A microframe is 125 μs.
+		///
+		/// Meaningless for Enhanced SuperSpeed.
+		/// Meaningless if `Direction::In`.
+		polling_negative_acknowledgment_rate: NonZeroU8,
+	},
 	
 	/// Isochronous endpoint.
 	Isochronous
 	{
 		/// Direction.
 		direction: Direction,
+		
+		/// This value is not validated except as non-zero.
+		///
+		/// Value is between 1 to 16 inclusive and is the number of 125 μs units for Enhanced SuperSpeed.
+		/// Value is between 1 to 16 inclusive and is the number of 125 μs units for Full and High speed.
+		/// Value is meaningless for Low speed.
+		///
+		/// The polling period is thus `2^(polling_interval_for_servicing_the_end_point_for_data_transfers - 1)`.
+		polling_interval_for_servicing_the_end_point_for_data_transfers: NonZeroU8,
 		
 		/// Synchronization type.
 		synchronization_type: IschronousTransferSynchronizationType,
@@ -27,44 +66,51 @@ pub enum TransferType
 		additional_transaction_opportunities_per_microframe: AdditionalTransactionOpportunitiesPerMicroframe,
 	},
 	
-	/// Bulk endpoint.
-	Bulk
-	{
-		/// Direction.
-		direction: Direction
-	},
-	
 	/// Interrupt endpoint.
 	Interrupt
 	{
 		/// Direction.
 		direction: Direction,
 		
+		/// This value is not validated except as non-zero.
+		///
+		/// Value is between 1 to 16 inclusive and is the number of 125 μs units for Enhanced SuperSpeed if the usage_type is Periodic.
+		/// Value is between 8 to 16 inclusive and is the number of 125 μs units for Enhanced SuperSpeed if the usage_type is Notification.
+		/// Value is between 1 to 16 inclusive and is the number of 125 μs units for High speed.
+		/// Value is between 1 to 255 inclusive and is the number of 1 millisecond units for Low and Full speed.
+		///
+		/// The polling period is thus `2^(polling_interval_for_servicing_the_end_point_for_data_transfers - 1)` for High Speed and Enhanced SuperSpeed, and just as-is for Low and FUll speed.
+		polling_interval_for_servicing_the_end_point_for_data_transfers: NonZeroU8,
+		
 		#[allow(missing_docs)]
 		additional_transaction_opportunities_per_microframe: AdditionalTransactionOpportunitiesPerMicroframe,
+		
+		/// Only defined for USB 3.0 and later.
+		usage_type: Option<InterruptTransferUsageType>,
 	},
 }
 
 impl TransferType
 {
 	#[inline(always)]
-	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor) -> Result<Self, TransferTypeParseError>
+	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version) -> Result<Self, TransferTypeParseError>
 	{
-		/*
-		Interval for polling endpoint for data transfers. Expressed in frames or microframes depending on the device operating speed (i.e., either 1 millisecond or 125 μs units).
-For full-/high-speed isochronous endpoints, this value
-must be in the range from 1 to 16. The bInterval value bInterval-1
-is used as the exponent for a 2 value; e.g., a 4-1
-bInterval of 4 means a period of 8 (2 ).
-For full-/low-speed interrupt endpoints, the value of
-this field may be from 1 to 255.
-For high-speed interrupt endpoints, the bInterval value
-bInterval-1
-is used as the exponent for a 2
-bInterval of 4 means a period of 8 (2 ). This value must be from 1 to 16.
-For high-speed bulk/control OUT endpoints, the bInterval must specify the maximum NAK rate of the endpoint. A value of 0 indicates the endpoint never NAKs. Other values indicate at most 1 NAK each bInterval number of microframes. This value must be in the range from 0 to 255.
-		 */
-		let _polling_interval = end_point_descriptor.bInterval;
+		use TransferTypeParseError::*;
+		
+		#[inline(always)]
+		fn non_zero_interval(bInterval: u8) -> Result<NonZeroU8, TransferTypeParseError>
+		{
+			if bInterval == 0
+			{
+				Err(IntervalIsZero)
+			}
+			else
+			{
+				Ok(new_non_zero_u8(bInterval))
+			}
+		}
+		
+		let bInterval = end_point_descriptor.bInterval;
 		
 		use TransferType::*;
 		let bmAttributes = end_point_descriptor.bmAttributes;
@@ -72,11 +118,23 @@ For high-speed bulk/control OUT endpoints, the bInterval must specify the maximu
 		(
 			match bmAttributes & LIBUSB_TRANSFER_TYPE_MASK
 			{
-				LIBUSB_TRANSFER_TYPE_CONTROL => Control,
+				LIBUSB_TRANSFER_TYPE_CONTROL => Control
+				{
+					polling_negative_acknowledgment_rate: NonZeroU8::new(bInterval),
+				},
+				
+				LIBUSB_TRANSFER_TYPE_BULK => Bulk
+				{
+					direction: Direction::from(end_point_descriptor),
+					
+					polling_negative_acknowledgment_rate: non_zero_interval(bInterval)?,
+				},
 				
 				LIBUSB_TRANSFER_TYPE_ISOCHRONOUS => Isochronous
 				{
 					direction: Direction::from(end_point_descriptor),
+					
+					polling_interval_for_servicing_the_end_point_for_data_transfers: non_zero_interval(bInterval)?,
 					
 					synchronization_type: IschronousTransferSynchronizationType::parse(bmAttributes),
 					
@@ -85,14 +143,33 @@ For high-speed bulk/control OUT endpoints, the bInterval must specify the maximu
 					additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
 				},
 				
-				LIBUSB_TRANSFER_TYPE_BULK => Bulk
-				{
-					direction: Direction::from(end_point_descriptor),
-				},
-				
 				LIBUSB_TRANSFER_TYPE_INTERRUPT => Interrupt
 				{
 					direction: Direction::from(end_point_descriptor),
+					
+					polling_interval_for_servicing_the_end_point_for_data_transfers: non_zero_interval(bInterval)?,
+				
+					usage_type: if maximum_supported_usb_version.is_3_0_or_greater()
+					{
+						use InterruptTransferUsageType::*;
+						Some
+						(
+							match (bmAttributes & 0b0011_0000) >> 4
+							{
+								0 => Periodic,
+								
+								1 => Notification,
+								
+								2 | 3 => return Err(ReservedInterruptUsageType),
+								
+								_ => unreachable!(),
+							}
+						)
+					}
+					else
+					{
+						None
+					},
 					
 					additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
 				},

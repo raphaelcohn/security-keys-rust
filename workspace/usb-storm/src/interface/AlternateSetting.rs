@@ -65,7 +65,7 @@ impl AlternateSetting
 	// }
 	
 	#[inline(always)]
-	fn parse(string_finder: &StringFinder, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8) -> Result<DeadOrAlive<(InterfaceNumber, AlternateSettingNumber, Self)>, AlternateSettingParseError>
+	fn parse(string_finder: &StringFinder, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<(InterfaceNumber, AlternateSettingNumber, Self)>, AlternateSettingParseError>
 	{
 		use AlternateSettingParseError::*;
 		use DeadOrAlive::*;
@@ -117,7 +117,7 @@ impl AlternateSetting
 						
 						additional_descriptors,
 						
-						end_points: Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index)?,
+						end_points: Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, maximum_supported_usb_version)?,
 					}
 				)
 			)
@@ -125,7 +125,7 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8) -> Result<IndexMap<EndPointNumber, EndPoint>, AlternateSettingParseError>
+	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version) -> Result<IndexMap<EndPointNumber, EndPoint>, AlternateSettingParseError>
 	{
 		use AlternateSettingParseError::*;
 		
@@ -134,7 +134,7 @@ impl AlternateSetting
 		for end_point_index in 0 .. (end_points.len() as u5)
 		{
 			let end_point_descriptor = end_point_descriptors.get_unchecked_safe(end_point_index);
-			let (end_point_number, end_point) = EndPoint::parse(end_point_descriptor).map_err(|cause| EndPointParse { cause, interface_index, alternate_setting_index, end_point_index })?;
+			let (end_point_number, end_point) = EndPoint::parse(end_point_descriptor, maximum_supported_usb_version).map_err(|cause| EndPointParse { cause, interface_index, alternate_setting_index, end_point_index })?;
 			
 			let outcome = end_points.insert(end_point_number, end_point);
 			if unlikely!(outcome.is_some())

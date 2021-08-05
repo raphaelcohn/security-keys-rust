@@ -23,6 +23,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use crate::version::Version;
 
 
 /// Transfer.
@@ -33,5 +34,6 @@ include!("EndPoint.rs");
 include!("EndPointNumber.rs");
 include!("EndPointAdditionalDescriptor.rs");
 include!("EndPointAdditionalDescriptorParser.rs");
+include!("EndPointAudioExtension.rs");
 include!("EndPointParseError.rs");
 include!("InclusiveMaximumNumberOfEndPoints.rs");

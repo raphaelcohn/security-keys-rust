@@ -26,7 +26,7 @@ impl Interface
 	// }
 	
 	#[inline(always)]
-	pub(super) fn parse(libusb_interface: &libusb_interface, string_finder: &StringFinder, interface_index: u8) -> Result<DeadOrAlive<(InterfaceNumber, Self)>, InterfaceParseError>
+	pub(super) fn parse(libusb_interface: &libusb_interface, string_finder: &StringFinder, interface_index: u8, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<(InterfaceNumber, Self)>, InterfaceParseError>
 	{
 		use DeadOrAlive::*;
 		
@@ -34,7 +34,7 @@ impl Interface
 		
 		let mut alternate_settings = IndexMap::with_capacity(number_of_alternate_settings.get() as usize);
 		
-		let interface_number = match Self::parse_alternate_setting(alternate_settings_slice, string_finder, interface_index, 0, &mut alternate_settings)?
+		let interface_number = match Self::parse_alternate_setting(alternate_settings_slice, string_finder, interface_index, 0, &mut alternate_settings, maximum_supported_usb_version)?
 		{
 			Dead => return Ok(Dead),
 			
@@ -43,7 +43,7 @@ impl Interface
 		
 		for alternate_setting_index in 1 .. number_of_alternate_settings.get()
 		{
-			let parsed_interface_number = match Self::parse_alternate_setting(alternate_settings_slice, string_finder, interface_index, alternate_setting_index, &mut alternate_settings)?
+			let parsed_interface_number = match Self::parse_alternate_setting(alternate_settings_slice, string_finder, interface_index, alternate_setting_index, &mut alternate_settings, maximum_supported_usb_version)?
 			{
 				Dead => return Ok(Dead),
 				
@@ -59,12 +59,12 @@ impl Interface
 	}
 	
 	#[inline(always)]
-	fn parse_alternate_setting(alternate_settings_slice: &[libusb_interface_descriptor], string_finder: &StringFinder, interface_index: u8, alternate_setting_index: u8, alternate_settings: &mut IndexMap<AlternateSettingNumber, AlternateSetting>) -> Result<DeadOrAlive<InterfaceNumber>, AlternateSettingParseError>
+	fn parse_alternate_setting(alternate_settings_slice: &[libusb_interface_descriptor], string_finder: &StringFinder, interface_index: u8, alternate_setting_index: u8, alternate_settings: &mut IndexMap<AlternateSettingNumber, AlternateSetting>, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<InterfaceNumber>, AlternateSettingParseError>
 	{
 		use DeadOrAlive::*;
 		
 		let alternate_setting = alternate_settings_slice.get_unchecked_safe(alternate_setting_index);
-		let (interface_number, alternate_setting_number, alternate_setting) = match AlternateSetting::parse(string_finder, alternate_setting, interface_index, alternate_setting_index)?
+		let (interface_number, alternate_setting_number, alternate_setting) = match AlternateSetting::parse(string_finder, alternate_setting, interface_index, alternate_setting_index, maximum_supported_usb_version)?
 		{
 			Dead => return Ok(Dead),
 			

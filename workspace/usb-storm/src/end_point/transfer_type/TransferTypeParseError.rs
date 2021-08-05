@@ -7,7 +7,13 @@
 pub enum TransferTypeParseError
 {
 	/// Reserved.
-	ReservedUsageType,
+	ReservedIsochronousUsageType,
+	
+	/// Reserved.
+	ReservedInterruptUsageType,
+	
+	/// `bInterval` is zero.
+	IntervalIsZero,
 }
 
 impl Display for TransferTypeParseError

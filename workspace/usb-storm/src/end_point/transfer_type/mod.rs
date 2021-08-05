@@ -28,10 +28,14 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::mem::transmute;
+use crate::version::Version;
+use std::num::NonZeroU8;
+use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
 include!("AdditionalTransactionOpportunitiesPerMicroframe.rs");
 include!("Direction.rs");
+include!("InterruptUsageType.rs");
 include!("IschronousTransferSynchronizationType.rs");
 include!("IschronousTransferUsageType.rs");
 include!("TransferType.rs");

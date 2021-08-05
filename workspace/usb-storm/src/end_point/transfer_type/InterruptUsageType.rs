@@ -2,38 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Transfer type.
+/// Interrupt end point usage type.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum IschronousTransferUsageType
+pub enum InterruptTransferUsageType
 {
-	/// Data.
-	Data,
+	#[allow(missing_docs)]
+	Periodic,
 	
-	/// Feedback.
-	Feedback,
-	
-	/// Explicit feedback data.
-	ImplicitFeedbackData,
-}
-
-impl IschronousTransferUsageType
-{
-	#[inline(always)]
-	fn parse(bmAttributes: u8) -> Result<Self, TransferTypeParseError>
-	{
-		use IschronousTransferUsageType::*;
-		
-		match (bmAttributes & LIBUSB_ISO_USAGE_TYPE_MASK) >> 4
-		{
-			LIBUSB_ISO_USAGE_TYPE_DATA => Ok(Data),
-			
-			LIBUSB_ISO_USAGE_TYPE_FEEDBACK => Ok(Feedback),
-			
-			LIBUSB_ISO_USAGE_TYPE_IMPLICIT => Ok(ImplicitFeedbackData),
-			
-			_ => Err(TransferTypeParseError::ReservedIsochronousUsageType),
-		}
-	}
+	#[allow(missing_docs)]
+	Notification,
 }
