@@ -8,8 +8,6 @@
 pub enum Usb2ExtensionDeviceCapabilityParseError
 {
 	TooShort,
-	
-	HasReservedAttributesBitsSet,
 }
 
 impl Display for Usb2ExtensionDeviceCapabilityParseError

@@ -57,22 +57,22 @@ impl ConfigurationSummaryDeviceCapability
 	}
 	
 	#[inline(always)]
-	fn parse(device_capabilities_bytes: &[u8]) -> Result<Self, ConfigurationSummaryDeviceCapabilityParseError>
+	fn parse(device_capability_bytes: &[u8]) -> Result<Self, ConfigurationSummaryDeviceCapabilityParseError>
 	{
 		use ConfigurationSummaryDeviceCapabilityParseError::*;
 		
 		const MinimumSize: usize = 9 - 3;
-		if unlikely!(device_capabilities_bytes.len() < MinimumSize)
+		if unlikely!(device_capability_bytes.len() < MinimumSize)
 		{
 			return Err(TooShort)
 		}
 		
-		let version = device_capabilities_bytes.version_unadjusted(0)?;
+		let version = device_capability_bytes.version_unadjusted(0)?;
 		
-		let class_code = device_capabilities_bytes.u8_unadjusted(2);
-		let subclass_code = device_capabilities_bytes.u8_unadjusted(3);
-		let protocol = device_capabilities_bytes.u8_unadjusted(4);
-		let bConfigurationCount = device_capabilities_bytes.u8_unadjusted(5);
+		let class_code = device_capability_bytes.u8_unadjusted(2);
+		let subclass_code = device_capability_bytes.u8_unadjusted(3);
+		let protocol = device_capability_bytes.u8_unadjusted(4);
+		let bConfigurationCount = device_capability_bytes.u8_unadjusted(5);
 		
 		if unlikely!(bConfigurationCount > MaximumNumberOfConfigurations)
 		{
@@ -82,7 +82,7 @@ impl ConfigurationSummaryDeviceCapability
 		let mut configuration_descriptor_indices = IndexSet::with_capacity(bConfigurationCount as usize);
 		for offset in 0 .. bConfigurationCount
 		{
-			let configuration_descriptor_index = device_capabilities_bytes.u8_unadjusted((6 + offset) as usize);
+			let configuration_descriptor_index = device_capability_bytes.u8_unadjusted((6 + offset) as usize);
 			let outcome = configuration_descriptor_indices.insert(configuration_descriptor_index);
 			if unlikely!(outcome == false)
 			{

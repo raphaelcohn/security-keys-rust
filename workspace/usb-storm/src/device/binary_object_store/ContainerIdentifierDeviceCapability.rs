@@ -19,23 +19,23 @@ impl ContainerIdentifierDeviceCapability
 	}
 	
 	#[inline(always)]
-	fn parse(device_capabilities_bytes: &[u8]) -> Result<Self, ContainerIdentifierDeviceCapabilityParseError>
+	fn parse(device_capability_bytes: &[u8]) -> Result<Self, ContainerIdentifierDeviceCapabilityParseError>
 	{
 		use ContainerIdentifierDeviceCapabilityParseError::*;
 		
 		const MinimumSize: usize = 20 - 3;
-		if unlikely!(device_capabilities_bytes.len() < MinimumSize)
+		if unlikely!(device_capability_bytes.len() < MinimumSize)
 		{
 			return Err(TooShort)
 		}
 		
-		let bReserved = device_capabilities_bytes.u8_unadjusted(0);
+		let bReserved = device_capability_bytes.u8_unadjusted(0);
 		if unlikely!(bReserved != 0)
 		{
 			return Err(HasReservedByteSet)
 		}
 		
-		let uuid = device_capabilities_bytes.uuid_unadjusted(1);
+		let uuid = device_capability_bytes.uuid_unadjusted(1);
 		Ok(Self(uuid))
 	}
 }

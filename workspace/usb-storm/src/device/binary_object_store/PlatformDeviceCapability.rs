@@ -30,17 +30,17 @@ impl PlatformDeviceCapability
 	}
 	
 	#[inline(always)]
-	fn parse(device_capabilities_bytes: &[u8]) -> Result<Self, PlatformDeviceCapabilityParseError>
+	fn parse(device_capability_bytes: &[u8]) -> Result<Self, PlatformDeviceCapabilityParseError>
 	{
 		use PlatformDeviceCapabilityParseError::*;
 		
 		const MinimumSize: usize = 20 - 3;
-		if unlikely!(device_capabilities_bytes.len() < MinimumSize)
+		if unlikely!(device_capability_bytes.len() < MinimumSize)
 		{
 			return Err(TooShort)
 		}
 		
-		let bReserved = device_capabilities_bytes.u8_unadjusted(0);
+		let bReserved = device_capability_bytes.u8_unadjusted(0);
 		if unlikely!(bReserved != 0)
 		{
 			return Err(HasReservedByteSet)
@@ -50,9 +50,9 @@ impl PlatformDeviceCapability
 		(
 			Self
 			{
-				key: device_capabilities_bytes.uuid_unadjusted(1),
+				key: device_capability_bytes.uuid_unadjusted(1),
 			
-				value: Vec::new_from(device_capabilities_bytes.get_unchecked_range_safe(MinimumSize .. ))?,
+				value: Vec::new_from(device_capability_bytes.get_unchecked_range_safe(MinimumSize .. ))?,
 			}
 		)
 	}

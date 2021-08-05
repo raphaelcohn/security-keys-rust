@@ -57,19 +57,19 @@ impl SuperSpeedDeviceCapability
 	}
 	
 	#[inline(always)]
-	fn parse(device_capabilities_bytes: &[u8]) -> Result<Self, SuperSpeedDeviceCapabilityParseError>
+	fn parse(device_capability_bytes: &[u8]) -> Result<Self, SuperSpeedDeviceCapabilityParseError>
 	{
 		use SuperSpeedDeviceCapabilityParseError::*;
 		
 		const MinimumSize: usize = 7;
-		if unlikely!(device_capabilities_bytes.len() < MinimumSize)
+		if unlikely!(device_capability_bytes.len() < MinimumSize)
 		{
 			return Err(TooShort)
 		}
 		
 		let supports_latency_tolerant_messages =
 		{
-			let bmAttributes = device_capabilities_bytes.u8_unadjusted(0);
+			let bmAttributes = device_capability_bytes.u8_unadjusted(0);
 			const Mask: u8 = 0b0010;
 			if unlikely!((bmAttributes & (!Mask)) != 0)
 			{
@@ -78,13 +78,13 @@ impl SuperSpeedDeviceCapability
 			bmAttributes & Mask != 0
 		};
 		
-		let wSpeedsSupported = device_capabilities_bytes.u16_unadjusted(1);
+		let wSpeedsSupported = device_capability_bytes.u16_unadjusted(1);
 		let supported_speeds = BitFlags::from_bits(wSpeedsSupported).map_err(|_| HasReservedSpeedsSupportedBitsSet)?;
 		
 		let lowest_speed_supporting_full_functionality =
 		{
 			use SuperSpeedDeviceCapabilitySupportedSpeed::*;
-			let bFunctionalitySupport = device_capabilities_bytes.u8_unadjusted(3);
+			let bFunctionalitySupport = device_capability_bytes.u8_unadjusted(3);
 			let lowest_speed_supporting_full_functionality = match bFunctionalitySupport
 			{
 				0 => Low,
@@ -104,13 +104,13 @@ impl SuperSpeedDeviceCapability
 			lowest_speed_supporting_full_functionality
 		};
 		
-		let bU1DevExitLat = device_capabilities_bytes.u8_unadjusted(4);
+		let bU1DevExitLat = device_capability_bytes.u8_unadjusted(4);
 		if unlikely!(bU1DevExitLat >= 0x0B)
 		{
 			return Err(HasReservedU1DeviceExitLatency { bU1DevExitLat })
 		}
 		
-		let bU2DevExitLat = device_capabilities_bytes.u16_unadjusted(5);
+		let bU2DevExitLat = device_capability_bytes.u16_unadjusted(5);
 		if unlikely!(bU2DevExitLat >= 0x0800)
 		{
 			return Err(HasReservedU2DeviceExitLatency { bU2DevExitLat })

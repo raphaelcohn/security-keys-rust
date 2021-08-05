@@ -94,37 +94,37 @@ impl DeviceCapability
 		let device_capability_bytes = device_capabilities_bytes.get_unchecked_range_safe(MinimumSize .. length);
 		let device_capability = match bDevCapabilityType
 		{
-			0x01 => WirelessUsb(Self::parse_blob(device_capabilities_bytes, ParseWirelessUsbDeviceCapability)?),
+			0x01 => WirelessUsb(Self::parse_blob(device_capability_bytes, ParseWirelessUsbDeviceCapability)?),
 			
-			0x02 => Usb2Extension(Usb2ExtensionDeviceCapability::parse(device_capabilities_bytes)?),
+			0x02 => Usb2Extension(Usb2ExtensionDeviceCapability::parse(device_capability_bytes)?),
 			
-			0x03 => SuperSpeed(SuperSpeedDeviceCapability::parse(device_capabilities_bytes)?),
+			0x03 => SuperSpeed(SuperSpeedDeviceCapability::parse(device_capability_bytes)?),
 			
-			0x04 => ContainerIdentifier(ContainerIdentifierDeviceCapability::parse(device_capabilities_bytes)?),
+			0x04 => ContainerIdentifier(ContainerIdentifierDeviceCapability::parse(device_capability_bytes)?),
 			
-			0x05 => Platform(PlatformDeviceCapability::parse(device_capabilities_bytes)?),
+			0x05 => Platform(PlatformDeviceCapability::parse(device_capability_bytes)?),
 			
-			0x06 => PowerDelivery(Self::parse_blob(device_capabilities_bytes, ParsePowerDeliveryDeviceCapability)?),
+			0x06 => PowerDelivery(Self::parse_blob(device_capability_bytes, ParsePowerDeliveryDeviceCapability)?),
 			
-			0x07 => BatteryInformation(Self::parse_blob(device_capabilities_bytes, ParseBatteryInformationDeviceCapability)?),
+			0x07 => BatteryInformation(Self::parse_blob(device_capability_bytes, ParseBatteryInformationDeviceCapability)?),
 			
-			0x08 => PowerDeliveryConsumerPort(Self::parse_blob(device_capabilities_bytes, PowerDeliveryConsumerPortDeviceCapability)?),
+			0x08 => PowerDeliveryConsumerPort(Self::parse_blob(device_capability_bytes, PowerDeliveryConsumerPortDeviceCapability)?),
 			
-			0x09 => PowerDeliveryProviderPort(Self::parse_blob(device_capabilities_bytes, PowerDeliveryProducerPortDeviceCapability)?),
+			0x09 => PowerDeliveryProviderPort(Self::parse_blob(device_capability_bytes, PowerDeliveryProducerPortDeviceCapability)?),
 			
-			0x0A => SuperSpeedPlus(SuperSpeedPlusDeviceCapability::parse(device_capabilities_bytes)?),
+			0x0A => SuperSpeedPlus(SuperSpeedPlusDeviceCapability::parse(device_capability_bytes)?),
 			
 			0x0B => PrecisionTimeMeasurement,
 			
-			0x0C => WirelessUsbExtended(Self::parse_blob(device_capabilities_bytes, ParseWirelessUsbExtendedDeviceCapability)?),
+			0x0C => WirelessUsbExtended(Self::parse_blob(device_capability_bytes, ParseWirelessUsbExtendedDeviceCapability)?),
 			
-			0x0D => Billboard(Self::parse_blob(device_capabilities_bytes, ParseBillboardDeviceCapability)?),
+			0x0D => Billboard(Self::parse_blob(device_capability_bytes, ParseBillboardDeviceCapability)?),
 			
-			0x0E => Authentication(Self::parse_blob(device_capabilities_bytes, ParseAuthenticationDeviceCapability)?),
+			0x0E => Authentication(Self::parse_blob(device_capability_bytes, ParseAuthenticationDeviceCapability)?),
 			
-			0x0F => BillboardExtended(Self::parse_blob(device_capabilities_bytes, ParseBillboardExtendedDeviceCapability)?),
+			0x0F => BillboardExtended(Self::parse_blob(device_capability_bytes, ParseBillboardExtendedDeviceCapability)?),
 			
-			0x10 => ConfigurationSummary(ConfigurationSummaryDeviceCapability::parse(device_capabilities_bytes)?),
+			0x10 => ConfigurationSummary(ConfigurationSummaryDeviceCapability::parse(device_capability_bytes)?),
 			
 			0x00 | 0x11 ..= 0xFF => Reserved(ReservedDeviceCapability::parse(bDescriptorType, device_capability_bytes).map_err(ParseReservedDeviceCapability)?),
 		};

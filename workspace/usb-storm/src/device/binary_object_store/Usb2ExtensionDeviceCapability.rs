@@ -23,26 +23,20 @@ impl Usb2ExtensionDeviceCapability
 	}
 	
 	#[inline(always)]
-	fn parse(device_capabilities_bytes: &[u8]) -> Result<Self, Usb2ExtensionDeviceCapabilityParseError>
+	fn parse(device_capability_bytes: &[u8]) -> Result<Self, Usb2ExtensionDeviceCapabilityParseError>
 	{
 		use Usb2ExtensionDeviceCapabilityParseError::*;
 		
 		const MinimumSize: usize = 4;
-		if unlikely!(device_capabilities_bytes.len() < MinimumSize)
+		if unlikely!(device_capability_bytes.len() < MinimumSize)
 		{
 			return Err(TooShort)
 		}
 		
 		let supports_link_power_management_protocol =
 		{
-			let bmAttributes = device_capabilities_bytes.u32_unadjusted(0);
+			let bmAttributes = device_capability_bytes.u32_unadjusted(0);
 			const Mask: u32 = 0b0010;
-			
-			if unlikely!((bmAttributes & (!Mask)) != 0)
-			{
-				return Err(HasReservedAttributesBitsSet)
-			}
-			
 			bmAttributes & Mask != 0
 		};
 		

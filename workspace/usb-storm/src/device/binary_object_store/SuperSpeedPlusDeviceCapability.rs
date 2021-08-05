@@ -59,17 +59,17 @@ impl SuperSpeedPlusDeviceCapability
 	}
 	
 	#[inline(always)]
-	fn parse(device_capabilities_bytes: &[u8]) -> Result<Self, SuperSpeedPlusDeviceCapabilityParseError>
+	fn parse(device_capability_bytes: &[u8]) -> Result<Self, SuperSpeedPlusDeviceCapabilityParseError>
 	{
 		use SuperSpeedPlusDeviceCapabilityParseError::*;
 		
-		if unlikely!(device_capabilities_bytes.len() < Self::MinimumSize)
+		if unlikely!(device_capability_bytes.len() < Self::MinimumSize)
 		{
 			return Err(TooShort)
 		}
 		
 		{
-			let bReserved = device_capabilities_bytes.u8_unadjusted(0);
+			let bReserved = device_capability_bytes.u8_unadjusted(0);
 			if unlikely!(bReserved != 0)
 			{
 				return Err(HasReservedByteSet)
@@ -78,7 +78,7 @@ impl SuperSpeedPlusDeviceCapability
 		
 		let (number_of_sublink_speed_attributes, number_of_sublink_speed_identifiers) =
 		{
-			let bmAttributes = device_capabilities_bytes.u32_unadjusted(1);
+			let bmAttributes = device_capability_bytes.u32_unadjusted(1);
 			
 			const ValidBits: u32 = 0b1111_1111;
 			if unlikely!((bmAttributes & (!ValidBits)) != 0)
@@ -101,7 +101,7 @@ impl SuperSpeedPlusDeviceCapability
 		
 		let (minimum_lane_speed_sublink_speed_attribute_identifier, minimum_receive_lane_count, minimum_transmit_lane_count) =
 		{
-			let wFunctionalitySupport = device_capabilities_bytes.u16_unadjusted(5);
+			let wFunctionalitySupport = device_capability_bytes.u16_unadjusted(5);
 			const ReservedBits: u16 = 0b1111_0000;
 			if unlikely!((wFunctionalitySupport & ReservedBits) != 0)
 			{
@@ -116,14 +116,14 @@ impl SuperSpeedPlusDeviceCapability
 		};
 		
 		{
-			let wReserved = device_capabilities_bytes.u16_unadjusted(7);
+			let wReserved = device_capability_bytes.u16_unadjusted(7);
 			if unlikely!(wReserved != 0)
 			{
 				return Err(HasReservedWordSet)
 			}
 		}
 		
-		let sublink_speed_attributes = Self::parse_sublink_speed_attributes(device_capabilities_bytes, number_of_sublink_speed_attributes)?;
+		let sublink_speed_attributes = Self::parse_sublink_speed_attributes(device_capability_bytes, number_of_sublink_speed_attributes)?;
 		
 		if unlikely!(!sublink_speed_attributes.contains_key(&minimum_lane_speed_sublink_speed_attribute_identifier))
 		{

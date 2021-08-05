@@ -5,7 +5,7 @@
 /// Prefer the use of `libusb_get_bos_descriptor()` which correctly handles `wTotalLen`.
 #[allow(dead_code)]
 #[inline(always)]
-pub(crate) fn get_binary_object_store_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<&[u8]>>, GetStandardUsbDescriptorError>
+pub(crate) fn get_binary_object_store_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<(&[u8], u8)>>, GetStandardUsbDescriptorError>
 {
 	const descriptor_type: DescriptorType = LIBUSB_DT_BOS;
 	let descriptor_bytes = get_standard_device_descriptor(device_handle, buffer, descriptor_type, 0, 0)?;

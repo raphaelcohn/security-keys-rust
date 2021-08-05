@@ -12,7 +12,17 @@ impl BinaryObjectStoreBuffer
 	#[inline(always)]
 	pub fn new() -> Result<Self, TryReserveError>
 	{
-		Vec::new_buffer(u16::MAX as usize).map(Self)
+		const MaximumSize: usize = u16::MAX as usize;
+		
+		let mut buffer = Vec::new_buffer(MaximumSize)?;
+		if cfg!(debug_assertions)
+		{
+			for index in 0 ..MaximumSize
+			{
+				*buffer.get_unchecked_mut_safe(index) = MaybeUninit::zeroed();
+			}
+		}
+		Ok(Self(buffer))
 	}
 	
 	#[inline(always)]

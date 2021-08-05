@@ -48,7 +48,7 @@ impl error::Error for StandardUsbDescriptorError
 impl StandardUsbDescriptorError
 {
 	#[inline(always)]
-	fn parse<const descriptor_type: DescriptorType>(descriptor_bytes: DeadOrAlive<Option<&[u8]>>) -> Result<DeadOrAlive<Option<&[u8]>>, Self>
+	fn parse<const descriptor_type: DescriptorType>(descriptor_bytes: DeadOrAlive<Option<&[u8]>>) -> Result<DeadOrAlive<Option<(&[u8], u8)>>, Self>
 	{
 		use DeadOrAlive::*;
 		use StandardUsbDescriptorError::*;
@@ -80,7 +80,7 @@ impl StandardUsbDescriptorError
 			return Err(DescriptorMismatch { descriptor_type, bDescriptorType })
 		}
 		
-		let remaining_bytes = descriptor_bytes.get_unchecked_range_safe(MinimumStandardUsbDescriptorLength .. (bLength as usize));
-		Ok(Alive(Some(remaining_bytes)))
+		let remaining_bytes = descriptor_bytes.get_unchecked_range_safe(MinimumStandardUsbDescriptorLength ..);
+		Ok(Alive(Some((remaining_bytes, bLength))))
 	}
 }
