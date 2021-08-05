@@ -9,17 +9,6 @@ pub enum GetDescriptorError
 	/// `LIBUSB_ERROR_OVERFLOW`.
 	ControlRequestBufferOverflow,
 	
-	/// `LIBUSB_ERROR_PIPE`.
-	///
-	/// Internally, this is an USB `STALL`.
-	///
-	/// The stall will have been cleared.
-	ControlRequestNotSupportedAndStallClearErrored
-	{
-		/// Result of clearing the halt.
-		clear_halt_result_code: NonZeroI32,
-	},
-	
 	/// Failed to allocate heap memory.
 	///
 	/// `LIBUSB_ERROR_NO_MEM`.

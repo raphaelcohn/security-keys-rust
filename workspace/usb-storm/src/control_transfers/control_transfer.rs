@@ -6,7 +6,6 @@
 pub(crate) fn control_transfer(direction: Direction, request_type: ControlTransferRequestType, recipient: ControlTransferRecipient, request: Request, device_handle: NonNull<libusb_device_handle>, time_out: Duration, value: u16, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<&[u8], ControlTransferError>
 {
 	let length = buffer.len();
-	debug_assert!(length < 4096);
 	
 	let time_out = min(time_out.as_millis(), u32::MAX as u128) as u32;
 	

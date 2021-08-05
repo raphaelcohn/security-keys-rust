@@ -22,6 +22,9 @@
 #![warn(unused_lifetimes)]
 
 
+#![feature(try_reserve)]
+
+
 //! usb-storm.
 
 

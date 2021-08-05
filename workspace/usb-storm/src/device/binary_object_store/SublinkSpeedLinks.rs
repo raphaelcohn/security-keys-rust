@@ -8,14 +8,16 @@
 #[serde(deny_unknown_fields)]
 pub enum SublinkSpeedLinks
 {
-	#[allow(missing_docs)]
+	/// Receive and transmit sublinks have the same number of lanes and operate at the same speed.
 	Symmetric(SublinkSpeedAttribute),
 	
-	#[allow(missing_docs)]
+	/// Receive and transmit sublinks have different number of lanes and / or operate at different speeds.
 	Asymmetric
 	{
+		#[allow(missing_docs)]
 		receive: SublinkSpeedAttribute,
 		
+		#[allow(missing_docs)]
 		transmit: SublinkSpeedAttribute,
 	}
 }

@@ -15,6 +15,7 @@ use serde::Serialize;
 use serde::Serializer;
 use serde_lexpr::to_writer as lisp_s_expression_writer;
 use serde_yaml::Serializer as YamlSerializer;
+use std::collections::TryReserveError;
 use std::error;
 use std::fmt;
 use std::fmt::Debug;
@@ -31,7 +32,6 @@ use usb_storm::simple_serializer::SimpleSerializer;
 use usb_storm::simple_serializer::SimpleSerializerError;
 use usb_storm::context::{Context, ContextInitializationError};
 use usb_storm::device::binary_object_store::BinaryObjectStoreBuffer;
-use std::collections::TryReserveError;
 
 
 include!("CommandLineParser.rs");

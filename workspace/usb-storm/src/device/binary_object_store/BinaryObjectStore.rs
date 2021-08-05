@@ -28,7 +28,11 @@ impl BinaryObjectStore
 		use BinaryObjectStoreParseError::*;
 		use DeadOrAlive::*;
 		
-		let remaining_bytes = match get_binary_object_store_device_descriptor(device_handle.as_non_null(), buffer.as_maybe_uninit_slice())?
+		let x = buffer.as_maybe_uninit_slice();
+		println!("x {}", x.len());
+		
+		
+		let remaining_bytes = match get_binary_object_store_device_descriptor(device_handle.as_non_null(), x)?
 		{
 			Dead => return Ok(Dead),
 			
@@ -48,6 +52,12 @@ impl BinaryObjectStore
 		let bNumDeviceCaps = remaining_bytes.u8_unadjusted(2);
 		
 		let device_capabilities_length_in_bytes = total_length - (LengthAdjustment + MinimumRemainingSize);
+		println!("total_length {}", total_length);
+		println!("device_capabilities_length_in_bytes {}", device_capabilities_length_in_bytes);
+		println!("MinimumRemainingSize {}", MinimumRemainingSize);
+		println!("LengthAdjustment {}", LengthAdjustment);
+		println!("MinimumRemainingSize {}", MinimumRemainingSize);
+		println!("remaining_bytes.len {}", remaining_length);
 		let mut device_capabilities_bytes = remaining_bytes.get_unchecked_range_safe(MinimumRemainingSize .. device_capabilities_length_in_bytes);
 		
 		let mut device_capabilities = Vec::new_with_capacity(bNumDeviceCaps as usize).map_err(CouldNotAllocateMemoryForDeviceCapabilities)?;

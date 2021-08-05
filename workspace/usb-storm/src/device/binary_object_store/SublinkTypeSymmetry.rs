@@ -8,9 +8,9 @@
 #[repr(u8)]
 enum SublinkTypeSymmetry
 {
-	/// Receive and transmit sublinks have the same number of lanes and operate at the same speed.
+	#[allow(dead_code)]
 	Symmetric = 0,
 
-	/// Receive and transmit sublinks have different number of lanes and / or operate at different speeds.
+	#[allow(dead_code)]
 	Asymmetric = 1,
 }

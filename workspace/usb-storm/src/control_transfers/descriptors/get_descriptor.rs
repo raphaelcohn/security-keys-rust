@@ -28,12 +28,7 @@ fn get_descriptor(request_type: ControlTransferRequestType, recipient: ControlTr
 		
 		Err(BufferOverflow) => Err(ControlRequestBufferOverflow),
 		
-		Err(NotSupported { clear_halt_result_code }) => match clear_halt_result_code
-		{
-			0 => Ok(Alive(None)),
-			
-			_ => Err(ControlRequestNotSupportedAndStallClearErrored { clear_halt_result_code: new_non_zero_i32(clear_halt_result_code) }),
-		}
+		Err(NotSupported { .. }) =>Ok(Alive(None)),
 		
 		Err(OutOfMemory) => Err(ControlRequestOutOfMemory),
 		

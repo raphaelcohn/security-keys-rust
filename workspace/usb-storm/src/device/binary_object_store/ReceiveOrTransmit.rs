@@ -8,8 +8,10 @@
 enum ReceiveOrTransmit
 {
 	#[allow(missing_docs)]
+	#[allow(dead_code)]
 	Receive = 0,
 
 	#[allow(missing_docs)]
+	#[allow(dead_code)]
 	Transmit = 1,
 }
