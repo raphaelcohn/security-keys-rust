@@ -105,7 +105,7 @@ impl Devices
 	
 	/// Parse the list, removing any devices which are dead.
 	#[inline(always)]
-	pub fn parse(&self) -> Result<Vec<Device>, DeviceParseError>
+	pub fn parse(&self, buffer: &mut BinaryObjectStoreBuffer) -> Result<Vec<Device>, DeviceParseError>
 	{
 		use DeadOrAlive::*;
 		
@@ -113,7 +113,7 @@ impl Devices
 		let mut devices = Vec::new_with_capacity(device_references.len()).map_err(DeviceParseError::CouldNotAllocateMemoryForDevices)?;
 		for device_reference in device_references
 		{
-			if let Alive(device) = device_reference.parse()?
+			if let Alive(device) = device_reference.parse(buffer)?
 			{
 				devices.push(device);
 			}

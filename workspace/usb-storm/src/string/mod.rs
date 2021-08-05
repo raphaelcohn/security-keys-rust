@@ -5,11 +5,9 @@
 use crate::VecExt;
 use self::language::Language;
 use self::language::LanguageIdentifier;
-use super::control_transfers::ControlTransferError;
 use super::control_transfers::descriptors::get_string_device_descriptor_language;
 use super::control_transfers::descriptors::get_string_device_descriptor_languages;
 use super::control_transfers::descriptors::GetStandardUsbDescriptorError;
-use super::control_transfers::descriptors::StandardUsbDescriptorError;
 use super::device::DeadOrAlive;
 use super::device::DeviceHandle;
 use likely::likely;
@@ -37,7 +35,7 @@ use swiss_army_knife::non_zero::new_non_zero_u8;
 pub mod language;
 
 
-include!("GetLanguageError.rs");
 include!("GetLanguagesError.rs");
+include!("GetLocalizedStringError.rs");
 include!("StringFinder.rs");
 include!("LocalizedStrings.rs");

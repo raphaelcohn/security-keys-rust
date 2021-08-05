@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-pub(crate) fn get_string_device_descriptor_language(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>; MaximumStandardUsbDescriptorLength], string_descriptor_index: NonZeroU8, language_identifier: u16) -> Result<&[u8], GetStandardUsbDescriptorError>
+pub(crate) fn get_string_device_descriptor_language(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>; MaximumStandardUsbDescriptorLength], string_descriptor_index: NonZeroU8, language_identifier: u16) -> Result<DeadOrAlive<Option<&[u8]>>, GetStandardUsbDescriptorError>
 {
 	get_string_device_descriptor(device_handle, buffer, Some(string_descriptor_index), language_identifier)
 }

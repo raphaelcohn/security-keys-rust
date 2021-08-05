@@ -4,6 +4,11 @@
 
 use super::integers::u3;
 use crate::VecExt;
+use self::binary_object_store::BinaryObjectStore;
+use self::binary_object_store::BinaryObjectStoreBuffer;
+use self::binary_object_store::BinaryObjectStoreParseError;
+use self::binary_object_store::DeviceCapability;
+use self::binary_object_store::SuperSpeedDeviceCapabilitySupportedSpeed;
 use self::logical_location::LogicalLocation;
 use self::physical_location::PhysicalLocation;
 use self::product::Product;
@@ -73,6 +78,10 @@ use std::ptr::NonNull;
 use std::slice::from_raw_parts;
 use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::get_unchecked::GetUnchecked;
+
+
+/// Binary Object Store (BOS).
+pub mod binary_object_store;
 
 
 /// Bus and address.

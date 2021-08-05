@@ -33,6 +33,8 @@ pub struct Device
 	active_configuration_number: Option<ConfigurationNumber>,
 	
 	configurations: IndexMap<ConfigurationNumber, Configuration>,
+	
+	binary_object_store: Option<BinaryObjectStore>,
 }
 
 impl Device
@@ -136,6 +138,14 @@ impl Device
 		self.active_configuration_number
 	}
 	
+	/// Device capabilities.
+	#[inline(always)]
+	pub fn binary_object_store(&self) -> Option<&[DeviceCapability]>
+	{
+		let binary_object_store = self.binary_object_store.as_ref()?;
+		Some(binary_object_store.deref())
+	}
+	
 	// #[inline(always)]
 	// pub(crate) fn active_smart_card_interface_additional_descriptors(&self) -> Result<Vec<&SmartCardInterfaceAdditionalDescriptor>, UsbDeviceError>
 	// {
@@ -174,7 +184,7 @@ impl Device
 	
 	/// Parse a libusb device.
 	#[inline(always)]
-	fn parse(libusb_device: NonNull<libusb_device>) -> Result<DeadOrAlive<Self>, DeviceParseError>
+	fn parse(libusb_device: NonNull<libusb_device>, buffer: &mut BinaryObjectStoreBuffer) -> Result<DeadOrAlive<Self>, DeviceParseError>
 	{
 		use DeadOrAlive::*;
 		use DeviceParseError::*;
@@ -191,6 +201,13 @@ impl Device
 			Dead => return Ok(Dead),
 			
 			Alive(string_finder) => string_finder
+		};
+		
+		let binary_object_store = match BinaryObjectStore::parse(&device_handle, buffer)?
+		{
+			Dead => return Ok(Dead),
+			
+			Alive(binary_object_store) => binary_object_store,
 		};
 		
 		let device_descriptor = get_device_descriptor(libusb_device);
@@ -264,6 +281,8 @@ impl Device
 					configurations,
 					
 					languages: string_finder.into_languages().map_err(CouldNotAllocateMemoryForLanguages)?,
+				
+					binary_object_store,
 				}
 			)
 		)

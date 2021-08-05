@@ -30,6 +30,26 @@ pub enum Speed
 	SuperPlus = 5,
 }
 
+impl From<SuperSpeedDeviceCapabilitySupportedSpeed> for Speed
+{
+	#[inline(always)]
+	fn from(from: SuperSpeedDeviceCapabilitySupportedSpeed) -> Self
+	{
+		use SuperSpeedDeviceCapabilitySupportedSpeed::*;
+		
+		match from
+		{
+			Low => Speed::Low,
+			
+			Full => Speed::Full,
+			
+			High => Speed::High,
+			
+			Super => Speed::Super,
+		}
+	}
+}
+
 impl Speed
 {
 	/// Is this a Gen X speed?

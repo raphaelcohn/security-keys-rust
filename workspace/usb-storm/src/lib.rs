@@ -46,7 +46,12 @@ use serde_yaml as _;
 
 
 use self::version::Version;
+use self::version::VersionParseError;
 use std::collections::TryReserveError;
+use std::num::NonZeroU8;
+use std::mem::transmute;
+use swiss_army_knife::get_unchecked::GetUnchecked;
+use uuid::Uuid;
 
 
 /// Additional descriptors, eg for Smart Cards and Human Interface Devices (HID).
@@ -97,4 +102,6 @@ pub mod string;
 pub mod version;
 
 
+include!("adjust_index.rs");
+include!("Bytes.rs");
 include!("VecExt.rs");

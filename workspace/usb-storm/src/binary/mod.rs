@@ -30,6 +30,8 @@ use usb_storm::device::ListDevicesError;
 use usb_storm::simple_serializer::SimpleSerializer;
 use usb_storm::simple_serializer::SimpleSerializerError;
 use usb_storm::context::{Context, ContextInitializationError};
+use usb_storm::device::binary_object_store::BinaryObjectStoreBuffer;
+use std::collections::TryReserveError;
 
 
 include!("CommandLineParser.rs");

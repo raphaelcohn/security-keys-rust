@@ -27,7 +27,7 @@ pub enum ControlTransferError
 	/// Internally, this is an USB `STALL`.
 	///
 	/// The stall will have been cleared.
-	ControlRequestNotSupported
+	NotSupported
 	{
 		/// Result of clearing the halt.
 		clear_halt_result_code: i32,
@@ -90,7 +90,7 @@ impl ControlTransferError
 			LIBUSB_ERROR_PIPE =>
 			{
 				let clear_halt_result_code = unsafe { libusb_clear_halt(device_handle.as_ptr(), 0) };
-				ControlRequestNotSupported { clear_halt_result_code }
+				NotSupported { clear_halt_result_code }
 			},
 			
 			// Only ever occurs in `handle_events()`

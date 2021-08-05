@@ -7,13 +7,7 @@
 #[allow(missing_docs)]
 pub enum GetLanguagesError
 {
-	ControlRequestOutOfMemory,
-	
-	ControlRequestOther,
-	
-	ControlRequestBufferOverflow,
-	
-	StandardUsbDescriptor(StandardUsbDescriptorError),
+	GetStandardUsbDescriptor(GetStandardUsbDescriptorError),
 	
 	NotACorrectArraySize,
 	
@@ -43,11 +37,20 @@ impl error::Error for GetLanguagesError
 		
 		match self
 		{
-			StandardUsbDescriptor(cause) => Some(cause),
+			GetStandardUsbDescriptor(cause) => Some(cause),
 			
 			CouldNotAllocateLanguages(cause) => Some(cause),
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<GetStandardUsbDescriptorError> for GetLanguagesError
+{
+	#[inline(always)]
+	fn from(cause: GetStandardUsbDescriptorError) -> Self
+	{
+		GetLanguagesError::GetStandardUsbDescriptor(cause)
 	}
 }

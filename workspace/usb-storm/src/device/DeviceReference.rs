@@ -11,8 +11,8 @@ impl DeviceReference
 {
 	/// Parse.
 	#[inline(always)]
-	pub fn parse(&self) -> Result<DeadOrAlive<Device>, DeviceParseError>
+	pub fn parse(&self, buffer: &mut BinaryObjectStoreBuffer) -> Result<DeadOrAlive<Device>, DeviceParseError>
 	{
-		Device::parse(self.0)
+		Device::parse(self.0, buffer)
 	}
 }

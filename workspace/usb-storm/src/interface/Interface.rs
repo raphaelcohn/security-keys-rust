@@ -6,6 +6,7 @@
 #[derive(Debug, Clone, Eq, PartialEq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
+#[repr(transparent)]
 pub struct Interface(IndexMap<AlternateSettingNumber, AlternateSetting>);
 
 impl Interface

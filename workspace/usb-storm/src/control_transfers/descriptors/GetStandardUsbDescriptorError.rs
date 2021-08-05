@@ -7,7 +7,7 @@
 pub enum GetStandardUsbDescriptorError
 {
 	#[allow(missing_docs)]
-	ControlTransfer(ControlTransferError),
+	GetDescriptor(GetDescriptorError),
 	
 	#[allow(missing_docs)]
 	StandardUsbDescriptor(StandardUsbDescriptorError),
@@ -31,19 +31,19 @@ impl error::Error for GetStandardUsbDescriptorError
 		
 		match self
 		{
-			ControlTransfer(cause) => Some(cause),
+			GetDescriptor(cause) => Some(cause),
 			
 			StandardUsbDescriptor(cause) => Some(cause),
 		}
 	}
 }
 
-impl From<ControlTransferError> for GetStandardUsbDescriptorError
+impl From<GetDescriptorError> for GetStandardUsbDescriptorError
 {
 	#[inline(always)]
-	fn from(cause: ControlTransferError) -> Self
+	fn from(cause: GetDescriptorError) -> Self
 	{
-		GetStandardUsbDescriptorError::ControlTransfer(cause)
+		GetStandardUsbDescriptorError::GetDescriptor(cause)
 	}
 }
 

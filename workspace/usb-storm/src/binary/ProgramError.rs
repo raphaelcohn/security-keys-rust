@@ -16,6 +16,9 @@ pub(super) enum ProgramError
 	ListDevices(ListDevicesError),
 	
 	#[allow(missing_docs)]
+	CouldNotCreateBinaryObjectStoreBuffer(TryReserveError),
+	
+	#[allow(missing_docs)]
 	DeviceParse(DeviceParseError),
 	
 	#[allow(missing_docs)]
@@ -45,6 +48,8 @@ impl error::Error for ProgramError
 			ContextInitialization(cause) => Some(cause),
 			
 			ListDevices(cause) => Some(cause),
+			
+			CouldNotCreateBinaryObjectStoreBuffer(cause) => Some(cause),
 			
 			DeviceParse(cause) => Some(cause),
 			

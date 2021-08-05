@@ -16,6 +16,9 @@ pub enum DeviceParseError
 	GetLanguages(GetLanguagesError),
 	
 	#[allow(missing_docs)]
+	GetBinaryObjectStore(BinaryObjectStoreParseError),
+	
+	#[allow(missing_docs)]
 	MaximumSupportedUsbVersion(VersionParseError),
 	
 	#[allow(missing_docs)]
@@ -95,6 +98,8 @@ impl error::Error for DeviceParseError
 			
 			GetLanguages(cause) => Some(cause),
 			
+			GetBinaryObjectStore(cause) => Some(cause),
+			
 			MaximumSupportedUsbVersion(cause) => Some(cause),
 			
 			FirmwareVersion(cause) => Some(cause),
@@ -128,5 +133,14 @@ impl From<DeviceHandleOpenError> for DeviceParseError
 	fn from(cause: DeviceHandleOpenError) -> DeviceParseError
 	{
 		DeviceParseError::DeviceHandleOpen(cause)
+	}
+}
+
+impl From<BinaryObjectStoreParseError> for DeviceParseError
+{
+	#[inline(always)]
+	fn from(cause: BinaryObjectStoreParseError) -> DeviceParseError
+	{
+		DeviceParseError::GetBinaryObjectStore(cause)
 	}
 }

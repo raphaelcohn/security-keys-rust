@@ -3,7 +3,7 @@
 
 
 use crate::VecExt;
-use super::Bytes;
+use crate::Bytes;
 use super::super::Version;
 use crate::version::VersionParseError;
 use super::super::additional_descriptors::AdditionalDescriptorParser;

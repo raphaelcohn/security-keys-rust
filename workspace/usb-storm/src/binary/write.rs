@@ -5,7 +5,8 @@
 pub(super) fn write(matches: &CommandLineParser, writer: impl Write + 'static) -> Result<(), ProgramError>
 {
 	let devices = Devices::list(Context::default()?)?;
-	let devices = devices.parse()?;
+	let mut buffer = BinaryObjectStoreBuffer::new().map_err(ProgramError::CouldNotCreateBinaryObjectStoreBuffer)?;
+	let devices = devices.parse(&mut buffer)?;
 
 	let format = matches.format();
 	which_serialize(format, devices, writer)?;

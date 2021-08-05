@@ -6,6 +6,8 @@ use std::num::NonZeroU8;
 
 
 include!("NonZeroU7.rs");
+include!("u1.rs");
+include!("u2.rs");
 include!("u3.rs");
 include!("u4.rs");
 include!("u5.rs");

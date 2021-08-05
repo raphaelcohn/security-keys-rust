@@ -3,12 +3,40 @@
 
 
 #[inline(always)]
-fn get_descriptor(request_type: ControlTransferRequestType, recipient: ControlTransferRecipient, device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_type: DescriptorType, descriptor_index: u8, index: u16) -> Result<&[u8], ControlTransferError>
+fn get_descriptor(request_type: ControlTransferRequestType, recipient: ControlTransferRecipient, device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_type: DescriptorType, descriptor_index: u8, index: u16) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
 {
+	use ControlTransferError::*;
+	use DeadOrAlive::*;
+	use GetDescriptorError::*;
+	
 	const TimeOut: Duration = Duration::from_millis(1_000);
 	
 	let descriptor_type = (descriptor_type as u16) << 8;
 	let value = descriptor_type | (descriptor_index as u16);
 	
-	control_transfer(Direction::In, request_type, recipient, Request::GetDescriptor, device_handle, TimeOut, value, index, buffer)
+	match control_transfer(Direction::In, request_type, recipient, Request::GetDescriptor, device_handle, TimeOut, value, index, buffer)
+	{
+		Ok(bytes) => Ok(Alive(Some(bytes))),
+		
+		Err(TransferInputOutputErrorOrTransferCancelled) => Ok(Dead),
+		
+		Err(DeviceDisconnected) => Ok(Dead),
+		
+		Err(RequestedResourceNotFound) => unreachable!("RequestedResourceNotFound should not occur for GET_DESCRIPTOR"),
+		
+		Err(TimedOut) => Ok(Dead),
+		
+		Err(BufferOverflow) => Err(ControlRequestBufferOverflow),
+		
+		Err(NotSupported { clear_halt_result_code }) => match clear_halt_result_code
+		{
+			0 => Ok(Alive(None)),
+			
+			_ => Err(ControlRequestNotSupportedAndStallClearErrored { clear_halt_result_code: new_non_zero_i32(clear_halt_result_code) }),
+		}
+		
+		Err(OutOfMemory) => Err(ControlRequestOutOfMemory),
+		
+		Err(Other) => Err(ControlRequestOther),
+	}
 }

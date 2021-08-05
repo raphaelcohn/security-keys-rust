@@ -4,7 +4,7 @@
 
 #[allow(dead_code)]
 #[inline(always)]
-fn get_human_interface_device_physical_interface_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_index: Option<NonZeroU8>, interface_number: InterfaceNumber) -> Result<&[u8], ControlTransferError>
+fn get_human_interface_device_physical_interface_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_index: Option<NonZeroU8>, interface_number: InterfaceNumber) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
 {
 	get_standard_interface_descriptor(device_handle, buffer, LIBUSB_DT_PHYSICAL, unsafe { transmute(descriptor_index) }, interface_number)
 }

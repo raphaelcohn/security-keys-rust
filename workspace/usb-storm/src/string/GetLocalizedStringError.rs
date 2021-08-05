@@ -22,13 +22,7 @@ pub enum GetLocalizedStringError
 		language: Language,
 	},
 	
-	ControlRequestOutOfMemory,
-	
-	ControlRequestOther,
-	
-	ControlRequestBufferOverflow,
-	
-	StandardUsbDescriptor(StandardUsbDescriptorError),
+	GetStandardUsbDescriptor(GetStandardUsbDescriptorError),
 	
 	NotACorrectUtf16LittleEndianSize,
 	
@@ -55,7 +49,7 @@ impl error::Error for GetLocalizedStringError
 		
 		match self
 		{
-			StandardUsbDescriptor(cause) => Some(cause),
+			GetStandardUsbDescriptor(cause) => Some(cause),
 			
 			CouldNotAllocateString(cause) => Some(cause),
 			
@@ -63,5 +57,14 @@ impl error::Error for GetLocalizedStringError
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<GetStandardUsbDescriptorError> for GetLocalizedStringError
+{
+	#[inline(always)]
+	fn from(cause: GetStandardUsbDescriptorError) -> Self
+	{
+		GetLocalizedStringError::GetStandardUsbDescriptor(cause)
 	}
 }

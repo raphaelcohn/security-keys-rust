@@ -95,33 +95,17 @@ impl<'a> StringFinder<'a>
 	#[inline(always)]
 	fn get_localized_string(&self, string_descriptor_index: NonZeroU8, (language_identifier, language): (LanguageIdentifier, Language)) -> Result<DeadOrAlive<String>, GetLocalizedStringError>
 	{
-		use ControlTransferError::*;
 		use DeadOrAlive::*;
 		use GetLocalizedStringError::*;
-		use GetStandardUsbDescriptorError::ControlTransfer;
 		
 		let mut buffer = MaybeUninit::uninit_array();
-		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle.as_non_null(), &mut buffer, string_descriptor_index, language_identifier)
+		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle.as_non_null(), &mut buffer, string_descriptor_index, language_identifier)?
 		{
-			Ok(remaining_bytes) => remaining_bytes,
+			Dead => return Ok(Dead),
 			
-			Err(ControlTransfer(TransferInputOutputErrorOrTransferCancelled)) => return Ok(Dead),
+			Alive(None) => return Err(StringIndexNonZeroButDeviceDoesNotSupportGettingString { string_descriptor_index, language }),
 			
-			Err(ControlTransfer(DeviceDisconnected)) => return Ok(Dead),
-			
-			Err(ControlTransfer(RequestedResourceNotFound)) => panic!("Should not occur for GET_DESCRIPTOR"),
-			
-			Err(ControlTransfer(TimedOut)) => return Ok(Dead),
-			
-			Err(ControlTransfer(ControlRequestNotSupported { .. })) => return Err(StringIndexNonZeroButDeviceDoesNotSupportGettingString { string_descriptor_index, language }),
-			
-			Err(ControlTransfer(OutOfMemory)) => return Err(ControlRequestOutOfMemory),
-			
-			Err(ControlTransfer(Other)) => return Err(ControlRequestOther),
-			
-			Err(ControlTransfer(BufferOverflow)) => return Err(ControlRequestBufferOverflow),
-			
-			Err(GetStandardUsbDescriptorError::StandardUsbDescriptor(cause)) => return Err(StandardUsbDescriptor(cause)),
+			Alive(Some(remaining_bytes)) => remaining_bytes,
 		};
 		
 		let array_length_in_bytes = remaining_bytes.len();
@@ -184,33 +168,17 @@ impl<'a> StringFinder<'a>
 	#[inline(always)]
 	fn get_languages(device_handle: &DeviceHandle) -> Result<DeadOrAlive<Option<Vec<(LanguageIdentifier, Language)>>>, GetLanguagesError>
 	{
-		use ControlTransferError::*;
 		use DeadOrAlive::*;
 		use GetLanguagesError::*;
-		use GetStandardUsbDescriptorError::ControlTransfer;
 		
 		let mut buffer = MaybeUninit::uninit_array();
-		let remaining_bytes = match get_string_device_descriptor_languages(device_handle.as_non_null(), &mut buffer)
+		let remaining_bytes = match get_string_device_descriptor_languages(device_handle.as_non_null(), &mut buffer)?
 		{
-			Ok(remaining_bytes) => remaining_bytes,
+			Dead => return Ok(Dead),
 			
-			Err(ControlTransfer(TransferInputOutputErrorOrTransferCancelled)) => return Ok(Dead),
+			Alive(None) => return Ok(Alive(None)),
 			
-			Err(ControlTransfer(DeviceDisconnected)) => return Ok(Dead),
-			
-			Err(ControlTransfer(RequestedResourceNotFound)) => panic!("Should not occur for GET_DESCRIPTOR"),
-			
-			Err(ControlTransfer(TimedOut)) => return Ok(Dead),
-			
-			Err(ControlTransfer(ControlRequestNotSupported { .. })) => return Ok(Alive(None)),
-			
-			Err(ControlTransfer(OutOfMemory)) => return Err(ControlRequestOutOfMemory),
-			
-			Err(ControlTransfer(Other)) => return Err(ControlRequestOther),
-			
-			Err(ControlTransfer(BufferOverflow)) => return Err(ControlRequestBufferOverflow),
-			
-			Err(GetStandardUsbDescriptorError::StandardUsbDescriptor(cause)) => return Err(StandardUsbDescriptor(cause)),
+			Alive(Some(remaining_bytes)) => remaining_bytes,
 		};
 		
 		let array_length_in_bytes = remaining_bytes.len();

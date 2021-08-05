@@ -10,7 +10,7 @@ use crate::version::Version;
 use self::features::Features;
 use self::features::FeaturesParseError;
 use self::features::LevelOfExchange;
-use super::Bytes;
+use crate::Bytes;
 use enumflags2::bitflags;
 use enumflags2::BitFlags;
 use likely::likely;
