@@ -14,18 +14,6 @@ impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescr
 	type Error = InterfaceAdditionalDescriptorParseError;
 	
 	#[inline(always)]
-	fn no_descriptors_valid() -> bool
-	{
-		Inner::no_descriptors_valid()
-	}
-	
-	#[inline(always)]
-	fn multiple_descriptors_valid() -> bool
-	{
-		Inner::multiple_descriptors_valid()
-	}
-	
-	#[inline(always)]
 	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
 	{
 		match self.inner.parse_descriptor(bLength, descriptor_type, remaining_bytes)

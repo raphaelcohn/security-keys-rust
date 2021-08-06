@@ -17,18 +17,6 @@ impl<'a> AdditionalDescriptorParser for EndPointAdditionalDescriptorParser<'a>
 	type Error = EndPointAdditionalDescriptorParseError;
 	
 	#[inline(always)]
-	fn no_descriptors_valid() -> bool
-	{
-		true
-	}
-	
-	#[inline(always)]
-	fn multiple_descriptors_valid() -> bool
-	{
-		true
-	}
-	
-	#[inline(always)]
 	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
 	{
 		use EndPointAdditionalDescriptorParseError::*;
@@ -72,7 +60,7 @@ impl<'a> AdditionalDescriptorParser for EndPointAdditionalDescriptorParser<'a>
 		
 		let bmAttributes = remaining_bytes.u8_unadjusted(1);
 		let wBytesInterval = remaining_bytes.u16_unadjusted(2);
-		let mut consumed_length = bLength as usize;
+		let mut consumed_length = Self::reduce_b_length_to_descriptor_body_length(bLength);
 		match self.transfer_type
 		{
 			Control { .. } => (),

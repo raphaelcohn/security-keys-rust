@@ -47,7 +47,7 @@ impl BinaryObjectStore
 		let total_length = remaining_bytes.u16_unadjusted(0);
 		let bNumDeviceCaps = remaining_bytes.u8_unadjusted(2);
 		
-		let mut device_capabilities_bytes = remaining_bytes.get_unchecked_range_safe(MinimumRemainingSize .. ((total_length as usize) - LengthAdjustment));
+		let mut device_capabilities_bytes = remaining_bytes.get_unchecked_range_safe(MinimumRemainingSize .. ((total_length as usize) - DescriptorHeaderLength));
 		
 		let mut device_capabilities = Vec::new_with_capacity(bNumDeviceCaps as usize).map_err(CouldNotAllocateMemoryForDeviceCapabilities)?;
 		

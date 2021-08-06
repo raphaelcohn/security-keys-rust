@@ -8,13 +8,18 @@ pub(crate) trait AdditionalDescriptorParser
 	
 	type Error: error::Error;
 	
-	fn no_descriptors_valid() -> bool;
+	#[inline(always)]
+	fn reduce_b_length_to_descriptor_body_length(bLength: u8) -> usize
+	{
+		(bLength as usize) - DescriptorHeaderLength
+	}
 	
-	fn multiple_descriptors_valid() -> bool;
-	
-	/// `remaining_bytes` exclude `bLength` and `bDescriptorType` bytes, but is not sliced to be `bLength` long (`remaining_bytes.len()`); instead, it consists of all remaining bytes.
+	/// `remaining_bytes` exclude `bLength` and `bDescriptorType` bytes, but is not sliced to be `bLength` long (`remaining_bytes.len()`); instead, it consists of all remaining bytes after `bDescriptorType`.
 	/// The parser must report how many bytes it consumed, which must be at least `bLength`.
 	/// This allows the end point parser to consume adjacent descriptors, rather than one at a time.
+	///
+	/// If the parser returns `None`, then the descriptor is unknown and is handled by the caller of `parse_descrptor()`.
+	/// If the parser return `Some(descriptor, consumed_length)`, then it parsed the descriptor (and perhaps an immediately contiguous descriptor in the case of end points), and returns the total length of bytes consumed from `remaining_bytes`. This total length will not include the overhead of the first descriptor's header (`bLength` and `bDescriptorType`).
 	///
 	/// `remaining_bytes.len()` will always be `<= 253`.
 	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>;

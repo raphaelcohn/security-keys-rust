@@ -85,7 +85,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 {
 	const Length: usize = 54;
 	
-	const AdjustedLength: usize = Self::Length - LengthAdjustment;
+	const AdjustedLength: usize = Self::Length - DescriptorHeaderLength;
 	
 	/// If the protocol is `BulkTransfer`, then:-
 	///

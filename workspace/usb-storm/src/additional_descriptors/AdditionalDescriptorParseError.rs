@@ -12,12 +12,6 @@ pub enum AdditionalDescriptorParseError<E: error::Error>
 	/// libusb returned a negative length for extra; should not be possible, but trusting third party C libraries is the way to madness.
 	ExtraLengthIsNegative,
 	
-	/// There are no descriptors present and this is not permitted for this additional descriptor situation.
-	NoDescriptors,
-	
-	/// Only one descriptor should be present for this additional descriptor situation.
-	MoreThanOneAdditionalDescriptorPresent,
-	
 	/// At a minimum, a descriptor must consist of a length byte (`bLength`) and a type byte (`bDescriptorType`).
 	NotEnoughDescriptorBytes,
 

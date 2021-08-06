@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::VecExt;
+use crate::{VecExt, Bytes};
 use super::control_transfers::descriptors::MinimumStandardUsbDescriptorLength;
 use likely::likely;
 use likely::unlikely;
@@ -21,7 +21,7 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 include!("AdditionalDescriptor.rs");
 include!("AdditionalDescriptorParseError.rs");
 include!("AdditionalDescriptorParser.rs");
+include!("DescriptorHeaderLength.rs");
 include!("DescriptorType.rs");
 include!("extra_to_slice.rs");
-include!("LengthAdjustment.rs");
 include!("parse_additional_descriptors.rs");

@@ -6,7 +6,7 @@ use super::DeadOrAlive;
 use super::DeviceHandle;
 use crate::Bytes;
 use crate::VecExt;
-use crate::additional_descriptors::LengthAdjustment;
+use crate::additional_descriptors::DescriptorHeaderLength;
 use crate::configuration::MaximumNumberOfConfigurations;
 use crate::control_transfers::descriptors::get_binary_object_store_device_descriptor;
 use crate::control_transfers::descriptors::GetStandardUsbDescriptorError;

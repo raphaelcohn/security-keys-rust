@@ -17,7 +17,7 @@ fn get_string_device_descriptor(device_handle: NonNull<libusb_device_handle>, bu
 		
 		Alive(Some((remaining_bytes, bLength))) =>
 		{
-			let length = (bLength as usize) - LengthAdjustment;
+			let length = (bLength as usize) - DescriptorHeaderLength;
 			Ok(Alive(Some(remaining_bytes.get_unchecked_range_safe(.. length))))
 		}
 	}

@@ -8,7 +8,7 @@ use super::super::Version;
 use crate::version::VersionParseError;
 use super::super::additional_descriptors::AdditionalDescriptorParser;
 use super::super::additional_descriptors::DescriptorType;
-use super::super::additional_descriptors::LengthAdjustment;
+use super::super::additional_descriptors::DescriptorHeaderLength;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

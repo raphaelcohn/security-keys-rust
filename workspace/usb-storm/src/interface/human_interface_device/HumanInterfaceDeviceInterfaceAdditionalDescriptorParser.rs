@@ -12,18 +12,6 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 	type Error = HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError;
 	
 	#[inline(always)]
-	fn no_descriptors_valid() -> bool
-	{
-		false
-	}
-	
-	#[inline(always)]
-	fn multiple_descriptors_valid() -> bool
-	{
-		false
-	}
-	
-	#[inline(always)]
 	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
 	{
 		use HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
@@ -35,10 +23,10 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 			_ => return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type)),
 		};
 		
-		let length = bLength as usize;
+		let length = Self::reduce_b_length_to_descriptor_body_length(bLength);
 		let descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. length);
 		
-		const AdjustedMinimumLength: usize = 9 - LengthAdjustment;
+		const AdjustedMinimumLength: usize = 9 - DescriptorHeaderLength;
 		if unlikely!(descriptor_bytes.len() < AdjustedMinimumLength)
 		{
 			return Err(WrongLength)

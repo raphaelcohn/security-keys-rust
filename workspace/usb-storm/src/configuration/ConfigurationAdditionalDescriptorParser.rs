@@ -12,18 +12,6 @@ impl AdditionalDescriptorParser for ConfigurationAdditionalDescriptorParser
 	type Error = Infallible;
 	
 	#[inline(always)]
-	fn no_descriptors_valid() -> bool
-	{
-		true
-	}
-	
-	#[inline(always)]
-	fn multiple_descriptors_valid() -> bool
-	{
-		true
-	}
-	
-	#[inline(always)]
 	fn parse_descriptor(&mut self, _bLength: u8, _descriptor_type: DescriptorType, _remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
 	{
 		Ok(None)

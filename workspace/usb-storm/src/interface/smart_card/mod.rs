@@ -4,7 +4,7 @@
 
 use crate::additional_descriptors::AdditionalDescriptorParser;
 use crate::additional_descriptors::DescriptorType;
-use crate::additional_descriptors::LengthAdjustment;
+use crate::additional_descriptors::DescriptorHeaderLength;
 use crate::class_and_protocol::SmartCardProtocol;
 use crate::version::Version;
 use self::features::Features;

@@ -11,72 +11,60 @@ pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(mut 
 	let extra_length = extra.len();
 	if likely!(extra_length == 0)
 	{
-		return if ADP::no_descriptors_valid()
-		{
-			Ok(Vec::new())
-		}
-		else
-		{
-			Err(NoDescriptors)
-		}
+		return Ok(Vec::new())
 	}
 	let mut additional_descriptors = Vec::new();
 	let mut remaining_length = extra_length;
 	
 	loop
 	{
-		if unlikely!(remaining_length < LengthAdjustment)
+		if unlikely!(remaining_length < DescriptorHeaderLength)
 		{
 			return Err(NotEnoughDescriptorBytes)
 		}
 		
-		let bLength = extra.get_unchecked_value_safe(0);
+		let bLength = extra.u8_unadjusted(0);
 		let descriptor_length = bLength as usize;
 		if unlikely!(descriptor_length > remaining_length)
 		{
 			return Err(DescriptorLengthExceedsRemainingBytes)
 		}
 		
-		let descriptor_type = extra.get_unchecked_value_safe(1);
-		let remaining_bytes = extra.get_unchecked_range_safe(LengthAdjustment .. );
+		let descriptor_type = extra.u8_unadjusted(1);
+		let remaining_bytes = extra.get_unchecked_range_safe(DescriptorHeaderLength .. );
 		let (additional_descriptor, consumed_length) = match additional_descriptor_parser.parse_descriptor(bLength, descriptor_type, remaining_bytes)
 		{
 			Ok(Some((additional_descriptor, consumed_length))) => (Known(additional_descriptor), consumed_length),
 			
 			Ok(None) =>
-			(
-				Unknown
-				{
-					descriptor_type,
-					
-					bytes:
+			{
+				let consumed_length = descriptor_length - DescriptorHeaderLength;
+				(
+					Unknown
 					{
-						let descriptor_bytes = extra.get_unchecked_range_safe(LengthAdjustment .. descriptor_length);
-						Vec::new_from(descriptor_bytes).map_err(CanNotAllocateUnknownDescriptorBuffer)?
+						descriptor_type,
+						
+						bytes:
+						{
+							let descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. consumed_length);
+							Vec::new_from(descriptor_bytes).map_err(CanNotAllocateUnknownDescriptorBuffer)?
+						},
 					},
-				},
-				descriptor_length
-			),
+					consumed_length
+				)
+			}
 			
 			Err(error) => return Err(Specific(error)),
 		};
 		additional_descriptors.try_push(additional_descriptor).map_err(CanNotAllocateAdditionalDescriptor)?;
 		
-		remaining_length = remaining_length - consumed_length;
-		if remaining_length == 0
+		let consumed_length_including_header = DescriptorHeaderLength + consumed_length;
+		if remaining_length == consumed_length_including_header
 		{
 			break
 		}
-		
-		if unlikely!(ADP::multiple_descriptors_valid())
-		{
-			extra = extra.get_unchecked_range_safe(consumed_length .. );
-			continue
-		}
-		else
-		{
-			return Err(MoreThanOneAdditionalDescriptorPresent)
-		}
+		remaining_length -= consumed_length_including_header;
+		extra = extra.get_unchecked_range_safe(consumed_length_including_header .. );
 	}
 	
 	Ok(additional_descriptors)
