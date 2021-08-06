@@ -14,11 +14,14 @@ pub enum SmartCardInterfaceAdditionalDescriptorParseError
 		expected: DescriptorType,
 	},
 	
-	/// A country code of 36 or greater.
-	Version(VersionParseError),
+	#[allow(missing_docs)]
+	BLengthIsLessThanMinimum,
 	
-	/// This type of descriptor must be 54 bytes long (including `bLength`).
-	WrongLength,
+	#[allow(missing_docs)]
+	BLengthExceedsRemainingBytes,
+	
+	#[allow(missing_docs)]
+	Version(VersionParseError),
 	
 	/// Features are invalid.
 	Features(FeaturesParseError),

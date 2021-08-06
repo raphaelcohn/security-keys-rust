@@ -57,7 +57,7 @@ impl Version
 	#[inline(always)]
 	pub(crate) const fn is_3_0_or_greater(&self) -> bool
 	{
-		self.minor >= 3
+		self.major >= 3
 	}
 	
 	/// An USB binary coded decimal field is structured as `0xJJMN`:-

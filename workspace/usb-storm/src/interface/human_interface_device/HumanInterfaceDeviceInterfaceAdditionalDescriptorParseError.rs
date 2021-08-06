@@ -10,7 +10,10 @@ pub enum HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
 	
 	/// This type of descriptor must be at least 9 bytes long (including `bLength`).
-	WrongLength,
+	BLengthIsLessThanMinimum,
+	
+	#[allow(missing_docs)]
+	BLengthExceedsRemainingBytes,
 	
 	/// A country code of 36 or greater.
 	ReservedCountryCode(u8),

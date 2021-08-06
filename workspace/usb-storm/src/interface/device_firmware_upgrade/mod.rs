@@ -15,7 +15,8 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use swiss_army_knife::get_unchecked::GetUnchecked;
+use std::mem::size_of;
+use crate::additional_descriptors::reduce_b_length_to_descriptor_body_length;
 
 
 include!("DeviceFirmwareUpgradeInterfaceAdditionalDescriptor.rs");

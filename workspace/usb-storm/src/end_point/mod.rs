@@ -32,6 +32,7 @@ use swiss_army_knife::non_zero::new_non_zero_u8;
 use swiss_army_knife::non_zero::new_non_zero_u32;
 use crate::integers::{u2, NonZeroU4};
 use swiss_army_knife::get_unchecked::GetUnchecked;
+use crate::additional_descriptors::{reduce_b_length_to_descriptor_body_length, DescriptorHeaderLength};
 
 
 /// Transfer.

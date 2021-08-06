@@ -23,34 +23,28 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 			_ => return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type)),
 		};
 		
-		let length = Self::reduce_b_length_to_descriptor_body_length(bLength);
-		let descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. length);
+		// On my Apple Mac Pro trashcan, this USB descriptor omits the trailing `bcdDFUVersion` field and so has a short bLength.
+		const SizeOfVersionField: u8 = size_of::<u16>() as u8;
+		const MinimumBLength: u8 = 7;
+		const CorrectBLength: u8 = MinimumBLength + SizeOfVersionField;
+		let (descriptor_body, descriptor_body_length) = Self::verify_remaining_bytes::<DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
-		let length = descriptor_bytes.len();
-		const MinimumLength: usize = 5;
-		if unlikely!(length < MinimumLength)
-		{
-			return Err(WrongLength { length })
-		}
-		
-		let bmAttributes = descriptor_bytes.u8::<2>();
-		
+		let bmAttributes = descriptor_body.u8_adjusted::<2>();
 		if unlikely!(bmAttributes & 0b1111_0000 != 0)
 		{
 			return Err(ReservedAttributesBits4To7 { bmAttributes })
 		}
-		
 		let will_detach = (bmAttributes & 0b0000_1000) != 0;
 		let manifestation_tolerant = (bmAttributes & 0b0000_0100) != 0;
 		let can_upload = (bmAttributes & 0b0000_0010) != 0;
 		let can_download = (bmAttributes & 0b0000_0001) != 0;
-		let maximum_detach_time_out_milliseconds = descriptor_bytes.u16::<3>();
-		let maximum_number_of_bytes_per_control_write_transaction = descriptor_bytes.u16::<5>();
+		let maximum_detach_time_out_milliseconds = descriptor_body.u16_adjusted::<3>();
+		let maximum_number_of_bytes_per_control_write_transaction = descriptor_body.u16_adjusted::<5>();
 		
-		const StandardLength: usize = 7;
-		let version = if length >= StandardLength
+		const CorrectDescriptorBodyLength: usize = reduce_b_length_to_descriptor_body_length(CorrectBLength);
+		let version = if descriptor_body_length >= CorrectDescriptorBodyLength
 		{
-			Some(descriptor_bytes.version::<7>().map_err(Version)?)
+			Some(descriptor_body.version_adjusted::<7>().map_err(Version)?)
 		}
 		else
 		{
@@ -78,8 +72,7 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 						
 						version,
 					},
-					
-					length,
+					descriptor_body_length,
 				)
 			)
 		)

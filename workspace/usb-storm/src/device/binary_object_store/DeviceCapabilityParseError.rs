@@ -17,7 +17,12 @@ pub enum DeviceCapabilityParseError
 		bDescriptorType: u8,
 	},
 	
-	DescriptorWrongLength
+	BLengthTooShort
+	{
+		bLength: u8,
+	},
+	
+	BLengthTooLong
 	{
 		bLength: u8,
 	},

@@ -87,7 +87,11 @@ impl DeviceCapability
 		let length = bLength as usize;
 		if unlikely!(length < MinimumSize)
 		{
-			return Err(DescriptorWrongLength { bLength })
+			return Err(BLengthTooShort { bLength })
+		}
+		if unlikely!(length > remaining_length)
+		{
+			return Err(BLengthTooLong { bLength })
 		}
 		
 		let bDevCapabilityType = device_capabilities_bytes.u8_unadjusted(2);

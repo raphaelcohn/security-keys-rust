@@ -7,7 +7,9 @@
 #[allow(missing_docs)]
 pub enum EndPointAdditionalDescriptorParseError
 {
-	WrongLength,
+	BLengthIsLessThanMinimum,
+	
+	BLengthExceedsRemainingBytes,
 	
 	ControlEndPointsDoNotSupportPacketBurst,
 	
@@ -37,9 +39,9 @@ pub enum EndPointAdditionalDescriptorParseError
 		bDescriptorType: u8,
 	},
 	
-	ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorWrongLength,
+	ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum,
 	
-	ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorTooShort,
+	ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes,
 }
 
 impl Display for EndPointAdditionalDescriptorParseError

@@ -9,12 +9,11 @@ pub enum DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError
 	#[allow(missing_docs)]
 	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
 	
-	/// This type of descriptor must be at least 9 bytes long (including `bLength`).
-	WrongLength
-	{
-		#[allow(missing_docs)]
-		length: usize
-	},
+	#[allow(missing_docs)]
+	BLengthIsLessThanMinimum,
+	
+	#[allow(missing_docs)]
+	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
 	ReservedAttributesBits4To7

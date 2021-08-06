@@ -211,8 +211,9 @@ impl Device
 		};
 		
 		let device_descriptor = get_device_descriptor(libusb_device);
-		let maximum_supported_usb_version = Version::parse(device_descriptor.bcdUSB).map_err(MaximumSupportedUsbVersion)?;
 		let speed = get_device_speed(libusb_device);
+		
+		let maximum_supported_usb_version = Version::parse(device_descriptor.bcdUSB).map_err(MaximumSupportedUsbVersion)?;
 		let configurations = match Self::get_configurations(libusb_device, &device_descriptor, maximum_supported_usb_version, speed, &string_finder)?
 		{
 			Dead => return Ok(Dead),

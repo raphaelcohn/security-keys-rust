@@ -23,18 +23,12 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 			_ => return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type)),
 		};
 		
-		let length = Self::reduce_b_length_to_descriptor_body_length(bLength);
-		let descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. length);
-		
-		const AdjustedMinimumLength: usize = 9 - DescriptorHeaderLength;
-		if unlikely!(descriptor_bytes.len() < AdjustedMinimumLength)
-		{
-			return Err(WrongLength)
-		}
+		const MinimumBLength: u8 = 9;
+		let (descriptor_body, descriptor_body_length) = Self::verify_remaining_bytes::<HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let number_of_class_descriptors_including_mandatory_report =
 		{
-			let bNumClassDescriptors = descriptor_bytes.u8::<5>();
+			let bNumClassDescriptors = descriptor_body.u8_adjusted::<5>();
 			if unlikely!(bNumClassDescriptors == 0)
 			{
 				return Err(ZeroNumberOfClassDescriptors)
@@ -43,7 +37,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 		};
 		
 		{
-			let report_descriptor_type = descriptor_bytes.u8::<6>(); //
+			let report_descriptor_type = descriptor_body.u8_adjusted::<6>(); //
 			if unlikely!(report_descriptor_type != 0x22)
 			{
 				return Err(UnrecognisedReportDescriptorType(report_descriptor_type))
@@ -59,9 +53,9 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 					{
 						variant: self.0,
 						
-						version: descriptor_bytes.version::<2>().map_err(Version)?,
+						version: descriptor_body.version_adjusted::<2>().map_err(Version)?,
 						
-						country_code: match descriptor_bytes.u8::<4>()
+						country_code: match descriptor_body.u8_adjusted::<4>()
 						{
 							0 => None,
 							
@@ -70,12 +64,11 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 							reserved => return Err(ReservedCountryCode(reserved))
 						}
 						,
-						report_descriptor_length: descriptor_bytes.u16::<7>(),
+						report_descriptor_length: descriptor_body.u16_adjusted::<7>(),
 					
-						optional_descriptors: Self::parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report, descriptor_bytes.get_unchecked_range_safe(AdjustedMinimumLength .. ))?,
+						optional_descriptors: Self::parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report, descriptor_body.get_unchecked_range_safe(((MinimumBLength as usize) - DescriptorHeaderLength) .. ))?,
 					},
-					
-					length,
+					descriptor_body_length,
 				)
 			)
 		)

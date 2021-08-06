@@ -26,21 +26,17 @@ impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 			return Err(DescriptorIsNeitherOfficialOrVendorSpecific { actual: descriptor_type, expected: self.expected })
 		}
 		
-		let length = Self::reduce_b_length_to_descriptor_body_length(bLength);
-		let descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. length);
+		const MinimumBLength: u8 = SmartCardInterfaceAdditionalDescriptor::Length;
 		
-		if unlikely!(descriptor_bytes.len() != SmartCardInterfaceAdditionalDescriptor::AdjustedLength)
-		{
-			return Err(WrongLength)
-		}
+		let (descriptor_body, descriptor_body_length) = Self::verify_remaining_bytes::<SmartCardInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		Ok
 		(
 			Some
 			(
 				(
-					SmartCardInterfaceAdditionalDescriptor::parse(self.smart_card_protocol, descriptor_bytes)?,
-					length
+					SmartCardInterfaceAdditionalDescriptor::parse(self.smart_card_protocol, descriptor_body)?,
+					descriptor_body_length
 				)
 			)
 		)
