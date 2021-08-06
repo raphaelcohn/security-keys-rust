@@ -26,11 +26,11 @@ impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescr
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
+	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
 	{
-		match self.inner.parse_descriptor(descriptor_type, bytes)
+		match self.inner.parse_descriptor(bLength, descriptor_type, remaining_bytes)
 		{
-			Ok(Some(ok)) => Ok(Some(ok.into())),
+			Ok(Some((descriptor, consumed_length))) => Ok(Some((descriptor.into(), consumed_length))),
 			
 			Ok(None) => Ok(None),
 			

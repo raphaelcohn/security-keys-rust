@@ -24,7 +24,7 @@ impl AdditionalDescriptorParser for UnsupportedInterfaceAdditionalDescriptorPars
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, _descriptor_type: DescriptorType, _bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
+	fn parse_descriptor(&mut self, _bLength: u8, _descriptor_type: DescriptorType, _remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
 	{
 		Ok(None)
 	}

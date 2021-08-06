@@ -4,6 +4,10 @@
 
 use super::integers::u4;
 use super::integers::u11;
+use self::transfer_type::BulkMaximumStreamsExponent;
+use self::transfer_type::SuperSpeedBulk;
+use self::transfer_type::SuperSpeedInterrupt;
+use self::transfer_type::SuperSpeedIsochronous;
 use self::transfer_type::TransferType;
 use self::transfer_type::TransferTypeParseError;
 use super::additional_descriptors::AdditionalDescriptor;
@@ -17,13 +21,17 @@ use libusb1_sys::constants::LIBUSB_DT_ENDPOINT;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
-use std::convert::Infallible;
 use std::error;
 use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use crate::version::Version;
+use crate::Bytes;
+use swiss_army_knife::non_zero::new_non_zero_u8;
+use swiss_army_knife::non_zero::new_non_zero_u32;
+use crate::integers::{u2, NonZeroU4};
+use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
 /// Transfer.
@@ -33,6 +41,7 @@ pub mod transfer_type;
 include!("EndPoint.rs");
 include!("EndPointNumber.rs");
 include!("EndPointAdditionalDescriptor.rs");
+include!("EndPointAdditionalDescriptorParseError.rs");
 include!("EndPointAdditionalDescriptorParser.rs");
 include!("EndPointAudioExtension.rs");
 include!("EndPointParseError.rs");

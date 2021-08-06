@@ -27,7 +27,7 @@ pub enum EndPointParseError
 	TransferType(TransferTypeParseError),
 	
 	#[allow(missing_docs)]
-	CouldNotParseEndPointAdditionalDescriptor(AdditionalDescriptorParseError<Infallible>),
+	CouldNotParseEndPointAdditionalDescriptor(AdditionalDescriptorParseError<EndPointAdditionalDescriptorParseError>),
 }
 
 impl Display for EndPointParseError

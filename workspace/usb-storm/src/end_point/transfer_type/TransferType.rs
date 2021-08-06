@@ -3,7 +3,7 @@
 
 
 /// USB end point transfer type.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum TransferType
@@ -39,6 +39,9 @@ pub enum TransferType
 		/// Meaningless for Enhanced SuperSpeed.
 		/// Meaningless if `Direction::In`.
 		polling_negative_acknowledgment_rate: NonZeroU8,
+		
+		/// Only present if a SuperSpeed EndPoint Additional Descriptor is present.
+		super_speed: Option<SuperSpeedBulk>,
 	},
 	
 	/// Isochronous endpoint.
@@ -64,6 +67,9 @@ pub enum TransferType
 		
 		#[allow(missing_docs)]
 		additional_transaction_opportunities_per_microframe: AdditionalTransactionOpportunitiesPerMicroframe,
+		
+		/// Only present if a SuperSpeed EndPoint Additional Descriptor is present.
+		super_speed: Option<SuperSpeedIsochronous>,
 	},
 	
 	/// Interrupt endpoint.
@@ -87,11 +93,28 @@ pub enum TransferType
 		
 		/// Only defined for USB 3.0 and later.
 		usage_type: Option<InterruptTransferUsageType>,
+		
+		/// Only present if a SuperSpeed EndPoint Additional Descriptor is present.
+		super_speed: Option<SuperSpeedInterrupt>,
 	},
 }
 
 impl TransferType
 {
+	/// Is periodic.
+	#[inline(always)]
+	pub fn is_periodic(&self) -> bool
+	{
+		use TransferType::*;
+		
+		match self
+		{
+			Interrupt { .. } | Isochronous { .. } => true,
+			
+			_ => false,
+		}
+	}
+	
 	#[inline(always)]
 	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version) -> Result<Self, TransferTypeParseError>
 	{
@@ -128,6 +151,8 @@ impl TransferType
 					direction: Direction::from(end_point_descriptor),
 					
 					polling_negative_acknowledgment_rate: non_zero_interval(bInterval)?,
+					
+					super_speed: None,
 				},
 				
 				LIBUSB_TRANSFER_TYPE_ISOCHRONOUS => Isochronous
@@ -141,6 +166,8 @@ impl TransferType
 					usage_type: IschronousTransferUsageType::parse(bmAttributes)?,
 					
 					additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
+					
+					super_speed: None
 				},
 				
 				LIBUSB_TRANSFER_TYPE_INTERRUPT => Interrupt
@@ -172,6 +199,8 @@ impl TransferType
 					},
 					
 					additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
+					
+					super_speed: None
 				},
 				
 				_ => unreachable!("Bits have been masked"),
@@ -179,7 +208,6 @@ impl TransferType
 		)
 	}
 	
-	// TODO: Fix for USB 3.0
 	#[inline(always)]
 	fn additional_transaction_opportunities_per_microframe(end_point_descriptor: &libusb_endpoint_descriptor) -> AdditionalTransactionOpportunitiesPerMicroframe
 	{

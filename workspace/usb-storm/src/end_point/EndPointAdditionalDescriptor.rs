@@ -8,4 +8,6 @@
 #[serde(deny_unknown_fields)]
 pub enum EndPointAdditionalDescriptor
 {
+	/// Indicates a super speed end point companion was present.
+	SuperSpeedEndPointCompanion,
 }

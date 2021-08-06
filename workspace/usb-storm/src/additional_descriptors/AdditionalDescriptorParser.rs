@@ -12,8 +12,10 @@ pub(crate) trait AdditionalDescriptorParser
 	
 	fn multiple_descriptors_valid() -> bool;
 	
-	/// `bytes` exclude `bLength` and `bDescriptorType` bytes.
+	/// `remaining_bytes` exclude `bLength` and `bDescriptorType` bytes, but is not sliced to be `bLength` long (`remaining_bytes.len()`); instead, it consists of all remaining bytes.
+	/// The parser must report how many bytes it consumed, which must be at least `bLength`.
+	/// This allows the end point parser to consume adjacent descriptors, rather than one at a time.
 	///
-	/// `bytes.len()` will always be `<= 253`.
-	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>;
+	/// `remaining_bytes.len()` will always be `<= 253`.
+	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>;
 }

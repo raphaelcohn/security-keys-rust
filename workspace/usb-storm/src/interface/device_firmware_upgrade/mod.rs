@@ -15,6 +15,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
 include!("DeviceFirmwareUpgradeInterfaceAdditionalDescriptor.rs");

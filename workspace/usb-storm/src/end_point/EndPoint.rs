@@ -21,9 +21,9 @@ impl EndPoint
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn transfer_type(&self) -> TransferType
+	pub const fn transfer_type(&self) -> &TransferType
 	{
-		self.transfer_type
+		&self.transfer_type
 	}
 	
 	#[allow(missing_docs)]
@@ -45,6 +45,13 @@ impl EndPoint
 	pub fn additional_descriptors(&self) -> &[AdditionalDescriptor<EndPointAdditionalDescriptor>]
 	{
 		&self.additional_descriptors
+	}
+	
+	/// Is a periodic end point?
+	#[inline(always)]
+	pub fn is_a_periodic_end_point(&self) -> bool
+	{
+		self.transfer_type.is_periodic()
 	}
 	
 	#[inline(always)]
@@ -90,6 +97,9 @@ impl EndPoint
 			None
 		};
 		
+		let mut transfer_type = self::TransferType::parse(end_point_descriptor, maximum_supported_usb_version).map_err(TransferType)?;
+		let maximum_packet_size = end_point_descriptor.wMaxPacketSize & 0b0111_1111_1111;
+		let additional_descriptors = Self::parse_additional_descriptors(end_point_descriptor, &mut transfer_type, maximum_packet_size).map_err(CouldNotParseEndPointAdditionalDescriptor)?;
 		Ok
 		(
 			(
@@ -97,23 +107,29 @@ impl EndPoint
 				
 				Self
 				{
-					transfer_type: self::TransferType::parse(end_point_descriptor, maximum_supported_usb_version).map_err(TransferType)?,
+					transfer_type,
 					
-					maximum_packet_size: end_point_descriptor.wMaxPacketSize & 0b0111_1111_1111,
+					maximum_packet_size,
 					
 					audio_extension,
 					
-					additional_descriptors: Self::parse_additional_descriptors(end_point_descriptor).map_err(CouldNotParseEndPointAdditionalDescriptor)?,
+					additional_descriptors,
 				}
 			)
 		)
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors(end_point_descriptor: &libusb_endpoint_descriptor) -> Result<Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>, AdditionalDescriptorParseError<Infallible>>
+	fn parse_additional_descriptors<'a>(end_point_descriptor: &libusb_endpoint_descriptor, transfer_type: &'a mut TransferType, maximum_packet_size: u11) -> Result<Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>, AdditionalDescriptorParseError<EndPointAdditionalDescriptorParseError>>
 	{
 		let extra = extra_to_slice(end_point_descriptor.extra, end_point_descriptor.extra_length)?;
-		let additional_descriptor_parser = EndPointAdditionalDescriptorParser;
+		let additional_descriptor_parser = EndPointAdditionalDescriptorParser
+		{
+			transfer_type,
+			
+			maximum_packet_size,
+		};
+		
 		parse_additional_descriptors(extra, additional_descriptor_parser)
 	}
 }

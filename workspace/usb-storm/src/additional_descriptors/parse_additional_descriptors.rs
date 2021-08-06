@@ -30,32 +30,39 @@ pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(mut 
 			return Err(NotEnoughDescriptorBytes)
 		}
 		
-		let descriptor_length = extra.get_unchecked_value_safe(0) as usize;
+		let bLength = extra.get_unchecked_value_safe(0);
+		let descriptor_length = bLength as usize;
 		if unlikely!(descriptor_length > remaining_length)
 		{
 			return Err(DescriptorLengthExceedsRemainingBytes)
 		}
 		
 		let descriptor_type = extra.get_unchecked_value_safe(1);
-		let remaining_descriptor_bytes = extra.get_unchecked_range_safe(LengthAdjustment.. descriptor_length);
-		let optional_additional_descriptor = additional_descriptor_parser.parse_descriptor(descriptor_type, remaining_descriptor_bytes);
-		
-		let additional_descriptor = match optional_additional_descriptor
+		let remaining_bytes = extra.get_unchecked_range_safe(LengthAdjustment .. );
+		let (additional_descriptor, consumed_length) = match additional_descriptor_parser.parse_descriptor(bLength, descriptor_type, remaining_bytes)
 		{
-			Ok(Some(additional_descriptor)) => Known(additional_descriptor),
+			Ok(Some((additional_descriptor, consumed_length))) => (Known(additional_descriptor), consumed_length),
 			
-			Ok(None) => Unknown
-			{
-				descriptor_type,
-				
-				bytes: Vec::new_from(remaining_descriptor_bytes).map_err(CanNotAllocateUnknownDescriptorBuffer)?,
-			},
+			Ok(None) =>
+			(
+				Unknown
+				{
+					descriptor_type,
+					
+					bytes:
+					{
+						let descriptor_bytes = extra.get_unchecked_range_safe(LengthAdjustment .. descriptor_length);
+						Vec::new_from(descriptor_bytes).map_err(CanNotAllocateUnknownDescriptorBuffer)?
+					},
+				},
+				descriptor_length
+			),
 			
 			Err(error) => return Err(Specific(error)),
 		};
 		additional_descriptors.try_push(additional_descriptor).map_err(CanNotAllocateAdditionalDescriptor)?;
 		
-		remaining_length = remaining_length - descriptor_length;
+		remaining_length = remaining_length - consumed_length;
 		if remaining_length == 0
 		{
 			break
@@ -63,7 +70,7 @@ pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(mut 
 		
 		if unlikely!(ADP::multiple_descriptors_valid())
 		{
-			extra = extra.get_unchecked_range_safe(descriptor_length .. );
+			extra = extra.get_unchecked_range_safe(consumed_length .. );
 			continue
 		}
 		else

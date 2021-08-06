@@ -24,7 +24,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
+	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
 	{
 		use HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
 		
@@ -35,15 +35,18 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 			_ => return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type)),
 		};
 		
+		let length = bLength as usize;
+		let descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. length);
+		
 		const AdjustedMinimumLength: usize = 9 - LengthAdjustment;
-		if unlikely!(bytes.len() < AdjustedMinimumLength)
+		if unlikely!(descriptor_bytes.len() < AdjustedMinimumLength)
 		{
 			return Err(WrongLength)
 		}
 		
 		let number_of_class_descriptors_including_mandatory_report =
 		{
-			let bNumClassDescriptors = bytes.u8::<5>();
+			let bNumClassDescriptors = descriptor_bytes.u8::<5>();
 			if unlikely!(bNumClassDescriptors == 0)
 			{
 				return Err(ZeroNumberOfClassDescriptors)
@@ -52,7 +55,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 		};
 		
 		{
-			let report_descriptor_type = bytes.u8::<6>(); //
+			let report_descriptor_type = descriptor_bytes.u8::<6>(); //
 			if unlikely!(report_descriptor_type != 0x22)
 			{
 				return Err(UnrecognisedReportDescriptorType(report_descriptor_type))
@@ -63,25 +66,29 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 		(
 			Some
 			(
-				HumanInterfaceDeviceInterfaceAdditionalDescriptor
-				{
-					variant: self.0,
-					
-					version: bytes.version::<2>().map_err(Version)?,
-					
-					country_code: match bytes.u8::<4>()
+				(
+					HumanInterfaceDeviceInterfaceAdditionalDescriptor
 					{
-						0 => None,
+						variant: self.0,
 						
-						country_code @ 1 ..= 35 => Some(unsafe { transmute(country_code) }),
+						version: descriptor_bytes.version::<2>().map_err(Version)?,
 						
-						reserved => return Err(ReservedCountryCode(reserved))
-					}
-					,
-					report_descriptor_length: bytes.u16::<7>(),
-				
-					optional_descriptors: Self::parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report, bytes.get_unchecked_range_safe(AdjustedMinimumLength .. ))?,
-				}
+						country_code: match descriptor_bytes.u8::<4>()
+						{
+							0 => None,
+							
+							country_code @ 1 ..= 35 => Some(unsafe { transmute(country_code) }),
+							
+							reserved => return Err(ReservedCountryCode(reserved))
+						}
+						,
+						report_descriptor_length: descriptor_bytes.u16::<7>(),
+					
+						optional_descriptors: Self::parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report, descriptor_bytes.get_unchecked_range_safe(AdjustedMinimumLength .. ))?,
+					},
+					
+					length,
+				)
 			)
 		)
 	}

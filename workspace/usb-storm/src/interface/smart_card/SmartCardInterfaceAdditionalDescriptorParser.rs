@@ -29,7 +29,7 @@ impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
+	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
 	{
 		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
@@ -38,12 +38,24 @@ impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 			return Err(DescriptorIsNeitherOfficialOrVendorSpecific { actual: descriptor_type, expected: self.expected })
 		}
 		
-		if unlikely!(bytes.len() != SmartCardInterfaceAdditionalDescriptor::AdjustedLength)
+		let length = bLength as usize;
+		let descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. length);
+		
+		if unlikely!(descriptor_bytes.len() != SmartCardInterfaceAdditionalDescriptor::AdjustedLength)
 		{
 			return Err(WrongLength)
 		}
 		
-		Ok(Some(SmartCardInterfaceAdditionalDescriptor::parse(self.smart_card_protocol, bytes)?))
+		Ok
+		(
+			Some
+			(
+				(
+					SmartCardInterfaceAdditionalDescriptor::parse(self.smart_card_protocol, descriptor_bytes)?,
+					length
+				)
+			)
+		)
 	}
 }
 

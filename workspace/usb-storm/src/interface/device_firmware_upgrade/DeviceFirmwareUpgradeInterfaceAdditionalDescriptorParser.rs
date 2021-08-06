@@ -24,7 +24,7 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, descriptor_type: DescriptorType, bytes: &[u8]) -> Result<Option<Self::Descriptor>, Self::Error>
+	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
 	{
 		use DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError::*;
 		
@@ -35,14 +35,17 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 			_ => return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type)),
 		};
 		
-		let length = bytes.len();
+		let length = bLength as usize;
+		let descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. length);
+		
+		let length = descriptor_bytes.len();
 		const MinimumLength: usize = 5;
 		if unlikely!(length < MinimumLength)
 		{
 			return Err(WrongLength { length })
 		}
 		
-		let bmAttributes = bytes.u8::<2>();
+		let bmAttributes = descriptor_bytes.u8::<2>();
 		
 		if unlikely!(bmAttributes & 0b1111_0000 != 0)
 		{
@@ -53,13 +56,13 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 		let manifestation_tolerant = (bmAttributes & 0b0000_0100) != 0;
 		let can_upload = (bmAttributes & 0b0000_0010) != 0;
 		let can_download = (bmAttributes & 0b0000_0001) != 0;
-		let maximum_detach_time_out_milliseconds = bytes.u16::<3>();
-		let maximum_number_of_bytes_per_control_write_transaction = bytes.u16::<5>();
+		let maximum_detach_time_out_milliseconds = descriptor_bytes.u16::<3>();
+		let maximum_number_of_bytes_per_control_write_transaction = descriptor_bytes.u16::<5>();
 		
 		const StandardLength: usize = 7;
 		let version = if length >= StandardLength
 		{
-			Some(bytes.version::<7>().map_err(Version)?)
+			Some(descriptor_bytes.version::<7>().map_err(Version)?)
 		}
 		else
 		{
@@ -70,22 +73,26 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 		(
 			Some
 			(
-				DeviceFirmwareUpgradeInterfaceAdditionalDescriptor
-				{
-					will_detach,
+				(
+					DeviceFirmwareUpgradeInterfaceAdditionalDescriptor
+					{
+						will_detach,
+						
+						manifestation_tolerant,
+						
+						can_upload,
+						
+						can_download,
+						
+						maximum_detach_time_out_milliseconds,
+						
+						maximum_number_of_bytes_per_control_write_transaction,
+						
+						version,
+					},
 					
-					manifestation_tolerant,
-					
-					can_upload,
-					
-					can_download,
-					
-					maximum_detach_time_out_milliseconds,
-					
-					maximum_number_of_bytes_per_control_write_transaction,
-					
-					version,
-				}
+					length,
+				)
 			)
 		)
 	}
