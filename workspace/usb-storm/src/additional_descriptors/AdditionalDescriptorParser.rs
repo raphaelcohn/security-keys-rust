@@ -8,32 +8,6 @@ pub(crate) trait AdditionalDescriptorParser
 	
 	type Error: error::Error;
 	
-	#[inline(always)]
-	fn verify_remaining_bytes<E, const MinimumBLength: u8>(remaining_bytes: &[u8], bLength: u8, b_length_is_less_than_minimum_error: E, b_length_exceeds_remining_bytes_error: E) -> Result<(&[u8], usize), E>
-	{
-		if unlikely!(bLength < MinimumBLength)
-		{
-			return Err(b_length_is_less_than_minimum_error)
-		}
-		
-		let available_descriptor_body_length = remaining_bytes.len();
-		let stated_descriptor_body_length = reduce_b_length_to_descriptor_body_length(bLength);
-		if unlikely!(stated_descriptor_body_length > available_descriptor_body_length)
-		{
-			return Err(b_length_exceeds_remining_bytes_error)
-		}
-		
-		let descriptor_body_length = stated_descriptor_body_length;
-		let descriptor_body = remaining_bytes.get_unchecked_range_safe(.. descriptor_body_length);
-		Ok((descriptor_body, descriptor_body_length))
-	}
-	
-	#[inline(always)]
-	fn reduce_b_length_to_descriptor_body_length(bLength: u8) -> usize
-	{
-		reduce_b_length_to_descriptor_body_length(bLength)
-	}
-	
 	/// `remaining_bytes` exclude `bLength` and `bDescriptorType` bytes, but is not sliced to be `bLength` long (`remaining_bytes.len()`); instead, it consists of all remaining bytes after `bDescriptorType`.
 	/// The parser must report how many bytes it consumed, which must be at least `bLength`.
 	/// This allows the end point parser to consume adjacent descriptors, rather than one at a time.

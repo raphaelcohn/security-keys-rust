@@ -4,11 +4,12 @@
 
 use crate::VecExt;
 use crate::Bytes;
-use super::super::Version;
+use crate::Version;
 use crate::version::VersionParseError;
-use super::super::additional_descriptors::AdditionalDescriptorParser;
-use super::super::additional_descriptors::DescriptorType;
-use super::super::additional_descriptors::DescriptorHeaderLength;
+use crate::additional_descriptors::AdditionalDescriptorParser;
+use crate::additional_descriptors::DescriptorType;
+use crate::additional_descriptors::DescriptorHeaderLength;
+use crate::additional_descriptors::verify_remaining_bytes;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

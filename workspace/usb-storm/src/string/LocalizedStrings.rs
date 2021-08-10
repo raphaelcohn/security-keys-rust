@@ -2,7 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Error getting a localized string.
+/// Localized strings.
+///
+/// Can contain a maximum of 126 strings (this is an internal limit in USB's design).
 #[derive(Debug, Clone, Eq, PartialEq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]

@@ -16,13 +16,6 @@ trait Bytes
 		Version::parse(self.u16_unadjusted(index))
 	}
 	
-	#[inline(always)]
-	fn uuid_adjusted<const index: usize>(&self) -> Uuid
-	{
-		let adjusted_index = adjust_index::<index>();
-		self.uuid_unadjusted(adjusted_index)
-	}
-	
 	fn uuid_unadjusted(&self, index: usize) -> Uuid;
 	
 	#[inline(always)]
@@ -36,6 +29,12 @@ trait Bytes
 	fn optional_non_zero_u8_unadjusted(&self, index: usize) -> Option<NonZeroU8>
 	{
 		unsafe { transmute(self.u8_unadjusted(index)) }
+	}
+	
+	#[inline(always)]
+	fn optional_non_zero_u16_unadjusted(&self, index: usize) -> Option<NonZeroU16>
+	{
+		unsafe { transmute(self.u16_unadjusted(index)) }
 	}
 	
 	#[inline(always)]

@@ -29,7 +29,7 @@ impl<'a> AdditionalDescriptorParser for EndPointAdditionalDescriptorParser<'a>
 		}
 		
 		const BLength: u8 = EndPointAdditionalDescriptorParser::BLength;
-		let (descriptor_body, descriptor_body_length) = Self::verify_remaining_bytes::<EndPointAdditionalDescriptorParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointAdditionalDescriptorParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let bMaxBurst = descriptor_body.u8_unadjusted(0);
 		let bmAttributes = descriptor_body.u8_unadjusted(1);
@@ -185,7 +185,7 @@ impl<'a> EndPointAdditionalDescriptorParser<'a>
 		let bLength = remaining_bytes.u8_unadjusted(0);
 		
 		const CompanionBLength: u8 = 10;
-		let (descriptor_body, descriptor_body_length) = Self::verify_remaining_bytes::<EndPointAdditionalDescriptorParseError, CompanionBLength>(remaining_bytes, bLength, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointAdditionalDescriptorParseError, CompanionBLength>(remaining_bytes, bLength, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes)?;
 		debug_assert_eq!(descriptor_body_length, reduce_b_length_to_descriptor_body_length(CompanionBLength));
 		let _wReserved = descriptor_body.u16_adjusted::<2>();
 		Ok((descriptor_body.u32_adjusted::<4>(), CompanionBLength as usize))

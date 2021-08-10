@@ -26,3 +26,4 @@ include!("DescriptorType.rs");
 include!("extra_to_slice.rs");
 include!("parse_additional_descriptors.rs");
 include!("reduce_b_length_to_descriptor_body_length.rs");
+include!("verify_remaining_bytes.rs");

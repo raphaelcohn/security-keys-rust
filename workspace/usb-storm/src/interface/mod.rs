@@ -59,8 +59,8 @@ use swiss_army_knife::non_zero::new_non_zero_u8;
 use crate::version::Version;
 
 
-// /// Audio.
-// pub mod audio;
+/// Audio.
+pub mod audio;
 
 
 /// Device Firmware Upgrade (DFU).

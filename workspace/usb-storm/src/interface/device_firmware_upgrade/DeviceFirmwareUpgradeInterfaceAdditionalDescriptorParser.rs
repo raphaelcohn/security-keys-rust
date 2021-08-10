@@ -27,7 +27,7 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 		const SizeOfVersionField: u8 = size_of::<u16>() as u8;
 		const MinimumBLength: u8 = 7;
 		const CorrectBLength: u8 = MinimumBLength + SizeOfVersionField;
-		let (descriptor_body, descriptor_body_length) = Self::verify_remaining_bytes::<DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let bmAttributes = descriptor_body.u8_adjusted::<2>();
 		if unlikely!(bmAttributes & 0b1111_0000 != 0)

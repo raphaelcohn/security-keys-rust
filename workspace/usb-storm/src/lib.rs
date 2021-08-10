@@ -25,6 +25,7 @@
 
 #![feature(allocator_api)]
 #![feature(associated_type_bounds)]
+#![feature(const_fn_union)]
 #![feature(const_ptr_is_null)]
 #![feature(core_intrinsics)]
 #![feature(macro_attributes_in_derive_output)]
@@ -48,7 +49,7 @@ use serde_yaml as _;
 use self::version::Version;
 use self::version::VersionParseError;
 use std::collections::TryReserveError;
-use std::num::NonZeroU8;
+use std::num::{NonZeroU8, NonZeroU16};
 use std::mem::transmute;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use uuid::Uuid;

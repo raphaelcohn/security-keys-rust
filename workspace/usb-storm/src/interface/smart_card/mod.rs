@@ -4,6 +4,7 @@
 
 use crate::additional_descriptors::AdditionalDescriptorParser;
 use crate::additional_descriptors::DescriptorType;
+use crate::additional_descriptors::verify_remaining_bytes;
 use crate::class_and_protocol::SmartCardProtocol;
 use crate::version::Version;
 use self::features::Features;

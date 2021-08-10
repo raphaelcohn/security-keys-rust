@@ -102,7 +102,7 @@ impl Device
 		self.device_class
 	}
 	
-	#[allow(missing_docs)]
+	/// Can contain a maximum of 126 languages (this is an internal limit in USB's design).
 	#[inline(always)]
 	pub fn languages(&self) -> Option<&[Language]>
 	{
