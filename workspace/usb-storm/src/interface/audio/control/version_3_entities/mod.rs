@@ -65,7 +65,7 @@ include!("Version3MultiplierClockEntity.rs");
 include!("Version3OutputTerminalEntity.rs");
 include!("Version3PowerDomainEntity.rs");
 include!("Version3ProcessingUnitEntity.rs");
-include!("Version3SampleRateConverterUnitEntity.rs");
+include!("Version3SamplingRateConverterUnitEntity.rs");
 include!("Version3SelectorClockEntity.rs");
 include!("Version3SelectorUnitEntity.rs");
 include!("Version3SourceClockEntity.rs");

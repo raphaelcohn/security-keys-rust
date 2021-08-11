@@ -35,7 +35,7 @@ impl Entity for Version1MixerUnitEntity
 	{
 		use Version1EntityDescriptorParseError::*;
 		
-		let p = parse_p::<4>(entity_body);
+		let p = parse_p::<DescriptorEntityMinimumLength>(entity_body);
 		
 		/// 10.
 		const MinimumBLength: usize = Version1EntityDescriptors::MixerUnitMinimumBLength as usize;

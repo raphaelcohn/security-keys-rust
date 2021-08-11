@@ -11,7 +11,7 @@ pub struct Version1ExtensionUnitEntity
 {
 	input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters,
 	
-	enable_processing: bool,
+	enable: bool,
 	
 	controls_bit_map: Vec<u8>,
 	
@@ -77,7 +77,7 @@ impl Entity for Version1ExtensionUnitEntity
 		}
 		
 		let bmControls = entity_body.bytes_unadjusted(ExtensionCodeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
-		let enable_processing = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
+		let enable = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
 		
 		Ok
 		(
@@ -87,7 +87,7 @@ impl Entity for Version1ExtensionUnitEntity
 				{
 					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 7)?,
 					
-					enable_processing,
+					enable,
 					
 					controls_bit_map: Vec::new_from(bmControls).map_err(CouldNotAllocateMemoryForExtensionUnitControlsBitMap)?,
 					
@@ -113,9 +113,9 @@ impl Version1ExtensionUnitEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn enable_processing(&self) -> bool
+	pub const fn enable(&self) -> bool
 	{
-		self.enable_processing
+		self.enable
 	}
 	
 	#[allow(missing_docs)]

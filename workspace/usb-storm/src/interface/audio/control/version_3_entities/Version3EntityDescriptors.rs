@@ -24,7 +24,7 @@ pub struct Version3EntityDescriptors
 	
 	extension_unit: Entities<Version3ExtensionUnitEntity>,
 	
-	sample_rate_converter_unit: Entities<Version3SampleRateConverterUnitEntity>,
+	sample_rate_converter_unit: Entities<Version3SamplingRateConverterUnitEntity>,
 	
 	source_clock: Entities<Version3SourceClockEntity>,
 	
@@ -186,7 +186,7 @@ impl Version3EntityDescriptors
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn sample_rate_converter_unit(&self) -> &Entities<Version3SampleRateConverterUnitEntity>
+	pub const fn sample_rate_converter_unit(&self) -> &Entities<Version3SamplingRateConverterUnitEntity>
 	{
 		&self.sample_rate_converter_unit
 	}

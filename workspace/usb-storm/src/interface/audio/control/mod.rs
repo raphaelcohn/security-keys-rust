@@ -81,5 +81,6 @@ include!("Entity.rs");
 include!("EntityDescriptorParseError.rs");
 include!("EntityDescriptors.rs");
 include!("parse_entity_descriptor.rs");
+include!("parse_p.rs");
 include!("TerminalEntity.rs");
 include!("UnitEntity.rs");

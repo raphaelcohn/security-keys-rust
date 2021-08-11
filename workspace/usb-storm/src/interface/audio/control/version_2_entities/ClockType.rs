@@ -2,15 +2,21 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-
-use crate::Bytes;
-use serde::Deserialize;
-use serde::Serialize;
-use std::num::NonZeroU16;
-
-
-/// Audio control.
-pub mod control;
-
-
-include!("Version3AudioDynamicStringDescriptorIdentifier.rs");
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+#[repr(u8)]
+pub enum ClockType
+{
+	#[allow(missing_docs)]
+	Extenal = 0b00,
+	
+	#[allow(missing_docs)]
+	InternalFixedClock = 0b01,
+	
+	#[allow(missing_docs)]
+	InternalVariableClock = 0b10,
+	
+	#[allow(missing_docs)]
+	InternalProgrammableClock = 0b11,
+}

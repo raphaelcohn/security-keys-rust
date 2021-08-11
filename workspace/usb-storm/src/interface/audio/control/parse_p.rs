@@ -5,6 +5,6 @@
 #[inline(always)]
 fn parse_p<const index: usize>(entity_body: &[u8]) -> usize
 {
-	let bNrInPins = entity_body.u8_unadjusted(adjusted_index::<4>());
+	let bNrInPins = entity_body.u8_unadjusted(adjusted_index::<index>());
 	bNrInPins as usize
 }

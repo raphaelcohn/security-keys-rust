@@ -6,6 +6,17 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Version2EntityDescriptorParseError
 {
+	#[allow(missing_docs)]
+	InvalidDescriptionString(GetLocalizedStringError),
+	
+	#[allow(missing_docs)]
+	SelectorClockCouldNotAllocateSources(GetLocalizedStringError),
+	
+	#[allow(missing_docs)]
+	InvalidControl,
+	
+	#[allow(missing_docs)]
+	SelectorClockPIsTooLarge,
 }
 
 impl Display for Version2EntityDescriptorParseError
@@ -19,6 +30,20 @@ impl Display for Version2EntityDescriptorParseError
 
 impl error::Error for Version2EntityDescriptorParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use Version2EntityDescriptorParseError::*;
+		
+		match self
+		{
+			InvalidDescriptionString(cause) => Some(cause),
+			
+			SelectorClockCouldNotAllocateSources(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }
 
 impl Into<EntityDescriptorParseError<Version2EntityDescriptorParseError>> for Version2EntityDescriptorParseError

@@ -13,7 +13,7 @@ pub struct Version1ProcessingUnitEntity
 	
 	output_logical_audio_channel_cluster: LogicalAudioChannelCluster,
 	
-	enable_processing: bool,
+	enable: bool,
 	
 	process_type: ProcessType,
 	
@@ -75,7 +75,7 @@ impl Entity for Version1ProcessingUnitEntity
 		let process_specific_size = controls_bytes_size_plus_process_specific_size.checked_sub(controls_bytes_size.get()).ok_or(ProcessingUnitHasTooFewBytesForProcessSpecificData)?;
 		
 		let bmControls = entity_body.bytes_unadjusted(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
-		let enable_processing = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
+		let enable = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
 		
 		let output_logical_audio_channel_cluster = return_ok_if_dead!(LogicalAudioChannelCluster::parse(7 + p, string_finder, entity_body)?);
 		Ok
@@ -86,7 +86,7 @@ impl Entity for Version1ProcessingUnitEntity
 				{
 					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 7)?,
 					
-					enable_processing,
+					enable,
 					
 					process_type:
 					{
@@ -135,9 +135,9 @@ impl Version1ProcessingUnitEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn enable_processing(&self) -> bool
+	pub const fn enable(&self) -> bool
 	{
-		self.enable_processing
+		self.enable
 	}
 	
 	#[allow(missing_docs)]

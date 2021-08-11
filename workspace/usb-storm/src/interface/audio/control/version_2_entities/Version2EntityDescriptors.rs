@@ -24,7 +24,7 @@ pub struct Version2EntityDescriptors
 	
 	extension_unit: Entities<Version2ExtensionUnitEntity>,
 	
-	sample_rate_converter_unit: Entities<Version2SampleRateConverterUnitEntity>,
+	sampling_rate_converter_unit: Entities<Version2SamplingRateConverterUnitEntity>,
 	
 	source_clock: Entities<Version2SourceClockEntity>,
 	
@@ -58,68 +58,65 @@ impl EntityDescriptors for Version2EntityDescriptors
 		
 		let dead_or_alive = match bDescriptorSubtype
 		{
-			INPUT_TERMINAL => parse_entity_descriptor::<_, X>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.input_terminal)?,
+			INPUT_TERMINAL => parse_entity_descriptor::<_, 17>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.input_terminal)?,
 			
-			OUTPUT_TERMINAL => parse_entity_descriptor::<_, X>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.output_terminal)?,
+			OUTPUT_TERMINAL => parse_entity_descriptor::<_, 12>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.output_terminal)?,
 			
 			MIXER_UNIT =>
 			{
-				const MinimumBLength: u8 = X;
+				const MinimumBLength: u8 = 13;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.mixer_unit)?
 			}
 			
 			SELECTOR_UNIT =>
 			{
-				const MinimumBLength: u8 = X;
+				const MinimumBLength: u8 = 7;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.selector_unit)?
 			}
 			
 			FEATURE_UNIT =>
 			{
-				const MinimumBLength: u8 = X;
+				const MinimumBLength: u8 = 6;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.feature_unit)?
 			}
 			
 			EFFECT_UNIT =>
 			{
-				const MinimumBLength: u8 = X;
+				const MinimumBLength: u8 = 16;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.effect_unit)?
 			}
 			
 			PROCESSING_UNIT =>
 			{
-				const MinimumBLength: u8 = X;
+				const MinimumBLength: u8 = 17;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.processing_unit)?;
 			}
 			
 			EXTENSION_UNIT =>
 			{
-				const MinimumBLength: u8 = X;
+				const MinimumBLength: u8 = 16;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.extension_unit)?;
 			}
 			
 			CLOCK_SOURCE =>
 			{
-				const MinimumBLength: u8 = X;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.source_clock)?;
+				parse_entity_descriptor::<_, 8>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.source_clock)?;
 			}
 			
 			CLOCK_SELECTOR =>
 			{
-				const MinimumBLength: u8 = X;
+				const MinimumBLength: u8 = 7;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.selector_clock)?;
 			}
 			
 			CLOCK_MULTIPLIER =>
 			{
-				const MinimumBLength: u8 = X;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.multiplier_clock)?;
+				parse_entity_descriptor::<_, 7>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.multiplier_clock)?;
 			}
 			
 			SAMPLE_RATE_CONVERTER =>
 			{
-				const MinimumBLength: u8 = X;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.sample_rate_converter_unit)?;
+				parse_entity_descriptor::<_, 8>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.sampling_rate_converter_unit)?;
 			}
 			
 			_ => return Ok(Alive(false))

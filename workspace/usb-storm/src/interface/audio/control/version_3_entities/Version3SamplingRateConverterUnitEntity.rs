@@ -7,9 +7,9 @@
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[allow(missing_docs)]
-pub struct Version3SampleRateConverterUnitEntity;
+pub struct Version3SamplingRateConverterUnitEntity;
 
-impl Entity for Version3SampleRateConverterUnitEntity
+impl Entity for Version3SamplingRateConverterUnitEntity
 {
 	type EntityIdentifier = UnitEntityIdentifier;
 	
@@ -28,6 +28,6 @@ impl Entity for Version3SampleRateConverterUnitEntity
 	}
 }
 
-impl UnitEntity for Version3SampleRateConverterUnitEntity
+impl UnitEntity for Version3SamplingRateConverterUnitEntity
 {
 }

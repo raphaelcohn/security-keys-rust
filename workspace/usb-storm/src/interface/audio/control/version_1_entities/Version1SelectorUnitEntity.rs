@@ -31,7 +31,7 @@ impl Entity for Version1SelectorUnitEntity
 	{
 		use Version1EntityDescriptorParseError::*;
 		
-		let p = parse_p::<4>(entity_body);
+		let p = parse_p::<DescriptorEntityMinimumLength>(entity_body);
 		
 		if unlikely!(((Version1EntityDescriptors::SelectorUnitMinimumBLength as usize) + p) != (DescriptorEntityMinimumLength + entity_body.len()))
 		{
