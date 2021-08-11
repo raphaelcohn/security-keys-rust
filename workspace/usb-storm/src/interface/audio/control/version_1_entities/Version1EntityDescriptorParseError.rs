@@ -120,6 +120,18 @@ pub enum Version1EntityDescriptorParseError
 	
 	#[allow(missing_docs)]
 	DynamicRangeCompressorProcessTypeMustHaveOnlyOneInputPin,
+	
+	#[allow(missing_docs)]
+	ExtensionUnitPIsTooLarge,
+	
+	#[allow(missing_docs)]
+	ExtensionUnitControlSizeIsZero,
+	
+	#[allow(missing_docs)]
+	ExtensionUnitTooShort,
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForExtensionUnitControlsBitMap(TryReserveError),
 }
 
 impl Display for Version1EntityDescriptorParseError
@@ -155,6 +167,8 @@ impl error::Error for Version1EntityDescriptorParseError
 			CouldNotAllocateMemoryForProcessTypeUnrecognizedControls(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForProcessTypeUnrecognizedData(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForExtensionUnitControlsBitMap(cause) => Some(cause),
 			
 			_ => None,
 		}

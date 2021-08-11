@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// An input terminal entity.
+/// A processing unit entity.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -77,7 +77,6 @@ impl Entity for Version1ProcessingUnitEntity
 		let bmControls = entity_body.bytes_unadjusted(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
 		let enable_processing = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
 		
-		
 		let output_logical_audio_channel_cluster = return_ok_if_dead!(LogicalAudioChannelCluster::parse(7 + p, string_finder, entity_body)?);
 		Ok
 		(
@@ -150,38 +149,16 @@ impl Version1ProcessingUnitEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn number_of_logical_channels(&self) -> usize
+	pub const fn input_logical_audio_channel_clusters(&self) -> &InputLogicalAudioChannelClusters
 	{
-		let length = self.controls_by_channel_number.len();
-		if unlikely!(length == 0)
-		{
-			0
-		}
-		else
-		{
-			length - 1
-		}
+		&self.input_logical_audio_channel_clusters
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn master_channel_controls(&self) -> Option<BitFlags<AudioChannelFeatureControl>>
+	pub const fn output_logical_audio_channel_cluster(&self) -> &LogicalAudioChannelCluster
 	{
-		if unlikely!(self.controls_by_channel_number.is_empty())
-		{
-			None
-		}
-		else
-		{
-			Some(self.controls_by_channel_number.get_unchecked_value_safe(0))
-		}
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub fn logical_channel_controls(&self, logical_audio_channel_number: LogicalAudioChannelNumber) -> Option<BitFlags<AudioChannelFeatureControl>>
-	{
-		self.controls_by_channel_number.get(logical_audio_channel_number.get()).map(|control| *control)
+		&self.output_logical_audio_channel_cluster
 	}
 	
 	#[inline(always)]

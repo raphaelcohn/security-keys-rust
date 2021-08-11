@@ -62,6 +62,7 @@ include!("parse_p.rs");
 include!("ProcessType.rs");
 include!("Version1EntityDescriptorParseError.rs");
 include!("Version1EntityDescriptors.rs");
+include!("Version1ExtensionUnitEntity.rs");
 include!("Version1FeatureUnitEntity.rs");
 include!("Version1InputTerminalEntity.rs");
 include!("Version1MixerUnitEntity.rs");
