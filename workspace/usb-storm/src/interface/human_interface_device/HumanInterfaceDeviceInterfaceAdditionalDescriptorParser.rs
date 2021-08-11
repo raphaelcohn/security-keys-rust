@@ -12,7 +12,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 	type Error = HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
+	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		use HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
 		
@@ -48,27 +48,30 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 		(
 			Some
 			(
+				Alive
 				(
-					HumanInterfaceDeviceInterfaceAdditionalDescriptor
-					{
-						variant: self.0,
-						
-						version: descriptor_body.version_adjusted::<2>().map_err(Version)?,
-						
-						country_code: match descriptor_body.u8_adjusted::<4>()
+					(
+						HumanInterfaceDeviceInterfaceAdditionalDescriptor
 						{
-							0 => None,
+							variant: self.0,
 							
-							country_code @ 1 ..= 35 => Some(unsafe { transmute(country_code) }),
+							version: descriptor_body.version_adjusted::<2>().map_err(Version)?,
 							
-							reserved => return Err(ReservedCountryCode(reserved))
-						}
-						,
-						report_descriptor_length: descriptor_body.u16_adjusted::<7>(),
-					
-						optional_descriptors: Self::parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report, descriptor_body.get_unchecked_range_safe(((MinimumBLength as usize) - DescriptorHeaderLength) .. ))?,
-					},
-					descriptor_body_length,
+							country_code: match descriptor_body.u8_adjusted::<4>()
+							{
+								0 => None,
+								
+								country_code @ 1 ..= 35 => Some(unsafe { transmute(country_code) }),
+								
+								reserved => return Err(ReservedCountryCode(reserved))
+							}
+							,
+							report_descriptor_length: descriptor_body.u16_adjusted::<7>(),
+						
+							optional_descriptors: Self::parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report, descriptor_body.get_unchecked_range_safe(((MinimumBLength as usize) - DescriptorHeaderLength) .. ))?,
+						},
+						descriptor_body_length,
+					)
 				)
 			)
 		)

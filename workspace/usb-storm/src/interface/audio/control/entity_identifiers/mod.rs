@@ -2,8 +2,22 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[inline(always)]
-const fn adjusted_index<const index: usize>() -> usize
-{
-	index - Version3EntityDescriptors::MinimumLength
-}
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
+use std::cmp::Ordering;
+use std::fmt;
+use std::fmt::Debug;
+use std::fmt::Formatter;
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::num::NonZeroU8;
+
+
+include!("ClockEntityIdentifier.rs");
+include!("EntityIdentifier.rs");
+include!("PowerDomainEntityIdentifier.rs");
+include!("TerminalEntityIdentifier.rs");
+include!("UnitEntityIdentifier.rs");
+include!("UnitOrTerminalEntityIdentifier.rs");

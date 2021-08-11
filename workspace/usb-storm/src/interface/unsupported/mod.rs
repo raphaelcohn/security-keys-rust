@@ -5,6 +5,8 @@
 use super::super::additional_descriptors::AdditionalDescriptorParser;
 use super::super::additional_descriptors::DescriptorType;
 use std::convert::Infallible;
+use crate::string::StringFinder;
+use crate::device::DeadOrAlive;
 
 
 include!("UnsupportedInterfaceAdditionalDescriptor.rs");

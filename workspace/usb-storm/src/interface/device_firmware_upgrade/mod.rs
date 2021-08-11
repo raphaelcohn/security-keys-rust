@@ -18,6 +18,9 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::mem::size_of;
+use crate::string::StringFinder;
+use crate::device::DeadOrAlive;
+use crate::device::DeadOrAlive::Alive;
 
 
 include!("DeviceFirmwareUpgradeInterfaceAdditionalDescriptor.rs");

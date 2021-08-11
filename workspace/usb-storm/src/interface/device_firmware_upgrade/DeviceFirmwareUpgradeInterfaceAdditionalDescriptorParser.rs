@@ -12,7 +12,7 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 	type Error = DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
+	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		use DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError::*;
 		
@@ -55,24 +55,27 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 		(
 			Some
 			(
+				Alive
 				(
-					DeviceFirmwareUpgradeInterfaceAdditionalDescriptor
-					{
-						will_detach,
-						
-						manifestation_tolerant,
-						
-						can_upload,
-						
-						can_download,
-						
-						maximum_detach_time_out_milliseconds,
-						
-						maximum_number_of_bytes_per_control_write_transaction,
-						
-						version,
-					},
-					descriptor_body_length,
+					(
+						DeviceFirmwareUpgradeInterfaceAdditionalDescriptor
+						{
+							will_detach,
+							
+							manifestation_tolerant,
+							
+							can_upload,
+							
+							can_download,
+							
+							maximum_detach_time_out_milliseconds,
+							
+							maximum_number_of_bytes_per_control_write_transaction,
+							
+							version,
+						},
+						descriptor_body_length,
+					)
 				)
 			)
 		)

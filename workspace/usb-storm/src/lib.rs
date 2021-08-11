@@ -103,6 +103,10 @@ pub mod string;
 pub mod version;
 
 
+include!("return_ok_if_dead.rs");
+include!("return_ok_if_dead_or_alive_none.rs");
+
+
 include!("adjust_index.rs");
 include!("Bytes.rs");
 include!("VecExt.rs");

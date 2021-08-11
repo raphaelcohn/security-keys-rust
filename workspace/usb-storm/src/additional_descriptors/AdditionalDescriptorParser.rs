@@ -16,5 +16,5 @@ pub(crate) trait AdditionalDescriptorParser
 	/// If the parser return `Some(descriptor, consumed_length)`, then it parsed the descriptor (and perhaps an immediately contiguous descriptor in the case of end points), and returns the total length of bytes consumed from `remaining_bytes`. This total length will not include the overhead of the first descriptor's header (`bLength` and `bDescriptorType`).
 	///
 	/// `remaining_bytes.len()` will always be `<= 253`.
-	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>;
+	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>;
 }

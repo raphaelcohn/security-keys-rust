@@ -31,26 +31,15 @@ impl<E: Entity> Default for Entities<E>
 impl<E: Entity> Entities<E>
 {
 	#[inline(always)]
-	fn push(&mut self, entity_identifier: Option<E::EntityIdentifier>, entity: E) -> Result<(), EntityDescriptorParseError>
+	fn push_unidentified(&mut self, entity: E) -> Result<(), EntityDescriptorParseError<E::ParseError>>
 	{
-		use EntityDescriptorParseError::*;
-		
-		match entity_identifier
-		{
-			None => self.undefined.try_push(entity).map_err(OutOfMemoryPushingAnonymousEntityDescriptor),
-			
-			Some(entity_identifier) =>
-			{
-				let outcome = self.identified.insert(entity_identifier, entity);
-				if unlikely!(outcome.is_some())
-				{
-					Err(DuplicateEntityDescriptor)
-				}
-				else
-				{
-					Ok(())
-				}
-			}
-		}
+		self.undefined.try_push(entity).map_err(EntityDescriptorParseError::OutOfMemoryPushingAnonymousEntityDescriptor)
+	}
+	
+	#[inline(always)]
+	fn push_identified(&mut self, entity: E, entity_identifier: E::EntityIdentifier)
+	{
+		let outcome = self.identified.insert(entity_identifier, entity);
+		debug_assert!(outcome.is_none());
 	}
 }

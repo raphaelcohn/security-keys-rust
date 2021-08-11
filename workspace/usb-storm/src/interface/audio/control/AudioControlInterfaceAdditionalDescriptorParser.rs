@@ -12,7 +12,7 @@ impl AdditionalDescriptorParser for AudioControlInterfaceAdditionalDescriptorPar
 	type Error = AudioControlInterfaceAdditionalDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
+	fn parse_descriptor(&mut self, _string_finder: &StringFinder, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		match descriptor_type
 		{
@@ -23,17 +23,17 @@ impl AdditionalDescriptorParser for AudioControlInterfaceAdditionalDescriptorPar
 		
 		use AudioProtocol::*;
 		
-		let result = match self.0
+		let outcome = match self.0
 		{
-			Version_1_0 => AudioControlInterfaceAdditionalDescriptor::parse_descriptor_version_1_0(bLength, remaining_bytes),
+			Version_1_0 => AudioControlInterfaceAdditionalDescriptor::parse_descriptor_version_1_0(string_finder, bLength, remaining_bytes),
 			
-			Version_2_0 => AudioControlInterfaceAdditionalDescriptor::parse_descriptor_version_2_0(bLength, remaining_bytes),
+			Version_2_0 => AudioControlInterfaceAdditionalDescriptor::parse_descriptor_version_2_0(string_finder, bLength, remaining_bytes),
 			
-			Version_3_0 => AudioControlInterfaceAdditionalDescriptor::parse_descriptor_version_3_0(bLength, remaining_bytes),
+			Version_3_0 => AudioControlInterfaceAdditionalDescriptor::parse_descriptor_version_3_0(string_finder, bLength, remaining_bytes),
 			
 			Unrecognized(protocol) => AudioControlInterfaceAdditionalDescriptor::parse_descriptor_version_unrecognized(bLength, remaining_bytes, protocol),
-		};
-		result.map(Some)
+		}?;
+		Ok(Some(outcome))
 	}
 }
 

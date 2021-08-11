@@ -26,16 +26,8 @@ impl BinaryObjectStore
 	pub(super) fn parse(device_handle: &DeviceHandle, buffer: &mut BinaryObjectStoreBuffer) -> Result<DeadOrAlive<Option<Self>>, BinaryObjectStoreParseError>
 	{
 		use BinaryObjectStoreParseError::*;
-		use DeadOrAlive::*;
 		
-		let remaining_bytes = match get_binary_object_store_device_descriptor(device_handle.as_non_null(), buffer.as_maybe_uninit_slice())?
-		{
-			Dead => return Ok(Dead),
-			
-			Alive(None) => return Ok(Alive(None)),
-			
-			Alive(Some((remaining_bytes, _bLength))) => remaining_bytes,
-		};
+		let (remaining_bytes, _bLength) = return_ok_if_dead_or_alive_none!(get_binary_object_store_device_descriptor(device_handle.as_non_null(), buffer.as_maybe_uninit_slice())?);
 		
 		const MinimumRemainingSize: usize = 3;
 		let remaining_length = remaining_bytes.len();

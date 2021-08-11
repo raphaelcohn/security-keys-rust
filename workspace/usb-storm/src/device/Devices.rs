@@ -107,8 +107,6 @@ impl Devices
 	#[inline(always)]
 	pub fn parse(&self, buffer: &mut BinaryObjectStoreBuffer) -> Result<Vec<Device>, DeviceParseError>
 	{
-		use DeadOrAlive::*;
-		
 		let device_references = self.deref();
 		let mut devices = Vec::new_with_capacity(device_references.len()).map_err(DeviceParseError::CouldNotAllocateMemoryForDevices)?;
 		for device_reference in device_references

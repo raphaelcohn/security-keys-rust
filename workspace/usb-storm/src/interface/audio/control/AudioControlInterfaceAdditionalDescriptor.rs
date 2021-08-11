@@ -67,7 +67,7 @@ pub enum AudioControlInterfaceAdditionalDescriptor
 impl AudioControlInterfaceAdditionalDescriptor
 {
 	#[inline(always)]
-	fn parse_descriptor_version_1_0(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_version_1_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
 	{
 		use AudioControlInterfaceAdditionalDescriptorParseError::*;
 		
@@ -97,27 +97,26 @@ impl AudioControlInterfaceAdditionalDescriptor
 		
 		Ok
 		(
+			Alive
 			(
-				AudioControlInterfaceAdditionalDescriptor::Version_1_0
-				{
-					entity_descriptors:
+				(
+					AudioControlInterfaceAdditionalDescriptor::Version_1_0
 					{
-						let entity_descriptors = remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. total_length_excluding_header);
-						Vec::new_from(entity_descriptors).map_err(Version1OrVersion2EntityDescriptorsOutOfMemory)?
+						entity_descriptors: return_ok_if_dead!(Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
+						
+						audio_device_class_specification_release,
+						
+						interface_numbers,
 					},
 					
-					audio_device_class_specification_release,
-					
-					interface_numbers,
-				},
-				
-				total_length_excluding_header,
+					total_length_excluding_header,
+				)
 			)
 		)
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_2_0(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_version_2_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
 	{
 		const MinimumBLength: u8 = 9;
 		let (descriptor_body, descriptor_body_length, audio_device_class_specification_release) = Self::parse_descriptor_header_and_version::<MinimumBLength>(bLength, remaining_bytes)?;
@@ -134,29 +133,28 @@ impl AudioControlInterfaceAdditionalDescriptor
 		
 		Ok
 		(
+			Alive
 			(
-				AudioControlInterfaceAdditionalDescriptor::Version_2_0
-				{
-					entity_descriptors:
+				(
+					AudioControlInterfaceAdditionalDescriptor::Version_2_0
 					{
-						let entity_descriptors = remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. total_length_excluding_header);
-						Vec::new_from(entity_descriptors).map_err(AudioControlInterfaceAdditionalDescriptorParseError::Version1OrVersion2EntityDescriptorsOutOfMemory)?
+						entity_descriptors: return_ok_if_dead!(Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
+						
+						audio_device_class_specification_release,
+						
+						latency_control,
+					
+						function_category,
 					},
 					
-					audio_device_class_specification_release,
-					
-					latency_control,
-				
-					function_category,
-				},
-				
-				total_length_excluding_header,
+					total_length_excluding_header,
+				)
 			)
 		)
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_3_0(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_version_3_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
 	{
 		const MinimumBLength: u8 = 10;
 		let (descriptor_body, descriptor_body_length) = Self::parse_descriptor_header::<MinimumBLength>(bLength, remaining_bytes)?;
@@ -167,25 +165,24 @@ impl AudioControlInterfaceAdditionalDescriptor
 		
 		Ok
 		(
+			Alive
 			(
-				AudioControlInterfaceAdditionalDescriptor::Version_3_0
-				{
-					function_category,
+				(
+					AudioControlInterfaceAdditionalDescriptor::Version_3_0
+					{
+						function_category,
+						
+						latency_control:
+						{
+							let bmControls = descriptor_body.u32_unadjusted(4);
+							(bmControls & 0b11) as u2
+						},
 					
-					latency_control:
-					{
-						let bmControls = descriptor_body.u32_unadjusted(4);
-						(bmControls & 0b11) as u2
+						entity_descriptors: return_ok_if_dead!(Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
 					},
-				
-					entity_descriptors:
-					{
-						let entity_descriptors = remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. total_length_excluding_header);
-						Version3EntityDescriptors::parse_entity_descriptors_version_3(entity_descriptors)?
-					}
-				},
-				
-				total_length_excluding_header,
+					
+					total_length_excluding_header,
+				)
 			)
 		)
 	}
@@ -297,5 +294,53 @@ impl AudioControlInterfaceAdditionalDescriptor
 			return Err(AudioControlInterfaceAdditionalDescriptorParseError::wTotalLengthExceedsRemainingBytes)
 		}
 		Ok(total_length_excluding_header)
+	}
+	
+	#[inline(always)]
+	fn parse_entities<ED: EntityDescriptors<Error=E>, E: error::Error>(string_finder: &StringFinder, remaining_bytes: &[u8], descriptor_body_length: usize, total_length_excluding_header: usize) -> Result<DeadOrAlive<ED>, EntityDescriptorParseError<E>>
+	{
+		use EntityDescriptorParseError::*;
+		
+		const AC_DESCRIPTOR_UNDEFINED: u8 = 0x00;
+		const HEADER: u8 = 0x01;
+		
+		let mut entity_descriptors_bytes = remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. total_length_excluding_header);
+		let mut entity_identifiers = HashSet::new();
+		let mut entity_descriptors = ED::default();
+		while !entity_descriptors_bytes.is_empty()
+		{
+			if unlikely!(entity_descriptors_bytes.len() < DescriptorEntityMinimumLength)
+			{
+				return Err(LessThanFourByteHeader)
+			}
+			
+			let bDescriptorType = entity_descriptors_bytes.u8_unadjusted(1);
+			if unlikely!(bDescriptorType != AudioControlInterfaceAdditionalDescriptorParser::CS_INTERFACE)
+			{
+				return Err(ExpectedInterfaceDescriptorType)
+			}
+			
+			let bLength = entity_descriptors_bytes.u8_unadjusted(0);
+			let bDescriptorSubtype = entity_descriptors_bytes.u8_unadjusted(2);
+			match entity_descriptors.parse_entity_body(bDescriptorSubtype, string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers)?
+			{
+				Alive(true) => (),
+				
+				Alive(false) => return match bDescriptorSubtype
+				{
+					AC_DESCRIPTOR_UNDEFINED => Err(UndefinedInterfaceDescriptorType),
+					
+					HEADER => Err(HeaderInterfaceDescriptorTypeAfterHeader),
+					
+					_ => Err(UnrecognizedEntityDescriptorType)
+				},
+				
+				Dead => return Ok(Dead),
+			}
+			
+			entity_descriptors_bytes = entity_descriptors_bytes.get_unchecked_range_safe((bLength as usize) .. );
+		}
+		
+		Ok(this)
 	}
 }

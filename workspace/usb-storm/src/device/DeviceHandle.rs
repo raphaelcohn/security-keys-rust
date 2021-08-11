@@ -29,7 +29,6 @@ impl DeviceHandle
 	#[inline(always)]
 	pub(crate) fn open(libusb_device: NonNull<libusb_device>) -> Result<DeadOrAlive<Self>, DeviceHandleOpenError>
 	{
-		use DeadOrAlive::*;
 		use DeviceHandleOpenError::*;
 		
 		let mut libusb_device_handle = MaybeUninit::uninit();

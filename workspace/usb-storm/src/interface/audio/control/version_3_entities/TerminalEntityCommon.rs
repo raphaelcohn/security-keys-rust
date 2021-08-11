@@ -9,8 +9,6 @@
 #[allow(missing_docs)]
 pub struct TerminalEntityCommon
 {
-	associated_terminal: Option<TerminalEntityIdentifier>,
-	
 	clock_source: Option<ClockEntityIdentifier>,
 	
 	controls: TerminalControls,
@@ -21,18 +19,11 @@ pub struct TerminalEntityCommon
 	
 	connectors_descriptor_identifier: Option<NonZeroU16>,
 	
-	string_descriptor_identifier: Option<Version3AudioDynamicStringDescriptorIdentifier>,
+	description: Option<Version3AudioDynamicStringDescriptorIdentifier>,
 }
 
 impl TerminalEntityCommon
 {
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn associated_terminal(&self) -> Option<TerminalEntityIdentifier>
-	{
-		self.associated_terminal
-	}
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn clock_source(&self) -> Option<ClockEntityIdentifier>
@@ -72,6 +63,6 @@ impl TerminalEntityCommon
 	#[inline(always)]
 	pub const fn string_descriptor_identifier(&self) -> Option<Version3AudioDynamicStringDescriptorIdentifier>
 	{
-		self.string_descriptor_identifier
+		self.description
 	}
 }

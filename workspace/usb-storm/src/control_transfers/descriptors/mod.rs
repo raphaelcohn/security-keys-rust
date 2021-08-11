@@ -29,6 +29,8 @@ use std::num::NonZeroU8;
 use std::ptr::NonNull;
 use std::time::Duration;
 use swiss_army_knife::get_unchecked::GetUnchecked;
+use crate::device::DeadOrAlive::Alive;
+use crate::device::DeadOrAlive::Dead;
 
 
 include!("get_binary_object_store_device_descriptor.rs");

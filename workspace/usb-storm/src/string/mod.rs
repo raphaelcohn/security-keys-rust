@@ -29,6 +29,8 @@ use std::ops::Deref;
 use std::slice::from_raw_parts;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u8;
+use crate::device::DeadOrAlive::Alive;
+use crate::device::DeadOrAlive::Dead;
 
 
 /// USB language.

@@ -6,7 +6,6 @@
 fn get_descriptor(request_type: ControlTransferRequestType, recipient: ControlTransferRecipient, device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_type: DescriptorType, descriptor_index: u8, index: u16) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
 {
 	use ControlTransferError::*;
-	use DeadOrAlive::*;
 	use GetDescriptorError::*;
 	
 	const TimeOut: Duration = Duration::from_millis(1_000);

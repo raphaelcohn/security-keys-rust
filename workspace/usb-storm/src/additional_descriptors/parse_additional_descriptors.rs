@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(mut extra: &[u8], mut additional_descriptor_parser: ADP) -> Result<Vec<AdditionalDescriptor<ADP::Descriptor>>, AdditionalDescriptorParseError<ADP::Error>>
+pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(string_finder: &StringFinder, mut extra: &[u8], mut additional_descriptor_parser: ADP) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<ADP::Descriptor>>>, AdditionalDescriptorParseError<ADP::Error>>
 {
 	use AdditionalDescriptor::*;
 	use AdditionalDescriptorParseError::*;
@@ -11,7 +11,7 @@ pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(mut 
 	let extra_length = extra.len();
 	if likely!(extra_length == 0)
 	{
-		return Ok(Vec::new())
+		return Ok(Alive(Vec::new()))
 	}
 	let mut additional_descriptors = Vec::new();
 	let mut remaining_length = extra_length;
@@ -32,9 +32,11 @@ pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(mut 
 		
 		let descriptor_type = extra.u8_unadjusted(1);
 		let remaining_bytes = extra.get_unchecked_range_safe(DescriptorHeaderLength .. );
-		let (additional_descriptor, consumed_length) = match additional_descriptor_parser.parse_descriptor(bLength, descriptor_type, remaining_bytes)
+		let (additional_descriptor, consumed_length) = match additional_descriptor_parser.parse_descriptor(string_finder, bLength, descriptor_type, remaining_bytes)
 		{
-			Ok(Some((additional_descriptor, consumed_length))) => (Known(additional_descriptor), consumed_length),
+			Ok(Some(Alive((additional_descriptor, consumed_length)))) => (Known(additional_descriptor), consumed_length),
+			
+			Ok(Some(Dead)) => return Ok(Dead),
 			
 			Ok(None) =>
 			{
@@ -67,5 +69,5 @@ pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(mut 
 		extra = extra.get_unchecked_range_safe(consumed_length_including_header .. );
 	}
 	
-	Ok(additional_descriptors)
+	Ok(Alive(additional_descriptors))
 }

@@ -12,3 +12,30 @@ pub enum DeadOrAlive<T>
 	/// It is still alive.
 	Alive(T),
 }
+
+impl<T> DeadOrAlive<T>
+{
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn as_ref(&self) -> DeadOrAlive<&T>
+	{
+		match self
+		{
+			Dead => Dead,
+			
+			Alive(u) => Alive(u)
+		}
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn map<U>(self, alive: impl FnOnce(T) -> U) -> DeadOrAlive<U>
+	{
+		match self
+		{
+			Dead => Dead,
+			
+			Alive(u) => Alive(alive(u))
+		}
+	}
+}

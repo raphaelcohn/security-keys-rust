@@ -23,6 +23,9 @@ use swiss_army_knife::non_zero::new_non_zero_u8;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use std::collections::TryReserveError;
 use std::num::NonZeroU8;
+use crate::string::StringFinder;
+use crate::device::DeadOrAlive;
+use crate::device::DeadOrAlive::Alive;
 
 
 include!("HumanInterfaceDeviceCountryCode.rs");

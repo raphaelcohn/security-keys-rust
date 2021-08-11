@@ -17,7 +17,7 @@ impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 	type Error = SmartCardInterfaceAdditionalDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
+	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
@@ -34,9 +34,12 @@ impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 		(
 			Some
 			(
+				Alive
 				(
-					SmartCardInterfaceAdditionalDescriptor::parse(self.smart_card_protocol, descriptor_body)?,
-					descriptor_body_length
+					(
+						SmartCardInterfaceAdditionalDescriptor::parse(self.smart_card_protocol, descriptor_body)?,
+						descriptor_body_length
+					)
 				)
 			)
 		)

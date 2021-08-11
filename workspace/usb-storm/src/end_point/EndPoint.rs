@@ -55,7 +55,7 @@ impl EndPoint
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version) -> Result<(EndPointNumber, Self), EndPointParseError>
+	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version, string_finder: &StringFinder) -> Result<DeadOrAlive<(EndPointNumber, Self)>, EndPointParseError>
 	{
 		use EndPointParseError::*;
 		
@@ -99,7 +99,7 @@ impl EndPoint
 		
 		let mut transfer_type = self::TransferType::parse(end_point_descriptor, maximum_supported_usb_version).map_err(TransferType)?;
 		let maximum_packet_size = end_point_descriptor.wMaxPacketSize & 0b0111_1111_1111;
-		let additional_descriptors = Self::parse_additional_descriptors(end_point_descriptor, &mut transfer_type, maximum_packet_size).map_err(CouldNotParseEndPointAdditionalDescriptor)?;
+		let additional_descriptors = return_ok_if_dead!(Self::parse_additional_descriptors(string_finder, end_point_descriptor, &mut transfer_type, maximum_packet_size).map_err(CouldNotParseEndPointAdditionalDescriptor)?);
 		Ok
 		(
 			(
@@ -120,7 +120,7 @@ impl EndPoint
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors<'a>(end_point_descriptor: &libusb_endpoint_descriptor, transfer_type: &'a mut TransferType, maximum_packet_size: u11) -> Result<Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>, AdditionalDescriptorParseError<EndPointAdditionalDescriptorParseError>>
+	fn parse_additional_descriptors<'a>(string_finder: &StringFinder, end_point_descriptor: &libusb_endpoint_descriptor, transfer_type: &'a mut TransferType, maximum_packet_size: u11) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>>, AdditionalDescriptorParseError<EndPointAdditionalDescriptorParseError>>
 	{
 		let extra = extra_to_slice(end_point_descriptor.extra, end_point_descriptor.extra_length)?;
 		let additional_descriptor_parser = EndPointAdditionalDescriptorParser
@@ -130,6 +130,6 @@ impl EndPoint
 			maximum_packet_size,
 		};
 		
-		parse_additional_descriptors(extra, additional_descriptor_parser)
+		parse_additional_descriptors(string_finder, extra, additional_descriptor_parser)
 	}
 }

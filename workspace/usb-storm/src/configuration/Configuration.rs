@@ -84,12 +84,13 @@ impl Configuration
 	pub(super) fn parse(configuration_descriptor: ConfigurationDescriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<(ConfigurationNumber, Self)>, ConfigurationParseError>
 	{
 		use ConfigurationParseError::*;
-		use DeadOrAlive::*;
 		
 		let configuration_number = Self::parse_configuration_number_only(&configuration_descriptor)?;
 		
 		let (supports_remote_wake_up, is_self_powered_or_self_powered_and_bus_powered) = Self::parse_attributes(&configuration_descriptor)?;
-		
+		let description = string_finder.find_string(configuration_descriptor.iConfiguration).map_err(DescriptionString)?;
+		let additional_descriptors = Self::parse_additional_descriptors(string_finder, &configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?;
+		let interfaces = Self::parse_interfaces(&configuration_descriptor, string_finder, maximum_supported_usb_version)?;
 		Ok
 		(
 			Alive
@@ -103,21 +104,11 @@ impl Configuration
 						
 						supports_remote_wake_up,
 						
-						description: match string_finder.find_string(configuration_descriptor.iConfiguration).map_err(DescriptionString)?
-						{
-							Dead => return Ok(Dead),
-							
-							Alive(description) => description,
-						},
+						description: return_ok_if_dead!(description),
 						
-						additional_descriptors: Self::parse_additional_descriptors(&configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?,
+						additional_descriptors: return_ok_if_dead!(additional_descriptors),
 						
-						interfaces: match Self::parse_interfaces(&configuration_descriptor, string_finder, maximum_supported_usb_version)?
-						{
-							Dead => return Ok(Dead),
-							
-							Alive(interfaces) => interfaces,
-						},
+						interfaces: return_ok_if_dead!(interfaces),
 					}
 				)
 			)
@@ -209,19 +200,18 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors(configuration_descriptor: &libusb_config_descriptor) -> Result<Vec<AdditionalDescriptor<ConfigurationAdditionalDescriptor>>, AdditionalDescriptorParseError<Infallible>>
+	fn parse_additional_descriptors(string_finder: &StringFinder, configuration_descriptor: &libusb_config_descriptor) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<ConfigurationAdditionalDescriptor>>>, AdditionalDescriptorParseError<Infallible>>
 	{
 		let extra = extra_to_slice(configuration_descriptor.extra, configuration_descriptor.extra_length)?;
 		
 		let additional_descriptor_parser = ConfigurationAdditionalDescriptorParser;
-		parse_additional_descriptors(extra, additional_descriptor_parser)
+		parse_additional_descriptors(string_finder, extra, additional_descriptor_parser)
 	}
 	
 	#[inline(always)]
 	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<IndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
 	{
 		use ConfigurationParseError::*;
-		use DeadOrAlive::*;
 		
 		let number_of_interfaces = Self::parse_number_of_interfaces(configuration_descriptor)?;
 		let libusb_interfaces = Self::libusb_interfaces_as_slice(configuration_descriptor, number_of_interfaces)?;
@@ -230,12 +220,7 @@ impl Configuration
 		for interface_index in 0 .. number_of_interfaces.get()
 		{
 			let libusb_interface = libusb_interfaces.get_unchecked_safe(interface_index);
-			let (interface_number, interface) = match Interface::parse(libusb_interface, string_finder, interface_index, maximum_supported_usb_version).map_err(|cause| CouldNotParseInterface { cause, interface_index })?
-			{
-				Dead => return Ok(Dead),
-				
-				Alive(alive) => alive,
-			};
+			let (interface_number, interface) = return_ok_if_dead!(Interface::parse(libusb_interface, string_finder, interface_index, maximum_supported_usb_version).map_err(|cause| CouldNotParseInterface { cause, interface_index })?);
 			
 			let outcome = interfaces.insert(interface_number, interface);
 			if unlikely!(outcome.is_some())

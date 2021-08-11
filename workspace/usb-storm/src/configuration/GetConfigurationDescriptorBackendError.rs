@@ -34,8 +34,6 @@ impl GetConfigurationDescriptorBackendError
 	#[inline(always)]
 	fn parse(result: i32, config_descriptor: MaybeUninit<*const libusb_config_descriptor>) -> Result<DeadOrAlive<Option<ConfigurationDescriptor>>, GetConfigurationDescriptorBackendError>
 	{
-		use DeadOrAlive::*;
-		
 		if likely!(result == 0)
 		{
 			let pointer = unsafe { config_descriptor.assume_init() };

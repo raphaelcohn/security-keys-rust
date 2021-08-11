@@ -2,72 +2,32 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A clock entity.
+/// A selector clock entity.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[allow(missing_docs)]
-pub enum ClockEntity
-{
-	Source
-	{
-	},
-	
-	Selector
-	{
-	},
-	
-	Multiplier
-	{
-	},
-}
+pub struct Version3SelectorClockEntity;
 
-impl Entity for ClockEntity
+impl Entity for Version3SelectorClockEntity
 {
 	type EntityIdentifier = ClockEntityIdentifier;
 	
+	type ParseError = Version3EntityDescriptorParseError;
+	
 	#[inline(always)]
-	fn cast_entity_identifier(value: Option<EntityIdentifier>) -> Option<Self::EntityIdentifier>
+	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
 		unsafe { transmute(value) }
 	}
+	
+	#[inline(always)]
+	fn parse(entity_body: &[u8], _string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	{
+		Ok(Alive(Self))
+	}
 }
 
-impl ClockEntity
+impl ClockEntity for Version3SelectorClockEntity
 {
-	#[inline(always)]
-	pub(super) fn parse_source(entity_body: &[u8]) -> Result<Self, EntityDescriptorParseError>
-	{
-		Ok
-		(
-			ClockEntity::Source
-			{
-			
-			}
-		)
-	}
-	
-	#[inline(always)]
-	pub(super) fn parse_selector(entity_body: &[u8]) -> Result<Self, EntityDescriptorParseError>
-	{
-		Ok
-		(
-			ClockEntity::Selector
-			{
-			
-			}
-		)
-	}
-	
-	#[inline(always)]
-	pub(super) fn parse_multiplier(entity_body: &[u8]) -> Result<Self, EntityDescriptorParseError>
-	{
-		Ok
-		(
-			ClockEntity::Multiplier
-			{
-			
-			}
-		)
-	}
 }

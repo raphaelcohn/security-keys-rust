@@ -14,8 +14,6 @@ impl<'a> StringFinder<'a>
 	#[inline(always)]
 	pub(crate) fn new(device_handle: &'a DeviceHandle) -> Result<DeadOrAlive<Self>, GetLanguagesError>
 	{
-		use DeadOrAlive::*;
-		
 		Ok
 		(
 			Alive
@@ -24,12 +22,7 @@ impl<'a> StringFinder<'a>
 				{
 					device_handle,
 					
-					languages: match Self::get_languages(device_handle)?
-					{
-						Alive(languages) => languages,
-						
-						Dead => return Ok(Dead)
-					}
+					languages: return_ok_if_dead!(Self::get_languages(device_handle)?),
 				}
 			)
 		)
@@ -38,8 +31,6 @@ impl<'a> StringFinder<'a>
 	#[inline(always)]
 	pub(crate) fn find_string(&self, string_descriptor_index: u8) -> Result<DeadOrAlive<Option<LocalizedStrings>>, GetLocalizedStringError>
 	{
-		use DeadOrAlive::*;
-		
 		if unlikely!(string_descriptor_index == 0)
 		{
 			Ok(Alive(None))
@@ -47,28 +38,27 @@ impl<'a> StringFinder<'a>
 		else
 		{
 			let string_descriptor_index = new_non_zero_u8(string_descriptor_index);
+			Ok(Alive(return_ok_if_dead!(self.find_string_non_zero(string_descriptor_index)?)))
+		}
+	}
+	
+	#[inline(always)]
+	pub(crate) fn find_string_non_zero(&self, string_descriptor_index: NonZeroU8) -> Result<DeadOrAlive<LocalizedStrings>, GetLocalizedStringError>
+	{
+		match self.languages
+		{
+			None => return Err(GetLocalizedStringError::StringIndexNonZeroButDeviceDoesNotSupportLanguages { string_descriptor_index }),
 			
-			match self.languages
+			Some(ref languages) =>
 			{
-				None => return Err(GetLocalizedStringError::StringIndexNonZeroButDeviceDoesNotSupportLanguages { string_descriptor_index }),
-				
-				Some(ref languages) =>
+				let mut localized_strings = HashMap::with_capacity(languages.len());
+				for language in languages
 				{
-					let mut localized_strings = HashMap::with_capacity(languages.len());
-					for language in languages
-					{
-						let string = match self.get_localized_string(string_descriptor_index, *language)?
-						{
-							Dead => return Ok(Dead),
-							
-							Alive(string) => string,
-						};
-						let _ = localized_strings.insert(language.1, string);
-					}
-					Ok(Alive(Some(LocalizedStrings(localized_strings))))
+					let string = return_ok_if_dead!(self.get_localized_string(string_descriptor_index, *language)?);
+					let _ = localized_strings.insert(language.1, string);
 				}
+				Ok(Alive(LocalizedStrings(localized_strings)))
 			}
-			
 		}
 	}
 	
@@ -95,7 +85,6 @@ impl<'a> StringFinder<'a>
 	#[inline(always)]
 	fn get_localized_string(&self, string_descriptor_index: NonZeroU8, (language_identifier, language): (LanguageIdentifier, Language)) -> Result<DeadOrAlive<String>, GetLocalizedStringError>
 	{
-		use DeadOrAlive::*;
 		use GetLocalizedStringError::*;
 		
 		let mut buffer = MaybeUninit::uninit_array();
@@ -168,18 +157,10 @@ impl<'a> StringFinder<'a>
 	#[inline(always)]
 	fn get_languages(device_handle: &DeviceHandle) -> Result<DeadOrAlive<Option<Vec<(LanguageIdentifier, Language)>>>, GetLanguagesError>
 	{
-		use DeadOrAlive::*;
 		use GetLanguagesError::*;
 		
 		let mut buffer = MaybeUninit::uninit_array();
-		let remaining_bytes = match get_string_device_descriptor_languages(device_handle.as_non_null(), &mut buffer)?
-		{
-			Dead => return Ok(Dead),
-			
-			Alive(None) => return Ok(Alive(None)),
-			
-			Alive(Some(remaining_bytes)) => remaining_bytes,
-		};
+		let remaining_bytes = return_ok_if_dead_or_alive_none!(get_string_device_descriptor_languages(device_handle.as_non_null(), &mut buffer)?);
 		
 		let array_length_in_bytes = remaining_bytes.len();
 		const ArrayElementSize: usize = 2;

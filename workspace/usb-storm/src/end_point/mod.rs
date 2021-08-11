@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use crate::return_ok_if_dead;
 use super::integers::u4;
 use super::integers::u11;
 use self::transfer_type::BulkMaximumStreamsExponent;
@@ -34,6 +35,9 @@ use swiss_army_knife::non_zero::new_non_zero_u32;
 use crate::integers::{u2, NonZeroU4};
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use crate::additional_descriptors::{reduce_b_length_to_descriptor_body_length, DescriptorHeaderLength};
+use crate::string::StringFinder;
+use crate::device::DeadOrAlive;
+use crate::device::DeadOrAlive::Alive;
 
 
 /// Transfer.

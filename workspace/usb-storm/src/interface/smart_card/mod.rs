@@ -25,6 +25,9 @@ use std::fmt::Formatter;
 use std::num::NonZeroU8;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use crate::version::VersionParseError;
+use crate::string::StringFinder;
+use crate::device::DeadOrAlive;
+use crate::device::DeadOrAlive::Alive;
 
 
 /// Features of a smart card.

@@ -78,6 +78,8 @@ use std::ptr::NonNull;
 use std::slice::from_raw_parts;
 use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::get_unchecked::GetUnchecked;
+use self::DeadOrAlive::Alive;
+use self::DeadOrAlive::Dead;
 
 
 /// Binary Object Store (BOS).

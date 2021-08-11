@@ -4,6 +4,8 @@
 
 trait Bytes
 {
+	fn bytes_unadjusted(&self, index: usize, length: usize) -> &[u8];
+	
 	#[inline(always)]
 	fn version_adjusted<const index: usize>(&self) -> Result<Version, VersionParseError>
 	{
@@ -67,6 +69,12 @@ trait Bytes
 
 impl<'a> Bytes for &'a [u8]
 {
+	#[inline(always)]
+	fn bytes_unadjusted(&self, index: usize, length: usize) -> &[u8]
+	{
+		self.get_unchecked_range_safe(index .. (index + length))
+	}
+	
 	#[inline(always)]
 	fn uuid_unadjusted(&self, index: usize) -> Uuid
 	{

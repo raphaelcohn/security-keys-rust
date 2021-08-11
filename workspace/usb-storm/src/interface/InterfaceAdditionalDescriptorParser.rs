@@ -14,11 +14,13 @@ impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescr
 	type Error = InterfaceAdditionalDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
+	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
-		match self.inner.parse_descriptor(bLength, descriptor_type, remaining_bytes)
+		match self.inner.parse_descriptor(string_finder, bLength, descriptor_type, remaining_bytes)
 		{
-			Ok(Some((descriptor, consumed_length))) => Ok(Some((descriptor.into(), consumed_length))),
+			Ok(Some(Alive((descriptor, consumed_length)))) => Ok(Some(Alive((descriptor.into(), consumed_length)))),
+			
+			Ok(Some(Dead)) => Ok(Some(Dead)),
 			
 			Ok(None) => Ok(None),
 			
@@ -30,12 +32,12 @@ impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescr
 impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>> InterfaceAdditionalDescriptorParser<Inner>
 {
 	#[inline(always)]
-	fn parse_additional_descriptors(extra: &[u8], inner: Inner) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+	fn parse_additional_descriptors(string_finder: &StringFinder, extra: &[u8], inner: Inner) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 	{
 		let this = Self
 		{
 			inner
 		};
-		parse_additional_descriptors(extra, this)
+		parse_additional_descriptors(string_finder, extra, this)
 	}
 }

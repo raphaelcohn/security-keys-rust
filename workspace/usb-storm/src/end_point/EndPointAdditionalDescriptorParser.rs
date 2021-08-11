@@ -17,7 +17,7 @@ impl<'a> AdditionalDescriptorParser for EndPointAdditionalDescriptorParser<'a>
 	type Error = EndPointAdditionalDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<(Self::Descriptor, usize)>, Self::Error>
+	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		use EndPointAdditionalDescriptorParseError::*;
 		use TransferType::*;
@@ -150,7 +150,7 @@ impl<'a> AdditionalDescriptorParser for EndPointAdditionalDescriptorParser<'a>
 			}
 		};
 		
-		Ok(Some((EndPointAdditionalDescriptor::SuperSpeedEndPointCompanion, consumed_length)))
+		Ok(Some(Alive((EndPointAdditionalDescriptor::SuperSpeedEndPointCompanion, consumed_length))))
 	}
 }
 

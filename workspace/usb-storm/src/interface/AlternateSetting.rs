@@ -68,8 +68,7 @@ impl AlternateSetting
 	fn parse(string_finder: &StringFinder, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<(InterfaceNumber, AlternateSettingNumber, Self)>, AlternateSettingParseError>
 	{
 		use AlternateSettingParseError::*;
-		use DeadOrAlive::*;
-		
+
 		const LIBUSB_DT_INTERFACE_SIZE: u8 = 9;
 		let bLength = alternate_setting.bLength;
 		if unlikely!(bLength < LIBUSB_DT_INTERFACE_SIZE)
@@ -90,11 +89,10 @@ impl AlternateSetting
 		}
 		
 		let interface_class = InterfaceClass::parse(alternate_setting);
-		
 		let end_point_descriptors = Self::parse_end_point_descriptors(alternate_setting, interface_index, alternate_setting_index)?;
-		
-		let additional_descriptors = Self::parse_additional_descriptors(alternate_setting, interface_class).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
-		
+		let description = string_finder.find_string(alternate_setting.iInterface).map_err(|cause| DescriptionString { cause, interface_index, alternate_setting_index })?;
+		let additional_descriptors = Self::parse_additional_descriptors(alternate_setting, interface_class, string_finder).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
+		let end_points = Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, maximum_supported_usb_version, string_finder)?;
 		Ok
 		(
 			Alive
@@ -108,16 +106,11 @@ impl AlternateSetting
 					{
 						interface_class,
 						
-						description: match string_finder.find_string(alternate_setting.iInterface).map_err(|cause| DescriptionString { cause, interface_index, alternate_setting_index })?
-						{
-							Dead => return Ok(Dead),
-							
-							Alive(description) => description,
-						},
+						description: return_ok_if_dead!(description),
 						
-						additional_descriptors,
+						additional_descriptors: return_ok_if_dead!(additional_descriptors),
 						
-						end_points: Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, maximum_supported_usb_version)?,
+						end_points: return_ok_if_dead!(end_points),
 					}
 				)
 			)
@@ -125,7 +118,7 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version) -> Result<IndexMap<EndPointNumber, EndPoint>, AlternateSettingParseError>
+	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version, string_finder: &StringFinder) -> Result<DeadOrAlive<IndexMap<EndPointNumber, EndPoint>>, AlternateSettingParseError>
 	{
 		use AlternateSettingParseError::*;
 		
@@ -134,7 +127,8 @@ impl AlternateSetting
 		for end_point_index in 0 .. (end_points.len() as u5)
 		{
 			let end_point_descriptor = end_point_descriptors.get_unchecked_safe(end_point_index);
-			let (end_point_number, end_point) = EndPoint::parse(end_point_descriptor, maximum_supported_usb_version).map_err(|cause| EndPointParse { cause, interface_index, alternate_setting_index, end_point_index })?;
+			let parsed = EndPoint::parse(end_point_descriptor, maximum_supported_usb_version, string_finder).map_err(|cause| EndPointParse { cause, interface_index, alternate_setting_index, end_point_index })?;
+			let (end_point_number, end_point) = return_ok_if_dead!(parsed);
 			
 			let outcome = end_points.insert(end_point_number, end_point);
 			if unlikely!(outcome.is_some())
@@ -143,7 +137,7 @@ impl AlternateSetting
 			}
 		}
 		
-		Ok(end_points)
+		Ok(Alive(end_points))
 	}
 	
 	#[inline(always)]
@@ -174,36 +168,36 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 	{
 		#[inline(always)]
-		fn device_upgrade_firmware(extra: &[u8]) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
+			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
 		}
 		
 		#[inline(always)]
-		fn human_interface_device(extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn human_interface_device(string_finder: &StringFinder, extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(variant))
+			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(variant))
 		}
 		
 		#[inline(always)]
-		fn smart_card(extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn smart_card(string_finder: &StringFinder, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, SmartCardInterfaceAdditionalDescriptorParser::new(smart_card_protocol, bDescriptorType))
+			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, SmartCardInterfaceAdditionalDescriptorParser::new(smart_card_protocol, bDescriptorType))
 		}
 		
 		#[inline(always)]
-		fn unsupported_smart_card_with_descriptor_at_end_of_end_points(extra: &[u8]) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn unsupported_smart_card_with_descriptor_at_end_of_end_points(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			unsupported(extra)
+			unsupported(string_finder, extra)
 		}
 		
 		#[inline(always)]
-		fn unsupported(extra: &[u8]) -> Result<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn unsupported(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(extra, UnsupportedInterfaceAdditionalDescriptorParser)
+			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, UnsupportedInterfaceAdditionalDescriptorParser)
 		}
 		
 		use HumanInterfaceDeviceInterfaceAdditionalVariant::*;
@@ -222,12 +216,12 @@ impl AlternateSetting
 		
 		match interface_class
 		{
-			ApplicationSpecific(DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol::Known)) => device_upgrade_firmware(extra),
+			ApplicationSpecific(DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol::Known)) => device_upgrade_firmware(string_finder, extra),
 			
-			HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: None }) => human_interface_device(extra, NotBoot),
-			HumanInterfaceDevice(Boot(HumanInterfaceDeviceInterfaceBootProtocol::None)) => human_interface_device(extra, BootNone),
-			HumanInterfaceDevice(Boot(Keyboard)) => human_interface_device(extra, BootKeyboard),
-			HumanInterfaceDevice(Boot(Mouse)) => human_interface_device(extra, BootMouse),
+			HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: None }) => human_interface_device(string_finder, extra, NotBoot),
+			HumanInterfaceDevice(Boot(HumanInterfaceDeviceInterfaceBootProtocol::None)) => human_interface_device(string_finder, extra, BootNone),
+			HumanInterfaceDevice(Boot(Keyboard)) => human_interface_device(string_finder, extra, BootKeyboard),
+			HumanInterfaceDevice(Boot(Mouse)) => human_interface_device(string_finder, extra, BootMouse),
 			
 			// Some devices from as far back as 2007 put the Smart Card descriptor at the end of the end points yet claim to be a Smart Card.
 			// The CCID project uses a patch with `#define O2MICRO_OZ776_PATCH` to support them; they are broken in use in multiple ways.
@@ -246,17 +240,17 @@ impl AlternateSetting
 			//
 			// Notes:-
 			// * \* Does not have a manufacturer or product name string, but known as 'Blutronics Bludrive II' or 'BludriveIIv2.txt' in the CCID project; the unversioned original driver dates from 2008 and is called 'BLUDRIVE II CCID'.
-			SmartCard(SmartCardInterfaceSubClass::Known(BulkTransfer)) if extra.is_empty() => unsupported_smart_card_with_descriptor_at_end_of_end_points(extra),
+			SmartCard(SmartCardInterfaceSubClass::Known(BulkTransfer)) if extra.is_empty() => unsupported_smart_card_with_descriptor_at_end_of_end_points(string_finder, extra),
 			
-			SmartCard(SmartCardInterfaceSubClass::Known(BulkTransfer)) => smart_card(extra, BulkTransfer, SmartCardDescriptorType),
-			SmartCard(SmartCardInterfaceSubClass::Known(IccdVersionA)) => smart_card(extra, IccdVersionA, SmartCardDescriptorType),
-			SmartCard(SmartCardInterfaceSubClass::Known(IccdVersionB)) => smart_card(extra, IccdVersionB, SmartCardDescriptorType),
+			SmartCard(SmartCardInterfaceSubClass::Known(BulkTransfer)) => smart_card(string_finder, extra, BulkTransfer, SmartCardDescriptorType),
+			SmartCard(SmartCardInterfaceSubClass::Known(IccdVersionA)) => smart_card(string_finder, extra, IccdVersionA, SmartCardDescriptorType),
+			SmartCard(SmartCardInterfaceSubClass::Known(IccdVersionB)) => smart_card(string_finder, extra, IccdVersionB, SmartCardDescriptorType),
 			
 			// Product Name (Vendor Identifier, Product Identifier, Year Added to CCID).
 			// * USB Reader V2 (0x09C3, 0x0008, 2006).
 			//
 			// The bDescriptorType is 0x21.
-			SmartCard(SmartCardInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code: 0x01, protocol_code: 0x01 })) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, IccdVersionA, SmartCardDescriptorType),
+			SmartCard(SmartCardInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code: 0x01, protocol_code: 0x01 })) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, IccdVersionA, SmartCardDescriptorType),
 			
 			// These pre-standardization devices have the following features:-
 			//
@@ -270,7 +264,7 @@ impl AlternateSetting
 			// * MySMART PAD V2.0 (0x09BE, 0x0002, 2005).
 			// * Token GEM USB COMBI (0x08E6, 0xACE0, 2005).
 			// * Token GEM USB COMBI-M (0x08E6, 0x1359, 2005).
-			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x5C, protocol_code: 0x00 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, BulkTransfer, VendorSpecificDescriptorType),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x5C, protocol_code: 0x00 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, BulkTransfer, VendorSpecificDescriptorType),
 			
 			// This case exists from before standardization; devices have the following features:-
 			//
@@ -300,9 +294,9 @@ impl AlternateSetting
 			// * \* Re-added.
 			// * †Disabled in CCID.
 			// * ‡Multiple interfaces.
-			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x00 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, BulkTransfer, SmartCardDescriptorType),
-			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x01 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, IccdVersionA, SmartCardDescriptorType),
-			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x02 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(extra, IccdVersionB, SmartCardDescriptorType),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x00 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, BulkTransfer, SmartCardDescriptorType),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x01 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, IccdVersionA, SmartCardDescriptorType),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x02 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, IccdVersionB, SmartCardDescriptorType),
 			
 			// Some devices from as far back as 2007 put the Smart Card descriptor at the end of the end points.
 			// The CCID project uses a patch with `#define O2MICRO_OZ776_PATCH` to support them; they are broken in use in multiple ways.
@@ -316,9 +310,9 @@ impl AlternateSetting
 			// * The sub class is 0x00.
 			// * The protocol is always 0x00.
 			// * The bDescriptorType is 0x21 (standard).
-			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x00 }) if extra.is_empty() => unsupported_smart_card_with_descriptor_at_end_of_end_points(extra),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x00 }) if extra.is_empty() => unsupported_smart_card_with_descriptor_at_end_of_end_points(string_finder, extra),
 			
-			_ => unsupported(extra),
+			_ => unsupported(string_finder, extra),
 		}
 	}
 }

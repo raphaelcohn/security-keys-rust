@@ -4,20 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum EntityDescriptorParseError
+pub enum Version3EntityDescriptorParseError
 {
-	#[allow(missing_docs)]
-	LessThanFourByteHeader,
-	
-	#[allow(missing_docs)]
-	ExpectedInterfaceDescriptorType,
-	
-	#[allow(missing_docs)]
-	UndefinedInterfaceDescriptorType,
-	
-	#[allow(missing_docs)]
-	HeaderInterfaceDescriptorTypeAfterHeader,
-	
 	#[allow(missing_docs)]
 	ExtendedTerminalIsAHighCapacityDescriptor,
 	
@@ -25,28 +13,13 @@ pub enum EntityDescriptorParseError
 	ConnectorsIsAHighCapacityDescriptor,
 	
 	#[allow(missing_docs)]
-	UnrecognizedEntityDescriptorType,
-	
-	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
-	OutOfMemoryPushingAnonymousEntityDescriptor(TryReserveError),
-	
-	#[allow(missing_docs)]
-	DuplicateEntityDescriptor,
+	AudioDynamicStringDescriptorIdentifierIsOutOfRange,
 	
 	#[allow(missing_docs)]
 	TerminalTypeParse(TerminalTypeParseError),
-	
-	#[allow(missing_docs)]
-	AudioDynamicStringDescriptorIdentifierIsOutOfRange,
 }
 
-impl Display for EntityDescriptorParseError
+impl Display for Version3EntityDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -55,17 +28,15 @@ impl Display for EntityDescriptorParseError
 	}
 }
 
-impl error::Error for EntityDescriptorParseError
+impl error::Error for Version3EntityDescriptorParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use EntityDescriptorParseError::*;
+		use Version3EntityDescriptorParseError::*;
 		
 		match self
 		{
-			OutOfMemoryPushingAnonymousEntityDescriptor(cause) => Some(cause),
-			
 			TerminalTypeParse(cause) => Some(cause),
 			
 			_ => None,
@@ -73,10 +44,19 @@ impl error::Error for EntityDescriptorParseError
 	}
 }
 
-impl From<TerminalTypeParseError> for EntityDescriptorParseError
+impl From<TerminalTypeParseError> for Version3EntityDescriptorParseError
 {
 	fn from(cause: TerminalTypeParseError) -> Self
 	{
-		EntityDescriptorParseError::TerminalTypeParse(cause)
+		Version3EntityDescriptorParseError::TerminalTypeParse(cause)
+	}
+}
+
+impl Into<EntityDescriptorParseError<Version3EntityDescriptorParseError>> for Version3EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn into(self) -> EntityDescriptorParseError<Self>
+	{
+		EntityDescriptorParseError::Version(self)
 	}
 }

@@ -22,13 +22,16 @@ pub enum AudioControlInterfaceAdditionalDescriptorParseError
 	wTotalLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	ParseEntity(EntityDescriptorParseError),
+	ParseVersion1Entity(EntityDescriptorParseError<Version1EntityDescriptorParseError>),
+	
+	#[allow(missing_docs)]
+	ParseVersion2Entity(EntityDescriptorParseError<Version2EntityDescriptorParseError>),
+	
+	#[allow(missing_docs)]
+	ParseVersion3Entity(EntityDescriptorParseError<Version3EntityDescriptorParseError>),
 	
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForUnrecognized(TryReserveError),
-	
-	#[allow(missing_docs)]
-	Version1OrVersion2EntityDescriptorsOutOfMemory(TryReserveError),
 	
 	#[allow(missing_docs)]
 	Version1InterfaceNumberTooBig
@@ -67,11 +70,13 @@ impl error::Error for AudioControlInterfaceAdditionalDescriptorParseError
 		{
 			ParseVersion(cause) => Some(cause),
 			
-			ParseEntity(cause) => Some(cause),
+			ParseVersion1Entity(cause) => Some(cause),
+			
+			ParseVersion2Entity(cause) => Some(cause),
+			
+			ParseVersion3Entity(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForUnrecognized(cause) => Some(cause),
-			
-			Version1OrVersion2EntityDescriptorsOutOfMemory(cause) => Some(cause),
 			
 			_ => None,
 		}
@@ -86,10 +91,26 @@ impl From<VersionParseError> for AudioControlInterfaceAdditionalDescriptorParseE
 	}
 }
 
-impl From<EntityDescriptorParseError> for AudioControlInterfaceAdditionalDescriptorParseError
+impl From<EntityDescriptorParseError<Version1EntityDescriptorParseError>> for AudioControlInterfaceAdditionalDescriptorParseError
 {
-	fn from(cause: EntityDescriptorParseError) -> Self
+	fn from(cause: EntityDescriptorParseError<Version1EntityDescriptorParseError>) -> Self
 	{
-		AudioControlInterfaceAdditionalDescriptorParseError::ParseEntity(cause)
+		AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion1Entity(cause)
+	}
+}
+
+impl From<EntityDescriptorParseError<Version2EntityDescriptorParseError>> for AudioControlInterfaceAdditionalDescriptorParseError
+{
+	fn from(cause: EntityDescriptorParseError<Version2EntityDescriptorParseError>) -> Self
+	{
+		AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion2Entity(cause)
+	}
+}
+
+impl From<EntityDescriptorParseError<Version3EntityDescriptorParseError>> for AudioControlInterfaceAdditionalDescriptorParseError
+{
+	fn from(cause: EntityDescriptorParseError<Version3EntityDescriptorParseError>) -> Self
+	{
+		AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion3Entity(cause)
 	}
 }

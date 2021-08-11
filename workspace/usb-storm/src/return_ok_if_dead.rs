@@ -2,12 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// An entity.
-pub trait Entity
+macro_rules! return_ok_if_dead
 {
-	#[doc(hidden)]
-	type EntityIdentifier: Sized + Debug + Copy + PartialEq + Eq + PartialOrd + Ord + Hash + DeserializeOwned + Serialize;
-	
-	#[doc(hidden)]
-	fn cast_entity_identifier(value: Option<EntityIdentifier>) -> Option<Self::EntityIdentifier>;
+	($dead_or_alive: expr) =>
+	{
+		match $dead_or_alive
+		{
+			crate::device::DeadOrAlive::Dead => return Ok(crate::device::DeadOrAlive::Dead),
+			
+			crate::device::DeadOrAlive::Alive(alive) => alive,
+		}
+	}
 }
