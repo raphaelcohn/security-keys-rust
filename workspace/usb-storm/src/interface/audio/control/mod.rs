@@ -2,10 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use self::entity_identifiers::ClockEntityIdentifier;
+use self::entities::Entity;
+use self::entities::Entities;
 use self::entity_identifiers::EntityIdentifier;
-use self::entity_identifiers::TerminalEntityIdentifier;
-use self::entity_identifiers::UnitEntityIdentifier;
 use self::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use crate::Bytes;
 use crate::VecExt;
@@ -37,7 +36,6 @@ use std::mem::size_of;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use std::hash::Hash;
 use std::ops::Deref;
-use serde::de::DeserializeOwned;
 use crate::string::StringFinder;
 use crate::string::LocalizedStrings;
 use crate::string::GetLocalizedStringError;
@@ -49,10 +47,13 @@ use enumflags2::BitFlag;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use crate::collections::WrappedIndexSet;
 use crate::collections::WithCapacity;
-use crate::collections::WrappedHashMap;
 use crate::collections::WrappedBitFlags;
 use crate::interface::audio::control::version_1_entities::Version1EntityDescriptors;
 use crate::interface::audio::control::version_2_entities::Version2EntityDescriptors;
+
+
+/// Entities.
+pub mod entities;
 
 
 /// Entity identifiers.
@@ -75,16 +76,14 @@ pub mod version_2_entities;
 pub mod version_3_entities;
 
 
-include!("adjusted_index.rs");include!("adjusted_index_non_constant.rs");
+include!("adjusted_index.rs");
+include!("adjusted_index_non_constant.rs");
 include!("AudioControlInterfaceAdditionalDescriptor.rs");
 include!("AudioControlInterfaceAdditionalDescriptorParseError.rs");
 include!("AudioControlInterfaceAdditionalDescriptorParser.rs");
 include!("AudioFunctionCategory.rs");
-include!("ClockEntity.rs");
 include!("DescriptorEntityMinimumLength.rs");
 include!("DescriptorSubTypeAndEntityIdentifierLength.rs");
-include!("Entities.rs");
-include!("Entity.rs");
 include!("EntityDescriptorParseError.rs");
 include!("EntityDescriptors.rs");
 include!("InputLogicalAudioChannelClusters.rs");
@@ -96,5 +95,3 @@ include!("LogicalAudioChannelClusterParseError.rs");
 include!("LogicalAudioChannelSpatialLocation.rs");
 include!("parse_entity_descriptor.rs");
 include!("parse_p.rs");
-include!("TerminalEntity.rs");
-include!("UnitEntity.rs");

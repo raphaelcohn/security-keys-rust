@@ -31,13 +31,13 @@ impl<E: Entity> Default for Entities<E>
 impl<E: Entity> Entities<E>
 {
 	#[inline(always)]
-	fn push_anonymous(&mut self, entity: E) -> Result<(), EntityDescriptorParseError<E::ParseError>>
+	pub(crate) fn push_anonymous(&mut self, entity: E) -> Result<(), EntityDescriptorParseError<E::ParseError>>
 	{
 		self.anonymous.try_push(entity).map_err(EntityDescriptorParseError::OutOfMemoryPushingAnonymousEntityDescriptor)
 	}
 	
 	#[inline(always)]
-	fn push_identified(&mut self, entity: E, entity_identifier: E::EntityIdentifier) -> Result<(), EntityDescriptorParseError<E::ParseError>>
+	pub(crate) fn push_identified(&mut self, entity: E, entity_identifier: E::EntityIdentifier) -> Result<(), EntityDescriptorParseError<E::ParseError>>
 	{
 		let outcome = self.identified.try_to_insert(entity_identifier, entity).map_err(EntityDescriptorParseError::OutOfMemoryPushingIdentifiedEntityDescriptor)?;
 		debug_assert!(outcome.is_none());
