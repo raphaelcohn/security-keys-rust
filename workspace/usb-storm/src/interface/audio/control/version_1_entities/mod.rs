@@ -14,8 +14,8 @@ use super::entities::TerminalEntity;
 use super::entities::UnitEntity;
 use super::EntityDescriptors;
 use super::EntityDescriptorParseError;
-use super::InputLogicalAudioChannelClusters;
-use super::LogicalAudioChannelNumber;
+use super::logical_audio_channels::InputLogicalAudioChannelClusters;
+use super::logical_audio_channels::LogicalAudioChannelNumber;
 use super::parse_entity_descriptor;
 use super::parse_p;
 use super::entity_identifiers::EntityIdentifier;
@@ -46,11 +46,13 @@ use swiss_army_knife::non_zero::new_non_zero_usize;
 use std::convert::Infallible;
 use std::num::NonZeroU16;
 use std::num::NonZeroUsize;
-use crate::interface::audio::control::DescriptorEntityMinimumLength;
-use crate::interface::audio::control::LogicalAudioChannelClusterParseError;
+use super::DescriptorEntityMinimumLength;
+use super::logical_audio_channels::LogicalAudioChannelClusterParseError;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use crate::collections::{WrappedIndexSet, WithCapacity, WrappedBitFlags};
-use crate::interface::audio::control::terminal_types::TerminalTypeParseError;
+use crate::collections::WrappedIndexSet;
+use crate::collections::WithCapacity;
+use crate::collections::WrappedBitFlags;
+use super::terminal_types::TerminalTypeParseError;
 
 
 /// Logical audio channel cluster.

@@ -30,7 +30,7 @@ impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL
 	}
 	
 	#[inline(always)]
-	fn parse_inner<E: error::Error>(string_finder: &StringFinder, number_of_logical_audio_channels: u8, channel_configuration: LACSL::Numeric, first_logical_channel_name_string_identifier: u8) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<E>>
+	pub(crate) fn parse_inner<E: error::Error>(string_finder: &StringFinder, number_of_logical_audio_channels: u8, channel_configuration: LACSL::Numeric, first_logical_channel_name_string_identifier: u8) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<E>>
 	{
 		use LogicalAudioChannelClusterParseError::*;
 		use LogicalAudioChannel::*;

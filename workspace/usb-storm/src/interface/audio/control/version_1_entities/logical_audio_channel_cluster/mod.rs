@@ -4,10 +4,10 @@
 
 use crate::Bytes;
 use crate::device::DeadOrAlive;
-use crate::interface::audio::control::adjusted_index_non_constant;
-use crate::interface::audio::control::LogicalAudioChannelClusterParseError;
-use crate::interface::audio::control::LogicalAudioChannelCluster;
-use crate::interface::audio::control::LogicalAudioChannelSpatialLocation;
+use super::super::adjusted_index_non_constant;
+use super::super::logical_audio_channels::LogicalAudioChannelClusterParseError;
+use super::super::logical_audio_channels::LogicalAudioChannelCluster;
+use super::super::logical_audio_channels::LogicalAudioChannelSpatialLocation;
 use crate::string::StringFinder;
 use enumflags2::bitflags;
 use serde::Deserialize;

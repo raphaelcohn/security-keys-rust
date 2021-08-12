@@ -37,8 +37,9 @@ use super::entity_identifiers::UnitEntityIdentifier;
 use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::parse_entity_descriptor;
 use super::parse_p;
-use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelClusterParseError;
-use crate::interface::audio::control::{LogicalAudioChannelClusterParseError, InputLogicalAudioChannelClusters};
+use self::logical_audio_channel_cluster::Version2LogicalAudioChannelClusterParseError;
+use super::logical_audio_channels::LogicalAudioChannelClusterParseError;
+use super::logical_audio_channels::InputLogicalAudioChannelClusters;
 
 
 /// Logical audio channel cluster.
