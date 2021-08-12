@@ -341,6 +341,6 @@ impl AudioControlInterfaceAdditionalDescriptor
 			entity_descriptors_bytes = entity_descriptors_bytes.get_unchecked_range_safe((bLength as usize) .. );
 		}
 		
-		Ok(this)
+		Ok(entity_descriptors)
 	}
 }

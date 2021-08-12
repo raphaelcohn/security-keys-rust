@@ -119,7 +119,7 @@ impl Version1FeatureUnitEntity
 		let number_of_channels_including_master = controls_bytes_length / control_size.get();
 		
 		let mut controls_by_channel_number = Vec::new_with_capacity(number_of_channels_including_master).map_err(Version1EntityDescriptorParseError::CouldNotAllocateMemoryForFeatureControls)?;
-		for index in 0 .. number_of_controls
+		for index in 0 .. number_of_channels_including_master
 		{
 			let control_bit_map = entity_body.bytes_unadjusted(6 + (index * control_size.get()), control_size.get());
 			let controls = if control_size == new_non_zero_usize(1)

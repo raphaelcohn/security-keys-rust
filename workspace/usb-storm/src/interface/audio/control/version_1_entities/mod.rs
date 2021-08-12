@@ -4,14 +4,18 @@
 
 use crate::Bytes;
 use crate::VecExt;
+use self::logical_audio_channel_cluster::Version1LogicalAudioChannelCluster;
+use self::logical_audio_channel_cluster::Version1LogicalAudioChannelSpatialLocation;
 use super::adjusted_index;
 use super::adjusted_index_non_constant;
 use super::Entity;
 use super::Entities;
 use super::EntityDescriptors;
 use super::EntityDescriptorParseError;
+use super::InputLogicalAudioChannelClusters;
 use super::TerminalEntity;
 use super::UnitEntity;
+use super::LogicalAudioChannelNumber;
 use super::parse_entity_descriptor;
 use super::parse_p;
 use super::entity_identifiers::EntityIdentifier;
@@ -21,9 +25,10 @@ use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::terminal_types::InputTerminalType;
 use super::terminal_types::OutputTerminalType;
 use enumflags2::bitflags;
-use enumflags2::BitFlag;
 use enumflags2::BitFlags;
 use likely::unlikely;
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::HashSet;
 use std::collections::TryReserveError;
 use std::error;
@@ -31,7 +36,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use std::mem::{transmute, size_of};
+use std::mem::transmute;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::string::StringFinder;
@@ -39,25 +44,22 @@ use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive::Dead;
 use indexmap::set::IndexSet;
-use swiss_army_knife::non_zero::{new_non_zero_u8, new_non_zero_u16};
+use swiss_army_knife::non_zero::new_non_zero_u16;
 use swiss_army_knife::non_zero::new_non_zero_usize;
-use std::ops::Deref;
-use std::num::{NonZeroU8, NonZeroU16};
+use std::convert::Infallible;
+use std::num::NonZeroU16;
 use std::num::NonZeroUsize;
 use crate::interface::audio::control::DescriptorEntityMinimumLength;
+use crate::interface::audio::control::LogicalAudioChannelClusterParseError;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use std::alloc::Global;
+
+
+/// Logical audio channel cluster.
+pub mod logical_audio_channel_cluster;
 
 
 include!("AudioChannelFeatureControl.rs");
 include!("DolbyProLogicMode.rs");
-include!("InputLogicalAudioChannelClusters.rs");
-include!("InputPinNumber.rs");
-include!("LogicalAudioChannel.rs");
-include!("LogicalAudioChannelCluster.rs");
-include!("LogicalAudioChannelClusterParseError.rs");
-include!("LogicalAudioChannelNumber.rs");
-include!("LogicalAudioChannelSpatialLocation.rs");
 include!("parse_control_size.rs");
 include!("ProcessType.rs");
 include!("Version1EntityDescriptorParseError.rs");

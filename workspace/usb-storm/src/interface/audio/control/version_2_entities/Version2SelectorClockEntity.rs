@@ -70,7 +70,7 @@ impl Entity for Version2SelectorClockEntity
 						sources
 					},
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<XXXXXX>())).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

@@ -1,0 +1,28 @@
+// This file is part of security-keys-rust. It is subject to the license terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT. No part of security-keys-rust, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+// Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
+
+
+/// Version 1 logical audio channel cluster.
+pub type Version1LogicalAudioChannelCluster = LogicalAudioChannelCluster<Version1LogicalAudioChannelSpatialLocation>;
+
+impl Version1LogicalAudioChannelCluster
+{
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub(super) fn has_left_and_right(&self) -> bool
+	{
+		use Version1LogicalAudioChannelSpatialLocation::*;
+		
+		self.contains_spatial_channel(LeftFront) && self.contains_spatial_channel(RightFront)
+	}
+	
+	#[inline(always)]
+	fn parse(channels_index: usize, string_finder: &StringFinder, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Infallible>>
+	{
+		let number_of_logical_audio_channels = entity_body.u8_unadjusted(adjusted_index_non_constant(channels_index));
+		let wChannelConfig = entity_body.u16_unadjusted(adjusted_index_non_constant(channels_index + 1));
+		let first_logical_channel_name_string_identifier = entity_body.u8_unadjusted(adjusted_index_non_constant(channels_index + 3));
+		
+		Self::parse_inner(string_finder, number_of_logical_audio_channels, wChannelConfig, first_logical_channel_name_string_identifier)
+	}
+}

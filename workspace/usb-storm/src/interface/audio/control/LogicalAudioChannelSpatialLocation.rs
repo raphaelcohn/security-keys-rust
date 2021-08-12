@@ -2,18 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// An entity.
-pub trait Entity: Sized
+/// A logical audio channel spatial location.
+pub trait LogicalAudioChannelSpatialLocation: Sized + Debug + Copy + Eq + Ord + Hash + BitFlag
 {
-	#[doc(hidden)]
-	type EntityIdentifier: Sized + Debug + Copy + PartialEq + Eq + PartialOrd + Ord + Hash + DeserializeOwned + Serialize;
-	
-	#[doc(hidden)]
-	type ParseError: error::Error;
-	
-	#[doc(hidden)]
-	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier;
-	
-	#[doc(hidden)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>;
 }

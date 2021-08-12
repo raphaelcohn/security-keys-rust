@@ -8,21 +8,21 @@
 #[serde(deny_unknown_fields)]
 pub struct Version2EntityDescriptors
 {
-	input_terminal: Entities<Version2InputTerminalEntity>,
-	
-	output_terminal: Entities<Version2OutputTerminalEntity>,
+	// input_terminal: Entities<Version2InputTerminalEntity>,
+	//
+	// output_terminal: Entities<Version2OutputTerminalEntity>,
 	
 	mixer_unit: Entities<Version2MixerUnitEntity>,
 	
-	selector_unit: Entities<Version2SelectorUnitEntity>,
-	
-	feature_unit: Entities<Version2FeatureUnitEntity>,
-	
-	effect_unit: Entities<Version2FeatureUnitEntity>,
-	
-	processing_unit: Entities<Version2ProcessingUnitEntity>,
-	
-	extension_unit: Entities<Version2ExtensionUnitEntity>,
+	// selector_unit: Entities<Version2SelectorUnitEntity>,
+	//
+	// feature_unit: Entities<Version2FeatureUnitEntity>,
+	//
+	// effect_unit: Entities<Version2FeatureUnitEntity>,
+	//
+	// processing_unit: Entities<Version2ProcessingUnitEntity>,
+	//
+	// extension_unit: Entities<Version2ExtensionUnitEntity>,
 	
 	sampling_rate_converter_unit: Entities<Version2SamplingRateConverterUnitEntity>,
 	
@@ -40,8 +40,6 @@ impl EntityDescriptors for Version2EntityDescriptors
 	#[inline(always)]
 	fn parse_entity_body(&mut self, bDescriptorSubtype: u8, string_finder: &StringFinder, entity_descriptors_bytes: &[u8], bLength: u8, entity_identifiers: &mut HashSet<EntityIdentifier>) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
 	{
-		use Version2EntityDescriptorParseError::*;
-		
 		// These constants differ in value between versions 1, 2 and 3 of the Audio specifications!
 		const INPUT_TERMINAL: u8 = 0x02;
 		const OUTPUT_TERMINAL: u8 = 0x03;
@@ -58,45 +56,45 @@ impl EntityDescriptors for Version2EntityDescriptors
 		
 		let dead_or_alive = match bDescriptorSubtype
 		{
-			INPUT_TERMINAL => parse_entity_descriptor::<_, 17>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.input_terminal)?,
-			
-			OUTPUT_TERMINAL => parse_entity_descriptor::<_, 12>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.output_terminal)?,
+			// INPUT_TERMINAL => parse_entity_descriptor::<_, 17>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.input_terminal)?,
+			//
+			// OUTPUT_TERMINAL => parse_entity_descriptor::<_, 12>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.output_terminal)?,
 			
 			MIXER_UNIT =>
 			{
-				const MinimumBLength: u8 = 13;
+				const MinimumBLength: u8 = Version2EntityDescriptors::MixerUnitMinimumBLength;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.mixer_unit)?
 			}
 			
-			SELECTOR_UNIT =>
-			{
-				const MinimumBLength: u8 = 7;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.selector_unit)?
-			}
-			
-			FEATURE_UNIT =>
-			{
-				const MinimumBLength: u8 = 6;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.feature_unit)?
-			}
-			
-			EFFECT_UNIT =>
-			{
-				const MinimumBLength: u8 = 16;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.effect_unit)?
-			}
-			
-			PROCESSING_UNIT =>
-			{
-				const MinimumBLength: u8 = 17;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.processing_unit)?;
-			}
-			
-			EXTENSION_UNIT =>
-			{
-				const MinimumBLength: u8 = 16;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.extension_unit)?;
-			}
+			// SELECTOR_UNIT =>
+			// {
+			// 	const MinimumBLength: u8 = 7;
+			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.selector_unit)?
+			// }
+			//
+			// FEATURE_UNIT =>
+			// {
+			// 	const MinimumBLength: u8 = 6;
+			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.feature_unit)?
+			// }
+			//
+			// EFFECT_UNIT =>
+			// {
+			// 	const MinimumBLength: u8 = 16;
+			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.effect_unit)?
+			// }
+			//
+			// PROCESSING_UNIT =>
+			// {
+			// 	const MinimumBLength: u8 = 17;
+			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.processing_unit)?;
+			// }
+			//
+			// EXTENSION_UNIT =>
+			// {
+			// 	const MinimumBLength: u8 = 16;
+			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.extension_unit)?;
+			// }
 			
 			CLOCK_SOURCE =>
 			{
@@ -124,4 +122,9 @@ impl EntityDescriptors for Version2EntityDescriptors
 		
 		Ok(dead_or_alive.map(|()| true))
 	}
+}
+
+impl Version2EntityDescriptors
+{
+	const MixerUnitMinimumBLength: u8 = 13;
 }

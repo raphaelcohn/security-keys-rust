@@ -11,9 +11,9 @@ pub struct Version1MixerUnitEntity
 {
 	input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters,
 	
-	output_logical_audio_channel_cluster: LogicalAudioChannelCluster,
+	output_logical_audio_channel_cluster: Version1LogicalAudioChannelCluster,
 	
-	controls_bit_map: Vec<u8>,
+	mixer_controls_bit_map: Vec<u8>,
 	
 	description: Option<LocalizedStrings>,
 }
@@ -44,8 +44,8 @@ impl Entity for Version1MixerUnitEntity
 		{
 			let bLength = DescriptorEntityMinimumLength + entity_body.len();
 			
-			/// bLength = 10 + p + N
-			/// Thus N = (bLength - 10 - p)
+			// bLength = 10 + p + N
+			// Thus N = (bLength - 10 - p)
 			(bLength - MinimumBLength).checked_sub(p).ok_or(MixerUnitBLengthTooShort)?
 		};
 		
@@ -57,9 +57,9 @@ impl Entity for Version1MixerUnitEntity
 				{
 					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5)?,
 					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body)?),
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body)?),
 					
-					controls_bit_map: Vec::new_from(entity_body.bytes_unadjusted(adjusted_index_non_constant(9 + p), N)).map_err(CouldNotAllocateMemoryForMixerControls)?,
+					mixer_controls_bit_map: Vec::new_from(entity_body.bytes_unadjusted(adjusted_index_non_constant(9 + p), N)).map_err(CouldNotAllocateMemoryForMixerControls)?,
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index_non_constant(9 + p + N))).map_err(InvalidDescriptionString)?),
 				}
@@ -76,13 +76,6 @@ impl Version1MixerUnitEntity
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn input_terminal_type(&self) -> InputTerminalType
-	{
-		self.input_terminal_type
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
 	pub fn input_logical_audio_channel_clusters(&self) -> &InputLogicalAudioChannelClusters
 	{
 		&self.input_logical_audio_channel_clusters
@@ -90,7 +83,7 @@ impl Version1MixerUnitEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn output_logical_audio_channel_cluster(&self) -> &LogicalAudioChannelCluster
+	pub const fn output_logical_audio_channel_cluster(&self) -> &Version1LogicalAudioChannelCluster
 	{
 		&self.output_logical_audio_channel_cluster
 	}

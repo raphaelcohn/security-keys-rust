@@ -3,20 +3,11 @@
 
 
 use crate::Bytes;
-use crate::VecExt;
-use crate::additional_descriptors::DescriptorHeaderLength;
-use crate::additional_descriptors::verify_remaining_bytes;
 use crate::integers::u2;
 use crate::interface::audio::Version3AudioDynamicStringDescriptorIdentifier;
-use likely::unlikely;
-use self::terminal_types::InputTerminalType;
-use self::terminal_types::OutputTerminalType;
-use self::terminal_types::TerminalTypeParseError;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
 use std::collections::HashSet;
-use std::collections::TryReserveError;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;
@@ -25,9 +16,7 @@ use std::fmt;
 use std::hash::Hash;
 use std::mem::transmute;
 use std::num::NonZeroU16;
-use super::AudioControlInterfaceAdditionalDescriptorParser;
 use super::ClockEntity;
-use super::DescriptorEntityMinimumLength;
 use super::Entities;
 use super::Entity;
 use super::EntityDescriptors;
@@ -45,7 +34,6 @@ use super::parse_entity_descriptor;
 use super::terminal_types::InputTerminalType;
 use super::terminal_types::OutputTerminalType;
 use super::terminal_types::TerminalTypeParseError;
-use swiss_army_knife::get_unchecked::GetUnchecked;
 use std::ops::Deref;
 use crate::string::StringFinder;
 use crate::device::DeadOrAlive;

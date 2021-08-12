@@ -18,10 +18,10 @@ pub enum DolbyProLogicMode
 	LeftRightCentreSurround = 0x0107,
 }
 
-impl Into<BitFlags<LogicalAudioChannelSpatialLocation>> for DolbyProLogicMode
+impl Into<BitFlags<Version1LogicalAudioChannelSpatialLocation>> for DolbyProLogicMode
 {
 	#[inline(always)]
-	fn into(self) -> BitFlags<LogicalAudioChannelSpatialLocation>
+	fn into(self) -> BitFlags<Version1LogicalAudioChannelSpatialLocation>
 	{
 		unsafe { BitFlags::from_bits_unchecked(self as u16) }
 	}

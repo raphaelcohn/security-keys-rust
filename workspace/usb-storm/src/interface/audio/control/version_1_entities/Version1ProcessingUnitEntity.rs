@@ -11,7 +11,7 @@ pub struct Version1ProcessingUnitEntity
 {
 	input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters,
 	
-	output_logical_audio_channel_cluster: LogicalAudioChannelCluster,
+	output_logical_audio_channel_cluster: Version1LogicalAudioChannelCluster,
 	
 	enable: bool,
 	
@@ -37,6 +37,12 @@ impl Entity for Version1ProcessingUnitEntity
 	{
 		use Version1EntityDescriptorParseError::*;
 		
+		let p =
+		{
+			const PIndex: usize = DescriptorEntityMinimumLength + ProcessTypeSize;
+			parse_p::<PIndex>(entity_body)
+		};
+		
 		const ProcessTypeSize: usize = 2;
 		let sources_size: usize =
 		{
@@ -53,12 +59,6 @@ impl Entity for Version1ProcessingUnitEntity
 		};
 		const ControlSizeSize: usize = 1;
 		const StringDescriptorSize: usize = 1;
-		
-		let p =
-		{
-			const PIndex: usize = DescriptorEntityMinimumLength + ProcessTypeSize;
-			parse_p::<PIndex>(entity_body)
-		};
 		
 		let controls_bytes_size =
 		{
@@ -77,7 +77,7 @@ impl Entity for Version1ProcessingUnitEntity
 		let bmControls = entity_body.bytes_unadjusted(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
 		let enable = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
 		
-		let output_logical_audio_channel_cluster = return_ok_if_dead!(LogicalAudioChannelCluster::parse(7 + p, string_finder, entity_body)?);
+		let output_logical_audio_channel_cluster = return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7 + p, string_finder, entity_body)?);
 		Ok
 		(
 			Alive
@@ -156,36 +156,8 @@ impl Version1ProcessingUnitEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn output_logical_audio_channel_cluster(&self) -> &LogicalAudioChannelCluster
+	pub const fn output_logical_audio_channel_cluster(&self) -> &Version1LogicalAudioChannelCluster
 	{
 		&self.output_logical_audio_channel_cluster
-	}
-	
-	#[inline(always)]
-	fn parse_controls_by_channel_number(controls_bytes_length: usize, control_size: NonZeroUsize, entity_body: &[u8]) -> Result<Vec<BitFlags<AudioChannelFeatureControl>>, Version1EntityDescriptorParseError>
-	{
-		let number_of_channels_including_master = controls_bytes_length / control_size.get();
-		
-		let mut controls_by_channel_number = Vec::new_with_capacity(number_of_channels_including_master).map_err(Version1EntityDescriptorParseError::CouldNotAllocateMemoryForFeatureControls)?;
-		for index in 0 .. number_of_controls
-		{
-			let control_bit_map = entity_body.bytes_unadjusted(6 + (index * control_size.get()), control_size.get());
-			let controls = if control_size == new_non_zero_usize(1)
-			{
-				let lower_byte = control_bit_map.get_unchecked_value_safe(0);
-				let value = lower_byte as u16;
-				unsafe { BitFlags::from_bits_unchecked(value) }
-			}
-			else
-			{
-				let lower_byte = control_bit_map.get_unchecked_value_safe(0);
-				let upper_byte = control_bit_map.get_unchecked_value_safe(1);
-				let value = ((upper_byte as u16) << 8) | (lower_byte as u16);
-				BitFlags::from_bits_truncate(value)
-			};
-			controls_by_channel_number.push(controls);
-		}
-		
-		Ok(controls_by_channel_number)
 	}
 }

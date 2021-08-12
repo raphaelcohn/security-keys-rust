@@ -15,7 +15,7 @@ pub struct Version1InputTerminalEntity
 	
 	description: Option<LocalizedStrings>,
 	
-	input_logical_audio_channel_cluster: LogicalAudioChannelCluster,
+	input_logical_audio_channel_cluster: Version1LogicalAudioChannelCluster,
 }
 
 impl Entity for Version1InputTerminalEntity
@@ -47,7 +47,7 @@ impl Entity for Version1InputTerminalEntity
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<11>())).map_err(InvalidDescriptionString)?),
 					
-					input_logical_audio_channel_cluster: return_ok_if_dead!(LogicalAudioChannelCluster::parse(7, string_finder, entity_body)?),
+					input_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7, string_finder, entity_body)?),
 				}
 			)
 		)
@@ -76,7 +76,7 @@ impl Version1InputTerminalEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn input_logical_audio_channel_cluster(&self) -> &LogicalAudioChannelCluster
+	pub const fn input_logical_audio_channel_cluster(&self) -> &Version1LogicalAudioChannelCluster
 	{
 		&self.input_logical_audio_channel_cluster
 	}

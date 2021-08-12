@@ -82,6 +82,10 @@ use self::DeadOrAlive::Alive;
 use self::DeadOrAlive::Dead;
 
 
+include!("return_ok_if_dead.rs");
+include!("return_ok_if_dead_or_alive_none.rs");
+
+
 /// Binary Object Store (BOS).
 pub mod binary_object_store;
 

@@ -7,7 +7,7 @@
 pub enum Version1EntityDescriptorParseError
 {
 	#[allow(missing_docs)]
-	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError),
+	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Infallible>),
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
@@ -63,15 +63,15 @@ pub enum Version1EntityDescriptorParseError
 	#[allow(missing_docs)]
 	UpDownMixProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent
 	{
-		mode: BitFlags<LogicalAudioChannelSpatialLocation>,
+		mode: BitFlags<Version1LogicalAudioChannelSpatialLocation>,
 		
-		spatial_location: LogicalAudioChannelSpatialLocation,
+		spatial_location: Version1LogicalAudioChannelSpatialLocation,
 	},
 	
 	#[allow(missing_docs)]
 	UpDownMixProcessTypeHasDuplicateMode
 	{
-		mode: BitFlags<LogicalAudioChannelSpatialLocation>,
+		mode: BitFlags<Version1LogicalAudioChannelSpatialLocation>,
 	},
 	
 	#[allow(missing_docs)]
@@ -97,7 +97,7 @@ pub enum Version1EntityDescriptorParseError
 	{
 		mode: DolbyProLogicMode,
 		
-		spatial_location: LogicalAudioChannelSpatialLocation,
+		spatial_location: Version1LogicalAudioChannelSpatialLocation,
 	},
 	
 	#[allow(missing_docs)]
@@ -184,10 +184,10 @@ impl Into<EntityDescriptorParseError<Version1EntityDescriptorParseError>> for Ve
 	}
 }
 
-impl From<LogicalAudioChannelClusterParseError<Version1EntityDescriptorParseError>> for Version1EntityDescriptorParseError
+impl From<LogicalAudioChannelClusterParseError<Infallible>> for Version1EntityDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: LogicalAudioChannelClusterParseError) -> Self
+	fn from(cause: LogicalAudioChannelClusterParseError<Infallible>) -> Self
 	{
 		Version1EntityDescriptorParseError::LogicalAudioChannelClusterParse(cause)
 	}

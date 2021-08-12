@@ -2,15 +2,19 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-macro_rules! return_ok_if_dead
-{
-	($dead_or_alive: expr) =>
-	{
-		match $dead_or_alive
-		{
-			crate::device::DeadOrAlive::Dead => return Ok(crate::device::DeadOrAlive::Dead),
-			
-			crate::device::DeadOrAlive::Alive(alive) => alive,
-		}
-	}
-}
+use crate::Bytes;
+use crate::device::DeadOrAlive;
+use crate::interface::audio::control::adjusted_index_non_constant;
+use crate::interface::audio::control::LogicalAudioChannelClusterParseError;
+use crate::interface::audio::control::LogicalAudioChannelCluster;
+use crate::interface::audio::control::LogicalAudioChannelSpatialLocation;
+use crate::string::StringFinder;
+use enumflags2::bitflags;
+use serde::Deserialize;
+use serde::Serialize;
+use std::convert::Infallible;
+use std::fmt::Debug;
+
+
+include!("Version1LogicalAudioChannelCluster.rs");
+include!("Version1LogicalAudioChannelSpatialLocation.rs");

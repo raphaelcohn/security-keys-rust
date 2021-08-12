@@ -2,20 +2,17 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub enum LogicalAudioChannel
+macro_rules! return_ok_if_dead_or_alive_none
 {
-	/// Spatial.
-	Spatial(LogicalAudioChannelSpatialLocation),
-	
-	/// Named.
-	Named
+	($dead_or_alive: expr) =>
 	{
-		/// Unnamed (channel_index up to to a maximum of 254, but does not necessarily start from 0; starts from spatial_logical_audio_channels_count).
-		channel_index: u8,
-		
-		name: Option<LocalizedStrings>,
-	},
+		match $dead_or_alive
+		{
+			Dead => return Ok(Dead),
+			
+			Alive(None) => return Ok(Alive(None)),
+			
+			Alive(Some(alive)) => alive,
+		}
+	}
 }

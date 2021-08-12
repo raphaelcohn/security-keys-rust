@@ -3,12 +3,12 @@
 
 
 /// Channel spatial location.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[bitflags]
 #[repr(u16)]
-pub enum LogicalAudioChannelSpatialLocation
+pub enum Version1LogicalAudioChannelSpatialLocation
 {
 	/// `L`.
 	LeftFront = 1 << 0,
@@ -47,14 +47,18 @@ pub enum LogicalAudioChannelSpatialLocation
 	Top = 1 << 11,
 
 	/// Reserved.
-	Reserved12,
+	Reserved12 = 1 << 12,
 	
 	/// Reserved.
-	Reserved13,
+	Reserved13 = 1 << 13,
 	
 	/// Reserved.
-	Reserved14,
+	Reserved14 = 1 << 14,
 	
 	/// Reserved.
-	Reserved15,
+	Reserved15 = 1 << 15,
+}
+
+impl LogicalAudioChannelSpatialLocation for Version1LogicalAudioChannelSpatialLocation
+{
 }

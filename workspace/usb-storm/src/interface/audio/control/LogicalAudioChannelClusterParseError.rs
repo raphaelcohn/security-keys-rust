@@ -4,46 +4,27 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum EntityDescriptorParseError<E: error::Error>
+pub enum LogicalAudioChannelClusterParseError<E: error::Error>
 {
 	#[allow(missing_docs)]
-	LessThanFourByteHeader,
+	NumberOfLogicalAudioChannelsIsLessThanNumberOfSpatialLogicalAudioChannels,
 	
 	#[allow(missing_docs)]
-	ExpectedInterfaceDescriptorType,
+	NamedLogicalAudioChannelStringIdentifierGreaterThan255,
 	
 	#[allow(missing_docs)]
-	UndefinedInterfaceDescriptorType,
-	
-	#[allow(missing_docs)]
-	HeaderInterfaceDescriptorTypeAfterHeader,
-	
-	#[allow(missing_docs)]
-	UnrecognizedEntityDescriptorType,
-	
-	#[allow(missing_docs)]
-	ExtendedTerminalIsAHighCapacityDescriptor,
-	
-	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
-	OutOfMemoryPushingAnonymousEntityDescriptor(TryReserveError),
-	
-	#[allow(missing_docs)]
-	Version(E),
-	
-	#[allow(missing_docs)]
-	DuplicateEntityIdentifier
+	ChannelNameString
 	{
-		entity_identifier: EntityIdentifier
+		cause: GetLocalizedStringError,
+	
+		channel_index: u8,
 	},
+	
+	#[allow(missing_docs)]
+	Specific(E),
 }
 
-impl<E: error::Error> Display for EntityDescriptorParseError<E>
+impl<E: error::Error> Display for LogicalAudioChannelClusterParseError<E>
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -52,18 +33,18 @@ impl<E: error::Error> Display for EntityDescriptorParseError<E>
 	}
 }
 
-impl<E: error::Error> error::Error for EntityDescriptorParseError<E>
+impl<E: error::Error> error::Error for LogicalAudioChannelClusterParseError<E>
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use EntityDescriptorParseError::*;
+		use LogicalAudioChannelClusterParseError::*;
 		
 		match self
 		{
-			OutOfMemoryPushingAnonymousEntityDescriptor(cause) => Some(cause),
+			ChannelNameString { cause, .. } => Some(cause),
 			
-			Version(cause) => Some(cause),
+			Specific(cause) => Some(cause),
 			
 			_ => None,
 		}

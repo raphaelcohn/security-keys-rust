@@ -3,6 +3,8 @@
 
 
 use super::DeadOrAlive;
+use super::DeadOrAlive::Alive;
+use super::DeadOrAlive::Dead;
 use super::DeviceHandle;
 use crate::Bytes;
 use crate::VecExt;

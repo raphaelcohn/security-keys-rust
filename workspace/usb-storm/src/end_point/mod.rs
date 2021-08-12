@@ -2,7 +2,6 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::return_ok_if_dead;
 use super::integers::u4;
 use super::integers::u11;
 use self::transfer_type::BulkMaximumStreamsExponent;

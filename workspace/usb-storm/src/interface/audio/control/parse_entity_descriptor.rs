@@ -24,7 +24,7 @@ fn parse_entity_descriptor<E: Entity, const BLength: u8>(string_finder: &StringF
 			let inserted = entity_identifiers.insert(entity_identifier);
 			if unlikely!(inserted == false)
 			{
-				return Err(DuplicateEntityIdentifier)
+				return Err(DuplicateEntityIdentifier { entity_identifier })
 			}
 			
 			let entity = return_ok_if_dead!(parse_entity_descriptor_body(entity_descriptors_bytes, string_finder)?);

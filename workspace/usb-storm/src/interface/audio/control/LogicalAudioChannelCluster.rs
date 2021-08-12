@@ -2,16 +2,16 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// An audio channel cluster.
+/// A logical audio channel cluster.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[allow(missing_docs)]
-pub struct LogicalAudioChannelCluster(IndexSet<LogicalAudioChannel>);
+pub struct LogicalAudioChannelCluster<LACSL: LogicalAudioChannelSpatialLocation>(IndexSet<LogicalAudioChannel<LACSL>>);
 
-impl Deref for LogicalAudioChannelCluster
+impl<LACSL: LogicalAudioChannelSpatialLocation> Deref for LogicalAudioChannelCluster<LACSL>
 {
-	type Target = IndexSet<LogicalAudioChannel>;
+	type Target = IndexSet<LogicalAudioChannel<LACSL>>;
 	
 	#[inline(always)]
 	fn deref(&self) -> &Self::Target
@@ -20,57 +20,31 @@ impl Deref for LogicalAudioChannelCluster
 	}
 }
 
-impl LogicalAudioChannelCluster
+impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL>
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	fn has_left_and_right(&self) -> bool
-	{
-		use LogicalAudioChannelSpatialLocation::*;
-		
-		self.contains_spatial_channel(LeftFront) && self.contains_spatial_channel(RightFront)
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	fn contains_spatial_channel(&self, location: LogicalAudioChannelSpatialLocation) -> bool
+	pub fn contains_spatial_channel(&self, location: LACSL) -> bool
 	{
 		self.0.contains(LogicalAudioChannel::Spatial(location))
 	}
 	
 	#[inline(always)]
-	fn parse(channels_index: usize, string_finder: &StringFinder, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError>
-	{
-		let number_of_logical_audio_channels = entity_body.u8_unadjusted(adjusted_index_non_constant(channels_index));
-		let wChannelConfig = entity_body.u16_unadjusted(adjusted_index_non_constant(channels_index + 1));
-		let first_logical_channel_name_string_identifier = entity_body.u8_unadjusted(adjusted_index_non_constant(channels_index + 3));
-		
-		Self::parse_inner(string_finder, number_of_logical_audio_channels, wChannelConfig, first_logical_channel_name_string_identifier)
-	}
-	
-	#[inline(always)]
-	fn parse_inner(string_finder: &StringFinder, number_of_logical_audio_channels: u8, wChannelConfig: u16, first_logical_channel_name_string_identifier: u8) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError>
+	fn parse_inner<E: error::Error>(string_finder: &StringFinder, number_of_logical_audio_channels: u8, channel_configuration: LACSL::Numeric, first_logical_channel_name_string_identifier: u8) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<E>>
 	{
 		use LogicalAudioChannelClusterParseError::*;
 		use LogicalAudioChannel::*;
 		
 		let mut logical_audio_channels = IndexSet::with_capacity(number_of_logical_audio_channels as usize);
 		
-		let channel_spatial_locations = unsafe { BitFlags::from_bits_unchecked(wChannelConfig) };
+		let channel_spatial_locations: BitFlags<LACSL> = unsafe { BitFlags::from_bits_unchecked(channel_configuration) };
 		for channel_spatial_location in channel_spatial_locations.iter()
 		{
 			let inserted = logical_audio_channels.insert(Spatial(channel_spatial_location));
 			debug_assert!(inserted);
 		}
 		
-		let spatial_logical_audio_channels_count =
-		{
-			const BitsInAByte: usize = 8;
-			const BitsInAnU16: usize = BitsInAByte * size_of::<u16>();
-			let spatial_logical_audio_channels_count = logical_audio_channels.len();
-			debug_assert!(spatial_logical_audio_channels_count < BitsInAnU16);
-			spatial_logical_audio_channels_count as u8
-		};
+		let spatial_logical_audio_channels_count = logical_audio_channels.len() as u8;
 		
 		if unlikely!(number_of_logical_audio_channels < spatial_logical_audio_channels_count)
 		{

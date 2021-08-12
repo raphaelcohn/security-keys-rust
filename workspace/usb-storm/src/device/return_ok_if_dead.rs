@@ -2,17 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-macro_rules! return_ok_if_dead_or_alive_none
+macro_rules! return_ok_if_dead
 {
 	($dead_or_alive: expr) =>
 	{
 		match $dead_or_alive
 		{
-			crate::device::DeadOrAlive::Dead => return Ok(crate::device::DeadOrAlive::Dead),
+			Dead => return Ok(Dead),
 			
-			crate::device::DeadOrAlive::Alive(None) => return Ok(crate::device::DeadOrAlive::Alive(None)),
-			
-			crate::device::DeadOrAlive::Alive(Some(alive)) => alive,
+			Alive(alive) => alive,
 		}
 	}
 }

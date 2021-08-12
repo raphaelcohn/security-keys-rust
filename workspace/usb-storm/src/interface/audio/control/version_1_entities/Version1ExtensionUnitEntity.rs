@@ -15,6 +15,8 @@ pub struct Version1ExtensionUnitEntity
 	
 	controls_bit_map: Vec<u8>,
 	
+	extension_code: u16,
+	
 	description: Option<LocalizedStrings>,
 }
 
@@ -35,8 +37,11 @@ impl Entity for Version1ExtensionUnitEntity
 	{
 		use Version1EntityDescriptorParseError::*;
 		
-		let wExtensionCode = entity_body.u16_unadjusted(adjusted_index::<4>());
-		
+		let p =
+		{
+			const PIndex: usize = DescriptorEntityMinimumLength + ExtensionCodeSize;
+			parse_p::<PIndex>(entity_body)
+		};
 		
 		const ExtensionCodeSize: usize = 2;
 		let sources_size: usize =
@@ -55,15 +60,9 @@ impl Entity for Version1ExtensionUnitEntity
 		const ControlSizeSize: usize = 1;
 		const StringDescriptorSize: usize = 1;
 		
-		let p =
-		{
-			const PIndex: usize = DescriptorEntityMinimumLength + ExtensionCodeSize;
-			parse_p::<PIndex>(entity_body)
-		};
-		
 		let controls_bytes_size =
 		{
-			let control_size_index = DescriptorEntityMinimumLength + ProcessTypeSize + sources_size + OutputClusterSize;
+			let control_size_index = DescriptorEntityMinimumLength + ExtensionCodeSize + sources_size + OutputClusterSize;
 			if unlikely!(adjusted_index_non_constant(control_size_index) >= entity_body.len())
 			{
 				return Err(ExtensionUnitPIsTooLarge);
@@ -91,6 +90,8 @@ impl Entity for Version1ExtensionUnitEntity
 					
 					controls_bit_map: Vec::new_from(bmControls).map_err(CouldNotAllocateMemoryForExtensionUnitControlsBitMap)?,
 					
+					extension_code: entity_body.u16_unadjusted(adjusted_index::<4>()),
+					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}
 			)
@@ -116,6 +117,13 @@ impl Version1ExtensionUnitEntity
 	pub const fn enable(&self) -> bool
 	{
 		self.enable
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn extension_code(&self) -> u16
+	{
+		self.extension_code
 	}
 	
 	#[allow(missing_docs)]

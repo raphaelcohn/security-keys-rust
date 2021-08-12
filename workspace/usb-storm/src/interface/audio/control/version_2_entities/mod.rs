@@ -9,8 +9,12 @@ use crate::device::DeadOrAlive;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::string::StringFinder;
+use self::logical_audio_channel_cluster::Version2LogicalAudioChannelCluster;
 use likely::unlikely;
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::HashSet;
+use std::collections::TryReserveError;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;
@@ -23,7 +27,6 @@ use super::Entities;
 use super::Entity;
 use super::EntityDescriptorParseError;
 use super::EntityDescriptors;
-use super::TerminalEntity;
 use super::UnitEntity;
 use super::adjusted_index;
 use super::adjusted_index_non_constant;
@@ -34,12 +37,19 @@ use super::entity_identifiers::UnitEntityIdentifier;
 use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::parse_entity_descriptor;
 use super::parse_p;
+use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelClusterParseError;
+use crate::interface::audio::control::{LogicalAudioChannelClusterParseError, InputLogicalAudioChannelClusters};
+
+
+/// Logical audio channel cluster.
+pub mod logical_audio_channel_cluster;
 
 
 include!("ClockType.rs");
 include!("Control.rs");
 include!("Version2EntityDescriptorParseError.rs");
 include!("Version2EntityDescriptors.rs");
+include!("Version2MixerUnitEntity.rs");
 include!("Version2MultiplierClockEntity.rs");
 include!("Version2SamplingRateConverterUnitEntity.rs");
 include!("Version2SelectorClockEntity.rs");

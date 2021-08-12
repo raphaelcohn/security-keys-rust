@@ -270,7 +270,7 @@ impl Device
 				
 				Alive(Some(configuration_descriptor)) =>
 				{
-					let (configuration_number, configuration) = return_ok_if_dead!(Configuration::parse(configuration_descriptor, maximum_supported_usb_version, speed, string_finder).map_err(|cause| ParseConfigurationDescriptor { cause, configuration_index })?),
+					let (configuration_number, configuration) = return_ok_if_dead!(Configuration::parse(configuration_descriptor, maximum_supported_usb_version, speed, string_finder).map_err(|cause| ParseConfigurationDescriptor { cause, configuration_index })?);
 					
 					let outcome = configurations.insert(configuration_number, configuration);
 					if unlikely!(outcome.is_some())

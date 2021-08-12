@@ -7,6 +7,9 @@
 pub enum Version2EntityDescriptorParseError
 {
 	#[allow(missing_docs)]
+	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>),
+	
+	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
 	
 	#[allow(missing_docs)]
@@ -17,6 +20,15 @@ pub enum Version2EntityDescriptorParseError
 	
 	#[allow(missing_docs)]
 	SelectorClockPIsTooLarge,
+	
+	#[allow(missing_docs)]
+	MixerUnitBLengthTooShort,
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForSources(TryReserveError),
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForMixerControls(TryReserveError),
 }
 
 impl Display for Version2EntityDescriptorParseError
@@ -37,9 +49,15 @@ impl error::Error for Version2EntityDescriptorParseError
 		
 		match self
 		{
+			LogicalAudioChannelClusterParse(cause) => Some(cause),
+			
 			InvalidDescriptionString(cause) => Some(cause),
 			
 			SelectorClockCouldNotAllocateSources(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForSources(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForMixerControls(cause) => Some(cause),
 			
 			_ => None,
 		}
@@ -52,5 +70,14 @@ impl Into<EntityDescriptorParseError<Version2EntityDescriptorParseError>> for Ve
 	fn into(self) -> EntityDescriptorParseError<Self>
 	{
 		EntityDescriptorParseError::Version(self)
+	}
+}
+
+impl From<LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>) -> Self
+	{
+		Version2EntityDescriptorParseError::LogicalAudioChannelClusterParse(cause)
 	}
 }

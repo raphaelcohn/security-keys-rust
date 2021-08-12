@@ -4,24 +4,19 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum LogicalAudioChannelClusterParseError
+pub enum Version2LogicalAudioChannelClusterParseError
 {
 	#[allow(missing_docs)]
-	NumberOfLogicalAudioChannelsIsLessThanNumberOfSpatialLogicalAudioChannels,
+	RawDataHasOtherBitsSet,
 	
 	#[allow(missing_docs)]
-	NamedLogicalAudioChannelStringIdentifierGreaterThan255,
+	RawDataHasNonZeroNumberOfChannels,
 	
 	#[allow(missing_docs)]
-	ChannelNameString
-	{
-		cause: GetLocalizedStringError,
-	
-		channel_index: u8,
-	},
+	RawDataHasChannelNames,
 }
 
-impl Display for LogicalAudioChannelClusterParseError
+impl Display for Version2LogicalAudioChannelClusterParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -30,18 +25,6 @@ impl Display for LogicalAudioChannelClusterParseError
 	}
 }
 
-impl error::Error for LogicalAudioChannelClusterParseError
+impl error::Error for Version2LogicalAudioChannelClusterParseError
 {
-	#[inline(always)]
-	fn source(&self) -> Option<&(dyn error::Error + 'static)>
-	{
-		use LogicalAudioChannelClusterParseError::*;
-		
-		match self
-		{
-			ChannelNameString { cause, .. } => Some(cause),
-			
-			_ => None,
-		}
-	}
 }

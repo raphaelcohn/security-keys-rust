@@ -15,7 +15,7 @@ pub enum ProcessType
 	{
 		mode_select: bool,
 		
-		modes: IndexSet<BitFlags<LogicalAudioChannelSpatialLocation>>,
+		modes: IndexSet<BitFlags<Version1LogicalAudioChannelSpatialLocation>>,
 	},
 	
 	DolbyProLogic
@@ -84,7 +84,7 @@ impl ProcessType
 	}
 	
 	#[inline(always)]
-	fn parse_up_down_mix(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1EntityDescriptorParseError>
+	fn parse_up_down_mix(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1EntityDescriptorParseError>
 	{
 		use Version1EntityDescriptorParseError::*;
 		if unlikely!(p != 1)
@@ -105,7 +105,7 @@ impl ProcessType
 			let mode = unsafe { BitFlags::from_bits_unchecked(process_type_specific_bytes.u16_unadjusted(1 + (mode_index * 2))) };
 			for spatial_location in mode.into().iter()
 			{
-				if unlikely!(!output_logical_audio_channel_cluster.contains_spatial_channel())
+				if unlikely!(!output_logical_audio_channel_cluster.contains_spatial_channel(spatial_location))
 				{
 					return Err(UpDownMixProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent { mode, spatial_location })
 				}
@@ -131,7 +131,7 @@ impl ProcessType
 	}
 	
 	#[inline(always)]
-	fn parse_dolby_pro_logic(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &LogicalAudioChannelCluster) -> Result<Self, Version1EntityDescriptorParseError>
+	fn parse_dolby_pro_logic(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1EntityDescriptorParseError>
 	{
 		use Version1EntityDescriptorParseError::*;
 		if unlikely!(p != 1)
@@ -193,7 +193,7 @@ impl ProcessType
 	}
 	
 	#[inline(always)]
-	fn parse_three_dimensional_stereo_extended(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &LogicalAudioChannelCluster) -> Result<Self, Version1EntityDescriptorParseError>
+	fn parse_three_dimensional_stereo_extended(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1EntityDescriptorParseError>
 	{
 		use Version1EntityDescriptorParseError::*;
 		if unlikely!(p != 1)

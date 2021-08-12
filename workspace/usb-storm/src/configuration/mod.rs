@@ -2,7 +2,6 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::return_ok_if_dead;
 use super::integers::u3;
 use super::integers::u5;
 use super::additional_descriptors::AdditionalDescriptor;
@@ -66,7 +65,7 @@ use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::non_zero::new_non_zero_u16;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use crate::device::DeadOrAlive;
-use crate::device::DeadOrAlive::Alive;
+use crate::device::DeadOrAlive::{Alive, Dead};
 
 
 include!("Configuration.rs");

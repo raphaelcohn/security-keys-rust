@@ -31,7 +31,7 @@ impl Control
 			
 			0b01 => Ok(ReadOnly),
 			
-			0b10 => Err(Version2EntityDescriptorParseError::InvalidControl)
+			0b10 => Err(Version2EntityDescriptorParseError::InvalidControl),
 			
 			0b11 => Ok(HostProgrammable),
 			

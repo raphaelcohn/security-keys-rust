@@ -2,7 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::additional_descriptors::{DescriptorType, DescriptorHeaderLength};
+use crate::additional_descriptors::DescriptorType;
+use crate::additional_descriptors::DescriptorHeaderLength;
 use crate::device::DeadOrAlive;
 use crate::end_point::transfer_type::Direction;
 use crate::interface::InterfaceNumber;

@@ -30,8 +30,6 @@ impl EntityDescriptors for Version1EntityDescriptors
 	#[inline(always)]
 	fn parse_entity_body(&mut self, bDescriptorSubtype: u8, string_finder: &StringFinder, entity_descriptors_bytes: &[u8], bLength: u8, entity_identifiers: &mut HashSet<EntityIdentifier>) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
 	{
-		use Version1EntityDescriptorParseError::*;
-		
 		// These constants differ in value between versions 1, 2 and 3 of the Audio specifications!
 		const INPUT_TERMINAL: u8 = 0x02;
 		const OUTPUT_TERMINAL: u8 = 0x03;
@@ -49,13 +47,13 @@ impl EntityDescriptors for Version1EntityDescriptors
 			
 			MIXER_UNIT =>
 			{
-				const MinimumBLength: u8 = Self::MixerUnitMinimumBLength;
+				const MinimumBLength: u8 = Version1EntityDescriptors::MixerUnitMinimumBLength;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.mixer_unit)?
 			}
 			
 			SELECTOR_UNIT =>
 			{
-				const MinimumBLength: u8 = Self::SelectorUnitMinimumBLength;
+				const MinimumBLength: u8 = Version1EntityDescriptors::SelectorUnitMinimumBLength;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.selector_unit)?
 			}
 			

@@ -55,6 +55,10 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use uuid::Uuid;
 
 
+/// Device.
+#[macro_use] pub mod device;
+
+
 /// Additional descriptors, eg for Smart Cards and Human Interface Devices (HID).
 pub mod additional_descriptors;
 
@@ -73,10 +77,6 @@ pub mod configuration;
 
 /// Transfers.
 pub mod control_transfers;
-
-
-/// Device.
-pub mod device;
 
 
 /// USB end points.
@@ -101,10 +101,6 @@ pub mod string;
 
 /// USB binary coded decimal version.
 pub mod version;
-
-
-include!("return_ok_if_dead.rs");
-include!("return_ok_if_dead_or_alive_none.rs");
 
 
 include!("adjust_index.rs");
