@@ -86,6 +86,20 @@ impl UnitOrTerminalEntityIdentifier
 		}
 	}
 	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn terminal(self) -> TerminalEntityIdentifier
+	{
+		unsafe { self.terminal }
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn unit(self) -> UnitEntityIdentifier
+	{
+		unsafe { self.unit }
+	}
+	
 	#[inline(always)]
 	const fn entity_identifier(self) -> EntityIdentifier
 	{

@@ -17,7 +17,6 @@ use crate::integers::u2;
 use crate::integers::u4;
 use crate::integers::u11;
 use enumflags2::bitflags;
-use indexmap::map::IndexMap;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

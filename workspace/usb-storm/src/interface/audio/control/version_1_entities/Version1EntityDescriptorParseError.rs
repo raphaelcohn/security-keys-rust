@@ -116,13 +116,25 @@ pub enum Version1EntityDescriptorParseError
 	UpDownMixProcessTypeMustHaveOnlyOneInputPin,
 	
 	#[allow(missing_docs)]
+	ThreeDimensionalStereoExtendedProcessTypeMustNotHaveProcessTypeSpecificBytes,
+	
+	#[allow(missing_docs)]
 	ThreeDimensionalStereoExtendedProcessTypeMustHaveOnlyOneInputPin,
+	
+	#[allow(missing_docs)]
+	ReverberationProcessTypeMustNotHaveProcessTypeSpecificBytes,
 	
 	#[allow(missing_docs)]
 	ReverberationProcessTypeMustHaveOnlyOneInputPin,
 	
 	#[allow(missing_docs)]
+	ChorusProcessTypeMustNotHaveProcessTypeSpecificBytes,
+	
+	#[allow(missing_docs)]
 	ChorusProcessTypeMustHaveOnlyOneInputPin,
+	
+	#[allow(missing_docs)]
+	DynamicRangeCompressorProcessTypeMustNotHaveProcessTypeSpecificBytes,
 	
 	#[allow(missing_docs)]
 	DynamicRangeCompressorProcessTypeMustHaveOnlyOneInputPin,

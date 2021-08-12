@@ -198,6 +198,11 @@ impl ProcessType
 	{
 		use Version1EntityDescriptorParseError::*;
 		
+		if unlikely!(!process_type_specific_bytes.is_empty())
+		{
+			return Err(ThreeDimensionalStereoExtendedProcessTypeMustNotHaveProcessTypeSpecificBytes)
+		}
+		
 		if unlikely!(p != 1)
 		{
 			return Err(ThreeDimensionalStereoExtendedProcessTypeMustHaveOnlyOneInputPin)
@@ -221,9 +226,16 @@ impl ProcessType
 	#[inline(always)]
 	fn parse_reverberation(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1EntityDescriptorParseError>
 	{
+		use Version1EntityDescriptorParseError::*;
+		
+		if unlikely!(!process_type_specific_bytes.is_empty())
+		{
+			return Err(ReverberationProcessTypeMustNotHaveProcessTypeSpecificBytes)
+		}
+		
 		if unlikely!(p != 1)
 		{
-			return Err(Version1EntityDescriptorParseError::ReverberationProcessTypeMustHaveOnlyOneInputPin)
+			return Err(ReverberationProcessTypeMustHaveOnlyOneInputPin)
 		}
 		
 		let byte = bmControls.get_unchecked_value_safe(0);
@@ -245,9 +257,16 @@ impl ProcessType
 	#[inline(always)]
 	fn parse_chorus(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1EntityDescriptorParseError>
 	{
+		use Version1EntityDescriptorParseError::*;
+		
+		if unlikely!(!process_type_specific_bytes.is_empty())
+		{
+			return Err(ChorusProcessTypeMustNotHaveProcessTypeSpecificBytes)
+		}
+		
 		if unlikely!(p != 1)
 		{
-			return Err(Version1EntityDescriptorParseError::ChorusProcessTypeMustHaveOnlyOneInputPin)
+			return Err(ChorusProcessTypeMustHaveOnlyOneInputPin)
 		}
 		
 		let byte = bmControls.get_unchecked_value_safe(0);
@@ -267,9 +286,16 @@ impl ProcessType
 	#[inline(always)]
 	fn parse_dynamic_range_compressor(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1EntityDescriptorParseError>
 	{
+		use Version1EntityDescriptorParseError::*;
+		
+		if unlikely!(!process_type_specific_bytes.is_empty())
+		{
+			return Err(DynamicRangeCompressorProcessTypeMustNotHaveProcessTypeSpecificBytes)
+		}
+		
 		if unlikely!(p != 1)
 		{
-			return Err(Version1EntityDescriptorParseError::DynamicRangeCompressorProcessTypeMustHaveOnlyOneInputPin)
+			return Err(DynamicRangeCompressorProcessTypeMustHaveOnlyOneInputPin)
 		}
 		
 		let byte = bmControls.get_unchecked_value_safe(0);

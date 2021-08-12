@@ -41,7 +41,7 @@ impl InputLogicalAudioChannelClusters
 		self.iter().enumerate().map(|(index, source)| (new_non_zero_u8((index + 1) as u8), source.as_ref().map(|source| *source)))
 	}
 	
-	// Number of audio channel clusters entering the mixer unit.
+	/// Number of audio channel clusters entering the mixer unit.
 	#[inline(always)]
 	pub fn number_of_input_logical_audio_channel_clusters(&self) -> usize
 	{

@@ -22,7 +22,7 @@ impl Entity for Version3MixerUnitEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], _string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(_entity_body: &[u8], _string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
 		Ok(Alive(Self))
 	}

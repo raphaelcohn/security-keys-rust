@@ -20,7 +20,7 @@ fn parse_entity_descriptor<E: Entity, const BLength: u8>(string_finder: &StringF
 	
 	match descriptor_body.optional_non_zero_u8_adjusted::<3>()
 	{
-		None => entities.push_anonymous(entity),
+		None => entities.push_anonymous(entity)?,
 		
 		Some(entity_identifier) =>
 		{
@@ -30,7 +30,7 @@ fn parse_entity_descriptor<E: Entity, const BLength: u8>(string_finder: &StringF
 				return Err(DuplicateEntityIdentifier { entity_identifier })
 			}
 			
-			entities.push_identified(entity, E::cast_entity_identifier(entity_identifier))
+			entities.push_identified(entity, E::cast_entity_identifier(entity_identifier))?
 		}
 	};
 	

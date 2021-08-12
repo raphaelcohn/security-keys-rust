@@ -111,7 +111,8 @@ pub enum AlternateSettingParseError
 		
 		alternate_setting_index: u8,
 	},
-
+	
+	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForEndPoints(TryReserveError),
 }
 
