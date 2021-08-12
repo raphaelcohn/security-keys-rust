@@ -50,6 +50,9 @@ pub enum InterfaceParseError
 		
 		alternate_setting_index: NonZeroU8,
 	},
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForAlternateSettings(TryReserveError),
 }
 
 impl Display for InterfaceParseError
@@ -71,6 +74,8 @@ impl error::Error for InterfaceParseError
 		match self
 		{
 			AlternateSetting(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForAlternateSettings(cause) => Some(cause),
 			
 			_ => None,
 		}

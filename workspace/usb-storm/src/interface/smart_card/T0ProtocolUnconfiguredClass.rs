@@ -3,7 +3,7 @@
 
 
 /// The class `CLA` used in APDU commands before a device is configured when using the ISO 7816 T=0 protocol.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[repr(u8)]

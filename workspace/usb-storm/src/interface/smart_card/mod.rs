@@ -12,7 +12,6 @@ use self::features::FeaturesParseError;
 use self::features::LevelOfExchange;
 use crate::Bytes;
 use enumflags2::bitflags;
-use enumflags2::BitFlags;
 use likely::likely;
 use likely::unlikely;
 use serde::Deserialize;
@@ -28,6 +27,7 @@ use crate::version::VersionParseError;
 use crate::string::StringFinder;
 use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;
+use crate::collections::WrappedBitFlags;
 
 
 /// Features of a smart card.

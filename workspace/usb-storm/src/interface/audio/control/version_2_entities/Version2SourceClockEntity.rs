@@ -3,7 +3,7 @@
 
 
 /// A selector clock entity.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[allow(missing_docs)]
@@ -58,7 +58,11 @@ impl Entity for Version2SourceClockEntity
 					
 					associated_terminal: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<6>()),
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<7>())).map_err(InvalidDescriptionString)?),
+					description:
+					{
+						let description = string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<7>())).map_err(InvalidDescriptionString)?;
+						return_ok_if_dead!(description)
+					},
 				}
 			)
 		)

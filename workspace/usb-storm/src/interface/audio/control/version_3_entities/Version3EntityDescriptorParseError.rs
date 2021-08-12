@@ -51,12 +51,3 @@ impl From<TerminalTypeParseError> for Version3EntityDescriptorParseError
 		Version3EntityDescriptorParseError::TerminalTypeParse(cause)
 	}
 }
-
-impl Into<EntityDescriptorParseError<Version3EntityDescriptorParseError>> for Version3EntityDescriptorParseError
-{
-	#[inline(always)]
-	fn into(self) -> EntityDescriptorParseError<Self>
-	{
-		EntityDescriptorParseError::Version(self)
-	}
-}

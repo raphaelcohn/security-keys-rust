@@ -87,34 +87,34 @@ impl EntityDescriptors for Version2EntityDescriptors
 			// PROCESSING_UNIT =>
 			// {
 			// 	const MinimumBLength: u8 = 17;
-			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.processing_unit)?;
+			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.processing_unit)?
 			// }
 			//
 			// EXTENSION_UNIT =>
 			// {
 			// 	const MinimumBLength: u8 = 16;
-			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.extension_unit)?;
+			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.extension_unit)?
 			// }
 			
 			CLOCK_SOURCE =>
 			{
-				parse_entity_descriptor::<_, 8>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.source_clock)?;
+				parse_entity_descriptor::<_, 8>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.source_clock)?
 			}
 			
 			CLOCK_SELECTOR =>
 			{
 				const MinimumBLength: u8 = 7;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.selector_clock)?;
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.selector_clock)?
 			}
 			
 			CLOCK_MULTIPLIER =>
 			{
-				parse_entity_descriptor::<_, 7>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.multiplier_clock)?;
+				parse_entity_descriptor::<_, 7>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.multiplier_clock)?
 			}
 			
 			SAMPLE_RATE_CONVERTER =>
 			{
-				parse_entity_descriptor::<_, 8>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.sampling_rate_converter_unit)?;
+				parse_entity_descriptor::<_, 8>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.sampling_rate_converter_unit)?
 			}
 			
 			_ => return Ok(Alive(false))

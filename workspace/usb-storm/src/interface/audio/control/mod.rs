@@ -19,7 +19,6 @@ use crate::interface::InterfaceNumber;
 use crate::interface::MaximumNumberOfInterfaces;
 use crate::version::Version;
 use crate::version::VersionParseError;
-use indexmap::set::IndexSet;
 use likely::unlikely;
 use self::version_1_entities::Version1EntityDescriptorParseError;
 use self::version_2_entities::Version2EntityDescriptorParseError;
@@ -27,7 +26,6 @@ use self::version_3_entities::Version3EntityDescriptorParseError;
 use self::version_3_entities::Version3EntityDescriptors;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::TryReserveError;
 use std::error;
@@ -47,8 +45,14 @@ use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive::Dead;
 use std::num::NonZeroU8;
-use enumflags2::{BitFlags, BitFlag};
+use enumflags2::BitFlag;
 use swiss_army_knife::non_zero::new_non_zero_u8;
+use crate::collections::WrappedIndexSet;
+use crate::collections::WithCapacity;
+use crate::collections::WrappedHashMap;
+use crate::collections::WrappedBitFlags;
+use crate::interface::audio::control::version_1_entities::Version1EntityDescriptors;
+use crate::interface::audio::control::version_2_entities::Version2EntityDescriptors;
 
 
 /// Entity identifiers.
@@ -71,8 +75,7 @@ pub mod version_2_entities;
 pub mod version_3_entities;
 
 
-include!("adjusted_index.rs");
-include!("adjusted_index_non_constant.rs");
+include!("adjusted_index.rs");include!("adjusted_index_non_constant.rs");
 include!("AudioControlInterfaceAdditionalDescriptor.rs");
 include!("AudioControlInterfaceAdditionalDescriptorParseError.rs");
 include!("AudioControlInterfaceAdditionalDescriptorParser.rs");

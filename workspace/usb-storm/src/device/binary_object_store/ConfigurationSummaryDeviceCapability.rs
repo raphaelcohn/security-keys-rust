@@ -3,7 +3,7 @@
 
 
 /// Configuration summary.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ConfigurationSummaryDeviceCapability
@@ -16,7 +16,7 @@ pub struct ConfigurationSummaryDeviceCapability
 
 	protocol: u8,
 
-	configuration_descriptor_indices: IndexSet<u8>,
+	configuration_descriptor_indices: WrappedIndexSet<u8>,
 }
 
 impl ConfigurationSummaryDeviceCapability
@@ -51,7 +51,7 @@ impl ConfigurationSummaryDeviceCapability
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn configuration_descriptor_indices(&self) -> &IndexSet<u8>
+	pub const fn configuration_descriptor_indices(&self) -> &WrappedIndexSet<u8>
 	{
 		&self.configuration_descriptor_indices
 	}
@@ -79,16 +79,20 @@ impl ConfigurationSummaryDeviceCapability
 			return Err(TooManyConfigurations { bConfigurationCount })
 		}
 		
-		let mut configuration_descriptor_indices = IndexSet::with_capacity(bConfigurationCount as usize);
-		for offset in 0 .. bConfigurationCount
+		let configuration_descriptor_indices =
 		{
-			let configuration_descriptor_index = device_capability_bytes.u8_unadjusted((6 + offset) as usize);
-			let outcome = configuration_descriptor_indices.insert(configuration_descriptor_index);
-			if unlikely!(outcome == false)
+			let mut configuration_descriptor_indices = WrappedIndexSet::with_capacity(bConfigurationCount).map_err(OutOfMemoryForConfigurationDescriptorIndices)?;
+			for offset in 0..bConfigurationCount
 			{
-				return Err(DuplicateConfigurationIndex { configuration_descriptor_index })
+				let configuration_descriptor_index = device_capability_bytes.u8_unadjusted((6 + offset) as usize);
+				let outcome = configuration_descriptor_indices.insert(configuration_descriptor_index);
+				if unlikely!(outcome == false)
+				{
+					return Err(DuplicateConfigurationIndex { configuration_descriptor_index })
+				}
 			}
-		}
+			configuration_descriptor_indices
+		};
 		
 		Ok
 		(

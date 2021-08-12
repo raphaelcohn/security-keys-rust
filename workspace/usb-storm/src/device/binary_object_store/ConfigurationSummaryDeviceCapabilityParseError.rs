@@ -19,7 +19,9 @@ pub enum ConfigurationSummaryDeviceCapabilityParseError
 	DuplicateConfigurationIndex
 	{
 		configuration_descriptor_index: u8,
-	}
+	},
+
+	OutOfMemoryForConfigurationDescriptorIndices(TryReserveError),
 }
 
 impl Display for ConfigurationSummaryDeviceCapabilityParseError
@@ -41,6 +43,8 @@ impl error::Error for ConfigurationSummaryDeviceCapabilityParseError
 		match self
 		{
 			Version(cause) => Some(cause),
+			
+			OutOfMemoryForConfigurationDescriptorIndices(cause) => Some(cause),
 			
 			_ => None,
 		}

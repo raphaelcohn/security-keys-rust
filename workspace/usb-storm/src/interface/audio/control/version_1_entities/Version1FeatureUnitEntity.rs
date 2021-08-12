@@ -11,7 +11,7 @@ pub struct Version1FeatureUnitEntity
 {
 	input_logical_audio_channel_cluster: Option<UnitOrTerminalEntityIdentifier>,
 	
-	controls_by_channel_number: Vec<BitFlags<AudioChannelFeatureControl>>,
+	controls_by_channel_number: Vec<WrappedBitFlags<AudioChannelFeatureControl>>,
 	
 	description: Option<LocalizedStrings>,
 }
@@ -33,7 +33,7 @@ impl Entity for Version1FeatureUnitEntity
 	{
 		use Version1EntityDescriptorParseError::*;
 		
-		let control_size = parse_control_size(entity_body, 5)?;
+		let control_size = parse_control_size(entity_body, 5, FeatureUnitControlSizeIsZero)?;
 		
 		const ControlSizeSize: usize = 1;
 		const StringDescriptorSize: usize = 1;
@@ -94,7 +94,7 @@ impl Version1FeatureUnitEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn master_channel_controls(&self) -> Option<BitFlags<AudioChannelFeatureControl>>
+	pub fn master_channel_controls(&self) -> Option<WrappedBitFlags<AudioChannelFeatureControl>>
 	{
 		if unlikely!(self.controls_by_channel_number.is_empty())
 		{
@@ -108,13 +108,14 @@ impl Version1FeatureUnitEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn logical_channel_controls(&self, logical_audio_channel_number: LogicalAudioChannelNumber) -> Option<BitFlags<AudioChannelFeatureControl>>
+	pub fn logical_channel_controls(&self, logical_audio_channel_number: LogicalAudioChannelNumber) -> Option<WrappedBitFlags<AudioChannelFeatureControl>>
 	{
-		self.controls_by_channel_number.get(logical_audio_channel_number.get()).map(|control| *control)
+		let index = logical_audio_channel_number.get() as usize;
+		self.controls_by_channel_number.get(index).map(|control| *control)
 	}
 	
 	#[inline(always)]
-	fn parse_controls_by_channel_number(controls_bytes_length: usize, control_size: NonZeroUsize, entity_body: &[u8]) -> Result<Vec<BitFlags<AudioChannelFeatureControl>>, Version1EntityDescriptorParseError>
+	fn parse_controls_by_channel_number(controls_bytes_length: usize, control_size: NonZeroUsize, entity_body: &[u8]) -> Result<Vec<WrappedBitFlags<AudioChannelFeatureControl>>, Version1EntityDescriptorParseError>
 	{
 		let number_of_channels_including_master = controls_bytes_length / control_size.get();
 		
@@ -126,14 +127,14 @@ impl Version1FeatureUnitEntity
 			{
 				let lower_byte = control_bit_map.get_unchecked_value_safe(0);
 				let value = lower_byte as u16;
-				unsafe { BitFlags::from_bits_unchecked(value) }
+				WrappedBitFlags::from_bits_unchecked(value)
 			}
 			else
 			{
 				let lower_byte = control_bit_map.get_unchecked_value_safe(0);
 				let upper_byte = control_bit_map.get_unchecked_value_safe(1);
 				let value = ((upper_byte as u16) << 8) | (lower_byte as u16);
-				BitFlags::from_bits_truncate(value)
+				WrappedBitFlags::from_bits_truncate(value)
 			};
 			controls_by_channel_number.push(controls);
 		}

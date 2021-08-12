@@ -20,7 +20,6 @@ use super::string::GetLocalizedStringError;
 use super::string::LocalizedStrings;
 use super::string::StringFinder;
 use super::version::Version;
-use indexmap::map::IndexMap;
 use libusb1_sys::constants::LIBUSB_DT_CONFIG;
 use libusb1_sys::constants::LIBUSB_ERROR_ACCESS;
 use libusb1_sys::constants::LIBUSB_ERROR_BUSY;
@@ -66,6 +65,8 @@ use swiss_army_knife::non_zero::new_non_zero_u16;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::{Alive, Dead};
+use crate::collections::{WrappedIndexMap, WithCapacity};
+use std::collections::TryReserveError;
 
 
 include!("Configuration.rs");

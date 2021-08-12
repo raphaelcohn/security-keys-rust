@@ -3,15 +3,15 @@
 
 
 /// Entities.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord,  Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[allow(missing_docs)]
 pub struct Entities<E: Entity>
 {
-	identified: HashMap<E::EntityIdentifier, E>,
+	identified: WrappedHashMap<E::EntityIdentifier, E>,
 	
-	undefined: Vec<E>,
+	anonymous: Vec<E>,
 }
 
 impl<E: Entity> Default for Entities<E>
@@ -21,9 +21,9 @@ impl<E: Entity> Default for Entities<E>
 	{
 		Self
 		{
-			identified: HashMap::new(),
+			identified: WrappedHashMap::empty(),
 			
-			undefined: Vec::new(),
+			anonymous: Vec::new(),
 		}
 	}
 }
@@ -31,15 +31,16 @@ impl<E: Entity> Default for Entities<E>
 impl<E: Entity> Entities<E>
 {
 	#[inline(always)]
-	fn push_unidentified(&mut self, entity: E) -> Result<(), EntityDescriptorParseError<E::ParseError>>
+	fn push_anonymous(&mut self, entity: E) -> Result<(), EntityDescriptorParseError<E::ParseError>>
 	{
-		self.undefined.try_push(entity).map_err(EntityDescriptorParseError::OutOfMemoryPushingAnonymousEntityDescriptor)
+		self.anonymous.try_push(entity).map_err(EntityDescriptorParseError::OutOfMemoryPushingAnonymousEntityDescriptor)
 	}
 	
 	#[inline(always)]
-	fn push_identified(&mut self, entity: E, entity_identifier: E::EntityIdentifier)
+	fn push_identified(&mut self, entity: E, entity_identifier: E::EntityIdentifier) -> Result<(), EntityDescriptorParseError<E::ParseError>>
 	{
-		let outcome = self.identified.insert(entity_identifier, entity);
+		let outcome = self.identified.try_to_insert(entity_identifier, entity).map_err(EntityDescriptorParseError::OutOfMemoryPushingIdentifiedEntityDescriptor)?;
 		debug_assert!(outcome.is_none());
+		Ok(())
 	}
 }

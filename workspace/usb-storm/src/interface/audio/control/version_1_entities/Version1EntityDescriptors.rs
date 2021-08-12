@@ -59,20 +59,20 @@ impl EntityDescriptors for Version1EntityDescriptors
 			
 			FEATURE_UNIT =>
 			{
-				const MinimumBLength: u8 = 7;
+				const MinimumBLength: u8 = Version1EntityDescriptors::FeatureUnitMinimumBLength;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.feature_unit)?
 			}
 			
 			PROCESSING_UNIT =>
 			{
 				const MinimumBLength: u8 = 13;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.processing_unit)?;
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.processing_unit)?
 			}
 			
 			EXTENSION_UNIT =>
 			{
 				const MinimumBLength: u8 = 13;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.extension_unit)?;
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers, &mut self.extension_unit)?
 			}
 			
 			_ => return Ok(Alive(false))
@@ -86,4 +86,6 @@ impl Version1EntityDescriptors
 	const MixerUnitMinimumBLength: u8 = 10;
 	
 	const SelectorUnitMinimumBLength: u8 = 6;
+	
+	const FeatureUnitMinimumBLength: u8 = 7;
 }

@@ -30,7 +30,6 @@ use super::string::StringFinder;
 use super::string::language::Language;
 use super::version::Version;
 use super::version::VersionParseError;
-use indexmap::map::IndexMap;
 use libusb1_sys::libusb_close;
 use libusb1_sys::libusb_device;
 use libusb1_sys::libusb_device_descriptor;
@@ -80,6 +79,7 @@ use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use self::DeadOrAlive::Alive;
 use self::DeadOrAlive::Dead;
+use crate::collections::{WrappedIndexMap, WithCapacity};
 
 
 include!("return_ok_if_dead.rs");

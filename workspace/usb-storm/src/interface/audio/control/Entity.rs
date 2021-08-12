@@ -3,10 +3,10 @@
 
 
 /// An entity.
-pub trait Entity: Sized
+pub trait Entity: Debug + Clone + Eq + Ord + Hash
 {
 	#[doc(hidden)]
-	type EntityIdentifier: Sized + Debug + Copy + PartialEq + Eq + PartialOrd + Ord + Hash + DeserializeOwned + Serialize;
+	type EntityIdentifier: Debug + Copy + Eq + Ord + Hash + DeserializeOwned + Serialize;
 	
 	#[doc(hidden)]
 	type ParseError: error::Error;

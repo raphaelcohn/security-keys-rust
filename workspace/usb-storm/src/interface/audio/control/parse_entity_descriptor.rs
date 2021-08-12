@@ -9,15 +9,18 @@ fn parse_entity_descriptor<E: Entity, const BLength: u8>(string_finder: &StringF
 	
 	#[inline(always)]
 	fn parse_entity_descriptor_body<E: Entity>(descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<E>, EntityDescriptorParseError<E::ParseError>>
-	where E::ParseError: Into<EntityDescriptorParseError<E::ParseError>>
 	{
-		E::parse(descriptor_body.get_unchecked_range_safe(DescriptorSubTypeAndEntityIdentifierLength .. ), string_finder).map_err(|cause| cause.into())
+		E::parse(descriptor_body.get_unchecked_range_safe(DescriptorSubTypeAndEntityIdentifierLength .. ), string_finder).map_err(Version)
 	}
 	
 	let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<EntityDescriptorParseError<E::ParseError>, BLength>(entity_descriptors_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+	
+	let x = parse_entity_descriptor_body(entity_descriptors_bytes, string_finder)?;
+	let entity = return_ok_if_dead!(x);
+	
 	match descriptor_body.optional_non_zero_u8_adjusted::<3>()
 	{
-		None => return_ok_if_dead!(parse_entity_descriptor_body(entity_descriptors_bytes, string_finder)?),
+		None => entities.push_anonymous(entity),
 		
 		Some(entity_identifier) =>
 		{
@@ -27,7 +30,6 @@ fn parse_entity_descriptor<E: Entity, const BLength: u8>(string_finder: &StringF
 				return Err(DuplicateEntityIdentifier { entity_identifier })
 			}
 			
-			let entity = return_ok_if_dead!(parse_entity_descriptor_body(entity_descriptors_bytes, string_finder)?);
 			entities.push_identified(entity, E::cast_entity_identifier(entity_identifier))
 		}
 	};

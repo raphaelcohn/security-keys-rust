@@ -3,16 +3,16 @@
 
 
 /// Features of a smart card.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Features
 {
-	automatic: BitFlags<AutomaticFeature>,
+	automatic: WrappedBitFlags<AutomaticFeature>,
 	
-	automatic_for_protocol_t_1: Option<BitFlags<T1ProtocolAutomaticFeature>>,
+	automatic_for_protocol_t_1: Option<WrappedBitFlags<T1ProtocolAutomaticFeature>>,
 	
-	automatic_parameters: BitFlags<AutomaticParametersFeature>,
+	automatic_parameters: WrappedBitFlags<AutomaticParametersFeature>,
 	
 	level_of_exchange: LevelOfExchange,
 
@@ -23,21 +23,21 @@ impl Features
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn automatic(&self) -> BitFlags<AutomaticFeature>
+	pub const fn automatic(&self) -> WrappedBitFlags<AutomaticFeature>
 	{
 		self.automatic
 	}
 	
 	/// `None` if protocol T=1 is not supported.
 	#[inline(always)]
-	pub const fn automatic_for_protocol_t_1(&self) -> Option<BitFlags<T1ProtocolAutomaticFeature>>
+	pub const fn automatic_for_protocol_t_1(&self) -> Option<WrappedBitFlags<T1ProtocolAutomaticFeature>>
 	{
 		self.automatic_for_protocol_t_1
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn automatic_parameters(&self) -> BitFlags<AutomaticParametersFeature>
+	pub const fn automatic_parameters(&self) -> WrappedBitFlags<AutomaticParametersFeature>
 	{
 		self.automatic_parameters
 	}
@@ -57,7 +57,7 @@ impl Features
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(dwFeatures: u32, iso_7816_protocols: BitFlags<Iso7816Protocol>) -> Result<Self, FeaturesParseError>
+	pub(super) fn parse(dwFeatures: u32, iso_7816_protocols: WrappedBitFlags<Iso7816Protocol>) -> Result<Self, FeaturesParseError>
 	{
 		let level_of_exchange = LevelOfExchange::parse(dwFeatures)?;
 		let automatic = AutomaticFeature::parse(dwFeatures);

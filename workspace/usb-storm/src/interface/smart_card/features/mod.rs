@@ -3,7 +3,6 @@
 
 
 use super::Iso7816Protocol;
-use enumflags2::BitFlags;
 use enumflags2::bitflags;
 use serde::Deserialize;
 use serde::Serialize;
@@ -12,6 +11,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use crate::collections::WrappedBitFlags;
 
 
 include!("AutomaticFeature.rs");

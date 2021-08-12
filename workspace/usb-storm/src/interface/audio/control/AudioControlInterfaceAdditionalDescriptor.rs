@@ -12,13 +12,13 @@ pub enum AudioControlInterfaceAdditionalDescriptor
 	Version_1_0
 	{
 		#[allow(missing_docs)]
-		entity_descriptors: Vec<u8>,
+		entity_descriptors: Version1EntityDescriptors,
 		
 		/// A bit useless, as we need to know the version in advance before we start parsing to find the version field!
 		audio_device_class_specification_release: Version,
 		
 		#[allow(missing_docs)]
-		interface_numbers: IndexSet<InterfaceNumber>,
+		interface_numbers: WrappedIndexSet<InterfaceNumber>,
 	},
 	
 	/// See Device Class for Audio Release 2.0, Section 4.7.2 Class-Specific AC Interface Descriptor, page 48.
@@ -31,7 +31,7 @@ pub enum AudioControlInterfaceAdditionalDescriptor
 		latency_control: u2,
 		
 		#[allow(missing_docs)]
-		entity_descriptors: Vec<u8>,
+		entity_descriptors: Version2EntityDescriptors,
 		
 		/// A bit useless, as we need to know the version in advance before we start parsing to find the version field!
 		audio_device_class_specification_release: Version,
@@ -79,7 +79,7 @@ impl AudioControlInterfaceAdditionalDescriptor
 		const InterfaceBaseIndex: usize = 5;
 		let bInCollection = descriptor_body.u8_unadjusted(InterfaceBaseIndex);
 		
-		let mut interface_numbers = IndexSet::with_capacity(bInCollection as usize);
+		let mut interface_numbers = WrappedIndexSet::with_capacity(bInCollection).map_err(CouldNotAllocateMemoryForInterfaceNumbers)?;
 		const InterfaceFirstIndex: usize = InterfaceBaseIndex + size_of::<u8>();
 		for index in 0 .. bInCollection
 		{
@@ -95,23 +95,22 @@ impl AudioControlInterfaceAdditionalDescriptor
 			}
 		}
 		
-		Ok
+		Self::ok_alive
 		(
-			Alive
-			(
-				(
-					AudioControlInterfaceAdditionalDescriptor::Version_1_0
-					{
-						entity_descriptors: return_ok_if_dead!(Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
-						
-						audio_device_class_specification_release,
-						
-						interface_numbers,
-					},
-					
-					total_length_excluding_header,
-				)
-			)
+			AudioControlInterfaceAdditionalDescriptor::Version_1_0
+			{
+				entity_descriptors:
+				{
+					let entity_descriptors = Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?;
+					return_ok_if_dead!(entity_descriptors)
+				},
+				
+				audio_device_class_specification_release,
+				
+				interface_numbers,
+			},
+			
+			total_length_excluding_header,
 		)
 	}
 	
@@ -131,25 +130,24 @@ impl AudioControlInterfaceAdditionalDescriptor
 			(bmControls & 0b11) as u2
 		};
 		
-		Ok
+		Self::ok_alive
 		(
-			Alive
-			(
-				(
-					AudioControlInterfaceAdditionalDescriptor::Version_2_0
-					{
-						entity_descriptors: return_ok_if_dead!(Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
-						
-						audio_device_class_specification_release,
-						
-						latency_control,
-					
-						function_category,
-					},
-					
-					total_length_excluding_header,
-				)
-			)
+			AudioControlInterfaceAdditionalDescriptor::Version_2_0
+			{
+				entity_descriptors:
+				{
+					let entity_descriptors = Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?;
+					return_ok_if_dead!(entity_descriptors)
+				},
+				
+				audio_device_class_specification_release,
+				
+				latency_control,
+			
+				function_category,
+			},
+			
+			total_length_excluding_header,
 		)
 	}
 	
@@ -163,48 +161,47 @@ impl AudioControlInterfaceAdditionalDescriptor
 		
 		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16_unadjusted(2), remaining_bytes)?;
 		
-		Ok
+		Self::ok_alive
 		(
-			Alive
-			(
-				(
-					AudioControlInterfaceAdditionalDescriptor::Version_3_0
-					{
-						function_category,
-						
-						latency_control:
-						{
-							let bmControls = descriptor_body.u32_unadjusted(4);
-							(bmControls & 0b11) as u2
-						},
-					
-						entity_descriptors: return_ok_if_dead!(Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
-					},
-					
-					total_length_excluding_header,
-				)
-			)
+			AudioControlInterfaceAdditionalDescriptor::Version_3_0
+			{
+				function_category,
+				
+				latency_control:
+				{
+					let bmControls = descriptor_body.u32_unadjusted(4);
+					(bmControls & 0b11) as u2
+				},
+			
+				entity_descriptors: return_ok_if_dead!(Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
+			},
+			
+			total_length_excluding_header,
 		)
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_unrecognized(bLength: u8, remaining_bytes: &[u8], protocol: u8) -> Result<(Self, usize), AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_version_unrecognized(bLength: u8, remaining_bytes: &[u8], protocol: u8) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
 	{
-		Ok
+		Self::ok_alive
 		(
-			(
-				AudioControlInterfaceAdditionalDescriptor::Unrecognised
-				{
-					protocol,
-					
-					bLength,
-					
-					remaining_bytes: Vec::new_from(remaining_bytes).map_err(AudioControlInterfaceAdditionalDescriptorParseError::CouldNotAllocateMemoryForUnrecognized)?,
-				},
+			AudioControlInterfaceAdditionalDescriptor::Unrecognised
+			{
+				protocol,
 				
-				remaining_bytes.len(),
-			)
+				bLength,
+				
+				remaining_bytes: Vec::new_from(remaining_bytes).map_err(AudioControlInterfaceAdditionalDescriptorParseError::CouldNotAllocateMemoryForUnrecognized)?,
+			},
+			
+			remaining_bytes.len(),
 		)
+	}
+	
+	#[inline(always)]
+	const fn ok_alive(descriptor: Self, consumed_length: usize) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
+	{
+		Ok(Alive((descriptor, consumed_length)))
 	}
 	
 	#[inline(always)]
@@ -341,6 +338,6 @@ impl AudioControlInterfaceAdditionalDescriptor
 			entity_descriptors_bytes = entity_descriptors_bytes.get_unchecked_range_safe((bLength as usize) .. );
 		}
 		
-		Ok(entity_descriptors)
+		Ok(Alive(entity_descriptors))
 	}
 }

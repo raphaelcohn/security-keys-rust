@@ -20,8 +20,8 @@ pub enum T1ProtocolAutomaticFeature
 impl T1ProtocolAutomaticFeature
 {
 	#[inline(always)]
-	fn parse(dwFeatures: u32) -> BitFlags<Self>
+	fn parse(dwFeatures: u32) -> WrappedBitFlags<Self>
 	{
-		BitFlags::from_bits_truncate(dwFeatures)
+		WrappedBitFlags::from_bits_truncate(dwFeatures)
 	}
 }

@@ -15,7 +15,7 @@ pub enum ProcessType
 	{
 		mode_select: bool,
 		
-		modes: IndexSet<BitFlags<Version1LogicalAudioChannelSpatialLocation>>,
+		modes: WrappedIndexSet<WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>>,
 	},
 	
 	DolbyProLogic
@@ -23,7 +23,7 @@ pub enum ProcessType
 		mode_select: bool,
 	
 		/// Contains a maximum of 3 modes.
-		modes: IndexSet<DolbyProLogicMode>,
+		modes: WrappedIndexSet<DolbyProLogicMode>,
 	},
 	
 	ThreeDimensionalStereoExtender
@@ -99,11 +99,11 @@ impl ProcessType
 		
 		let bNrModes = process_type_specific_bytes.u8_unadjusted(0) as usize;
 		
-		let mut modes = IndexSet::with_capacity();
+		let mut modes = WrappedIndexSet::with_capacity(bNrModes).map_err(CouldNotAllocateMemoryForUpDownProcessTypeModes)?;
 		for mode_index in 0 .. bNrModes
 		{
-			let mode = unsafe { BitFlags::from_bits_unchecked(process_type_specific_bytes.u16_unadjusted(1 + (mode_index * 2))) };
-			for spatial_location in mode.into().iter()
+			let mode = WrappedBitFlags::from_bits_unchecked(process_type_specific_bytes.u16_unadjusted(1 + (mode_index * 2)));
+			for spatial_location in mode.iter()
 			{
 				if unlikely!(!output_logical_audio_channel_cluster.contains_spatial_channel(spatial_location))
 				{
@@ -151,7 +151,7 @@ impl ProcessType
 			return Err(DolbyProLogicProcessTypeCanNotHaveMoreThanThreeModes)
 		}
 		
-		let mut modes = IndexSet::with_capacity();
+		let mut modes = WrappedIndexSet::with_capacity(bNrModes).map_err(CouldNotAllocateMemoryForDolbyProLogicProcessTypeModes)?;
 		for mode_index in 0 .. bNrModes
 		{
 			use DolbyProLogicMode::*;
@@ -165,9 +165,10 @@ impl ProcessType
 				
 				mode @ _ => return Err(DolbyProLogicProcessTypeCanNotHaveThisMode { mode })
 			};
-			for spatial_location in mode.into().iter()
+			let flags: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation> = mode.into();
+			for spatial_location in flags.iter()
 			{
-				if unlikely!(!output_logical_audio_channel_cluster.contains_spatial_channel())
+				if unlikely!(!output_logical_audio_channel_cluster.contains_spatial_channel(spatial_location))
 				{
 					return Err(DolbyProLogicProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent { mode, spatial_location })
 				}
@@ -196,6 +197,7 @@ impl ProcessType
 	fn parse_three_dimensional_stereo_extended(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1EntityDescriptorParseError>
 	{
 		use Version1EntityDescriptorParseError::*;
+		
 		if unlikely!(p != 1)
 		{
 			return Err(ThreeDimensionalStereoExtendedProcessTypeMustHaveOnlyOneInputPin)

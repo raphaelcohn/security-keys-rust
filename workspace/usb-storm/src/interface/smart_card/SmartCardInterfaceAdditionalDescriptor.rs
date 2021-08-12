@@ -3,7 +3,7 @@
 
 
 /// A smart card descriptor.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct SmartCardInterfaceAdditionalDescriptor
@@ -19,10 +19,10 @@ pub struct SmartCardInterfaceAdditionalDescriptor
 	maximum_slot_index: u8,
 	
 	/// `bVoltageSupport`.
-	voltages_supported: BitFlags<VoltageSupport>,
+	voltages_supported: WrappedBitFlags<VoltageSupport>,
 	
 	/// `dwProtocols`.
-	iso_7816_protocols: BitFlags<Iso7816Protocol>,
+	iso_7816_protocols: WrappedBitFlags<Iso7816Protocol>,
 	
 	/// Example: 3.58 MHz is encoded as the integer value 3580.
 	///
@@ -54,10 +54,10 @@ pub struct SmartCardInterfaceAdditionalDescriptor
 	maximum_ifsd_for_protocol_t_1: Option<u32>,
 	
 	/// `dwSynchProtocols`.
-	synchronization_protocols: BitFlags<SynchronizationProtocol>,
+	synchronization_protocols: WrappedBitFlags<SynchronizationProtocol>,
 	
 	/// `dwMechanical`.
-	mechanical_features: BitFlags<MechanicalFeature>,
+	mechanical_features: WrappedBitFlags<MechanicalFeature>,
 	
 	/// `dwFeatures`.
 	features: Features,
@@ -75,7 +75,7 @@ pub struct SmartCardInterfaceAdditionalDescriptor
 	lcd_layout: Option<LcdLayout>,
 
 	/// `bPINSupport`.
-	pin_support: BitFlags<PinSupport>,
+	pin_support: WrappedBitFlags<PinSupport>,
 
 	/// `bMaxCCIDBusySlots`.
 	maximum_slots_that_can_be_simultaneously_used: NonZeroU8,
@@ -111,14 +111,14 @@ impl SmartCardInterfaceAdditionalDescriptor
 	
 	/// Voltages supported.
 	#[inline(always)]
-	pub const fn voltages_supported(&self) -> BitFlags<VoltageSupport>
+	pub const fn voltages_supported(&self) -> WrappedBitFlags<VoltageSupport>
 	{
 		self.voltages_supported
 	}
 	
 	/// ISO 7816 protocols supported.
 	#[inline(always)]
-	pub const fn iso_7816_protocols(&self) -> BitFlags<Iso7816Protocol>
+	pub const fn iso_7816_protocols(&self) -> WrappedBitFlags<Iso7816Protocol>
 	{
 		self.iso_7816_protocols
 	}
@@ -186,14 +186,14 @@ impl SmartCardInterfaceAdditionalDescriptor
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn synchronization_protocols(&self) -> BitFlags<SynchronizationProtocol>
+	pub const fn synchronization_protocols(&self) -> WrappedBitFlags<SynchronizationProtocol>
 	{
 		self.synchronization_protocols
 	}
 	
 	/// Very rarely anything other than `empty`.
 	#[inline(always)]
-	pub const fn mechanical_features(&self) -> BitFlags<MechanicalFeature>
+	pub const fn mechanical_features(&self) -> WrappedBitFlags<MechanicalFeature>
 	{
 		self.mechanical_features
 	}
@@ -230,7 +230,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn pin_support(&self) -> BitFlags<PinSupport>
+	pub const fn pin_support(&self) -> WrappedBitFlags<PinSupport>
 	{
 		self.pin_support
 	}
@@ -253,7 +253,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 	{
 		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
-		let iso_7816_protocols = BitFlags::from_bits_truncate(descriptor_body.u32_adjusted::<6>());
+		let iso_7816_protocols = WrappedBitFlags::from_bits_truncate(descriptor_body.u32_adjusted::<6>());
 		let features = crate::interface::smart_card::Features::parse(descriptor_body.u32_adjusted::<40>(), iso_7816_protocols).map_err(Features)?;
 		Ok
 		(
@@ -265,7 +265,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 				
 				maximum_slot_index: descriptor_body.u8_adjusted::<4>(),
 				
-				voltages_supported: BitFlags::from_bits_truncate(descriptor_body.u8_adjusted::<5>()),
+				voltages_supported: WrappedBitFlags::from_bits_truncate(descriptor_body.u8_adjusted::<5>()),
 	
 				iso_7816_protocols,
 			
@@ -290,9 +290,9 @@ impl SmartCardInterfaceAdditionalDescriptor
 					None
 				},
 				
-				synchronization_protocols: BitFlags::from_bits_truncate(descriptor_body.u32_adjusted::<32>()),
+				synchronization_protocols: WrappedBitFlags::from_bits_truncate(descriptor_body.u32_adjusted::<32>()),
 				
-				mechanical_features: BitFlags::from_bits_truncate(descriptor_body.u32_adjusted::<36>()),
+				mechanical_features: WrappedBitFlags::from_bits_truncate(descriptor_body.u32_adjusted::<36>()),
 				
 				features,
 				
@@ -302,7 +302,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 				
 				lcd_layout: LcdLayout::from(descriptor_body.u16_adjusted::<50>()),
 				
-				pin_support: BitFlags::from_bits_truncate(descriptor_body.u8_adjusted::<52>()),
+				pin_support: WrappedBitFlags::from_bits_truncate(descriptor_body.u8_adjusted::<52>()),
 				
 				maximum_slots_that_can_be_simultaneously_used:
 				{
@@ -320,7 +320,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 		)
 	}
 	
-	fn parse_get_response_class_and_envelope_class(descriptor_bytes: &[u8], level_of_exchange: LevelOfExchange, iso_7816_protocols: BitFlags<Iso7816Protocol>) -> Result<Option<T0ProtocolUnconfiguredClasses>, SmartCardInterfaceAdditionalDescriptorParseError>
+	fn parse_get_response_class_and_envelope_class(descriptor_bytes: &[u8], level_of_exchange: LevelOfExchange, iso_7816_protocols: WrappedBitFlags<Iso7816Protocol>) -> Result<Option<T0ProtocolUnconfiguredClasses>, SmartCardInterfaceAdditionalDescriptorParseError>
 	{
 		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		

@@ -3,6 +3,6 @@
 
 
 /// A logical audio channel spatial location.
-pub trait LogicalAudioChannelSpatialLocation: Sized + Debug + Copy + Eq + Ord + Hash + BitFlag
+pub trait LogicalAudioChannelSpatialLocation: Debug + Copy + Eq + Ord + Hash + BitFlag
 {
 }

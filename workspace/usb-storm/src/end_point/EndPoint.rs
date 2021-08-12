@@ -99,22 +99,26 @@ impl EndPoint
 		
 		let mut transfer_type = self::TransferType::parse(end_point_descriptor, maximum_supported_usb_version).map_err(TransferType)?;
 		let maximum_packet_size = end_point_descriptor.wMaxPacketSize & 0b0111_1111_1111;
-		let additional_descriptors = return_ok_if_dead!(Self::parse_additional_descriptors(string_finder, end_point_descriptor, &mut transfer_type, maximum_packet_size).map_err(CouldNotParseEndPointAdditionalDescriptor)?);
+		let additional_descriptors = Self::parse_additional_descriptors(string_finder, end_point_descriptor, &mut transfer_type, maximum_packet_size).map_err(CouldNotParseEndPointAdditionalDescriptor)?;
+		let additional_descriptors = return_ok_if_dead!(additional_descriptors);
 		Ok
 		(
+			Alive
 			(
-				bEndpointAddress & 0b0000_1111,
-				
-				Self
-				{
-					transfer_type,
+				(
+					bEndpointAddress & 0b0000_1111,
 					
-					maximum_packet_size,
-					
-					audio_extension,
-					
-					additional_descriptors,
-				}
+					Self
+					{
+						transfer_type,
+						
+						maximum_packet_size,
+						
+						audio_extension,
+						
+						additional_descriptors,
+					}
+				)
 			)
 		)
 	}

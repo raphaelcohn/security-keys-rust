@@ -6,11 +6,15 @@ macro_rules! return_ok_if_dead
 {
 	($dead_or_alive: expr) =>
 	{
-		match $dead_or_alive
 		{
-			Dead => return Ok(Dead),
+			use crate::device::DeadOrAlive::*;
 			
-			Alive(alive) => alive,
+			match $dead_or_alive
+			{
+				Dead => return Ok(Dead),
+				
+				Alive(alive) => alive,
+			}
 		}
 	}
 }

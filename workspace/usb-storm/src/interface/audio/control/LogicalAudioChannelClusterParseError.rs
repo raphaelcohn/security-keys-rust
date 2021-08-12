@@ -22,6 +22,9 @@ pub enum LogicalAudioChannelClusterParseError<E: error::Error>
 	
 	#[allow(missing_docs)]
 	Specific(E),
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForLogicalAudioChannels(TryReserveError),
 }
 
 impl<E: error::Error> Display for LogicalAudioChannelClusterParseError<E>
@@ -33,7 +36,7 @@ impl<E: error::Error> Display for LogicalAudioChannelClusterParseError<E>
 	}
 }
 
-impl<E: error::Error> error::Error for LogicalAudioChannelClusterParseError<E>
+impl<E: 'static + error::Error> error::Error for LogicalAudioChannelClusterParseError<E>
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
@@ -45,6 +48,8 @@ impl<E: error::Error> error::Error for LogicalAudioChannelClusterParseError<E>
 			ChannelNameString { cause, .. } => Some(cause),
 			
 			Specific(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForLogicalAudioChannels(cause) => Some(cause),
 			
 			_ => None,
 		}

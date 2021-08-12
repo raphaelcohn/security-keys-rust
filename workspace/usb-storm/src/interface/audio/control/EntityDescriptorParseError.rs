@@ -34,6 +34,9 @@ pub enum EntityDescriptorParseError<E: error::Error>
 	OutOfMemoryPushingAnonymousEntityDescriptor(TryReserveError),
 	
 	#[allow(missing_docs)]
+	OutOfMemoryPushingIdentifiedEntityDescriptor(TryReserveError),
+	
+	#[allow(missing_docs)]
 	Version(E),
 	
 	#[allow(missing_docs)]
@@ -52,7 +55,7 @@ impl<E: error::Error> Display for EntityDescriptorParseError<E>
 	}
 }
 
-impl<E: error::Error> error::Error for EntityDescriptorParseError<E>
+impl<E: 'static + error::Error> error::Error for EntityDescriptorParseError<E>
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
@@ -62,6 +65,8 @@ impl<E: error::Error> error::Error for EntityDescriptorParseError<E>
 		match self
 		{
 			OutOfMemoryPushingAnonymousEntityDescriptor(cause) => Some(cause),
+			
+			OutOfMemoryPushingIdentifiedEntityDescriptor(cause) => Some(cause),
 			
 			Version(cause) => Some(cause),
 			

@@ -41,7 +41,7 @@ impl Entity for Version1OutputTerminalEntity
 			(
 				Self
 				{
-					output_terminal_type: OutputTerminalType::parse(entity_body.u16_unadjusted(adjusted_index::<4>()))?,
+					output_terminal_type: OutputTerminalType::parse(entity_body.u16_unadjusted(adjusted_index::<4>())).map_err(OutputTerminalTypeParse)?,
 					
 					associated_input_terminal: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<6>()),
 				

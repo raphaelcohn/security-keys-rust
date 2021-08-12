@@ -3,7 +3,7 @@
 
 
 /// USB configuration.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Configuration
@@ -16,7 +16,7 @@ pub struct Configuration
 	
 	additional_descriptors: Vec<AdditionalDescriptor<ConfigurationAdditionalDescriptor>>,
 	
-	interfaces: IndexMap<InterfaceNumber, Interface>,
+	interfaces: WrappedIndexMap<InterfaceNumber, Interface>,
 }
 
 impl Configuration
@@ -44,7 +44,7 @@ impl Configuration
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn interfaces(&self) -> &IndexMap<InterfaceNumber, Interface>
+	pub fn interfaces(&self) -> &WrappedIndexMap<InterfaceNumber, Interface>
 	{
 		&self.interfaces
 	}
@@ -209,14 +209,14 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<IndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
+	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<WrappedIndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
 	{
 		use ConfigurationParseError::*;
 		
 		let number_of_interfaces = Self::parse_number_of_interfaces(configuration_descriptor)?;
 		let libusb_interfaces = Self::libusb_interfaces_as_slice(configuration_descriptor, number_of_interfaces)?;
 		
-		let mut interfaces = IndexMap::with_capacity(number_of_interfaces.get() as usize);
+		let mut interfaces = WrappedIndexMap::with_capacity(number_of_interfaces).map_err(CouldNotAllocateMemoryForInterfaces)?;
 		for interface_index in 0 .. number_of_interfaces.get()
 		{
 			let libusb_interface = libusb_interfaces.get_unchecked_safe(interface_index);

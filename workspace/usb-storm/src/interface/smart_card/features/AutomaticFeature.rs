@@ -32,8 +32,8 @@ pub enum AutomaticFeature
 impl AutomaticFeature
 {
 	#[inline(always)]
-	fn parse(dwFeatures: u32) -> BitFlags<Self>
+	fn parse(dwFeatures: u32) -> WrappedBitFlags<Self>
 	{
-		BitFlags::from_bits_truncate(dwFeatures)
+		WrappedBitFlags::from_bits_truncate(dwFeatures)
 	}
 }

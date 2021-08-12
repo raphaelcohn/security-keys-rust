@@ -55,7 +55,7 @@ impl Entity for Version1MixerUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 5)?,
 					
 					output_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body)?),
 					
@@ -90,7 +90,7 @@ impl Version1MixerUnitEntity
 	
 	/// `m` is number of output channels; it is supposed to be between 1 and 254 inclusive.
 	#[inline(always)]
-	pub const fn m(&self) -> u8
+	pub fn m(&self) -> u8
 	{
 		self.output_logical_audio_channel_cluster.len() as u8
 	}
@@ -101,7 +101,7 @@ impl Version1MixerUnitEntity
 	/// The valid range for `u` is from one to `n`.
 	/// The valid range for `v` is from one to `m`.
 	#[inline(always)]
-	pub fn is_a_programmable_mixing_control(&self, input_channel_number_u: LogicalAudioChannelNumber, output_channel_number_v: LogicalAudioChannelNumber) -> bool
+	pub fn is_a_programmable_mixing_control(&self, _input_channel_number_u: LogicalAudioChannelNumber, _output_channel_number_v: LogicalAudioChannelNumber) -> bool
 	{
 		unimplemented!();
 	}

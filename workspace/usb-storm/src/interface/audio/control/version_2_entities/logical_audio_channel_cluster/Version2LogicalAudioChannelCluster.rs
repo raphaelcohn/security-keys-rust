@@ -17,7 +17,7 @@ pub enum Version2LogicalAudioChannelCluster
 impl Version2LogicalAudioChannelCluster
 {
 	#[inline(always)]
-	fn parse(channels_index: usize, string_finder: &StringFinder, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
+	pub(super) fn parse(channels_index: usize, string_finder: &StringFinder, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
 	{
 		let number_of_logical_audio_channels = entity_body.u8_unadjusted(adjusted_index_non_constant(channels_index));
 		let wChannelConfig = entity_body.u32_unadjusted(adjusted_index_non_constant(channels_index + 1));

@@ -59,6 +59,8 @@ use swiss_army_knife::non_zero::new_non_zero_u8;
 use crate::version::Version;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive::Dead;
+use crate::collections::{WrappedIndexMap, WithCapacity};
+use std::collections::TryReserveError;
 
 
 /// Audio.

@@ -84,20 +84,21 @@ impl Entity for Version1ProcessingUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 7)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 7)?,
 					
 					enable,
 					
 					process_type:
 					{
 						let process_type_specific_bytes = entity_body.get_unchecked_range_safe(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize + controls_bytes_size.get() + StringDescriptorSize .. );
+						debug_assert_eq!(process_type_specific_bytes.len(), process_specific_size);
 						match entity_body.u16_unadjusted(adjusted_index::<DescriptorEntityMinimumLength>())
 						{
 							0x00 => ProcessType::parse_undefined(bmControls, process_type_specific_bytes)?,
 							
-							0x01 => ProcessType::parse_up_down_mix(bmControls, process_type_specific_bytes, p)?,
+							0x01 => ProcessType::parse_up_down_mix(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
 							
-							0x02 => ProcessType::parse_dolby_pro_logic(bmControls, process_type_specific_bytes, p)?,
+							0x02 => ProcessType::parse_dolby_pro_logic(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
 							
 							0x03 => ProcessType::parse_three_dimensional_stereo_extended(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
 							

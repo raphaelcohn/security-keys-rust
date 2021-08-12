@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
@@ -18,11 +18,11 @@ pub enum DolbyProLogicMode
 	LeftRightCentreSurround = 0x0107,
 }
 
-impl Into<BitFlags<Version1LogicalAudioChannelSpatialLocation>> for DolbyProLogicMode
+impl Into<WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>> for DolbyProLogicMode
 {
 	#[inline(always)]
-	fn into(self) -> BitFlags<Version1LogicalAudioChannelSpatialLocation>
+	fn into(self) -> WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>
 	{
-		unsafe { BitFlags::from_bits_unchecked(self as u16) }
+		WrappedBitFlags::from_bits_unchecked(self as u16)
 	}
 }

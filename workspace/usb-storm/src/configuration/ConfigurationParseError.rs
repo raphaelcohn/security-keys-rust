@@ -69,6 +69,9 @@ pub enum ConfigurationParseError
 	
 	#[allow(missing_docs)]
 	CouldNotParseConfigurationAdditionalDescriptor(AdditionalDescriptorParseError<Infallible>),
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForInterfaces(TryReserveError),
 }
 
 impl Display for ConfigurationParseError
@@ -94,6 +97,8 @@ impl error::Error for ConfigurationParseError
 			DescriptionString(cause) => Some(cause),
 			
 			CouldNotParseConfigurationAdditionalDescriptor(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForInterfaces(cause) => Some(cause),
 			
 			_ => None,
 		}

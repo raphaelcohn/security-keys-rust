@@ -5,7 +5,7 @@
 /// An USB interface alternate setting.
 ///
 /// Represents an Interface Descriptor.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AlternateSetting
@@ -16,7 +16,7 @@ pub struct AlternateSetting
 	
 	additional_descriptors: Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>,
 
-	end_points: IndexMap<EndPointNumber, EndPoint>,
+	end_points: WrappedIndexMap<EndPointNumber, EndPoint>,
 }
 
 impl AlternateSetting
@@ -118,11 +118,11 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version, string_finder: &StringFinder) -> Result<DeadOrAlive<IndexMap<EndPointNumber, EndPoint>>, AlternateSettingParseError>
+	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version, string_finder: &StringFinder) -> Result<DeadOrAlive<WrappedIndexMap<EndPointNumber, EndPoint>>, AlternateSettingParseError>
 	{
 		use AlternateSettingParseError::*;
 		
-		let mut end_points = IndexMap::with_capacity(end_point_descriptors.len());
+		let mut end_points = WrappedIndexMap::with_capacity(end_point_descriptors.len()).map_err(CouldNotAllocateMemoryForEndPoints)?;
 		
 		for end_point_index in 0 .. (end_points.len() as u5)
 		{

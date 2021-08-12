@@ -13,7 +13,7 @@ pub enum Version2EntityDescriptorParseError
 	InvalidDescriptionString(GetLocalizedStringError),
 	
 	#[allow(missing_docs)]
-	SelectorClockCouldNotAllocateSources(GetLocalizedStringError),
+	SelectorClockCouldNotAllocateSources(TryReserveError),
 	
 	#[allow(missing_docs)]
 	InvalidControl,
@@ -61,15 +61,6 @@ impl error::Error for Version2EntityDescriptorParseError
 			
 			_ => None,
 		}
-	}
-}
-
-impl Into<EntityDescriptorParseError<Version2EntityDescriptorParseError>> for Version2EntityDescriptorParseError
-{
-	#[inline(always)]
-	fn into(self) -> EntityDescriptorParseError<Self>
-	{
-		EntityDescriptorParseError::Version(self)
 	}
 }
 

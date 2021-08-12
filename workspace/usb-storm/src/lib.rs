@@ -49,7 +49,8 @@ use serde_yaml as _;
 use self::version::Version;
 use self::version::VersionParseError;
 use std::collections::TryReserveError;
-use std::num::{NonZeroU8, NonZeroU16};
+use std::num::NonZeroU8;
+use std::num::NonZeroU16;
 use std::mem::transmute;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use uuid::Uuid;
@@ -65,6 +66,10 @@ pub mod additional_descriptors;
 
 /// Class, sub-class and protocol.
 pub mod class_and_protocol;
+
+
+/// Indexed collections that support ordering and hashes.
+pub mod collections;
 
 
 /// libusb context.

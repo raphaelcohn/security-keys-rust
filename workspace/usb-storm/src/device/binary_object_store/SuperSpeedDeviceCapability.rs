@@ -3,14 +3,14 @@
 
 
 /// SuperSpeed.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct SuperSpeedDeviceCapability
 {
 	supports_latency_tolerant_messages: bool,
 
-	supported_speeds: BitFlags<SuperSpeedDeviceCapabilitySupportedSpeed>,
+	supported_speeds: WrappedBitFlags<SuperSpeedDeviceCapabilitySupportedSpeed>,
 
 	lowest_speed_supporting_full_functionality: SuperSpeedDeviceCapabilitySupportedSpeed,
 	
@@ -30,7 +30,7 @@ impl SuperSpeedDeviceCapability
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn supported_speeds(&self) -> BitFlags<SuperSpeedDeviceCapabilitySupportedSpeed>
+	pub const fn supported_speeds(&self) -> WrappedBitFlags<SuperSpeedDeviceCapabilitySupportedSpeed>
 	{
 		self.supported_speeds
 	}
@@ -79,7 +79,7 @@ impl SuperSpeedDeviceCapability
 		};
 		
 		let wSpeedsSupported = device_capability_bytes.u16_unadjusted(1);
-		let supported_speeds = BitFlags::from_bits(wSpeedsSupported).map_err(|_| HasReservedSpeedsSupportedBitsSet)?;
+		let supported_speeds = WrappedBitFlags::from_bits(wSpeedsSupported).map_err(|_| HasReservedSpeedsSupportedBitsSet)?;
 		
 		let lowest_speed_supporting_full_functionality =
 		{

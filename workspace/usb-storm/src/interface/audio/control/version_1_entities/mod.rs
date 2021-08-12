@@ -25,7 +25,6 @@ use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::terminal_types::InputTerminalType;
 use super::terminal_types::OutputTerminalType;
 use enumflags2::bitflags;
-use enumflags2::BitFlags;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
@@ -42,8 +41,6 @@ use crate::string::LocalizedStrings;
 use crate::string::StringFinder;
 use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;
-use crate::device::DeadOrAlive::Dead;
-use indexmap::set::IndexSet;
 use swiss_army_knife::non_zero::new_non_zero_u16;
 use swiss_army_knife::non_zero::new_non_zero_usize;
 use std::convert::Infallible;
@@ -52,6 +49,8 @@ use std::num::NonZeroUsize;
 use crate::interface::audio::control::DescriptorEntityMinimumLength;
 use crate::interface::audio::control::LogicalAudioChannelClusterParseError;
 use swiss_army_knife::get_unchecked::GetUnchecked;
+use crate::collections::{WrappedIndexSet, WithCapacity, WrappedBitFlags};
+use crate::interface::audio::control::terminal_types::TerminalTypeParseError;
 
 
 /// Logical audio channel cluster.

@@ -3,11 +3,11 @@
 
 
 /// An USB interface.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[repr(transparent)]
-pub struct Interface(IndexMap<AlternateSettingNumber, AlternateSetting>);
+pub struct Interface(WrappedIndexMap<AlternateSettingNumber, AlternateSetting>);
 
 impl Interface
 {
@@ -30,7 +30,7 @@ impl Interface
 	{
 		let (number_of_alternate_settings, alternate_settings_slice) = Self::parse_alternate_settings_slice(libusb_interface, interface_index)?;
 		
-		let mut alternate_settings = IndexMap::with_capacity(number_of_alternate_settings.get() as usize);
+		let mut alternate_settings = WrappedIndexMap::with_capacity(number_of_alternate_settings).map_err(InterfaceParseError::CouldNotAllocateMemoryForAlternateSettings)?;
 		
 		let interface_number = return_ok_if_dead!(Self::parse_alternate_setting(alternate_settings_slice, string_finder, interface_index, 0, &mut alternate_settings, maximum_supported_usb_version)?);
 		
@@ -47,7 +47,7 @@ impl Interface
 	}
 	
 	#[inline(always)]
-	fn parse_alternate_setting(alternate_settings_slice: &[libusb_interface_descriptor], string_finder: &StringFinder, interface_index: u8, alternate_setting_index: u8, alternate_settings: &mut IndexMap<AlternateSettingNumber, AlternateSetting>, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<InterfaceNumber>, AlternateSettingParseError>
+	fn parse_alternate_setting(alternate_settings_slice: &[libusb_interface_descriptor], string_finder: &StringFinder, interface_index: u8, alternate_setting_index: u8, alternate_settings: &mut WrappedIndexMap<AlternateSettingNumber, AlternateSetting>, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<InterfaceNumber>, AlternateSettingParseError>
 	{
 		let alternate_setting = alternate_settings_slice.get_unchecked_safe(alternate_setting_index);
 		let (interface_number, alternate_setting_number, alternate_setting) = return_ok_if_dead!(AlternateSetting::parse(string_finder, alternate_setting, interface_index, alternate_setting_index, maximum_supported_usb_version)?);

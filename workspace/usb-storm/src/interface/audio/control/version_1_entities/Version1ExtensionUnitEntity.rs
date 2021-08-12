@@ -70,7 +70,7 @@ impl Entity for Version1ExtensionUnitEntity
 			parse_control_size(entity_body, control_size_index, ExtensionUnitControlSizeIsZero)?
 		};
 		
-		if unlikely!(entity_body.len() == ExtensionCodeSize + sources_size + OutputClusterSize + ControlSizeSize + controls_bytes_size + StringDescriptorSize)
+		if unlikely!(entity_body.len() == ExtensionCodeSize + sources_size + OutputClusterSize + ControlSizeSize + controls_bytes_size.get() + StringDescriptorSize)
 		{
 			return Err(ExtensionUnitTooShort)
 		}
@@ -84,7 +84,7 @@ impl Entity for Version1ExtensionUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 7)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 7)?,
 					
 					enable,
 					

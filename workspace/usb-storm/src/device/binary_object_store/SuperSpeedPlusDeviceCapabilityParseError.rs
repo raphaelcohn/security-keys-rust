@@ -3,7 +3,7 @@
 
 
 /// A parse error.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 #[allow(missing_docs)]
 pub enum SuperSpeedPlusDeviceCapabilityParseError
 {
@@ -64,6 +64,14 @@ pub enum SuperSpeedPlusDeviceCapabilityParseError
 	{
 		minimum_lane_speed_sublink_speed_attribute_identifier: SublinkSpeedAttributeIdentifier
 	},
+	
+	CouldNotAllocateMemoryForSublinkSpeedAttributeIdentifiers(TryReserveError),
+	
+	CouldNotAllocateMemoryForReceives(TryReserveError),
+	
+	CouldNotAllocateMemoryForTransmits(TryReserveError),
+	
+	CouldNotAllocateMemoryForSublinkSpeedAttributes(TryReserveError),
 }
 
 impl Display for SuperSpeedPlusDeviceCapabilityParseError
@@ -77,4 +85,22 @@ impl Display for SuperSpeedPlusDeviceCapabilityParseError
 
 impl error::Error for SuperSpeedPlusDeviceCapabilityParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use SuperSpeedPlusDeviceCapabilityParseError::*;
+		
+		match self
+		{
+			CouldNotAllocateMemoryForSublinkSpeedAttributeIdentifiers(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForReceives(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForTransmits(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForSublinkSpeedAttributes(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

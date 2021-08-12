@@ -3,7 +3,7 @@
 
 
 /// USB device.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Device
@@ -32,7 +32,7 @@ pub struct Device
 	
 	active_configuration_number: Option<ConfigurationNumber>,
 	
-	configurations: IndexMap<ConfigurationNumber, Configuration>,
+	configurations: WrappedIndexMap<ConfigurationNumber, Configuration>,
 	
 	binary_object_store: Option<BinaryObjectStore>,
 }
@@ -126,7 +126,7 @@ impl Device
 	/// `.iter().enumerate()` does not produce indices suitable for use with `libusb_get_config_descriptor()`.
 	/// The key is suitable for use with `libusb_get_config_descriptor_by_value()` and `libusb_set_configuration()`.
 	#[inline(always)]
-	pub fn configurations(&self) -> &IndexMap<ConfigurationNumber, Configuration>
+	pub fn configurations(&self) -> &WrappedIndexMap<ConfigurationNumber, Configuration>
 	{
 		&self.configurations
 	}
@@ -249,7 +249,7 @@ impl Device
 	}
 	
 	#[inline(always)]
-	fn get_configurations(libusb_device: NonNull<libusb_device>, device_descriptor: &libusb_device_descriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<IndexMap<ConfigurationNumber, Configuration>>, DeviceParseError>
+	fn get_configurations(libusb_device: NonNull<libusb_device>, device_descriptor: &libusb_device_descriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<WrappedIndexMap<ConfigurationNumber, Configuration>>, DeviceParseError>
 	{
 		use DeviceParseError::*;
 		
@@ -259,7 +259,7 @@ impl Device
 			return Err(TooManyConfigurations { bNumConfigurations })
 		}
 		
-		let mut configurations = IndexMap::with_capacity(bNumConfigurations as usize);
+		let mut configurations = WrappedIndexMap::with_capacity(bNumConfigurations).map_err(CouldNotAllocateMemoryForConfigurations)?;
 		for configuration_index in 0 .. bNumConfigurations
 		{
 			match get_config_descriptor(libusb_device, configuration_index).map_err(|cause| GetConfigurationDescriptor { cause, configuration_index })?
@@ -285,7 +285,7 @@ impl Device
 	}
 	
 	#[inline(always)]
-	fn get_active_configuration_number(libusb_device: NonNull<libusb_device>, configurations: &IndexMap<ConfigurationNumber, Configuration>) -> Result<DeadOrAlive<Option<ConfigurationNumber>>, DeviceParseError>
+	fn get_active_configuration_number(libusb_device: NonNull<libusb_device>, configurations: &WrappedIndexMap<ConfigurationNumber, Configuration>) -> Result<DeadOrAlive<Option<ConfigurationNumber>>, DeviceParseError>
 	{
 		use DeviceParseError::*;
 		

@@ -7,6 +7,12 @@
 pub enum Version1EntityDescriptorParseError
 {
 	#[allow(missing_docs)]
+	InputTerminalTypeParse(TerminalTypeParseError),
+	
+	#[allow(missing_docs)]
+	OutputTerminalTypeParse(TerminalTypeParseError),
+	
+	#[allow(missing_docs)]
 	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Infallible>),
 	
 	#[allow(missing_docs)]
@@ -63,7 +69,7 @@ pub enum Version1EntityDescriptorParseError
 	#[allow(missing_docs)]
 	UpDownMixProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent
 	{
-		mode: BitFlags<Version1LogicalAudioChannelSpatialLocation>,
+		mode: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>,
 		
 		spatial_location: Version1LogicalAudioChannelSpatialLocation,
 	},
@@ -71,7 +77,7 @@ pub enum Version1EntityDescriptorParseError
 	#[allow(missing_docs)]
 	UpDownMixProcessTypeHasDuplicateMode
 	{
-		mode: BitFlags<Version1LogicalAudioChannelSpatialLocation>,
+		mode: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>,
 	},
 	
 	#[allow(missing_docs)]
@@ -132,6 +138,12 @@ pub enum Version1EntityDescriptorParseError
 	
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForExtensionUnitControlsBitMap(TryReserveError),
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForUpDownProcessTypeModes(TryReserveError),
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForDolbyProLogicProcessTypeModes(TryReserveError),
 }
 
 impl Display for Version1EntityDescriptorParseError
@@ -152,6 +164,10 @@ impl error::Error for Version1EntityDescriptorParseError
 		
 		match self
 		{
+			InputTerminalTypeParse(cause) => Some(cause),
+			
+			OutputTerminalTypeParse(cause) => Some(cause),
+			
 			LogicalAudioChannelClusterParse(cause) => Some(cause),
 			
 			InvalidDescriptionString(cause) => Some(cause),
@@ -170,17 +186,12 @@ impl error::Error for Version1EntityDescriptorParseError
 			
 			CouldNotAllocateMemoryForExtensionUnitControlsBitMap(cause) => Some(cause),
 			
+			CouldNotAllocateMemoryForUpDownProcessTypeModes(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForDolbyProLogicProcessTypeModes(cause) => Some(cause),
+			
 			_ => None,
 		}
-	}
-}
-
-impl Into<EntityDescriptorParseError<Version1EntityDescriptorParseError>> for Version1EntityDescriptorParseError
-{
-	#[inline(always)]
-	fn into(self) -> EntityDescriptorParseError<Self>
-	{
-		EntityDescriptorParseError::Version(self)
 	}
 }
 

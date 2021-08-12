@@ -3,15 +3,15 @@
 
 
 /// A logical audio channel cluster.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[allow(missing_docs)]
-pub struct LogicalAudioChannelCluster<LACSL: LogicalAudioChannelSpatialLocation>(IndexSet<LogicalAudioChannel<LACSL>>);
+pub struct LogicalAudioChannelCluster<LACSL: LogicalAudioChannelSpatialLocation>(WrappedIndexSet<LogicalAudioChannel<LACSL>>);
 
 impl<LACSL: LogicalAudioChannelSpatialLocation> Deref for LogicalAudioChannelCluster<LACSL>
 {
-	type Target = IndexSet<LogicalAudioChannel<LACSL>>;
+	type Target = WrappedIndexSet<LogicalAudioChannel<LACSL>>;
 	
 	#[inline(always)]
 	fn deref(&self) -> &Self::Target
@@ -26,7 +26,7 @@ impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL
 	#[inline(always)]
 	pub fn contains_spatial_channel(&self, location: LACSL) -> bool
 	{
-		self.0.contains(LogicalAudioChannel::Spatial(location))
+		self.0.contains(&LogicalAudioChannel::Spatial(location))
 	}
 	
 	#[inline(always)]
@@ -35,10 +35,9 @@ impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL
 		use LogicalAudioChannelClusterParseError::*;
 		use LogicalAudioChannel::*;
 		
-		let mut logical_audio_channels = IndexSet::with_capacity(number_of_logical_audio_channels as usize);
+		let mut logical_audio_channels = WrappedIndexSet::with_capacity(number_of_logical_audio_channels).map_err(CouldNotAllocateMemoryForLogicalAudioChannels)?;
 		
-		let channel_spatial_locations: BitFlags<LACSL> = unsafe { BitFlags::from_bits_unchecked(channel_configuration) };
-		for channel_spatial_location in channel_spatial_locations.iter()
+		for channel_spatial_location in WrappedBitFlags::from_bits_unchecked(channel_configuration).iter()
 		{
 			let inserted = logical_audio_channels.insert(Spatial(channel_spatial_location));
 			debug_assert!(inserted);
@@ -56,7 +55,7 @@ impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL
 		{
 			for index in 0 .. non_spatial_channel_count
 			{
-				let channel_index = spatial_logical_audio_channels_count + spatial_logical_audio_channels_count;
+				let channel_index = spatial_logical_audio_channels_count + index;
 				let inserted = logical_audio_channels.insert(Named { channel_index, name: None });
 				debug_assert!(inserted);
 			}

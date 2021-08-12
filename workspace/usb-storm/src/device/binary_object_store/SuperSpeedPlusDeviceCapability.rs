@@ -3,7 +3,7 @@
 
 
 /// SuperSpeed Plus.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct SuperSpeedPlusDeviceCapability
@@ -16,7 +16,7 @@ pub struct SuperSpeedPlusDeviceCapability
 	
 	minimum_transmit_lane_count: u4,
 	
-	sublink_speed_attributes: IndexMap<SublinkSpeedAttributeIdentifier, SublinkSpeedLinks>,
+	sublink_speed_attributes: WrappedIndexMap<SublinkSpeedAttributeIdentifier, SublinkSpeedLinks>,
 }
 
 impl SuperSpeedPlusDeviceCapability
@@ -53,7 +53,7 @@ impl SuperSpeedPlusDeviceCapability
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn sublink_speed_attributes(&self) -> &IndexMap<SublinkSpeedAttributeIdentifier, SublinkSpeedLinks>
+	pub const fn sublink_speed_attributes(&self) -> &WrappedIndexMap<SublinkSpeedAttributeIdentifier, SublinkSpeedLinks>
 	{
 		&self.sublink_speed_attributes
 	}
@@ -148,7 +148,7 @@ impl SuperSpeedPlusDeviceCapability
 	}
 	
 	#[inline(always)]
-	fn parse_sublink_speed_attributes(device_capabilities_bytes: &[u8], number_of_sublink_speed_attributes: u4) -> Result<IndexMap<SublinkSpeedAttributeIdentifier, SublinkSpeedLinks>, SuperSpeedPlusDeviceCapabilityParseError>
+	fn parse_sublink_speed_attributes(device_capabilities_bytes: &[u8], number_of_sublink_speed_attributes: u4) -> Result<WrappedIndexMap<SublinkSpeedAttributeIdentifier, SublinkSpeedLinks>, SuperSpeedPlusDeviceCapabilityParseError>
 	{
 		use SuperSpeedPlusDeviceCapabilityParseError::*;
 		
@@ -164,9 +164,10 @@ impl SuperSpeedPlusDeviceCapability
 		};
 		
 		let (sublink_speed_attribute_identifiers, mut receives, mut transmits) = Self::parse_sublink_speed_attributes_inner(sublink_speed_attributes_bytes, number_of_sublink_speed_attributes)?;
-		let mut sublink_speed_attributes = IndexMap::with_capacity(sublink_speed_attribute_identifiers.len());
-		for sublink_speed_attribute_identifier in sublink_speed_attribute_identifiers
+		let mut sublink_speed_attributes = WrappedIndexMap::with_capacity(sublink_speed_attribute_identifiers.len()).map_err(CouldNotAllocateMemoryForSublinkSpeedAttributes)?;
+		for sublink_speed_attribute_identifier in sublink_speed_attribute_identifiers.iter()
 		{
+			let sublink_speed_attribute_identifier = *sublink_speed_attribute_identifier;
 			let (receive_symmetry, receive) = receives.remove(&sublink_speed_attribute_identifier).ok_or(MissingReceiveSublinkSpeedAttribute { sublink_speed_attribute_identifier })?;
 			let (transmit_symmetry, transmit) = transmits.remove(&sublink_speed_attribute_identifier).ok_or(MissingTransmitSublinkSpeedAttribute { sublink_speed_attribute_identifier })?;
 			
@@ -201,14 +202,14 @@ impl SuperSpeedPlusDeviceCapability
 	
 	const Scale: usize = size_of::<u32>();
 	
-	fn parse_sublink_speed_attributes_inner(sublink_speed_attributes_bytes: &[u8], number_of_sublink_speed_attributes: u4) -> Result<(IndexSet<SublinkSpeedAttributeIdentifier>, HashMap<SublinkSpeedAttributeIdentifier, (SublinkTypeSymmetry, SublinkSpeedAttribute)>, HashMap<SublinkSpeedAttributeIdentifier, (SublinkTypeSymmetry, SublinkSpeedAttribute)>), SuperSpeedPlusDeviceCapabilityParseError>
+	fn parse_sublink_speed_attributes_inner(sublink_speed_attributes_bytes: &[u8], number_of_sublink_speed_attributes: u4) -> Result<(WrappedIndexSet<SublinkSpeedAttributeIdentifier>, WrappedHashMap<SublinkSpeedAttributeIdentifier, (SublinkTypeSymmetry, SublinkSpeedAttribute)>, WrappedHashMap<SublinkSpeedAttributeIdentifier, (SublinkTypeSymmetry, SublinkSpeedAttribute)>), SuperSpeedPlusDeviceCapabilityParseError>
 	{
 		use SuperSpeedPlusDeviceCapabilityParseError::*;
 		
-		let capacity = (number_of_sublink_speed_attributes / 2) as usize;
-		let mut sublink_speed_attribute_identifiers = IndexSet::with_capacity(capacity);
-		let mut receives = HashMap::with_capacity(capacity);
-		let mut transmits = HashMap::with_capacity(capacity);
+		let capacity = number_of_sublink_speed_attributes / 2;
+		let mut sublink_speed_attribute_identifiers = WrappedIndexSet::with_capacity(capacity).map_err(CouldNotAllocateMemoryForSublinkSpeedAttributeIdentifiers)?;
+		let mut receives = WrappedHashMap::with_capacity(capacity).map_err(CouldNotAllocateMemoryForReceives)?;
+		let mut transmits = WrappedHashMap::with_capacity(capacity).map_err(CouldNotAllocateMemoryForTransmits)?;
 		
 		for sublink_speed_attribute_index in 0 .. number_of_sublink_speed_attributes
 		{

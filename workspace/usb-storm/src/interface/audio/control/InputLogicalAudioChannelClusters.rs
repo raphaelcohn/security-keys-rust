@@ -25,7 +25,8 @@ impl InputLogicalAudioChannelClusters
 	#[inline(always)]
 	pub fn input_logical_audio_channel_cluster(&self, input_pin: InputPinNumber) -> Option<Option<UnitOrTerminalEntityIdentifier>>
 	{
-		match self.input_logical_audio_channel_clusters.get(input_pin.get() - 1)?
+		let index = (input_pin.get() - 1) as usize;
+		match self.get(index)?
 		{
 			None => Some(None),
 			
@@ -35,22 +36,34 @@ impl InputLogicalAudioChannelClusters
 	
 	/// Iterate over this to derive `n`; `n` is number of input channels.
 	#[inline(always)]
-	pub fn iterate(&self) -> impl Iterator<Item=(InputPinNumber, Option<UnitOrTerminalEntityIdentifier>)>
+	pub fn iterate(&self) -> impl '_ + Iterator<Item=(InputPinNumber, Option<UnitOrTerminalEntityIdentifier>)>
 	{
-		self.input_logical_audio_channel_clusters.iter().enumerate().map(|(index, source)| (new_non_zero_u8((index + 1) as u8), source.as_ref().map(|source| *source)))
+		self.iter().enumerate().map(|(index, source)| (new_non_zero_u8((index + 1) as u8), source.as_ref().map(|source| *source)))
 	}
 	
 	// Number of audio channel clusters entering the mixer unit.
 	#[inline(always)]
 	pub fn number_of_input_logical_audio_channel_clusters(&self) -> usize
 	{
-		self.input_logical_audio_channel_clusters.len()
+		self.len()
 	}
 	
 	#[inline(always)]
-	fn parse(p: usize, entity_body: &[u8], start_index: usize) -> Result<Self, Version1EntityDescriptorParseError>
+	fn version_1_parse(p: usize, entity_body: &[u8], start_index: usize) -> Result<Self, Version1EntityDescriptorParseError>
 	{
-		let mut input_logical_audio_channel_clusters = Vec::new_with_capacity(p).map_err(Version1EntityDescriptorParseError::CouldNotAllocateMemoryForSources)?;
+		Self::parse(p, entity_body, start_index).map_err(Version1EntityDescriptorParseError::CouldNotAllocateMemoryForSources)
+	}
+	
+	#[inline(always)]
+	fn version_2_parse(p: usize, entity_body: &[u8], start_index: usize) -> Result<Self, Version2EntityDescriptorParseError>
+	{
+		Self::parse(p, entity_body, start_index).map_err(Version2EntityDescriptorParseError::CouldNotAllocateMemoryForSources)
+	}
+	
+	#[inline(always)]
+	fn parse(p: usize, entity_body: &[u8], start_index: usize) -> Result<Self, TryReserveError>
+	{
+		let mut input_logical_audio_channel_clusters = Vec::new_with_capacity(p)?;
 		for cluster_index in 0 .. p
 		{
 			let cluster_identifier = entity_body.optional_non_zero_u8_unadjusted(adjusted_index_non_constant(start_index + cluster_index)).map(UnitOrTerminalEntityIdentifier::new);

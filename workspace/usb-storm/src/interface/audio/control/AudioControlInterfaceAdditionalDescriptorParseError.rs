@@ -34,6 +34,9 @@ pub enum AudioControlInterfaceAdditionalDescriptorParseError
 	CouldNotAllocateMemoryForUnrecognized(TryReserveError),
 	
 	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForInterfaceNumbers(TryReserveError),
+	
+	#[allow(missing_docs)]
 	Version1InterfaceNumberTooBig
 	{
 		index: u8,
@@ -77,6 +80,8 @@ impl error::Error for AudioControlInterfaceAdditionalDescriptorParseError
 			ParseVersion3Entity(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForUnrecognized(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForInterfaceNumbers(cause) => Some(cause),
 			
 			_ => None,
 		}

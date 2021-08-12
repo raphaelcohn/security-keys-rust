@@ -110,7 +110,9 @@ pub enum AlternateSettingParseError
 		interface_index: u8,
 		
 		alternate_setting_index: u8,
-	}
+	},
+
+	CouldNotAllocateMemoryForEndPoints(TryReserveError),
 }
 
 impl Display for AlternateSettingParseError
@@ -136,6 +138,8 @@ impl error::Error for AlternateSettingParseError
 			DescriptionString { cause, .. } => Some(cause),
 			
 			CouldNotParseAlternateSettingAdditionalDescriptor { cause, .. } => Some(cause),
+			
+			CouldNotAllocateMemoryForEndPoints(cause) => Some(cause),
 			
 			_ => None,
 		}

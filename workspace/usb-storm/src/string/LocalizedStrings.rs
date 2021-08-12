@@ -5,14 +5,14 @@
 /// Localized strings.
 ///
 /// Can contain a maximum of 126 strings (this is an internal limit in USB's design).
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct LocalizedStrings(HashMap<Language, String>);
+pub struct LocalizedStrings(BTreeMap<Language, String>);
 
 impl Deref for LocalizedStrings
 {
-	type Target = HashMap<Language, String>;
+	type Target = BTreeMap<Language, String>;
 	
 	#[inline(always)]
 	fn deref(&self) -> &Self::Target

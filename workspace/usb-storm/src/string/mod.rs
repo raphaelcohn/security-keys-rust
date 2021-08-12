@@ -14,7 +14,7 @@ use likely::likely;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::collections::TryReserveError;
 use std::char::decode_utf16;
 use std::char::DecodeUtf16Error;

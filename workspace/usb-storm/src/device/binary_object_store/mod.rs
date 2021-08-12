@@ -17,13 +17,10 @@ use crate::integers::u2;
 use crate::integers::u4;
 use crate::integers::u11;
 use enumflags2::bitflags;
-use enumflags2::BitFlags;
 use indexmap::map::IndexMap;
-use indexmap::set::IndexSet;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
 use std::collections::TryReserveError;
 use std::error;
 use std::fmt;
@@ -37,6 +34,7 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use uuid::Uuid;
 use crate::version::{Version, VersionParseError};
 use std::ops::Deref;
+use crate::collections::{WrappedIndexSet, WrappedIndexMap, WithCapacity, WrappedHashMap, WrappedBitFlags};
 
 
 include!("DeviceCapability.rs");

@@ -55,7 +55,7 @@ impl Entity for Version2MixerUnitEntity
 			(bLength - MinimumBLength).checked_sub(p).ok_or(MixerUnitBLengthTooShort)?
 		};
 		
-		let bmControls = entity_body.u8_adjusted(adjusted_index_non_constant(11 + p + N));
+		let bmControls = entity_body.u8_unadjusted(adjusted_index_non_constant(11 + p + N));
 		
 		Ok
 		(
@@ -63,7 +63,7 @@ impl Entity for Version2MixerUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_2_parse(p, entity_body, 5)?,
 					
 					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body)?),
 					

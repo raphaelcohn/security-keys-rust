@@ -38,7 +38,7 @@ impl<'a> StringFinder<'a>
 		else
 		{
 			let string_descriptor_index = new_non_zero_u8(string_descriptor_index);
-			Ok(Alive(return_ok_if_dead!(self.find_string_non_zero(string_descriptor_index)?)))
+			Ok(Alive(Some(return_ok_if_dead!(self.find_string_non_zero(string_descriptor_index)?))))
 		}
 	}
 	
@@ -51,7 +51,7 @@ impl<'a> StringFinder<'a>
 			
 			Some(ref languages) =>
 			{
-				let mut localized_strings = HashMap::with_capacity(languages.len());
+				let mut localized_strings = BTreeMap::new();
 				for language in languages
 				{
 					let string = return_ok_if_dead!(self.get_localized_string(string_descriptor_index, *language)?);
