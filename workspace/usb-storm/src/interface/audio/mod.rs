@@ -3,7 +3,7 @@
 
 
 
-use crate::Bytes;
+use crate::collections::Bytes;
 use serde::Deserialize;
 use serde::Serialize;
 use std::num::NonZeroU16;

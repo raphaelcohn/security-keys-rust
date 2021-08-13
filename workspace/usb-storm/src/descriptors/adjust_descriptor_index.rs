@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-const fn adjust_descriptor_index<const index: usize>() -> usize
+pub(crate) const fn adjust_descriptor_index<const index: usize>() -> usize
 {
 	index - 2
 }

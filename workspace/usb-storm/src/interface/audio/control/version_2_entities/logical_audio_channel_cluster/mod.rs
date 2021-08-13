@@ -3,7 +3,7 @@
 
 
 use likely::unlikely;
-use crate::Bytes;
+use crate::collections::Bytes;
 use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;
 use super::super::entity_index_non_constant;

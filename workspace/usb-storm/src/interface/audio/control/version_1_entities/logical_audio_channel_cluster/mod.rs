@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::Bytes;
+use crate::collections::Bytes;
 use crate::device::DeadOrAlive;
 use super::super::entity_index_non_constant;
 use super::super::logical_audio_channels::LogicalAudioChannelClusterParseError;

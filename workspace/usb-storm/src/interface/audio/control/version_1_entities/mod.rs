@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::Bytes;
+use crate::collections::Bytes;
 use crate::collections::VecExt;
 use self::logical_audio_channel_cluster::Version1LogicalAudioChannelCluster;
 use self::logical_audio_channel_cluster::Version1LogicalAudioChannelSpatialLocation;

@@ -46,21 +46,8 @@ use serde_lexpr as _;
 use serde_yaml as _;
 
 
-use self::version::Version;
-use self::version::VersionParseError;
-use std::num::NonZeroU8;
-use std::num::NonZeroU16;
-use std::mem::transmute;
-use swiss_army_knife::get_unchecked::GetUnchecked;
-use uuid::Uuid;
-
-
 /// Device.
 #[macro_use] pub mod device;
-
-
-/// Additional descriptors, eg for Smart Cards and Human Interface Devices (HID).
-pub mod additional_descriptors;
 
 
 /// Class, sub-class and protocol.
@@ -81,6 +68,10 @@ pub mod configuration;
 
 /// Transfers.
 pub mod control_transfers;
+
+
+/// Support for additional descriptors, eg for Smart Cards and Human Interface Devices (HID).
+pub mod descriptors;
 
 
 /// USB end points.
@@ -105,7 +96,3 @@ pub mod string;
 
 /// USB binary coded decimal version.
 pub mod version;
-
-
-include!("adjust_descriptor_index.rs");
-include!("Bytes.rs");

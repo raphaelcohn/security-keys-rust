@@ -52,7 +52,7 @@ impl AlternateSetting
 	// #[inline(always)]
 	// fn smart_card_interface_additional_descriptor(&self) -> Option<&SmartCardInterfaceAdditionalDescriptor>
 	// {
-	// 	for additional_descriptor in self.additional_descriptors.iter()
+	// 	for additional_descriptor in self.descriptors.iter()
 	// 	{
 	// 		use AdditionalDescriptor::*;
 	// 		use InterfaceAdditionalDescriptor::*;

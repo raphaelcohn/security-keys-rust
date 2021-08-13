@@ -3,13 +3,14 @@
 
 
 use crate::collections::VecExt;
-use crate::{Bytes, adjust_descriptor_index};
-use crate::Version;
+use crate::collections::Bytes;
+use crate::descriptors::adjust_descriptor_index;
+use crate::version::Version;
 use crate::version::VersionParseError;
-use crate::additional_descriptors::AdditionalDescriptorParser;
-use crate::additional_descriptors::DescriptorType;
-use crate::additional_descriptors::DescriptorHeaderLength;
-use crate::additional_descriptors::verify_remaining_bytes;
+use crate::descriptors::AdditionalDescriptorParser;
+use crate::descriptors::DescriptorType;
+use crate::descriptors::DescriptorHeaderLength;
+use crate::descriptors::verify_remaining_bytes;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

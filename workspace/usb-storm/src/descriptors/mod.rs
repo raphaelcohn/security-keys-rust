@@ -3,7 +3,7 @@
 
 
 use crate::collections::VecExt;
-use crate::Bytes;
+use crate::collections::Bytes;
 use super::control_transfers::descriptors::MinimumStandardUsbDescriptorLength;
 use likely::likely;
 use likely::unlikely;
@@ -22,6 +22,7 @@ use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::{Alive, Dead};
 
 
+include!("adjust_descriptor_index.rs");
 include!("AdditionalDescriptor.rs");
 include!("AdditionalDescriptorParseError.rs");
 include!("AdditionalDescriptorParser.rs");
