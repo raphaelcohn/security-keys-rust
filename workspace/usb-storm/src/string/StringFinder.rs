@@ -72,11 +72,11 @@ impl<'a> StringFinder<'a>
 			
 			Some(languages) =>
 			{
-				let mut just_languages = Vec::new_with_capacity(languages.len())?;
-				for (_, language) in languages
+				let just_languages = Vec::new_populated(languages.len(), |cause| cause, |index|
 				{
-					just_languages.push(language)
-				}
+					let  (_, language) = languages.get_unchecked_value_safe(index);
+					Ok(language)
+				})?;
 				Ok(Some(just_languages))
 			}
 		}
@@ -110,8 +110,8 @@ impl<'a> StringFinder<'a>
 		// Surrogate pairs encode from 2 x u16 to 4 x bytes; no change.
 		// UTF-16 LE 0xFFFF encodes to three bytes; 1.5x growth.
 		let maximum_number_of_utf_8_bytes = array_length_in_bytes * 3;
-		let mut utf_8_bytes = Vec::new_with_capacity(maximum_number_of_utf_8_bytes).map_err(CouldNotAllocateString)?;
 		
+		let mut utf_8_bytes = Vec::new_with_capacity(maximum_number_of_utf_8_bytes).map_err(CouldNotAllocateString)?;
 		let array = unsafe { from_raw_parts(remaining_bytes.as_ptr() as *const u16, array_length_in_u16) };
 		for result in decode_utf16(array.iter().cloned())
 		{
@@ -173,19 +173,21 @@ impl<'a> StringFinder<'a>
 		let array_length_in_u16 = array_length_in_bytes / ArrayElementSize;
 		let array = unsafe { from_raw_parts(remaining_bytes.as_ptr() as *const u16, array_length_in_u16) };
 		
-		let mut languages = Vec::new_with_capacity(array_length_in_u16).map_err(CouldNotAllocateLanguages)?;
-		for index in 0 .. array_length_in_u16
+		let mut duplicate_language_identifiers = WrappedHashSet::with_capacity(array_length_in_u16).map_err(CouldNotAllocateDuplicateLanguages)?;
+		
+		let languages = Vec::new_populated(array_length_in_u16, CouldNotAllocateLanguages, |index|
 		{
 			let language_identifier = u16::from_le(array.get_unchecked_value_safe(index));
 			let language = Language::parse(language_identifier);
 			
-			if unlikely!(languages.contains(&(language_identifier, language)))
+			let inserted = duplicate_language_identifiers.insert(language_identifier);
+			if unlikely!(!inserted)
 			{
 				return Err(DuplicateLanguage { language })
 			}
 			
-			languages.push((language_identifier, language))
-		}
+			Ok((language_identifier, language))
+		})?;
 		
 		Ok(Alive(Some(languages)))
 	}

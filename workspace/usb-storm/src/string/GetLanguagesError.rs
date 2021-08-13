@@ -11,6 +11,8 @@ pub enum GetLanguagesError
 	
 	NotACorrectArraySize,
 	
+	CouldNotAllocateDuplicateLanguages(TryReserveError),
+	
 	CouldNotAllocateLanguages(TryReserveError),
 	
 	DuplicateLanguage
@@ -38,6 +40,8 @@ impl error::Error for GetLanguagesError
 		match self
 		{
 			GetStandardUsbDescriptor(cause) => Some(cause),
+			
+			CouldNotAllocateDuplicateLanguages(cause) => Some(cause),
 			
 			CouldNotAllocateLanguages(cause) => Some(cause),
 			

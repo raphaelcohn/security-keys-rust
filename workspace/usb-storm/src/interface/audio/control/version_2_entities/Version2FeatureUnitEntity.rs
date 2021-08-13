@@ -92,12 +92,13 @@ impl Version2FeatureUnitEntity
 		}
 		
 		let number_of_channels_including_master = bmaControlsSize / bmaControlSize;
-		let mut controls_by_channel_number = Vec::new_with_capacity(number_of_channels_including_master).map_err(CouldNotAllocateMemoryForFeatureControls)?;
-		for channel_index in 0 .. number_of_channels_including_master
+		
+		let channel_controls_by_channel_number = Vec::new_populated(number_of_channels_including_master, CouldNotAllocateMemoryForFeatureControls, |channel_index|
 		{
 			let bmaControls = entity_body.u32(entity_index_non_constant(5 + (channel_index * bmaControlSize)));
-			controls_by_channel_number.push(Version2AudioChannelFeatureControls::parse(bmaControls, channel_index as u8)?)
-		}
-		Ok(ChannelControlsByChannelNumber(controls_by_channel_number))
+			Version2AudioChannelFeatureControls::parse(bmaControls, channel_index as u8)
+		})?;
+		
+		Ok(ChannelControlsByChannelNumber(channel_controls_by_channel_number))
 	}
 }

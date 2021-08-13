@@ -114,7 +114,7 @@ impl Devices
 		{
 			if let Alive(device) = device_reference.parse(buffer)?
 			{
-				devices.push(device);
+				devices.push_unchecked(device);
 			}
 		}
 		devices.shrink_to_fit();

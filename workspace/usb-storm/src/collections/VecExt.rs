@@ -13,9 +13,12 @@ pub trait VecExt<T>: Sized
 	
 	/// New from values.
 	fn new_from(values: &[T]) -> Result<Self, TryReserveError> where T: Copy;
-	//
-	// /// Done this way instead of repeated `push()` or specialized `extend()` to minimize `if` checks for each `push()` and give LLVM's loop unrolling a chance to optimize.
-	// fn new_populated<E: error::Error, MAE: FnOnce(TryReserveError) -> E>(length: usize, memory_allocation_error: MAE, populator: ) -> Result<Self, E>;
+	
+	/// Done this way instead of repeated `push()` or specialized `extend()` to minimize `if` checks for each `push()` and give LLVM's loop unrolling a chance to optimize.
+	fn new_populated<AUI: AsUsizeIndex, E: error::Error, MAE: FnOnce(TryReserveError) -> E, Populator: FnMut(usize) -> Result<T, E>>(length: AUI, memory_allocation_error: MAE, populator: Populator) -> Result<Self, E>;
+	
+	/// Push without checking capacity.
+	fn push_unchecked(&mut self, value: T);
 	
 	/// Try to push.
 	fn try_push(&mut self, value: T) -> Result<(), TryReserveError>;
@@ -49,10 +52,59 @@ impl<T> VecExt<T> for Vec<T>
 	}
 	
 	#[inline(always)]
+	fn new_populated<AUI: AsUsizeIndex, E: error::Error, MAE: FnOnce(TryReserveError) -> E, Populator: FnMut(usize) -> Result<T, E>>(length: AUI, memory_allocation_error: MAE, mut populator: Populator) -> Result<Self, E>
+	{
+		#[inline(always)]
+		fn finish<T>(mut partly_initialized: Vec<MaybeUninit<T>>, length: usize) -> Vec<T>
+		{
+			unsafe
+			{
+				partly_initialized.set_len(length);
+				transmute(partly_initialized)
+			}
+		}
+		
+		let length = length.as_usize();
+		let mut partly_initialized: Vec<MaybeUninit<T>> = Vec::new_with_capacity(length).map_err(memory_allocation_error)?;
+		
+		for index in 0 .. length
+		{
+			match populator(index)
+			{
+				Err(error) =>
+				{
+					drop(finish(partly_initialized, index));
+					return Err(error)
+				}
+				
+				Ok(element) =>
+				{
+					let entry = partly_initialized.get_unchecked_mut_safe(index);
+					unsafe { entry.as_mut_ptr().write(element) };
+				}
+			}
+		}
+		
+		Ok(finish(partly_initialized, length))
+	}
+	
+	#[inline(always)]
 	fn try_push(&mut self, value: T) -> Result<(), TryReserveError>
 	{
 		self.try_reserve(1)?;
 		self.push(value);
 		Ok(())
+	}
+	
+	#[inline(always)]
+	fn push_unchecked(&mut self, value: T)
+	{
+		let length = self.len();
+		unsafe
+		{
+			let end = self.as_mut_ptr().add(length);
+			write(end, value);
+			self.set_len(length + 1);
+		}
 	}
 }

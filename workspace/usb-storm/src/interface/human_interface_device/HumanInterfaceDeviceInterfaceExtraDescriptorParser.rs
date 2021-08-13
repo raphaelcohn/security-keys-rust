@@ -109,31 +109,27 @@ impl HumanInterfaceDeviceInterfaceExtraDescriptorParser
 			return Err(ExcessBytesAfterOptionalDescriptors)
 		}
 		
-		let mut optional_descriptors = Vec::new_with_capacity(number_of_optional_descriptors).map_err(CouldNotAllocateSpaceForOptionalDescriptors)?;
-		
 		let mut byte_index = 0;
-		for _ in 0 ..number_of_optional_descriptors
+		let optional_descriptors = Vec::new_populated(number_of_optional_descriptors, CouldNotAllocateSpaceForOptionalDescriptors, |_|
 		{
 			use HumanInterfaceDeviceOptionalDescriptorType::*;
-			optional_descriptors.push
-			(
-				HumanInterfaceDeviceOptionalDescriptor
+			let descriptor = HumanInterfaceDeviceOptionalDescriptor
+			{
+				descriptor_type: match optional_descriptors_bytes.u8(byte_index)
 				{
-					descriptor_type: match optional_descriptors_bytes.u8(byte_index)
-					{
-						0x23 => Physical,
-						
-						reserved @ 0x24 ..= 0x2F => Reserved(reserved),
-						
-						bDescriptorType @ _ => return Err(InvalidOptionalDescriptor { bDescriptorType })
-					},
+					0x23 => Physical,
 					
-					length: optional_descriptors_bytes.u16(byte_index + OptionalDescriptorTypeSize),
-				}
-			);
+					reserved @ 0x24 ..= 0x2F => Reserved(reserved),
+					
+					bDescriptorType @ _ => return Err(InvalidOptionalDescriptor { bDescriptorType })
+				},
+				
+				length: optional_descriptors_bytes.u16(byte_index + OptionalDescriptorTypeSize),
+			};
 			
-			byte_index = byte_index + OptionalDescriptorSize
-		}
+			byte_index = byte_index + OptionalDescriptorSize;
+			Ok(descriptor)
+		})?;
 		
 		Ok(optional_descriptors)
 	}

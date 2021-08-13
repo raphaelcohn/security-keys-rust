@@ -41,14 +41,12 @@ impl BinaryObjectStore
 		
 		let mut device_capabilities_bytes = remaining_bytes.get_unchecked_range_safe(MinimumRemainingSize .. ((total_length as usize) - DescriptorHeaderLength));
 		
-		let mut device_capabilities = Vec::new_with_capacity(bNumDeviceCaps as usize).map_err(CouldNotAllocateMemoryForDeviceCapabilities)?;
-		
-		for index in 0 .. bNumDeviceCaps
+		let device_capabilities = Vec::new_populated(bNumDeviceCaps, CouldNotAllocateMemoryForDeviceCapabilities, |index|
 		{
-			let (length, device_capability) = DeviceCapability::parse(device_capabilities_bytes).map_err(|cause| CouldNotParseDeviceCapability { cause, index })?;
-			device_capabilities.push(device_capability);
+			let (length, device_capability) = DeviceCapability::parse(device_capabilities_bytes).map_err(|cause| CouldNotParseDeviceCapability { cause, index: index as u8 })?;
 			device_capabilities_bytes = device_capabilities_bytes.get_unchecked_range_safe(length .. );
-		}
+			Ok(device_capability)
+		})?;
 		
 		// NOTE: We are allowed excess bytes.
 		

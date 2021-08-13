@@ -60,15 +60,10 @@ impl Entity for Version2SelectorClockEntity
 				{
 					selector: Control::parse_u8(bmControls, 0, SelectorClockSelectorControlInvalid)?,
 					
-					sources:
+					sources: Vec::new_populated(p, SelectorClockCouldNotAllocateSources, |index|
 					{
-						let mut sources = Vec::new_with_capacity(p).map_err(SelectorClockCouldNotAllocateSources)?;
-						for index in 0 .. p
-						{
-							sources.push(entity_body.optional_non_zero_u8(entity_index_non_constant(5 + index)));
-						}
-						sources
-					},
+						Ok(entity_body.optional_non_zero_u8(entity_index_non_constant(5 + index)))
+					})?,
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}

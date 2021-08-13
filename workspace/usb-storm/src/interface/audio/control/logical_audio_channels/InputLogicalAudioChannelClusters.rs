@@ -63,12 +63,11 @@ impl InputLogicalAudioChannelClusters
 	#[inline(always)]
 	fn parse(p: usize, entity_body: &[u8], start_index: usize) -> Result<Self, TryReserveError>
 	{
-		let mut input_logical_audio_channel_clusters = Vec::new_with_capacity(p)?;
-		for cluster_index in 0 .. p
+		let input_logical_audio_channel_clusters = Vec::new_populated(p, |cause| cause, |cluster_index|
 		{
-			let cluster_identifier = entity_body.optional_non_zero_u8(entity_index_non_constant(start_index + cluster_index)).map(UnitOrTerminalEntityIdentifier::new);
-			input_logical_audio_channel_clusters.push(cluster_identifier)
-		}
+			Ok(entity_body.optional_non_zero_u8(entity_index_non_constant(start_index + cluster_index)).map(UnitOrTerminalEntityIdentifier::new))
+		})?;
+		
 		Ok(Self(input_logical_audio_channel_clusters))
 	}
 }

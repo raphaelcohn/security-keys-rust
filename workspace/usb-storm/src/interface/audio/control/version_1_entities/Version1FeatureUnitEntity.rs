@@ -96,8 +96,7 @@ impl Version1FeatureUnitEntity
 	{
 		let number_of_channels_including_master = controls_bytes_length / control_size.get();
 		
-		let mut controls_by_channel_number = Vec::new_with_capacity(number_of_channels_including_master).map_err(Version1EntityDescriptorParseError::CouldNotAllocateMemoryForFeatureControls)?;
-		for index in 0 .. number_of_channels_including_master
+		let channel_controls_by_channel_number = Vec::new_populated(number_of_channels_including_master, Version1EntityDescriptorParseError::CouldNotAllocateMemoryForFeatureControls, |index|
 		{
 			let control_bit_map = entity_body.bytes(6 + (index * control_size.get()), control_size.get());
 			let controls = if control_size == new_non_zero_usize(1)
@@ -113,9 +112,9 @@ impl Version1FeatureUnitEntity
 				let value = ((upper_byte as u16) << 8) | (lower_byte as u16);
 				WrappedBitFlags::from_bits_truncate(value)
 			};
-			controls_by_channel_number.push(controls);
-		}
+			Ok(controls)
+		})?;
 		
-		Ok(ChannelControlsByChannelNumber(controls_by_channel_number))
+		Ok(ChannelControlsByChannelNumber(channel_controls_by_channel_number))
 	}
 }
