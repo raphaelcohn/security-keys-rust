@@ -119,6 +119,7 @@ impl<'a> StringFinder<'a>
 			Self::encode_utf8_raw(character, &mut utf_8_bytes);
 		}
 		
+		utf_8_bytes.shrink_to_fit();
 		Ok(Alive(unsafe { String::from_utf8_unchecked(utf_8_bytes) }))
 	}
 	
@@ -133,25 +134,25 @@ impl<'a> StringFinder<'a>
 		let code = character as u32;
 		if likely!(code < 0x80)
 		{
-			utf_8_bytes.push(code as u8)
+			utf_8_bytes.push_unchecked(code as u8)
 		}
 		else if likely!(code < 0x800)
 		{
-			utf_8_bytes.push((code >> 6 & 0x1F) as u8 | TAG_TWO_B);
-			utf_8_bytes.push((code & 0x3F) as u8 | TAG_CONT)
+			utf_8_bytes.push_unchecked((code >> 6 & 0x1F) as u8 | TAG_TWO_B);
+			utf_8_bytes.push_unchecked((code & 0x3F) as u8 | TAG_CONT)
 		}
 		else if likely!(code < 0x10000)
 		{
-			utf_8_bytes.push((code >> 12 & 0x0F) as u8 | TAG_THREE_B);
-			utf_8_bytes.push((code >> 6 & 0x3F) as u8 | TAG_CONT);
-			utf_8_bytes.push((code & 0x3F) as u8 | TAG_CONT);
+			utf_8_bytes.push_unchecked((code >> 12 & 0x0F) as u8 | TAG_THREE_B);
+			utf_8_bytes.push_unchecked((code >> 6 & 0x3F) as u8 | TAG_CONT);
+			utf_8_bytes.push_unchecked((code & 0x3F) as u8 | TAG_CONT);
 		}
 		else
 		{
-			utf_8_bytes.push((code >> 18 & 0x07) as u8 | TAG_FOUR_B);
-			utf_8_bytes.push((code >> 12 & 0x3F) as u8 | TAG_CONT);
-			utf_8_bytes.push((code >> 6 & 0x3F) as u8 | TAG_CONT);
-			utf_8_bytes.push((code & 0x3F) as u8 | TAG_CONT);
+			utf_8_bytes.push_unchecked((code >> 18 & 0x07) as u8 | TAG_FOUR_B);
+			utf_8_bytes.push_unchecked((code >> 12 & 0x3F) as u8 | TAG_CONT);
+			utf_8_bytes.push_unchecked((code >> 6 & 0x3F) as u8 | TAG_CONT);
+			utf_8_bytes.push_unchecked((code & 0x3F) as u8 | TAG_CONT);
 		}
 	}
 	
