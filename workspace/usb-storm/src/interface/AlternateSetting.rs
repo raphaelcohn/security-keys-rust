@@ -14,7 +14,7 @@ pub struct AlternateSetting
 
 	description: Option<LocalizedStrings>,
 	
-	descriptors: Vec<Descriptor<InterfaceAdditionalDescriptor>>,
+	descriptors: Vec<Descriptor<InterfaceExtraDescriptor>>,
 
 	end_points: WrappedIndexMap<EndPointNumber, EndPoint>,
 }
@@ -44,7 +44,7 @@ impl AlternateSetting
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn descriptors(&self) -> &[Descriptor<InterfaceAdditionalDescriptor>]
+	pub fn descriptors(&self) -> &[Descriptor<InterfaceExtraDescriptor>]
 	{
 		&self.descriptors
 	}
@@ -168,39 +168,39 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+	fn parse_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 	{
 		#[inline(always)]
-		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_descriptors(string_finder, extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
+			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
 		}
 		
 		#[inline(always)]
-		fn human_interface_device(string_finder: &StringFinder, extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn human_interface_device(string_finder: &StringFinder, extra: &[u8], variant: HumanInterfaceDeviceVariant) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_descriptors(string_finder, extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(variant))
+			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, HumanInterfaceDeviceInterfaceExtraDescriptorParser::new(variant))
 		}
 		
 		#[inline(always)]
-		fn smart_card(string_finder: &StringFinder, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn smart_card(string_finder: &StringFinder, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_descriptors(string_finder, extra, SmartCardInterfaceAdditionalDescriptorParser::new(smart_card_protocol, bDescriptorType))
+			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, SmartCardInterfaceExtraDescriptorParser::new(smart_card_protocol, bDescriptorType))
 		}
 		
 		#[inline(always)]
-		fn unsupported_smart_card_with_descriptor_at_end_of_end_points(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn unsupported_smart_card_with_descriptor_at_end_of_end_points(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			unsupported(string_finder, extra)
 		}
 		
 		#[inline(always)]
-		fn unsupported(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn unsupported(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_descriptors(string_finder, extra, UnsupportedInterfaceAdditionalDescriptorParser)
+			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, UnsupportedInterfaceExtraDescriptorParser)
 		}
 		
-		use HumanInterfaceDeviceInterfaceAdditionalVariant::*;
+		use HumanInterfaceDeviceVariant::*;
 		
 		let extra = extra_to_slice(alternate_setting.extra, alternate_setting.extra_length)?;
 		
@@ -250,7 +250,7 @@ impl AlternateSetting
 			// * USB Reader V2 (0x09C3, 0x0008, 2006).
 			//
 			// The bDescriptorType is 0x21.
-			SmartCard(SmartCardInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code: 0x01, protocol_code: 0x01 })) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, IccdVersionA, SmartCardDescriptorType),
+			SmartCard(SmartCardInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code: 0x01, protocol_code: 0x01 })) if SmartCardInterfaceExtraDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, IccdVersionA, SmartCardDescriptorType),
 			
 			// These pre-standardization devices have the following features:-
 			//
@@ -264,7 +264,7 @@ impl AlternateSetting
 			// * MySMART PAD V2.0 (0x09BE, 0x0002, 2005).
 			// * Token GEM USB COMBI (0x08E6, 0xACE0, 2005).
 			// * Token GEM USB COMBI-M (0x08E6, 0x1359, 2005).
-			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x5C, protocol_code: 0x00 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, BulkTransfer, VendorSpecificDescriptorType),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x5C, protocol_code: 0x00 }) if SmartCardInterfaceExtraDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, BulkTransfer, VendorSpecificDescriptorType),
 			
 			// This case exists from before standardization; devices have the following features:-
 			//
@@ -294,9 +294,9 @@ impl AlternateSetting
 			// * \* Re-added.
 			// * †Disabled in CCID.
 			// * ‡Multiple interfaces.
-			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x00 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, BulkTransfer, SmartCardDescriptorType),
-			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x01 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, IccdVersionA, SmartCardDescriptorType),
-			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x02 }) if SmartCardInterfaceAdditionalDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, IccdVersionB, SmartCardDescriptorType),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x00 }) if SmartCardInterfaceExtraDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, BulkTransfer, SmartCardDescriptorType),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x01 }) if SmartCardInterfaceExtraDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, IccdVersionA, SmartCardDescriptorType),
+			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x00, protocol_code: 0x02 }) if SmartCardInterfaceExtraDescriptor::extra_has_matching_length(extra) => smart_card(string_finder, extra, IccdVersionB, SmartCardDescriptorType),
 			
 			// Some devices from as far back as 2007 put the Smart Card descriptor at the end of the end points.
 			// The CCID project uses a patch with `#define O2MICRO_OZ776_PATCH` to support them; they are broken in use in multiple ways.

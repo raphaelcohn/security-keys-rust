@@ -7,14 +7,14 @@ pub(super) struct DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser;
 
 impl DescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser
 {
-	type Descriptor = DeviceFirmwareUpgradeInterfaceAdditionalDescriptor;
+	type Descriptor = DeviceFirmwareUpgradeInterfaceExtraDescriptor;
 	
-	type Error = DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError;
+	type Error = DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError;
 	
 	#[inline(always)]
 	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
-		use DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError::*;
+		use DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError::*;
 		
 		match descriptor_type
 		{
@@ -27,7 +27,7 @@ impl DescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDescriptorPars
 		const SizeOfVersionField: u8 = size_of::<u16>() as u8;
 		const MinimumBLength: u8 = 7;
 		const CorrectBLength: u8 = MinimumBLength + SizeOfVersionField;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let bmAttributes = descriptor_body.u8(adjust_descriptor_index::<2>());
 		if unlikely!(bmAttributes & 0b1111_0000 != 0)
@@ -58,7 +58,7 @@ impl DescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDescriptorPars
 				Alive
 				(
 					(
-						DeviceFirmwareUpgradeInterfaceAdditionalDescriptor
+						DeviceFirmwareUpgradeInterfaceExtraDescriptor
 						{
 							will_detach,
 							

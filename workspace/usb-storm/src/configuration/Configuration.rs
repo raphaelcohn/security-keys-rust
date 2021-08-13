@@ -14,7 +14,7 @@ pub struct Configuration
 	
 	description: Option<LocalizedStrings>,
 	
-	descriptors: Vec<Descriptor<ConfigurationAdditionalDescriptor>>,
+	descriptors: Vec<Descriptor<ConfigurationExtraDescriptor>>,
 	
 	interfaces: WrappedIndexMap<InterfaceNumber, Interface>,
 }
@@ -51,7 +51,7 @@ impl Configuration
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn descriptors(&self) -> &[Descriptor<ConfigurationAdditionalDescriptor>]
+	pub fn descriptors(&self) -> &[Descriptor<ConfigurationExtraDescriptor>]
 	{
 		&self.descriptors
 	}
@@ -200,11 +200,11 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_descriptors(string_finder: &StringFinder, configuration_descriptor: &libusb_config_descriptor) -> Result<DeadOrAlive<Vec<Descriptor<ConfigurationAdditionalDescriptor>>>, DescriptorParseError<Infallible>>
+	fn parse_descriptors(string_finder: &StringFinder, configuration_descriptor: &libusb_config_descriptor) -> Result<DeadOrAlive<Vec<Descriptor<ConfigurationExtraDescriptor>>>, DescriptorParseError<Infallible>>
 	{
 		let extra = extra_to_slice(configuration_descriptor.extra, configuration_descriptor.extra_length)?;
 		
-		let descriptor_parser = ConfigurationAdditionalDescriptorParser;
+		let descriptor_parser = ConfigurationExtraDescriptorParser;
 		parse_descriptors(string_finder, extra, descriptor_parser)
 	}
 	

@@ -73,9 +73,9 @@ pub mod version_2_entities;
 pub mod version_3_entities;
 
 
-include!("AudioControlInterfaceAdditionalDescriptor.rs");
-include!("AudioControlInterfaceAdditionalDescriptorParseError.rs");
-include!("AudioControlInterfaceAdditionalDescriptorParser.rs");
+include!("AudioControlInterfaceExtraDescriptor.rs");
+include!("AudioControlInterfaceExtraDescriptorParseError.rs");
+include!("AudioControlInterfaceExtraDescriptorParser.rs");
 include!("AudioFunctionCategory.rs");
 include!("ChannelControlsByChannelNumber.rs");
 include!("Control.rs");

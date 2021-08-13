@@ -4,7 +4,7 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum AudioControlInterfaceAdditionalDescriptorParseError
+pub enum AudioControlInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
@@ -53,7 +53,7 @@ pub enum AudioControlInterfaceAdditionalDescriptorParseError
 	},
 }
 
-impl Display for AudioControlInterfaceAdditionalDescriptorParseError
+impl Display for AudioControlInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -62,12 +62,12 @@ impl Display for AudioControlInterfaceAdditionalDescriptorParseError
 	}
 }
 
-impl error::Error for AudioControlInterfaceAdditionalDescriptorParseError
+impl error::Error for AudioControlInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use AudioControlInterfaceAdditionalDescriptorParseError::*;
+		use AudioControlInterfaceExtraDescriptorParseError::*;
 		
 		match self
 		{
@@ -88,34 +88,34 @@ impl error::Error for AudioControlInterfaceAdditionalDescriptorParseError
 	}
 }
 
-impl From<VersionParseError> for AudioControlInterfaceAdditionalDescriptorParseError
+impl From<VersionParseError> for AudioControlInterfaceExtraDescriptorParseError
 {
 	fn from(cause: VersionParseError) -> Self
 	{
-		AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion(cause)
+		AudioControlInterfaceExtraDescriptorParseError::ParseVersion(cause)
 	}
 }
 
-impl From<EntityDescriptorParseError<Version1EntityDescriptorParseError>> for AudioControlInterfaceAdditionalDescriptorParseError
+impl From<EntityDescriptorParseError<Version1EntityDescriptorParseError>> for AudioControlInterfaceExtraDescriptorParseError
 {
 	fn from(cause: EntityDescriptorParseError<Version1EntityDescriptorParseError>) -> Self
 	{
-		AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion1Entity(cause)
+		AudioControlInterfaceExtraDescriptorParseError::ParseVersion1Entity(cause)
 	}
 }
 
-impl From<EntityDescriptorParseError<Version2EntityDescriptorParseError>> for AudioControlInterfaceAdditionalDescriptorParseError
+impl From<EntityDescriptorParseError<Version2EntityDescriptorParseError>> for AudioControlInterfaceExtraDescriptorParseError
 {
 	fn from(cause: EntityDescriptorParseError<Version2EntityDescriptorParseError>) -> Self
 	{
-		AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion2Entity(cause)
+		AudioControlInterfaceExtraDescriptorParseError::ParseVersion2Entity(cause)
 	}
 }
 
-impl From<EntityDescriptorParseError<Version3EntityDescriptorParseError>> for AudioControlInterfaceAdditionalDescriptorParseError
+impl From<EntityDescriptorParseError<Version3EntityDescriptorParseError>> for AudioControlInterfaceExtraDescriptorParseError
 {
 	fn from(cause: EntityDescriptorParseError<Version3EntityDescriptorParseError>) -> Self
 	{
-		AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion3Entity(cause)
+		AudioControlInterfaceExtraDescriptorParseError::ParseVersion3Entity(cause)
 	}
 }

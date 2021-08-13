@@ -6,7 +6,7 @@
 #[derive(Debug, Clone, Eq, PartialEq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum AudioControlInterfaceAdditionalDescriptor
+pub enum AudioControlInterfaceExtraDescriptor
 {
 	/// See Device Class for Audio Release 2.0, Section 4.3.2 Class-Specific AC Interface Descriptor, page 37.
 	Version_1_0
@@ -64,12 +64,12 @@ pub enum AudioControlInterfaceAdditionalDescriptor
 	}
 }
 
-impl AudioControlInterfaceAdditionalDescriptor
+impl AudioControlInterfaceExtraDescriptor
 {
 	#[inline(always)]
-	fn parse_descriptor_version_1_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_version_1_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
 	{
-		use AudioControlInterfaceAdditionalDescriptorParseError::*;
+		use AudioControlInterfaceExtraDescriptorParseError::*;
 		
 		const MinimumBLength: u8 = 8;
 		let (descriptor_body, descriptor_body_length, audio_device_class_specification_release) = Self::parse_descriptor_header_and_version::<MinimumBLength>(bLength, remaining_bytes)?;
@@ -97,7 +97,7 @@ impl AudioControlInterfaceAdditionalDescriptor
 		
 		Self::ok_alive
 		(
-			AudioControlInterfaceAdditionalDescriptor::Version_1_0
+			AudioControlInterfaceExtraDescriptor::Version_1_0
 			{
 				entity_descriptors:
 				{
@@ -115,7 +115,7 @@ impl AudioControlInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_2_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_version_2_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
 	{
 		const MinimumBLength: u8 = 9;
 		let (descriptor_body, descriptor_body_length, audio_device_class_specification_release) = Self::parse_descriptor_header_and_version::<MinimumBLength>(bLength, remaining_bytes)?;
@@ -125,11 +125,11 @@ impl AudioControlInterfaceAdditionalDescriptor
 		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16(4), remaining_bytes)?;
 		
 		let bmControls = descriptor_body.u8(6);
-		let latency_control = Control::parse_u8(bmControls, 0, AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
+		let latency_control = Control::parse_u8(bmControls, 0, AudioControlInterfaceExtraDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
 		
 		Self::ok_alive
 		(
-			AudioControlInterfaceAdditionalDescriptor::Version_2_0
+			AudioControlInterfaceExtraDescriptor::Version_2_0
 			{
 				entity_descriptors:
 				{
@@ -149,7 +149,7 @@ impl AudioControlInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_3_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_version_3_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
 	{
 		const MinimumBLength: u8 = 10;
 		let (descriptor_body, descriptor_body_length) = Self::parse_descriptor_header::<MinimumBLength>(bLength, remaining_bytes)?;
@@ -159,10 +159,10 @@ impl AudioControlInterfaceAdditionalDescriptor
 		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16(2), remaining_bytes)?;
 		
 		let bmControls = descriptor_body.u32(4);
-		let latency_control = Control::parse_u32(bmControls, 0, AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
+		let latency_control = Control::parse_u32(bmControls, 0, AudioControlInterfaceExtraDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
 		Self::ok_alive
 		(
-			AudioControlInterfaceAdditionalDescriptor::Version_3_0
+			AudioControlInterfaceExtraDescriptor::Version_3_0
 			{
 				function_category,
 				
@@ -176,17 +176,17 @@ impl AudioControlInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_unrecognized(bLength: u8, remaining_bytes: &[u8], protocol: u8) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_version_unrecognized(bLength: u8, remaining_bytes: &[u8], protocol: u8) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
 	{
 		Self::ok_alive
 		(
-			AudioControlInterfaceAdditionalDescriptor::Unrecognised
+			AudioControlInterfaceExtraDescriptor::Unrecognised
 			{
 				protocol,
 				
 				bLength,
 				
-				remaining_bytes: Vec::new_from(remaining_bytes).map_err(AudioControlInterfaceAdditionalDescriptorParseError::CouldNotAllocateMemoryForUnrecognized)?,
+				remaining_bytes: Vec::new_from(remaining_bytes).map_err(AudioControlInterfaceExtraDescriptorParseError::CouldNotAllocateMemoryForUnrecognized)?,
 			},
 			
 			remaining_bytes.len(),
@@ -194,13 +194,13 @@ impl AudioControlInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	const fn ok_alive(descriptor: Self, consumed_length: usize) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceAdditionalDescriptorParseError>
+	const fn ok_alive(descriptor: Self, consumed_length: usize) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
 	{
 		Ok(Alive((descriptor, consumed_length)))
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_header_and_version<const MinimumBLength: u8>(bLength: u8, remaining_bytes: &[u8]) -> Result<(&[u8], usize, Version), AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_header_and_version<const MinimumBLength: u8>(bLength: u8, remaining_bytes: &[u8]) -> Result<(&[u8], usize, Version), AudioControlInterfaceExtraDescriptorParseError>
 	{
 		let (descriptor_body, descriptor_body_length) = Self::parse_descriptor_header::<MinimumBLength>(bLength, remaining_bytes)?;
 		let version = descriptor_body.version(1)?;
@@ -208,12 +208,12 @@ impl AudioControlInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_header<const MinimumBLength: u8>(bLength: u8, remaining_bytes: &[u8]) -> Result<(&[u8], usize), AudioControlInterfaceAdditionalDescriptorParseError>
+	fn parse_descriptor_header<const MinimumBLength: u8>(bLength: u8, remaining_bytes: &[u8]) -> Result<(&[u8], usize), AudioControlInterfaceExtraDescriptorParseError>
 	{
-		use AudioControlInterfaceAdditionalDescriptorParseError::*;
+		use AudioControlInterfaceExtraDescriptorParseError::*;
 		
 		const MinimumBLength: u8 = 10;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		debug_assert!(descriptor_body_length > 0);
 		let bDescriptorSubType = descriptor_body.u8(0);
@@ -278,12 +278,12 @@ impl AudioControlInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	fn total_length_excluding_header(wTotalLength: u16, remaining_bytes: &[u8]) -> Result<usize, AudioControlInterfaceAdditionalDescriptorParseError>
+	fn total_length_excluding_header(wTotalLength: u16, remaining_bytes: &[u8]) -> Result<usize, AudioControlInterfaceExtraDescriptorParseError>
 	{
 		let total_length_excluding_header = (wTotalLength as usize) - DescriptorHeaderLength;
 		if unlikely!(remaining_bytes.len() < total_length_excluding_header)
 		{
-			return Err(AudioControlInterfaceAdditionalDescriptorParseError::wTotalLengthExceedsRemainingBytes)
+			return Err(AudioControlInterfaceExtraDescriptorParseError::wTotalLengthExceedsRemainingBytes)
 		}
 		Ok(total_length_excluding_header)
 	}
@@ -307,7 +307,7 @@ impl AudioControlInterfaceAdditionalDescriptor
 			}
 			
 			let bDescriptorType = entity_descriptors_bytes.u8(1);
-			if unlikely!(bDescriptorType != AudioControlInterfaceAdditionalDescriptorParser::CS_INTERFACE)
+			if unlikely!(bDescriptorType != AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE)
 			{
 				return Err(ExpectedInterfaceDescriptorType)
 			}

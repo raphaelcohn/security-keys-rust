@@ -4,19 +4,19 @@
 
 /// Human Interface Device (HID) descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum InterfaceAdditionalDescriptorParseError
+pub enum InterfaceExtraDescriptorParseError
 {
 	/// Device Firmware Upgrade (DFU).
-	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError),
+	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError),
 	
 	/// Human Interface Device (HID).
-	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError),
+	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceExtraDescriptorParseError),
 	
 	/// Smart Card (CCID).
-	SmartCard(SmartCardInterfaceAdditionalDescriptorParseError),
+	SmartCard(SmartCardInterfaceExtraDescriptorParseError),
 }
 
-impl Display for InterfaceAdditionalDescriptorParseError
+impl Display for InterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -25,12 +25,12 @@ impl Display for InterfaceAdditionalDescriptorParseError
 	}
 }
 
-impl error::Error for InterfaceAdditionalDescriptorParseError
+impl error::Error for InterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use InterfaceAdditionalDescriptorParseError::*;
+		use InterfaceExtraDescriptorParseError::*;
 		
 		match self
 		{
@@ -43,34 +43,34 @@ impl error::Error for InterfaceAdditionalDescriptorParseError
 	}
 }
 
-impl From<DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError> for InterfaceAdditionalDescriptorParseError
+impl From<DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError> for InterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError) -> Self
+	fn from(cause: DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError) -> Self
 	{
-		InterfaceAdditionalDescriptorParseError::DeviceFirmwareUpgrade(cause)
+		InterfaceExtraDescriptorParseError::DeviceFirmwareUpgrade(cause)
 	}
 }
 
-impl From<HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError> for InterfaceAdditionalDescriptorParseError
+impl From<HumanInterfaceDeviceInterfaceExtraDescriptorParseError> for InterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError) -> Self
+	fn from(cause: HumanInterfaceDeviceInterfaceExtraDescriptorParseError) -> Self
 	{
-		InterfaceAdditionalDescriptorParseError::HumanInterfaceDevice(cause)
+		InterfaceExtraDescriptorParseError::HumanInterfaceDevice(cause)
 	}
 }
 
-impl From<SmartCardInterfaceAdditionalDescriptorParseError> for InterfaceAdditionalDescriptorParseError
+impl From<SmartCardInterfaceExtraDescriptorParseError> for InterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: SmartCardInterfaceAdditionalDescriptorParseError) -> Self
+	fn from(cause: SmartCardInterfaceExtraDescriptorParseError) -> Self
 	{
-		InterfaceAdditionalDescriptorParseError::SmartCard(cause)
+		InterfaceExtraDescriptorParseError::SmartCard(cause)
 	}
 }
 
-impl From<Infallible> for InterfaceAdditionalDescriptorParseError
+impl From<Infallible> for InterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn from(_cause: Infallible) -> Self

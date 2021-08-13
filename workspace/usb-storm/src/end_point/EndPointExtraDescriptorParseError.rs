@@ -5,7 +5,7 @@
 /// End Point descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(missing_docs)]
-pub enum EndPointAdditionalDescriptorParseError
+pub enum EndPointExtraDescriptorParseError
 {
 	BLengthIsLessThanMinimum,
 	
@@ -44,7 +44,7 @@ pub enum EndPointAdditionalDescriptorParseError
 	ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes,
 }
 
-impl Display for EndPointAdditionalDescriptorParseError
+impl Display for EndPointExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -53,6 +53,6 @@ impl Display for EndPointAdditionalDescriptorParseError
 	}
 }
 
-impl error::Error for EndPointAdditionalDescriptorParseError
+impl error::Error for EndPointExtraDescriptorParseError
 {
 }

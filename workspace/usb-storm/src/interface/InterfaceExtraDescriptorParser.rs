@@ -2,16 +2,16 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-struct InterfaceAdditionalDescriptorParser<Inner: DescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>>
+struct InterfaceExtraDescriptorParser<Inner: DescriptorParser<Descriptor: Into<InterfaceExtraDescriptor>, Error: Into<InterfaceExtraDescriptorParseError>>>
 {
 	inner: Inner,
 }
 
-impl<Inner: DescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>> DescriptorParser for InterfaceAdditionalDescriptorParser<Inner>
+impl<Inner: DescriptorParser<Descriptor: Into<InterfaceExtraDescriptor>, Error: Into<InterfaceExtraDescriptorParseError>>> DescriptorParser for InterfaceExtraDescriptorParser<Inner>
 {
-	type Descriptor = InterfaceAdditionalDescriptor;
+	type Descriptor = InterfaceExtraDescriptor;
 	
-	type Error = InterfaceAdditionalDescriptorParseError;
+	type Error = InterfaceExtraDescriptorParseError;
 	
 	#[inline(always)]
 	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
@@ -29,10 +29,10 @@ impl<Inner: DescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Er
 	}
 }
 
-impl<Inner: DescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>> InterfaceAdditionalDescriptorParser<Inner>
+impl<Inner: DescriptorParser<Descriptor: Into<InterfaceExtraDescriptor>, Error: Into<InterfaceExtraDescriptorParseError>>> InterfaceExtraDescriptorParser<Inner>
 {
 	#[inline(always)]
-	fn parse_descriptors(string_finder: &StringFinder, extra: &[u8], inner: Inner) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+	fn parse_descriptors(string_finder: &StringFinder, extra: &[u8], inner: Inner) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 	{
 		let this = Self
 		{

@@ -6,7 +6,7 @@
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct SmartCardInterfaceAdditionalDescriptor
+pub struct SmartCardInterfaceExtraDescriptor
 {
 	protocol: SmartCardProtocol,
 
@@ -81,7 +81,7 @@ pub struct SmartCardInterfaceAdditionalDescriptor
 	maximum_slots_that_can_be_simultaneously_used: NonZeroU8,
 }
 
-impl SmartCardInterfaceAdditionalDescriptor
+impl SmartCardInterfaceExtraDescriptor
 {
 	const Length: u8 = 54;
 	
@@ -249,9 +249,9 @@ impl SmartCardInterfaceAdditionalDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse(protocol: SmartCardProtocol, descriptor_body: &[u8]) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
+	fn parse(protocol: SmartCardProtocol, descriptor_body: &[u8]) -> Result<Self, SmartCardInterfaceExtraDescriptorParseError>
 	{
-		use SmartCardInterfaceAdditionalDescriptorParseError::*;
+		use SmartCardInterfaceExtraDescriptorParseError::*;
 		
 		let iso_7816_protocols = WrappedBitFlags::from_bits_truncate(descriptor_body.u32(adjust_descriptor_index::<6>()));
 		let features = crate::interface::smart_card::Features::parse(descriptor_body.u32(adjust_descriptor_index::<40>()), iso_7816_protocols).map_err(Features)?;
@@ -320,9 +320,9 @@ impl SmartCardInterfaceAdditionalDescriptor
 		)
 	}
 	
-	fn parse_get_response_class_and_envelope_class(descriptor_bytes: &[u8], level_of_exchange: LevelOfExchange, iso_7816_protocols: WrappedBitFlags<Iso7816Protocol>) -> Result<Option<T0ProtocolUnconfiguredClasses>, SmartCardInterfaceAdditionalDescriptorParseError>
+	fn parse_get_response_class_and_envelope_class(descriptor_bytes: &[u8], level_of_exchange: LevelOfExchange, iso_7816_protocols: WrappedBitFlags<Iso7816Protocol>) -> Result<Option<T0ProtocolUnconfiguredClasses>, SmartCardInterfaceExtraDescriptorParseError>
 	{
-		use SmartCardInterfaceAdditionalDescriptorParseError::*;
+		use SmartCardInterfaceExtraDescriptorParseError::*;
 		
 		let value = if level_of_exchange.is_apdu_level() && iso_7816_protocols.contains(Iso7816Protocol::T0)
 		{

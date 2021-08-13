@@ -30,9 +30,9 @@ use crate::device::DeadOrAlive::Alive;
 
 
 include!("HumanInterfaceDeviceCountryCode.rs");
-include!("HumanInterfaceDeviceInterfaceAdditionalDescriptor.rs");
-include!("HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError.rs");
-include!("HumanInterfaceDeviceInterfaceAdditionalDescriptorParser.rs");
-include!("HumanInterfaceDeviceInterfaceAdditionalVariant.rs");
+include!("HumanInterfaceDeviceInterfaceExtraDescriptor.rs");
+include!("HumanInterfaceDeviceInterfaceExtraDescriptorParseError.rs");
+include!("HumanInterfaceDeviceInterfaceExtraDescriptorParser.rs");
+include!("HumanInterfaceDeviceVariant.rs");
 include!("HumanInterfaceDeviceOptionalDescriptor.rs");
 include!("HumanInterfaceDeviceOptionalDescriptorType.rs");

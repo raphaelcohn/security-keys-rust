@@ -2,17 +2,12 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Human Interface Device (HID) descriptor parse error.
+/// Device Firmware Upgrade (DFU) descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SmartCardInterfaceAdditionalDescriptorParseError
+pub enum DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
-	DescriptorIsNeitherOfficialOrVendorSpecific
-	{
-		actual: DescriptorType,
-	
-		expected: DescriptorType,
-	},
+	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
 	
 	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
@@ -21,19 +16,16 @@ pub enum SmartCardInterfaceAdditionalDescriptorParseError
 	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
+	ReservedAttributesBits4To7
+	{
+		bmAttributes: u8,
+	},
+	
+	/// A country code of 36 or greater.
 	Version(VersionParseError),
-	
-	/// Features are invalid.
-	Features(FeaturesParseError),
-	
-	#[allow(missing_docs)]
-	UnsupportedClassGetResponse(u8),
-	
-	#[allow(missing_docs)]
-	UnsupportedClassEnvelope(u8),
 }
 
-impl Display for SmartCardInterfaceAdditionalDescriptorParseError
+impl Display for DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -42,18 +34,16 @@ impl Display for SmartCardInterfaceAdditionalDescriptorParseError
 	}
 }
 
-impl error::Error for SmartCardInterfaceAdditionalDescriptorParseError
+impl error::Error for DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use SmartCardInterfaceAdditionalDescriptorParseError::*;
+		use DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError::*;
 		
 		match self
 		{
 			Version(cause) => Some(cause),
-			
-			Features(cause) => Some(cause),
 			
 			_ => None,
 		}

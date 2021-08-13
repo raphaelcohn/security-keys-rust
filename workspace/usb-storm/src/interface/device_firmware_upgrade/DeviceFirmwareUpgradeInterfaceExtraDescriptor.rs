@@ -6,7 +6,7 @@
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct DeviceFirmwareUpgradeInterfaceAdditionalDescriptor
+pub struct DeviceFirmwareUpgradeInterfaceExtraDescriptor
 {
 	will_detach: bool,
 	
@@ -23,7 +23,7 @@ pub struct DeviceFirmwareUpgradeInterfaceAdditionalDescriptor
 	version: Option<Version>,
 }
 
-impl DeviceFirmwareUpgradeInterfaceAdditionalDescriptor
+impl DeviceFirmwareUpgradeInterfaceExtraDescriptor
 {
 	#[allow(missing_docs)]
 	#[inline(always)]

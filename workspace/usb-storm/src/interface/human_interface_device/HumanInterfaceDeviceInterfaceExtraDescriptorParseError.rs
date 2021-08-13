@@ -4,7 +4,7 @@
 
 /// Human Interface Device (HID) descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
+pub enum HumanInterfaceDeviceInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
 	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
@@ -43,7 +43,7 @@ pub enum HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 	},
 }
 
-impl Display for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
+impl Display for HumanInterfaceDeviceInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -52,12 +52,12 @@ impl Display for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
 	}
 }
 
-impl error::Error for HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError
+impl error::Error for HumanInterfaceDeviceInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
+		use HumanInterfaceDeviceInterfaceExtraDescriptorParseError::*;
 		
 		match self
 		{

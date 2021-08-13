@@ -9,5 +9,5 @@ use crate::string::StringFinder;
 use crate::device::DeadOrAlive;
 
 
-include!("UnsupportedInterfaceAdditionalDescriptor.rs");
-include!("UnsupportedInterfaceAdditionalDescriptorParser.rs");
+include!("UnsupportedInterfaceExtraDescriptor.rs");
+include!("UnsupportedInterfaceExtraDescriptorParser.rs");

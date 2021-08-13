@@ -19,7 +19,7 @@ pub enum T0ProtocolUnconfiguredClass
 impl T0ProtocolUnconfiguredClass
 {
 	#[inline(always)]
-	fn parse(class: u8, error: impl FnOnce(u8) -> SmartCardInterfaceAdditionalDescriptorParseError) -> Result<Self, SmartCardInterfaceAdditionalDescriptorParseError>
+	fn parse(class: u8, error: impl FnOnce(u8) -> SmartCardInterfaceExtraDescriptorParseError) -> Result<Self, SmartCardInterfaceExtraDescriptorParseError>
 	{
 		use T0ProtocolUnconfiguredClass::*;
 		let parsed = match class

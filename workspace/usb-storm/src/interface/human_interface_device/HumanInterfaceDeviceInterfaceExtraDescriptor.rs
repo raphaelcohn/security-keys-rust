@@ -6,9 +6,9 @@
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct HumanInterfaceDeviceInterfaceAdditionalDescriptor
+pub struct HumanInterfaceDeviceInterfaceExtraDescriptor
 {
-	variant: HumanInterfaceDeviceInterfaceAdditionalVariant,
+	variant: HumanInterfaceDeviceVariant,
 	
 	version: Version,
 	
@@ -19,11 +19,11 @@ pub struct HumanInterfaceDeviceInterfaceAdditionalDescriptor
 	optional_descriptors: Vec<HumanInterfaceDeviceOptionalDescriptor>,
 }
 
-impl HumanInterfaceDeviceInterfaceAdditionalDescriptor
+impl HumanInterfaceDeviceInterfaceExtraDescriptor
 {
 	/// Variant of Human Interface Device sub-class and protocol.
 	#[inline(always)]
-	pub const fn variant(&self) -> HumanInterfaceDeviceInterfaceAdditionalVariant
+	pub const fn variant(&self) -> HumanInterfaceDeviceVariant
 	{
 		self.variant
 	}

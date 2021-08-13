@@ -2,12 +2,17 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Device Firmware Upgrade (DFU) descriptor parse error.
+/// Human Interface Device (HID) descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError
+pub enum SmartCardInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
-	DescriptorIsNeitherOfficialOrVendorSpecific(DescriptorType),
+	DescriptorIsNeitherOfficialOrVendorSpecific
+	{
+		actual: DescriptorType,
+	
+		expected: DescriptorType,
+	},
 	
 	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
@@ -16,16 +21,19 @@ pub enum DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError
 	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	ReservedAttributesBits4To7
-	{
-		bmAttributes: u8,
-	},
-	
-	/// A country code of 36 or greater.
 	Version(VersionParseError),
+	
+	/// Features are invalid.
+	Features(FeaturesParseError),
+	
+	#[allow(missing_docs)]
+	UnsupportedClassGetResponse(u8),
+	
+	#[allow(missing_docs)]
+	UnsupportedClassEnvelope(u8),
 }
 
-impl Display for DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError
+impl Display for SmartCardInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -34,16 +42,18 @@ impl Display for DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError
 	}
 }
 
-impl error::Error for DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError
+impl error::Error for SmartCardInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError::*;
+		use SmartCardInterfaceExtraDescriptorParseError::*;
 		
 		match self
 		{
 			Version(cause) => Some(cause),
+			
+			Features(cause) => Some(cause),
 			
 			_ => None,
 		}

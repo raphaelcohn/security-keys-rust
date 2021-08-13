@@ -3,23 +3,23 @@
 
 
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
-struct EndPointAdditionalDescriptorParser<'a>
+struct EndPointExtraDescriptorParser<'a>
 {
 	transfer_type: &'a mut TransferType,
 	
 	maximum_packet_size: u11,
 }
 
-impl<'a> DescriptorParser for EndPointAdditionalDescriptorParser<'a>
+impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
 {
-	type Descriptor = EndPointAdditionalDescriptor;
+	type Descriptor = EndPointExtraDescriptor;
 	
-	type Error = EndPointAdditionalDescriptorParseError;
+	type Error = EndPointExtraDescriptorParseError;
 	
 	#[inline(always)]
 	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
-		use EndPointAdditionalDescriptorParseError::*;
+		use EndPointExtraDescriptorParseError::*;
 		use TransferType::*;
 		
 		const LIBUSB_DT_SS_ENDPOINT_COMPANION: u8 = 0x30;
@@ -28,8 +28,8 @@ impl<'a> DescriptorParser for EndPointAdditionalDescriptorParser<'a>
 			return Ok(None)
 		}
 		
-		const BLength: u8 = EndPointAdditionalDescriptorParser::BLength;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointAdditionalDescriptorParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		const BLength: u8 = EndPointExtraDescriptorParser::BLength;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointExtraDescriptorParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let bMaxBurst = descriptor_body.u8(0);
 		let bmAttributes = descriptor_body.u8(1);
@@ -150,11 +150,11 @@ impl<'a> DescriptorParser for EndPointAdditionalDescriptorParser<'a>
 			}
 		};
 		
-		Ok(Some(Alive((EndPointAdditionalDescriptor::SuperSpeedEndPointCompanion, consumed_length))))
+		Ok(Some(Alive((EndPointExtraDescriptor::SuperSpeedEndPointCompanion, consumed_length))))
 	}
 }
 
-impl<'a> EndPointAdditionalDescriptorParser<'a>
+impl<'a> EndPointExtraDescriptorParser<'a>
 {
 	const BLength: u8 = 6;
 	
@@ -165,9 +165,9 @@ impl<'a> EndPointAdditionalDescriptorParser<'a>
 	}
 	
 	#[inline(always)]
-	fn parse_super_speed_plus_isochronous_end_point_companion_descriptor(remaining_bytes: &[u8]) -> Result<(u32, usize), EndPointAdditionalDescriptorParseError>
+	fn parse_super_speed_plus_isochronous_end_point_companion_descriptor(remaining_bytes: &[u8]) -> Result<(u32, usize), EndPointExtraDescriptorParseError>
 	{
-		use EndPointAdditionalDescriptorParseError::*;
+		use EndPointExtraDescriptorParseError::*;
 		
 		let remaining_bytes = remaining_bytes.get_unchecked_range_safe(reduce_b_length_to_descriptor_body_length(Self::BLength) .. );
 		
@@ -185,7 +185,7 @@ impl<'a> EndPointAdditionalDescriptorParser<'a>
 		let bLength = remaining_bytes.u8(0);
 		
 		const CompanionBLength: u8 = 10;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointAdditionalDescriptorParseError, CompanionBLength>(remaining_bytes, bLength, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointExtraDescriptorParseError, CompanionBLength>(remaining_bytes, bLength, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes)?;
 		debug_assert_eq!(descriptor_body_length, reduce_b_length_to_descriptor_body_length(CompanionBLength));
 		let _wReserved = descriptor_body.u16(adjust_descriptor_index::<2>());
 		Ok((descriptor_body.u32(adjust_descriptor_index::<4>()), CompanionBLength as usize))

@@ -45,10 +45,10 @@ pub mod transfer_type;
 
 
 include!("EndPoint.rs");
-include!("EndPointNumber.rs");
-include!("EndPointAdditionalDescriptor.rs");
-include!("EndPointAdditionalDescriptorParseError.rs");
-include!("EndPointAdditionalDescriptorParser.rs");
 include!("EndPointAudioExtension.rs");
+include!("EndPointExtraDescriptor.rs");
+include!("EndPointExtraDescriptorParseError.rs");
+include!("EndPointExtraDescriptorParser.rs");
+include!("EndPointNumber.rs");
 include!("EndPointParseError.rs");
 include!("InclusiveMaximumNumberOfEndPoints.rs");

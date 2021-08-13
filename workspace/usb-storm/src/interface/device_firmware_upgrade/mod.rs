@@ -24,6 +24,6 @@ use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;
 
 
-include!("DeviceFirmwareUpgradeInterfaceAdditionalDescriptor.rs");
-include!("DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser.rs");
-include!("DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParseError.rs");
+include!("DeviceFirmwareUpgradeInterfaceExtraDescriptor.rs");
+include!("DeviceFirmwareUpgradeInterfaceExtraDescriptorParser.rs");
+include!("DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError.rs");

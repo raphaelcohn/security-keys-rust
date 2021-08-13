@@ -2,18 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-struct ConfigurationAdditionalDescriptorParser;
-
-impl DescriptorParser for ConfigurationAdditionalDescriptorParser
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub(crate) enum UnsupportedInterfaceExtraDescriptor
 {
-	type Descriptor = ConfigurationAdditionalDescriptor;
-	
-	type Error = Infallible;
-	
-	#[inline(always)]
-	fn parse_descriptor(&mut self, _string_finder: &StringFinder, _bLength: u8, _descriptor_type: DescriptorType, _remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
-	{
-		Ok(None)
-	}
 }

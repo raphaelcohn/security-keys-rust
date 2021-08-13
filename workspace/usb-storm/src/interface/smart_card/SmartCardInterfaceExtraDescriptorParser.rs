@@ -3,32 +3,32 @@
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub(super) struct SmartCardInterfaceAdditionalDescriptorParser
+pub(super) struct SmartCardInterfaceExtraDescriptorParser
 {
 	smart_card_protocol: SmartCardProtocol,
 	
 	expected: u8,
 }
 
-impl DescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
+impl DescriptorParser for SmartCardInterfaceExtraDescriptorParser
 {
-	type Descriptor = SmartCardInterfaceAdditionalDescriptor;
+	type Descriptor = SmartCardInterfaceExtraDescriptor;
 	
-	type Error = SmartCardInterfaceAdditionalDescriptorParseError;
+	type Error = SmartCardInterfaceExtraDescriptorParseError;
 	
 	#[inline(always)]
 	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
-		use SmartCardInterfaceAdditionalDescriptorParseError::*;
+		use SmartCardInterfaceExtraDescriptorParseError::*;
 		
 		if unlikely!(descriptor_type != self.expected)
 		{
 			return Err(DescriptorIsNeitherOfficialOrVendorSpecific { actual: descriptor_type, expected: self.expected })
 		}
 		
-		const MinimumBLength: u8 = SmartCardInterfaceAdditionalDescriptor::Length;
+		const MinimumBLength: u8 = SmartCardInterfaceExtraDescriptor::Length;
 		
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<SmartCardInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<SmartCardInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		Ok
 		(
@@ -37,7 +37,7 @@ impl DescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 				Alive
 				(
 					(
-						SmartCardInterfaceAdditionalDescriptor::parse(self.smart_card_protocol, descriptor_body)?,
+						SmartCardInterfaceExtraDescriptor::parse(self.smart_card_protocol, descriptor_body)?,
 						descriptor_body_length
 					)
 				)
@@ -46,7 +46,7 @@ impl DescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 	}
 }
 
-impl SmartCardInterfaceAdditionalDescriptorParser
+impl SmartCardInterfaceExtraDescriptorParser
 {
 	#[inline(always)]
 	pub(super) const fn new(smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Self

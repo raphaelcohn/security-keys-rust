@@ -2,21 +2,18 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Variant of Human Interface Device sub-class and protocol.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub enum HumanInterfaceDeviceInterfaceAdditionalVariant
+#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+struct ConfigurationExtraDescriptorParser;
+
+impl DescriptorParser for ConfigurationExtraDescriptorParser
 {
-	#[allow(missing_docs)]
-	NotBoot,
+	type Descriptor = ConfigurationExtraDescriptor;
 	
-	#[allow(missing_docs)]
-	BootNone,
+	type Error = Infallible;
 	
-	#[allow(missing_docs)]
-	BootKeyboard,
-	
-	#[allow(missing_docs)]
-	BootMouse,
+	#[inline(always)]
+	fn parse_descriptor(&mut self, _string_finder: &StringFinder, _bLength: u8, _descriptor_type: DescriptorType, _remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
+	{
+		Ok(None)
+	}
 }

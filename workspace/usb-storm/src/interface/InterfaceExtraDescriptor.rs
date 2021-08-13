@@ -6,49 +6,49 @@
 #[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum InterfaceAdditionalDescriptor
+pub enum InterfaceExtraDescriptor
 {
 	#[allow(missing_docs)]
-	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceAdditionalDescriptor),
+	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceExtraDescriptor),
 	
 	#[allow(missing_docs)]
-	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceAdditionalDescriptor),
+	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceExtraDescriptor),
 	
 	#[allow(missing_docs)]
-	SmartCard(SmartCardInterfaceAdditionalDescriptor),
+	SmartCard(SmartCardInterfaceExtraDescriptor),
 }
 
-impl From<DeviceFirmwareUpgradeInterfaceAdditionalDescriptor> for InterfaceAdditionalDescriptor
+impl From<DeviceFirmwareUpgradeInterfaceExtraDescriptor> for InterfaceExtraDescriptor
 {
 	#[inline(always)]
-	fn from(value: DeviceFirmwareUpgradeInterfaceAdditionalDescriptor) -> Self
+	fn from(value: DeviceFirmwareUpgradeInterfaceExtraDescriptor) -> Self
 	{
-		InterfaceAdditionalDescriptor::DeviceFirmwareUpgrade(value)
+		InterfaceExtraDescriptor::DeviceFirmwareUpgrade(value)
 	}
 }
 
-impl From<HumanInterfaceDeviceInterfaceAdditionalDescriptor> for InterfaceAdditionalDescriptor
+impl From<HumanInterfaceDeviceInterfaceExtraDescriptor> for InterfaceExtraDescriptor
 {
 	#[inline(always)]
-	fn from(value: HumanInterfaceDeviceInterfaceAdditionalDescriptor) -> Self
+	fn from(value: HumanInterfaceDeviceInterfaceExtraDescriptor) -> Self
 	{
-		InterfaceAdditionalDescriptor::HumanInterfaceDevice(value)
+		InterfaceExtraDescriptor::HumanInterfaceDevice(value)
 	}
 }
 
-impl From<SmartCardInterfaceAdditionalDescriptor> for InterfaceAdditionalDescriptor
+impl From<SmartCardInterfaceExtraDescriptor> for InterfaceExtraDescriptor
 {
 	#[inline(always)]
-	fn from(value: SmartCardInterfaceAdditionalDescriptor) -> Self
+	fn from(value: SmartCardInterfaceExtraDescriptor) -> Self
 	{
-		InterfaceAdditionalDescriptor::SmartCard(value)
+		InterfaceExtraDescriptor::SmartCard(value)
 	}
 }
 
-impl From<UnsupportedInterfaceAdditionalDescriptor> for InterfaceAdditionalDescriptor
+impl From<UnsupportedInterfaceExtraDescriptor> for InterfaceExtraDescriptor
 {
 	#[inline(always)]
-	fn from(_value: UnsupportedInterfaceAdditionalDescriptor) -> Self
+	fn from(_value: UnsupportedInterfaceExtraDescriptor) -> Self
 	{
 		unreachable!("Should never be possible as it is impossible to construct an instance of UnsupportedInterfaceAdditionalDescriptor")
 	}

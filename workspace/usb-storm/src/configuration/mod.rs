@@ -70,10 +70,10 @@ use std::collections::TryReserveError;
 
 
 include!("Configuration.rs");
-include!("ConfigurationAdditionalDescriptor.rs");
-include!("ConfigurationAdditionalDescriptorParser.rs");
 include!("ConfigurationAttributes.rs");
 include!("ConfigurationDescriptor.rs");
+include!("ConfigurationExtraDescriptor.rs");
+include!("ConfigurationExtraDescriptorParser.rs");
 include!("ConfigurationNumber.rs");
 include!("ConfigurationParseError.rs");
 include!("get_active_config_descriptor.rs");

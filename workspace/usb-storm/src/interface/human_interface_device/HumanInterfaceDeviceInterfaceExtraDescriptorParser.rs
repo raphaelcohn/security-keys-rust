@@ -3,18 +3,18 @@
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub(super) struct HumanInterfaceDeviceInterfaceAdditionalDescriptorParser(HumanInterfaceDeviceInterfaceAdditionalVariant);
+pub(super) struct HumanInterfaceDeviceInterfaceExtraDescriptorParser(HumanInterfaceDeviceVariant);
 
-impl DescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescriptorParser
+impl DescriptorParser for HumanInterfaceDeviceInterfaceExtraDescriptorParser
 {
-	type Descriptor = HumanInterfaceDeviceInterfaceAdditionalDescriptor;
+	type Descriptor = HumanInterfaceDeviceInterfaceExtraDescriptor;
 	
-	type Error = HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError;
+	type Error = HumanInterfaceDeviceInterfaceExtraDescriptorParseError;
 	
 	#[inline(always)]
 	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
-		use HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
+		use HumanInterfaceDeviceInterfaceExtraDescriptorParseError::*;
 		
 		match descriptor_type
 		{
@@ -24,7 +24,7 @@ impl DescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescriptorParse
 		};
 		
 		const MinimumBLength: u8 = 9;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<HumanInterfaceDeviceInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let number_of_class_descriptors_including_mandatory_report =
 		{
@@ -51,7 +51,7 @@ impl DescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescriptorParse
 				Alive
 				(
 					(
-						HumanInterfaceDeviceInterfaceAdditionalDescriptor
+						HumanInterfaceDeviceInterfaceExtraDescriptor
 						{
 							variant: self.0,
 							
@@ -78,18 +78,18 @@ impl DescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescriptorParse
 	}
 }
 
-impl HumanInterfaceDeviceInterfaceAdditionalDescriptorParser
+impl HumanInterfaceDeviceInterfaceExtraDescriptorParser
 {
 	#[inline(always)]
-	pub(super) const fn new(variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Self
+	pub(super) const fn new(variant: HumanInterfaceDeviceVariant) -> Self
 	{
 		Self(variant)
 	}
 	
 	#[inline(always)]
-	fn parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report: NonZeroU8, optional_descriptors_bytes: &[u8]) -> Result<Vec<HumanInterfaceDeviceOptionalDescriptor>, HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError>
+	fn parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report: NonZeroU8, optional_descriptors_bytes: &[u8]) -> Result<Vec<HumanInterfaceDeviceOptionalDescriptor>, HumanInterfaceDeviceInterfaceExtraDescriptorParseError>
 	{
-		use HumanInterfaceDeviceInterfaceAdditionalDescriptorParseError::*;
+		use HumanInterfaceDeviceInterfaceExtraDescriptorParseError::*;
 		
 		let number_of_optional_descriptors = (number_of_class_descriptors_including_mandatory_report.get() - 1) as usize;
 		
