@@ -44,7 +44,9 @@ use super::parse_p;
 use self::logical_audio_channel_cluster::Version2LogicalAudioChannelClusterParseError;
 use super::logical_audio_channels::LogicalAudioChannelClusterParseError;
 use super::logical_audio_channels::InputLogicalAudioChannelClusters;
-use crate::interface::audio::control::terminal_types::{InputTerminalType, TerminalTypeParseError, OutputTerminalType};
+use super::terminal_types::InputTerminalType;
+use super::terminal_types::TerminalTypeParseError;
+use super::terminal_types::OutputTerminalType;
 
 
 /// Logical audio channel cluster.
@@ -52,7 +54,10 @@ pub mod logical_audio_channel_cluster;
 
 
 include!("ClockType.rs");
+include!("parse_controls_by_channel_number.rs");
+include!("Version2AudioChannelEffectControls.rs");
 include!("Version2AudioChannelFeatureControls.rs");
+include!("Version2EffectUnitEntity.rs");
 include!("Version2EntityDescriptorParseError.rs");
 include!("Version2EntityDescriptors.rs");
 include!("Version2FeatureUnitEntity.rs");

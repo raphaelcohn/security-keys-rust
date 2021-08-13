@@ -18,8 +18,8 @@ pub struct Version2EntityDescriptors
 	
 	feature_unit: Entities<Version2FeatureUnitEntity>,
 	
-	// effect_unit: Entities<Version2FeatureUnitEntity>,
-	//
+	effect_unit: Entities<Version2FeatureUnitEntity>,
+	
 	// processing_unit: Entities<Version2ProcessingUnitEntity>,
 	//
 	// extension_unit: Entities<Version2ExtensionUnitEntity>,
@@ -78,12 +78,12 @@ impl EntityDescriptors for Version2EntityDescriptors
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.feature_unit)?
 			}
 			
-			// EFFECT_UNIT =>
-			// {
-			// 	const MinimumBLength: u8 = 16;
-			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.effect_unit)?
-			// }
-			//
+			EFFECT_UNIT =>
+			{
+				const MinimumBLength: u8 = Version2EntityDescriptors::EffectUnitMinimumBLength;
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.effect_unit)?
+			}
+			
 			// PROCESSING_UNIT =>
 			// {
 			// 	const MinimumBLength: u8 = 17;
@@ -131,4 +131,6 @@ impl Version2EntityDescriptors
 	const SelectorUnitMinimumBLength: u8 = 7;
 	
 	const FeatureUnitMinimumBLength: u8 = 6;
+	
+	const EffectUnitMinimumBLength: u8 = 8;
 }

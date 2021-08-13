@@ -2,21 +2,21 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A feature unit entity.
+/// An effect unit entity.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[allow(missing_docs)]
-pub struct Version2FeatureUnitEntity
+pub struct Version2EffectUnitEntity
 {
 	input_logical_audio_channel_cluster: Option<UnitOrTerminalEntityIdentifier>,
 	
-	controls_by_channel_number: ChannelControlsByChannelNumber<Version2AudioChannelFeatureControls>,
+	controls_by_channel_number: ChannelControlsByChannelNumber<Version2AudioChannelEffectControls>,
 	
 	description: Option<LocalizedStrings>,
 }
 
-impl Entity for Version2FeatureUnitEntity
+impl Entity for Version2EffectUnitEntity
 {
 	type EntityIdentifier = UnitEntityIdentifier;
 	
@@ -33,15 +33,36 @@ impl Entity for Version2FeatureUnitEntity
 	{
 		use Version2EntityDescriptorParseError::*;
 		
+		const EFFECT_UNDEFINED: u16 = 0x00;
+		const PARAM_EQ_SECTION_EFFECT: u16 = 0x01;
+		const REVERBERATION_EFFECT: u16 = 0x02;
+		const MOD_DELAY_EFFECT: u16 = 0x03;
+		const DYN_RANGE_COMP_EFFECT: u16 = 0x04;
+		
+		let controls_by_channel_number = match entity_body.u16(entity_index::<4>())
+		{
+			EFFECT_UNDEFINED => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_undefined),
+			
+			PARAM_EQ_SECTION_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_parametric_equalizer_section),
+			
+			REVERBERATION_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_reverberation),
+			
+			MOD_DELAY_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_modulation_delay),
+			
+			DYN_RANGE_COMP_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_dynamic_range_compressor),
+			
+			effect_type @ _ => parse_controls_by_channel_number(entity_body, |controls, channel_index| Version2AudioChannelEffectControls::parse_unrecognized(controls, channel_index, effect_type)),
+		}?;
+		
 		Ok
 		(
 			Alive
 			(
 				Self
 				{
-					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
+					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8(entity_index::<6>()).map(UnitOrTerminalEntityIdentifier::new),
 					
-					controls_by_channel_number: parse_controls_by_channel_number(entity_body, Version2AudioChannelFeatureControls::parse)?,
+					controls_by_channel_number,
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}
@@ -50,11 +71,11 @@ impl Entity for Version2FeatureUnitEntity
 	}
 }
 
-impl UnitEntity for Version2FeatureUnitEntity
+impl UnitEntity for Version2EffectUnitEntity
 {
 }
 
-impl Version2FeatureUnitEntity
+impl Version2EffectUnitEntity
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
@@ -65,7 +86,7 @@ impl Version2FeatureUnitEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn controls_by_channel_number(&self) -> &ChannelControlsByChannelNumber<Version2AudioChannelFeatureControls>
+	pub fn controls_by_channel_number(&self) -> &ChannelControlsByChannelNumber<Version2AudioChannelEffectControls>
 	{
 		&self.controls_by_channel_number
 	}
@@ -76,5 +97,4 @@ impl Version2FeatureUnitEntity
 	{
 		self.description.as_ref()
 	}
-	
 }

@@ -191,6 +191,105 @@ pub enum Version2EntityDescriptorParseError
 	{
 		channel_index: u8,
 	},
+	
+	#[allow(missing_docs)]
+	EffectUnitControlsLengthNotAMultipleOfFour,
+	
+	#[allow(missing_docs)]
+	ParametericEqualizerSectionEffectUnitEnableControlInvalid,
+	
+	#[allow(missing_docs)]
+	ParametericEqualizerSectionEffectUnitCenterFrequencyControlInvalid,
+	
+	#[allow(missing_docs)]
+	ParametericEqualizerSectionEffectUnitQFactorControlInvalid,
+	
+	#[allow(missing_docs)]
+	ParametericEqualizerSectionEffectUnitGainControlInvalid,
+	
+	#[allow(missing_docs)]
+	ParametericEqualizerSectionEffectUnitUnderflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	ParametericEqualizerSectionEffectUnitOverflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitEnableControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitTypeControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitLevelControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitTimeControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitDelayFeedbackControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitPreDelayControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitDensityControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitHighFrequencyRollOffControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitUnderflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	ReverberationEffectUnitOverflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	ModulationDelayEffectUnitEnableControlInvalid,
+	
+	#[allow(missing_docs)]
+	ModulationDelayEffectUnitBalanceControlInvalid,
+	
+	#[allow(missing_docs)]
+	ModulationDelayEffectUnitRateControlInvalid,
+	
+	#[allow(missing_docs)]
+	ModulationDelayEffectUnitDepthControlInvalid,
+	
+	#[allow(missing_docs)]
+	ModulationDelayEffectUnitTimeControlInvalid,
+	
+	#[allow(missing_docs)]
+	ModulationDelayEffectUnitFeedbackLevelControlInvalid,
+	
+	#[allow(missing_docs)]
+	ModulationDelayEffectUnitUnderflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	ModulationDelayEffectUnitOverflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	DynamicRangeCompressorEffectUnitEnableControlInvalid,
+	
+	#[allow(missing_docs)]
+	DynamicRangeCompressorEffectUnitCompressionRatioControlInvalid,
+	
+	#[allow(missing_docs)]
+	DynamicRangeCompressorEffectUnitMaximumAmplitudeControlInvalid,
+	
+	#[allow(missing_docs)]
+	DynamicRangeCompressorEffectUnitThresholControlInvalid,
+	
+	#[allow(missing_docs)]
+	DynamicRangeCompressorEffectUnitAttackTimeControlInvalid,
+	
+	#[allow(missing_docs)]
+	DynamicRangeCompressorEffectUnitReleaseTimeControlInvalid,
+	
+	#[allow(missing_docs)]
+	DynamicRangeCompressorEffectUnitUnderflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	DynamicRangeCompressorEffectUnitOverflowControlInvalid,
 }
 
 impl Display for Version2EntityDescriptorParseError
