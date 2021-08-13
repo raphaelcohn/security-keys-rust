@@ -6,7 +6,6 @@
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-#[allow(missing_docs)]
 pub struct Version1SelectorUnitEntity
 {
 	input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters,

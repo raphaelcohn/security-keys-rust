@@ -14,10 +14,10 @@ pub struct Version2EntityDescriptors
 	
 	mixer_unit: Entities<Version2MixerUnitEntity>,
 	
-	// selector_unit: Entities<Version2SelectorUnitEntity>,
-	//
-	// feature_unit: Entities<Version2FeatureUnitEntity>,
-	//
+	selector_unit: Entities<Version2SelectorUnitEntity>,
+	
+	feature_unit: Entities<Version2FeatureUnitEntity>,
+	
 	// effect_unit: Entities<Version2FeatureUnitEntity>,
 	//
 	// processing_unit: Entities<Version2ProcessingUnitEntity>,
@@ -66,18 +66,18 @@ impl EntityDescriptors for Version2EntityDescriptors
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.mixer_unit)?
 			}
 			
-			// SELECTOR_UNIT =>
-			// {
-			// 	const MinimumBLength: u8 = 7;
-			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.selector_unit)?
-			// }
-			//
-			// FEATURE_UNIT =>
-			// {
-			// 	const MinimumBLength: u8 = 6;
-			// 	parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.feature_unit)?
-			// }
-			//
+			SELECTOR_UNIT =>
+			{
+				const MinimumBLength: u8 = Version2EntityDescriptors::SelectorUnitMinimumBLength;
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.selector_unit)?
+			}
+			
+			FEATURE_UNIT =>
+			{
+				const MinimumBLength: u8 = Version2EntityDescriptors::FeatureUnitMinimumBLength;
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.feature_unit)?
+			}
+			
 			// EFFECT_UNIT =>
 			// {
 			// 	const MinimumBLength: u8 = 16;
@@ -127,4 +127,8 @@ impl EntityDescriptors for Version2EntityDescriptors
 impl Version2EntityDescriptors
 {
 	const MixerUnitMinimumBLength: u8 = 13;
+	
+	const SelectorUnitMinimumBLength: u8 = 7;
+	
+	const FeatureUnitMinimumBLength: u8 = 6;
 }

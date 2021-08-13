@@ -24,6 +24,7 @@ use super::entity_identifiers::UnitEntityIdentifier;
 use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::terminal_types::InputTerminalType;
 use super::terminal_types::OutputTerminalType;
+use super::ChannelControlsByChannelNumber;
 use enumflags2::bitflags;
 use likely::unlikely;
 use serde::Deserialize;
@@ -59,10 +60,10 @@ use super::terminal_types::TerminalTypeParseError;
 pub mod logical_audio_channel_cluster;
 
 
-include!("AudioChannelFeatureControl.rs");
 include!("DolbyProLogicMode.rs");
 include!("parse_control_size.rs");
 include!("ProcessType.rs");
+include!("Version1AudioChannelFeatureControl.rs");
 include!("Version1EntityDescriptorParseError.rs");
 include!("Version1EntityDescriptors.rs");
 include!("Version1ExtensionUnitEntity.rs");

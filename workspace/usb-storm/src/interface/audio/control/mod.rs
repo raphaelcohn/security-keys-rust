@@ -2,9 +2,6 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use self::entities::Entity;
-use self::entities::Entities;
-use self::entity_identifiers::EntityIdentifier;
 use crate::Bytes;
 use crate::VecExt;
 use crate::additional_descriptors::AdditionalDescriptorParser;
@@ -12,13 +9,25 @@ use crate::additional_descriptors::DescriptorHeaderLength;
 use crate::additional_descriptors::DescriptorType;
 use crate::additional_descriptors::verify_remaining_bytes;
 use crate::class_and_protocol::AudioProtocol;
+use crate::collections::WithCapacity;
+use crate::collections::WrappedIndexSet;
+use crate::device::DeadOrAlive::Alive;
+use crate::device::DeadOrAlive::Dead;
+use crate::device::DeadOrAlive;
 use crate::interface::InterfaceNumber;
 use crate::interface::MaximumNumberOfInterfaces;
+use crate::string::StringFinder;
 use crate::version::Version;
 use crate::version::VersionParseError;
 use likely::unlikely;
+use self::entities::Entities;
+use self::entities::Entity;
+use self::entity_identifiers::EntityIdentifier;
+use self::logical_audio_channels::LogicalAudioChannelNumber;
 use self::version_1_entities::Version1EntityDescriptorParseError;
+use self::version_1_entities::Version1EntityDescriptors;
 use self::version_2_entities::Version2EntityDescriptorParseError;
+use self::version_2_entities::Version2EntityDescriptors;
 use self::version_3_entities::Version3EntityDescriptorParseError;
 use self::version_3_entities::Version3EntityDescriptors;
 use serde::Deserialize;
@@ -26,21 +35,13 @@ use serde::Serialize;
 use std::collections::HashSet;
 use std::collections::TryReserveError;
 use std::error;
-use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use std::fmt;
+use std::hash::Hash;
 use std::mem::size_of;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use std::hash::Hash;
-use crate::string::StringFinder;
-use crate::device::DeadOrAlive;
-use crate::device::DeadOrAlive::Alive;
-use crate::device::DeadOrAlive::Dead;
-use crate::collections::WrappedIndexSet;
-use crate::collections::WithCapacity;
-use crate::interface::audio::control::version_1_entities::Version1EntityDescriptors;
-use crate::interface::audio::control::version_2_entities::Version2EntityDescriptors;
 
 
 /// Entities.
@@ -77,6 +78,7 @@ include!("AudioControlInterfaceAdditionalDescriptor.rs");
 include!("AudioControlInterfaceAdditionalDescriptorParseError.rs");
 include!("AudioControlInterfaceAdditionalDescriptorParser.rs");
 include!("AudioFunctionCategory.rs");
+include!("ChannelControlsByChannelNumber.rs");
 include!("Control.rs");
 include!("DescriptorEntityMinimumLength.rs");
 include!("DescriptorSubTypeAndEntityIdentifierLength.rs");

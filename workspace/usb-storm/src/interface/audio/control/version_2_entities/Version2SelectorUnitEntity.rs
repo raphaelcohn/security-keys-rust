@@ -2,26 +2,25 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// An output terminal entity.
+/// A selector unit entity.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct Version1OutputTerminalEntity
+#[allow(missing_docs)]
+pub struct Version2SelectorUnitEntity
 {
-	output_terminal_type: OutputTerminalType,
+	input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters,
 	
-	associated_input_terminal: Option<TerminalEntityIdentifier>,
-	
-	output_logical_audio_channel_cluster: Option<UnitOrTerminalEntityIdentifier>,
+	selector_control: Control,
 	
 	description: Option<LocalizedStrings>,
 }
 
-impl Entity for Version1OutputTerminalEntity
+impl Entity for Version2SelectorUnitEntity
 {
 	type EntityIdentifier = UnitEntityIdentifier;
 	
-	type ParseError = Version1EntityDescriptorParseError;
+	type ParseError = Version2EntityDescriptorParseError;
 	
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
@@ -32,7 +31,16 @@ impl Entity for Version1OutputTerminalEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version1EntityDescriptorParseError::*;
+		use Version2EntityDescriptorParseError::*;
+		
+		let p = parse_p::<DescriptorEntityMinimumLength>(entity_body);
+		
+		if unlikely!(((Version2EntityDescriptors::SelectorUnitMinimumBLength as usize) + p) != (DescriptorEntityMinimumLength + entity_body.len()))
+		{
+			return Err(SelectorUnitLengthWrong)
+		}
+		
+		let bmControls = entity_body.u8_unadjusted(adjusted_index_non_constant(5 + p));
 		
 		Ok
 		(
@@ -40,44 +48,35 @@ impl Entity for Version1OutputTerminalEntity
 			(
 				Self
 				{
-					output_terminal_type: OutputTerminalType::parse(entity_body.u16_unadjusted(adjusted_index::<4>())).map_err(OutputTerminalTypeParse)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_2_parse(p, entity_body, 5)?,
 					
-					associated_input_terminal: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<6>()),
+					selector_control: Control::parse_u8(bmControls, 0, SelectorUnitSelectorControlInvalid)?,
 					
-					output_logical_audio_channel_cluster: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<7>()).map(UnitOrTerminalEntityIdentifier::new),
-				
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<8>())).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index_non_constant(5 + p))).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)
 	}
 }
 
-impl TerminalEntity for Version1OutputTerminalEntity
+impl UnitEntity for Version2SelectorUnitEntity
 {
 }
 
-impl Version1OutputTerminalEntity
+impl Version2SelectorUnitEntity
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn output_terminal_type(&self) -> OutputTerminalType
+	pub fn input_logical_audio_channel_clusters(&self) -> &InputLogicalAudioChannelClusters
 	{
-		self.output_terminal_type
+		&self.input_logical_audio_channel_clusters
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn associated_input_terminal(&self) -> Option<TerminalEntityIdentifier>
+	pub const fn selector_control(&self) -> Control
 	{
-		self.associated_input_terminal
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn output_logical_audio_channel_cluster(&self) -> Option<UnitOrTerminalEntityIdentifier>
-	{
-		self.output_logical_audio_channel_cluster
+		self.selector_control
 	}
 	
 	#[allow(missing_docs)]

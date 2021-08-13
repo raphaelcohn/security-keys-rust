@@ -8,7 +8,7 @@
 #[serde(deny_unknown_fields)]
 #[bitflags]
 #[repr(u16)]
-pub enum AudioChannelFeatureControl
+pub enum Version1AudioChannelFeatureControl
 {
 	#[allow(missing_docs)]
 	Mute = 1 << 0,

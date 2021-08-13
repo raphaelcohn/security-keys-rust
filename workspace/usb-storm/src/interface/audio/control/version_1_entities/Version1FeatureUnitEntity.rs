@@ -6,15 +6,15 @@
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-#[allow(missing_docs)]
 pub struct Version1FeatureUnitEntity
 {
 	input_logical_audio_channel_cluster: Option<UnitOrTerminalEntityIdentifier>,
 	
-	controls_by_channel_number: Vec<WrappedBitFlags<AudioChannelFeatureControl>>,
+	controls_by_channel_number: ChannelControlsByChannelNumber<WrappedBitFlags<Version1AudioChannelFeatureControl>>,
 	
 	description: Option<LocalizedStrings>,
 }
+
 
 impl Entity for Version1FeatureUnitEntity
 {
@@ -72,50 +72,27 @@ impl Version1FeatureUnitEntity
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
+	pub fn input_logical_audio_channel_cluster(&self) -> Option<UnitOrTerminalEntityIdentifier>
+	{
+		self.input_logical_audio_channel_cluster
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn controls_by_channel_number(&self) -> &ChannelControlsByChannelNumber<WrappedBitFlags<Version1AudioChannelFeatureControl>>
+	{
+		&self.controls_by_channel_number
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
 	pub const fn description(&self) -> Option<&LocalizedStrings>
 	{
 		self.description.as_ref()
 	}
 	
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn number_of_logical_channels(&self) -> usize
-	{
-		let length = self.controls_by_channel_number.len();
-		if unlikely!(length == 0)
-		{
-			0
-		}
-		else
-		{
-			length - 1
-		}
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub fn master_channel_controls(&self) -> Option<WrappedBitFlags<AudioChannelFeatureControl>>
-	{
-		if unlikely!(self.controls_by_channel_number.is_empty())
-		{
-			None
-		}
-		else
-		{
-			Some(self.controls_by_channel_number.get_unchecked_value_safe(0))
-		}
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub fn logical_channel_controls(&self, logical_audio_channel_number: LogicalAudioChannelNumber) -> Option<WrappedBitFlags<AudioChannelFeatureControl>>
-	{
-		let index = logical_audio_channel_number.get() as usize;
-		self.controls_by_channel_number.get(index).map(|control| *control)
-	}
-	
-	#[inline(always)]
-	fn parse_controls_by_channel_number(controls_bytes_length: usize, control_size: NonZeroUsize, entity_body: &[u8]) -> Result<Vec<WrappedBitFlags<AudioChannelFeatureControl>>, Version1EntityDescriptorParseError>
+	fn parse_controls_by_channel_number(controls_bytes_length: usize, control_size: NonZeroUsize, entity_body: &[u8]) -> Result<ChannelControlsByChannelNumber<WrappedBitFlags<Version1AudioChannelFeatureControl>>, Version1EntityDescriptorParseError>
 	{
 		let number_of_channels_including_master = controls_bytes_length / control_size.get();
 		
@@ -139,6 +116,6 @@ impl Version1FeatureUnitEntity
 			controls_by_channel_number.push(controls);
 		}
 		
-		Ok(controls_by_channel_number)
+		Ok(ChannelControlsByChannelNumber(controls_by_channel_number))
 	}
 }

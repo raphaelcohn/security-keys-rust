@@ -6,11 +6,12 @@
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-#[allow(missing_docs)]
 pub enum ProcessType
 {
+	#[allow(missing_docs)]
 	Undefined(Vec<u8>),
 	
+	#[allow(missing_docs)]
 	UpDownMix
 	{
 		mode_select: bool,
@@ -18,6 +19,7 @@ pub enum ProcessType
 		modes: WrappedIndexSet<WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>>,
 	},
 	
+	#[allow(missing_docs)]
 	DolbyProLogic
 	{
 		mode_select: bool,
@@ -26,11 +28,13 @@ pub enum ProcessType
 		modes: WrappedIndexSet<DolbyProLogicMode>,
 	},
 	
+	#[allow(missing_docs)]
 	ThreeDimensionalStereoExtender
 	{
 		spaciousness: bool,
 	},
 	
+	#[allow(missing_docs)]
 	Reverberation
 	{
 		type_: bool,
@@ -42,6 +46,7 @@ pub enum ProcessType
 		delay_feedback: bool,
 	},
 	
+	#[allow(missing_docs)]
 	Chrous
 	{
 		level: bool,
@@ -51,6 +56,7 @@ pub enum ProcessType
 		modulation_depth: bool,
 	},
 	
+	#[allow(missing_docs)]
 	DynamicRangeCompressor
 	{
 		compression_ratio: bool,
@@ -64,6 +70,7 @@ pub enum ProcessType
 		release_time: bool,
 	},
 	
+	#[allow(missing_docs)]
 	Unrecognized
 	{
 		controls: Vec<u8>,

@@ -89,6 +89,108 @@ pub enum Version2EntityDescriptorParseError
 	
 	#[allow(missing_docs)]
 	OutputTerminalOverflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	SelectorUnitLengthWrong,
+	
+	#[allow(missing_docs)]
+	SelectorUnitSelectorControlInvalid,
+	
+	#[allow(missing_docs)]
+	FeatureUnitControlsLengthNotAMultipleOfFour,
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForFeatureControls(TryReserveError),
+	
+	#[allow(missing_docs)]
+	FeatureUnitMuteControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitVolumeControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitBassControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitMidControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitTrebleControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitGraphicEqualizerControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitAutomaticGainControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitDelayControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitBassBoostControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitLoudnessControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitInputGainControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitInputGainPadControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitPhaseInverterControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitUnderflowControlInvalid
+	{
+		channel_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FeatureUnitOverflowControlInvalid
+	{
+		channel_index: u8,
+	},
 }
 
 impl Display for Version2EntityDescriptorParseError
@@ -122,6 +224,8 @@ impl error::Error for Version2EntityDescriptorParseError
 			CouldNotAllocateMemoryForSources(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForMixerControls(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForFeatureControls(cause) => Some(cause),
 			
 			_ => None,
 		}
