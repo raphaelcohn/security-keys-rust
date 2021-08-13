@@ -3,11 +3,11 @@
 
 
 use crate::Bytes;
-use crate::VecExt;
+use crate::collections::VecExt;
 use self::logical_audio_channel_cluster::Version1LogicalAudioChannelCluster;
 use self::logical_audio_channel_cluster::Version1LogicalAudioChannelSpatialLocation;
-use super::adjusted_index;
-use super::adjusted_index_non_constant;
+use super::entity_index;
+use super::entity_index_non_constant;
 use super::entities::Entity;
 use super::entities::Entities;
 use super::entities::TerminalEntity;

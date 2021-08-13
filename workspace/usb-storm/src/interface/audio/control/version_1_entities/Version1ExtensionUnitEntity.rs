@@ -62,7 +62,7 @@ impl Entity for Version1ExtensionUnitEntity
 		let controls_bytes_size =
 		{
 			let control_size_index = DescriptorEntityMinimumLength + ExtensionCodeSize + sources_size + OutputClusterSize;
-			if unlikely!(adjusted_index_non_constant(control_size_index) >= entity_body.len())
+			if unlikely!(entity_index_non_constant(control_size_index) >= entity_body.len())
 			{
 				return Err(ExtensionUnitPIsTooLarge);
 			}
@@ -89,7 +89,7 @@ impl Entity for Version1ExtensionUnitEntity
 					
 					controls_bit_map: Vec::new_from(bmControls).map_err(CouldNotAllocateMemoryForExtensionUnitControlsBitMap)?,
 					
-					extension_code: entity_body.u16_unadjusted(adjusted_index::<4>()),
+					extension_code: entity_body.u16_unadjusted(entity_index::<4>()),
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}

@@ -55,7 +55,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 						{
 							variant: self.0,
 							
-							version: descriptor_body.version_adjusted::<2>().map_err(Version)?,
+							version: descriptor_body.version_unadjusted(adjust_descriptor_index::<2>()).map_err(Version)?,
 							
 							country_code: match descriptor_body.u8_adjusted::<4>()
 							{

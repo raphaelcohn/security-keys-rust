@@ -21,7 +21,7 @@ use crate::usb::FixedUsbDeviceCapabilities;
 use crate::usb::UsbDeviceInformationDatabase;
 use crate::usb::UsbProductIdentifier;
 use crate::usb::UsbVendorIdentifier;
-use crate::VecExt;
+use crate::collections::VecExt;
 use enumflags2::BitFlags;
 use enumflags2::bitflags;
 use enumflags2::FromBitsError;

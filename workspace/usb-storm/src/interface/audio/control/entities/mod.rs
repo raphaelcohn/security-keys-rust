@@ -7,7 +7,7 @@ use super::entity_identifiers::EntityIdentifier;
 use super::entity_identifiers::ClockEntityIdentifier;
 use super::entity_identifiers::TerminalEntityIdentifier;
 use super::entity_identifiers::UnitEntityIdentifier;
-use crate::VecExt;
+use crate::collections::VecExt;
 use crate::collections::WrappedHashMap;
 use crate::device::DeadOrAlive;
 use crate::string::StringFinder;

@@ -7,25 +7,12 @@ trait Bytes
 	fn bytes_unadjusted(&self, index: usize, length: usize) -> &[u8];
 	
 	#[inline(always)]
-	fn version_adjusted<const index: usize>(&self) -> Result<Version, VersionParseError>
-	{
-		self.version_unadjusted(adjust_index::<index>())
-	}
-	
-	#[inline(always)]
 	fn version_unadjusted(&self, index: usize) -> Result<Version, VersionParseError>
 	{
 		Version::parse(self.u16_unadjusted(index))
 	}
 	
 	fn uuid_unadjusted(&self, index: usize) -> Uuid;
-	
-	#[inline(always)]
-	fn optional_non_zero_u8_adjusted<const index: usize>(&self) -> Option<NonZeroU8>
-	{
-		let adjusted_index = adjust_index::<index>();
-		self.optional_non_zero_u8_unadjusted(adjusted_index)
-	}
 	
 	#[inline(always)]
 	fn optional_non_zero_u8_unadjusted(&self, index: usize) -> Option<NonZeroU8>
@@ -42,8 +29,7 @@ trait Bytes
 	#[inline(always)]
 	fn u8_adjusted<const index: usize>(&self) -> u8
 	{
-		let adjusted_index = adjust_index::<index>();
-		self.u8_unadjusted(adjusted_index)
+		self.u8_unadjusted(adjust_descriptor_index::<index>())
 	}
 	
 	fn u8_unadjusted(&self, index: usize) -> u8;
@@ -51,18 +37,10 @@ trait Bytes
 	#[inline(always)]
 	fn u16_adjusted<const index: usize>(&self) -> u16
 	{
-		let adjusted_index = adjust_index::<index>();
-		self.u16_unadjusted(adjusted_index)
+		self.u16_unadjusted(adjust_descriptor_index::<index>())
 	}
 	
 	fn u16_unadjusted(&self, index: usize) -> u16;
-	
-	#[inline(always)]
-	fn u32_adjusted<const index: usize>(&self) -> u32
-	{
-		let adjusted_index = adjust_index::<index>();
-		self.u32_unadjusted(adjusted_index)
-	}
 	
 	fn u32_unadjusted(&self, index: usize) -> u32;
 }

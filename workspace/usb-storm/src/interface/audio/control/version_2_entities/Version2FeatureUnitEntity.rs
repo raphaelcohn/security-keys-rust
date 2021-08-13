@@ -39,7 +39,7 @@ impl Entity for Version2FeatureUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
+					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8_unadjusted(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
 					
 					controls_by_channel_number: Self::parse_controls_by_channel_number(entity_body)?,
 					
@@ -95,7 +95,7 @@ impl Version2FeatureUnitEntity
 		let mut controls_by_channel_number = Vec::new_with_capacity(number_of_channels_including_master).map_err(CouldNotAllocateMemoryForFeatureControls)?;
 		for channel_index in 0 .. number_of_channels_including_master
 		{
-			let bmaControls = entity_body.u32_unadjusted(adjusted_index_non_constant(5 + (channel_index * bmaControlSize)));
+			let bmaControls = entity_body.u32_unadjusted(entity_index_non_constant(5 + (channel_index * bmaControlSize)));
 			controls_by_channel_number.push(Version2AudioChannelFeatureControls::parse(bmaControls, channel_index as u8)?)
 		}
 		Ok(ChannelControlsByChannelNumber(controls_by_channel_number))

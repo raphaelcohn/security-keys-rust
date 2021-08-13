@@ -188,6 +188,6 @@ impl<'a> EndPointAdditionalDescriptorParser<'a>
 		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointAdditionalDescriptorParseError, CompanionBLength>(remaining_bytes, bLength, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes)?;
 		debug_assert_eq!(descriptor_body_length, reduce_b_length_to_descriptor_body_length(CompanionBLength));
 		let _wReserved = descriptor_body.u16_adjusted::<2>();
-		Ok((descriptor_body.u32_adjusted::<4>(), CompanionBLength as usize))
+		Ok((descriptor_body.u32_unadjusted(adjust_descriptor_index::<4>()), CompanionBLength as usize))
 	}
 }

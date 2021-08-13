@@ -3,7 +3,7 @@
 
 
 use super::integers::u3;
-use crate::VecExt;
+use crate::collections::VecExt;
 use self::binary_object_store::BinaryObjectStore;
 use self::binary_object_store::BinaryObjectStoreBuffer;
 use self::binary_object_store::BinaryObjectStoreParseError;
@@ -79,7 +79,8 @@ use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use self::DeadOrAlive::Alive;
 use self::DeadOrAlive::Dead;
-use crate::collections::{WrappedIndexMap, WithCapacity};
+use crate::collections::WrappedIndexMap;
+use crate::collections::WithCapacity;
 
 
 include!("return_ok_if_dead.rs");

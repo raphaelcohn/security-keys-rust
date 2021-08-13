@@ -5,7 +5,7 @@
 use self::response_code::ResponseCode;
 use super::CardError;
 use super::CardOrTransactionExt;
-use crate::VecExt;
+use crate::collections::VecExt;
 use crate::open_pgp::ApplicationIdentifier;
 use crate::open_pgp::Sex;
 use likely::unlikely;

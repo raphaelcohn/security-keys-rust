@@ -62,7 +62,7 @@ impl Entity for Version1ProcessingUnitEntity
 		let controls_bytes_size =
 		{
 			let control_size_index = DescriptorEntityMinimumLength + ProcessTypeSize + sources_size + OutputClusterSize;
-			if unlikely!(adjusted_index_non_constant(control_size_index) >= entity_body.len())
+			if unlikely!(entity_index_non_constant(control_size_index) >= entity_body.len())
 			{
 				return Err(ProcessingUnitPIsTooLarge);
 			}
@@ -91,7 +91,7 @@ impl Entity for Version1ProcessingUnitEntity
 					{
 						let process_type_specific_bytes = entity_body.get_unchecked_range_safe(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize + controls_bytes_size.get() + StringDescriptorSize .. );
 						debug_assert_eq!(process_type_specific_bytes.len(), process_specific_size);
-						match entity_body.u16_unadjusted(adjusted_index::<DescriptorEntityMinimumLength>())
+						match entity_body.u16_unadjusted(entity_index::<DescriptorEntityMinimumLength>())
 						{
 							0x00 => ProcessType::parse_undefined(bmControls, process_type_specific_bytes)?,
 							

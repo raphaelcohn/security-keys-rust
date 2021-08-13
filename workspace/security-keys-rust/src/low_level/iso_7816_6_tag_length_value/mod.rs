@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/raphaelcohn/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::VecExt;
+use crate::collections::VecExt;
 use std::borrow::Cow;
 use std::collections::TryReserveError;
 use std::error;

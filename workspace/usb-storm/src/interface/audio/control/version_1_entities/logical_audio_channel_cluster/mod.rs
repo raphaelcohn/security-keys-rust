@@ -4,7 +4,7 @@
 
 use crate::Bytes;
 use crate::device::DeadOrAlive;
-use super::super::adjusted_index_non_constant;
+use super::super::entity_index_non_constant;
 use super::super::logical_audio_channels::LogicalAudioChannelClusterParseError;
 use super::super::logical_audio_channels::LogicalAudioChannelCluster;
 use super::super::logical_audio_channels::LogicalAudioChannelSpatialLocation;

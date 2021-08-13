@@ -48,7 +48,6 @@ use serde_yaml as _;
 
 use self::version::Version;
 use self::version::VersionParseError;
-use std::collections::TryReserveError;
 use std::num::NonZeroU8;
 use std::num::NonZeroU16;
 use std::mem::transmute;
@@ -108,6 +107,5 @@ pub mod string;
 pub mod version;
 
 
-include!("adjust_index.rs");
+include!("adjust_descriptor_index.rs");
 include!("Bytes.rs");
-include!("VecExt.rs");

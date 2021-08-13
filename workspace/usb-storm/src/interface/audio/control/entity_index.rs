@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-const fn adjust_index<const index: usize>() -> usize
+const fn entity_index<const index: usize>() -> usize
 {
-	index - 2
+	entity_index_non_constant(index)
 }

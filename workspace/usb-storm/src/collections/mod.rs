@@ -2,23 +2,28 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use enumflags2::{BitFlag, FromBitsError};
+use enumflags2::BitFlag;
 use enumflags2::BitFlags;
+use enumflags2::FromBitsError;
 use indexmap::map::IndexMap;
 use indexmap::set::IndexSet;
-use serde::{Deserialize, Serializer, Deserializer};
+use serde::Deserialize;
+use serde::Deserializer;
 use serde::Serialize;
-use std::cmp::min;
+use serde::Serializer;
+use serde::de::Error;
+use serde::de::Unexpected;
 use std::cmp::Ordering;
+use std::cmp::min;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::TryReserveError;
+use std::error;
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::ops::Deref;
 use std::ops::DerefMut;
 use swiss_army_knife::get_unchecked::AsUsizeIndex;
-use serde::de::{Error, Unexpected};
 
 
 include!("WithCapacity.rs");
@@ -27,3 +32,4 @@ include!("WrappedHashMap.rs");
 include!("WrappedHashSet.rs");
 include!("WrappedIndexMap.rs");
 include!("WrappedIndexSet.rs");
+include!("VecExt.rs");

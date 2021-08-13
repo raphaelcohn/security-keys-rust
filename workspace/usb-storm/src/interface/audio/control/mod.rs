@@ -2,8 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::Bytes;
-use crate::VecExt;
+use crate::{Bytes, adjust_descriptor_index};
+use crate::collections::VecExt;
 use crate::additional_descriptors::AdditionalDescriptorParser;
 use crate::additional_descriptors::DescriptorHeaderLength;
 use crate::additional_descriptors::DescriptorType;
@@ -72,8 +72,6 @@ pub mod version_2_entities;
 pub mod version_3_entities;
 
 
-include!("adjusted_index.rs");
-include!("adjusted_index_non_constant.rs");
 include!("AudioControlInterfaceAdditionalDescriptor.rs");
 include!("AudioControlInterfaceAdditionalDescriptorParseError.rs");
 include!("AudioControlInterfaceAdditionalDescriptorParser.rs");
@@ -84,5 +82,7 @@ include!("DescriptorEntityMinimumLength.rs");
 include!("DescriptorSubTypeAndEntityIdentifierLength.rs");
 include!("EntityDescriptorParseError.rs");
 include!("EntityDescriptors.rs");
+include!("entity_index.rs");
+include!("entity_index_non_constant.rs");
 include!("parse_entity_descriptor.rs");
 include!("parse_p.rs");

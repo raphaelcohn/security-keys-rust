@@ -53,7 +53,7 @@ impl Entity for Version1FeatureUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
+					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8_unadjusted(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
 					
 					controls_by_channel_number: Self::parse_controls_by_channel_number(controls_bytes_length, control_size, entity_body)?,
 					

@@ -44,7 +44,7 @@ impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDesc
 		const CorrectDescriptorBodyLength: usize = reduce_b_length_to_descriptor_body_length(CorrectBLength);
 		let version = if descriptor_body_length >= CorrectDescriptorBodyLength
 		{
-			Some(descriptor_body.version_adjusted::<7>().map_err(Version)?)
+			Some(descriptor_body.version_unadjusted(adjust_descriptor_index::<7>()).map_err(Version)?)
 		}
 		else
 		{

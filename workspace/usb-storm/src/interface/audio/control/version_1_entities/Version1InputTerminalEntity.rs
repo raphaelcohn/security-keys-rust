@@ -40,13 +40,13 @@ impl Entity for Version1InputTerminalEntity
 			(
 				Self
 				{
-					input_terminal_type: InputTerminalType::parse(entity_body.u16_unadjusted(adjusted_index::<4>())).map_err(InputTerminalTypeParse)?,
+					input_terminal_type: InputTerminalType::parse(entity_body.u16_unadjusted(entity_index::<4>())).map_err(InputTerminalTypeParse)?,
 					
-					associated_output_terminal: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<6>()),
+					associated_output_terminal: entity_body.optional_non_zero_u8_unadjusted(entity_index::<6>()),
 					
 					input_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7, string_finder, entity_body)?),
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<11>())).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_index::<11>())).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

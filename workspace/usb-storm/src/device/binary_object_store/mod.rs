@@ -7,7 +7,7 @@ use super::DeadOrAlive::Alive;
 use super::DeadOrAlive::Dead;
 use super::DeviceHandle;
 use crate::Bytes;
-use crate::VecExt;
+use crate::collections::VecExt;
 use crate::additional_descriptors::DescriptorHeaderLength;
 use crate::configuration::MaximumNumberOfConfigurations;
 use crate::control_transfers::descriptors::get_binary_object_store_device_descriptor;

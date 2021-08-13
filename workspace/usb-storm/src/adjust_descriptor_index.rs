@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-const fn adjusted_index_non_constant(index: usize) -> usize
+const fn adjust_descriptor_index<const index: usize>() -> usize
 {
-	index - DescriptorEntityMinimumLength
+	index - 2
 }

@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-const fn adjusted_index<const index: usize>() -> usize
+const fn entity_index_non_constant(index: usize) -> usize
 {
-	adjusted_index_non_constant(index)
+	index - DescriptorEntityMinimumLength
 }

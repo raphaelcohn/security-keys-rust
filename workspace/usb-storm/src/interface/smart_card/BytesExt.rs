@@ -5,15 +5,15 @@
 trait BytesExt: Bytes
 {
 	#[inline(always)]
-	fn kilohertz<const index: usize>(&self) -> Kilohertz
+	fn kilohertz(&self, index: usize) -> Kilohertz
 	{
-		self.u32_adjusted::<index>()
+		self.u32_unadjusted(index)
 	}
 	
 	#[inline(always)]
-	fn baud<const index: usize>(&self) -> Baud
+	fn baud(&self, index: usize) -> Baud
 	{
-		self.u32_adjusted::<index>()
+		self.u32_unadjusted(index)
 	}
 }
 

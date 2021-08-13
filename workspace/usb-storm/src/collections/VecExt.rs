@@ -13,6 +13,9 @@ pub trait VecExt<T>: Sized
 	
 	/// New from values.
 	fn new_from(values: &[T]) -> Result<Self, TryReserveError> where T: Copy;
+	//
+	// /// Done this way instead of repeated `push()` or specialized `extend()` to minimize `if` checks for each `push()` and give LLVM's loop unrolling a chance to optimize.
+	// fn new_populated<E: error::Error, MAE: FnOnce(TryReserveError) -> E>(length: usize, memory_allocation_error: MAE, populator: ) -> Result<Self, E>;
 	
 	/// Try to push.
 	fn try_push(&mut self, value: T) -> Result<(), TryReserveError>;

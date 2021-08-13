@@ -2,8 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::VecExt;
-use crate::Bytes;
+use crate::collections::VecExt;
+use crate::{Bytes, adjust_descriptor_index};
 use crate::Version;
 use crate::version::VersionParseError;
 use crate::additional_descriptors::AdditionalDescriptorParser;

@@ -253,15 +253,15 @@ impl SmartCardInterfaceAdditionalDescriptor
 	{
 		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
-		let iso_7816_protocols = WrappedBitFlags::from_bits_truncate(descriptor_body.u32_adjusted::<6>());
-		let features = crate::interface::smart_card::Features::parse(descriptor_body.u32_adjusted::<40>(), iso_7816_protocols).map_err(Features)?;
+		let iso_7816_protocols = WrappedBitFlags::from_bits_truncate(descriptor_body.u32_unadjusted(adjust_descriptor_index::<6>()));
+		let features = crate::interface::smart_card::Features::parse(descriptor_body.u32_unadjusted(adjust_descriptor_index::<40>()), iso_7816_protocols).map_err(Features)?;
 		Ok
 		(
 			Self
 			{
 				protocol,
 			
-				firmware_version: descriptor_body.version_adjusted::<2>().map_err(Version)?,
+				firmware_version: descriptor_body.version_unadjusted(adjust_descriptor_index::<2>()).map_err(Version)?,
 				
 				maximum_slot_index: descriptor_body.u8_adjusted::<4>(),
 				
@@ -269,34 +269,34 @@ impl SmartCardInterfaceAdditionalDescriptor
 	
 				iso_7816_protocols,
 			
-				default_clock_frequency: descriptor_body.kilohertz::<10>(),
+				default_clock_frequency: descriptor_body.kilohertz(adjust_descriptor_index::<10>()),
 			
-				inclusive_maximum_clock_frequency: descriptor_body.kilohertz::<14>(),
+				inclusive_maximum_clock_frequency: descriptor_body.kilohertz(adjust_descriptor_index::<14>()),
 				
-				number_of_clock_frequencies_supported: descriptor_body.optional_non_zero_u8_adjusted::<18>(),
+				number_of_clock_frequencies_supported: descriptor_body.optional_non_zero_u8_unadjusted(adjust_descriptor_index::<18>()),
 				
-				default_data_rate: descriptor_body.baud::<19>(),
+				default_data_rate: descriptor_body.baud(adjust_descriptor_index::<19>()),
 				
-				inclusive_maximum_data_rate: descriptor_body.baud::<23>(),
+				inclusive_maximum_data_rate: descriptor_body.baud(adjust_descriptor_index::<23>()),
 				
-				number_of_data_rates_supported: descriptor_body.optional_non_zero_u8_adjusted::<27>(),
+				number_of_data_rates_supported: descriptor_body.optional_non_zero_u8_unadjusted(adjust_descriptor_index::<27>()),
 				
 				maximum_ifsd_for_protocol_t_1: if iso_7816_protocols.contains(Iso7816Protocol::T1)
 				{
-					Some(descriptor_body.u32_adjusted::<28>())
+					Some(descriptor_body.u32_unadjusted(adjust_descriptor_index::<28>()))
 				}
 				else
 				{
 					None
 				},
 				
-				synchronization_protocols: WrappedBitFlags::from_bits_truncate(descriptor_body.u32_adjusted::<32>()),
+				synchronization_protocols: WrappedBitFlags::from_bits_truncate(descriptor_body.u32_unadjusted(adjust_descriptor_index::<32>())),
 				
-				mechanical_features: WrappedBitFlags::from_bits_truncate(descriptor_body.u32_adjusted::<36>()),
+				mechanical_features: WrappedBitFlags::from_bits_truncate(descriptor_body.u32_unadjusted(adjust_descriptor_index::<36>())),
 				
 				features,
 				
-				maximum_message_length: descriptor_body.u32_adjusted::<44>(),
+				maximum_message_length: descriptor_body.u32_unadjusted(adjust_descriptor_index::<44>()),
 				
 				unconfigured_classes_for_protocol_t_0: Self::parse_get_response_class_and_envelope_class(descriptor_body, features.level_of_exchange(), iso_7816_protocols)?,
 				

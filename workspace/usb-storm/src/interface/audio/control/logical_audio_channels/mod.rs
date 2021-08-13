@@ -3,7 +3,7 @@
 
 
 use crate::Bytes;
-use crate::VecExt;
+use crate::collections::VecExt;
 use crate::collections::WithCapacity;
 use crate::collections::WrappedBitFlags;
 use crate::collections::WrappedIndexSet;
@@ -15,7 +15,7 @@ use crate::string::StringFinder;
 use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::version_1_entities::Version1EntityDescriptorParseError;
 use super::version_2_entities::Version2EntityDescriptorParseError;
-use super::adjusted_index_non_constant;
+use super::entity_index_non_constant;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

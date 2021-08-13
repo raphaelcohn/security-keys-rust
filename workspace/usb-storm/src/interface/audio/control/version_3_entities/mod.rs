@@ -23,7 +23,7 @@ use super::entities::TerminalEntity;
 use super::entities::UnitEntity;
 use super::EntityDescriptors;
 use super::EntityDescriptorParseError;
-use super::adjusted_index;
+use super::entity_index;
 use super::entity_identifiers::ClockEntityIdentifier;
 use super::entity_identifiers::EntityIdentifier;
 use super::entity_identifiers::PowerDomainEntityIdentifier;

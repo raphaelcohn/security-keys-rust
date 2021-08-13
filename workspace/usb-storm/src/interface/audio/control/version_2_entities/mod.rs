@@ -3,7 +3,7 @@
 
 
 use crate::Bytes;
-use crate::VecExt;
+use crate::collections::VecExt;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
 use crate::string::GetLocalizedStringError;
@@ -31,8 +31,8 @@ use super::entities::UnitEntity;
 use super::entities::TerminalEntity;
 use super::EntityDescriptorParseError;
 use super::EntityDescriptors;
-use super::adjusted_index;
-use super::adjusted_index_non_constant;
+use super::entity_index;
+use super::entity_index_non_constant;
 use super::entity_identifiers::ClockEntityIdentifier;
 use super::entity_identifiers::EntityIdentifier;
 use super::entity_identifiers::TerminalEntityIdentifier;
