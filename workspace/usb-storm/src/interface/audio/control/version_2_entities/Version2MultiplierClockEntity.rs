@@ -45,9 +45,9 @@ impl Entity for Version2MultiplierClockEntity
 				{
 					source: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<4>()),
 					
-					numerator: Control::parse(bmControls, 0)?,
+					numerator: Control::parse_u8(bmControls, 0, MultiplierClockNumeratorControlInvalid)?,
 					
-					denominator: Control::parse(bmControls, 1)?,
+					denominator: Control::parse_u8(bmControls, 1, MultiplierClockDenominatorControlInvalid)?,
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<7>())).map_err(InvalidDescriptionString)?),
 				}

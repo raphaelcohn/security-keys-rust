@@ -8,9 +8,9 @@
 #[serde(deny_unknown_fields)]
 pub struct Version2EntityDescriptors
 {
-	// input_terminal: Entities<Version2InputTerminalEntity>,
-	//
-	// output_terminal: Entities<Version2OutputTerminalEntity>,
+	input_terminal: Entities<Version2InputTerminalEntity>,
+	
+	output_terminal: Entities<Version2OutputTerminalEntity>,
 	
 	mixer_unit: Entities<Version2MixerUnitEntity>,
 	
@@ -56,9 +56,9 @@ impl EntityDescriptors for Version2EntityDescriptors
 		
 		let dead_or_alive = match bDescriptorSubtype
 		{
-			// INPUT_TERMINAL => parse_entity_descriptor::<_, 17>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.input_terminal)?,
-			//
-			// OUTPUT_TERMINAL => parse_entity_descriptor::<_, 12>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.output_terminal)?,
+			INPUT_TERMINAL => parse_entity_descriptor::<_, 17>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.input_terminal)?,
+			
+			OUTPUT_TERMINAL => parse_entity_descriptor::<_, 12>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.output_terminal)?,
 			
 			MIXER_UNIT =>
 			{

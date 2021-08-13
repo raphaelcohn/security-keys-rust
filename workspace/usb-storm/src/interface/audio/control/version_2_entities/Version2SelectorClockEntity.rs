@@ -58,7 +58,7 @@ impl Entity for Version2SelectorClockEntity
 			(
 				Self
 				{
-					selector: Control::parse(bmControls, 0)?,
+					selector: Control::parse_u8(bmControls, 0, SelectorClockSelectorControlInvalid)?,
 					
 					sources:
 					{

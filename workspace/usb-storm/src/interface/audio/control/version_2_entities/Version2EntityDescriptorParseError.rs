@@ -7,6 +7,12 @@
 pub enum Version2EntityDescriptorParseError
 {
 	#[allow(missing_docs)]
+	InputTerminalTypeParse(TerminalTypeParseError),
+	
+	#[allow(missing_docs)]
+	OutputTerminalTypeParse(TerminalTypeParseError),
+	
+	#[allow(missing_docs)]
 	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>),
 	
 	#[allow(missing_docs)]
@@ -14,9 +20,6 @@ pub enum Version2EntityDescriptorParseError
 	
 	#[allow(missing_docs)]
 	SelectorClockCouldNotAllocateSources(TryReserveError),
-	
-	#[allow(missing_docs)]
-	InvalidControl,
 	
 	#[allow(missing_docs)]
 	SelectorClockPIsTooLarge,
@@ -29,6 +32,63 @@ pub enum Version2EntityDescriptorParseError
 	
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForMixerControls(TryReserveError),
+	
+	#[allow(missing_docs)]
+	MixerUnitClusterControlInvalid,
+	
+	#[allow(missing_docs)]
+	MixerUnitUnderflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	MixerUnitOverflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	MultiplierClockNumeratorControlInvalid,
+	
+	#[allow(missing_docs)]
+	MultiplierClockDenominatorControlInvalid,
+	
+	#[allow(missing_docs)]
+	SelectorClockSelectorControlInvalid,
+	
+	#[allow(missing_docs)]
+	SourceClockFrequencyControlInvalid,
+	
+	#[allow(missing_docs)]
+	SourceClockValidityControlInvalid,
+	
+	#[allow(missing_docs)]
+	InputTerminalCopyProtectControlInvalid,
+	
+	#[allow(missing_docs)]
+	InputTerminalConnectorControlInvalid,
+	
+	#[allow(missing_docs)]
+	InputTerminalOverloadControlInvalid,
+	
+	#[allow(missing_docs)]
+	InputTerminalClusterControlInvalid,
+	
+	#[allow(missing_docs)]
+	InputTerminalUnderflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	InputTerminalOverflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	OutputTerminalCopyProtectControlInvalid,
+	
+	#[allow(missing_docs)]
+	OutputTerminalConnectorControlInvalid,
+	
+	#[allow(missing_docs)]
+	OutputTerminalOverloadControlInvalid,
+	
+	#[allow(missing_docs)]
+	OutputTerminalUnderflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	OutputTerminalOverflowControlInvalid,
 }
 
 impl Display for Version2EntityDescriptorParseError
@@ -49,6 +109,10 @@ impl error::Error for Version2EntityDescriptorParseError
 		
 		match self
 		{
+			InputTerminalTypeParse(cause) => Some(cause),
+			
+			OutputTerminalTypeParse(cause) => Some(cause),
+			
 			LogicalAudioChannelClusterParse(cause) => Some(cause),
 			
 			InvalidDescriptionString(cause) => Some(cause),

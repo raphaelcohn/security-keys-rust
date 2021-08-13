@@ -28,7 +28,7 @@ pub enum AudioControlInterfaceAdditionalDescriptor
 		function_category: AudioFunctionCategory,
 		
 		#[allow(missing_docs)]
-		latency_control: u2,
+		latency_control: Control,
 		
 		#[allow(missing_docs)]
 		entity_descriptors: Version2EntityDescriptors,
@@ -44,7 +44,7 @@ pub enum AudioControlInterfaceAdditionalDescriptor
 		function_category: AudioFunctionCategory,
 		
 		#[allow(missing_docs)]
-		latency_control: u2,
+		latency_control: Control,
 		
 		#[allow(missing_docs)]
 		entity_descriptors: Version3EntityDescriptors,
@@ -124,11 +124,8 @@ impl AudioControlInterfaceAdditionalDescriptor
 		
 		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16_unadjusted(4), remaining_bytes)?;
 		
-		let latency_control =
-		{
-			let bmControls = descriptor_body.u8_unadjusted(6);
-			(bmControls & 0b11) as u2
-		};
+		let bmControls = descriptor_body.u8_unadjusted(6);
+		let latency_control = Control::parse_u8(bmControls, 0, AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
 		
 		Self::ok_alive
 		(
@@ -161,17 +158,15 @@ impl AudioControlInterfaceAdditionalDescriptor
 		
 		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16_unadjusted(2), remaining_bytes)?;
 		
+		let bmControls = descriptor_body.u32_unadjusted(4);
+		let latency_control = Control::parse_u32(bmControls, 0, AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
 		Self::ok_alive
 		(
 			AudioControlInterfaceAdditionalDescriptor::Version_3_0
 			{
 				function_category,
 				
-				latency_control:
-				{
-					let bmControls = descriptor_body.u32_unadjusted(4);
-					(bmControls & 0b11) as u2
-				},
+				latency_control,
 			
 				entity_descriptors: return_ok_if_dead!(Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
 			},

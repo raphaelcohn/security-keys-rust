@@ -7,6 +7,9 @@
 pub enum EntityDescriptorParseError<E: error::Error>
 {
 	#[allow(missing_docs)]
+	LatencyControlInvalid,
+	
+	#[allow(missing_docs)]
 	LessThanFourByteHeader,
 	
 	#[allow(missing_docs)]

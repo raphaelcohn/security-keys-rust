@@ -13,9 +13,9 @@ pub struct Version1InputTerminalEntity
 	
 	associated_output_terminal: Option<TerminalEntityIdentifier>,
 	
-	description: Option<LocalizedStrings>,
-	
 	input_logical_audio_channel_cluster: Version1LogicalAudioChannelCluster,
+	
+	description: Option<LocalizedStrings>,
 }
 
 impl Entity for Version1InputTerminalEntity
@@ -45,9 +45,9 @@ impl Entity for Version1InputTerminalEntity
 					
 					associated_output_terminal: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<6>()),
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<11>())).map_err(InvalidDescriptionString)?),
-					
 					input_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7, string_finder, entity_body)?),
+					
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<11>())).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

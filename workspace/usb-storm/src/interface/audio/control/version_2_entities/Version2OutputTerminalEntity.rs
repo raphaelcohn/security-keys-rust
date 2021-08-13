@@ -3,26 +3,38 @@
 
 
 /// An output terminal entity.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[allow(missing_docs)]
-pub struct Version1OutputTerminalEntity
+pub struct Version2OutputTerminalEntity
 {
 	output_terminal_type: OutputTerminalType,
 	
 	associated_input_terminal: Option<TerminalEntityIdentifier>,
 	
+	clock_source: Option<ClockEntityIdentifier>,
+	
 	output_logical_audio_channel_cluster: Option<UnitOrTerminalEntityIdentifier>,
+	
+	copy_protect_control: Control,
+	
+	connector_control: Control,
+	
+	overload_control: Control,
+	
+	underflow_control: Control,
+	
+	overflow_control: Control,
 	
 	description: Option<LocalizedStrings>,
 }
 
-impl Entity for Version1OutputTerminalEntity
+impl Entity for Version2OutputTerminalEntity
 {
-	type EntityIdentifier = UnitEntityIdentifier;
+	type EntityIdentifier = TerminalEntityIdentifier;
 	
-	type ParseError = Version1EntityDescriptorParseError;
+	type ParseError = Version2EntityDescriptorParseError;
 	
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
@@ -33,7 +45,9 @@ impl Entity for Version1OutputTerminalEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version1EntityDescriptorParseError::*;
+		use Version2EntityDescriptorParseError::*;
+		
+		let bmControls = entity_body.u16_unadjusted(adjusted_index::<9>());
 		
 		Ok
 		(
@@ -46,19 +60,35 @@ impl Entity for Version1OutputTerminalEntity
 					associated_input_terminal: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<6>()),
 					
 					output_logical_audio_channel_cluster: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<7>()).map(UnitOrTerminalEntityIdentifier::new),
-				
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<8>())).map_err(InvalidDescriptionString)?),
+					
+					clock_source: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<8>()),
+					
+					copy_protect_control: Control::parse_u16(bmControls, 0, OutputTerminalCopyProtectControlInvalid)?,
+					
+					connector_control: Control::parse_u16(bmControls, 1, OutputTerminalConnectorControlInvalid)?,
+					
+					overload_control: Control::parse_u16(bmControls, 2, OutputTerminalOverloadControlInvalid)?,
+					
+					underflow_control: Control::parse_u16(bmControls, 4, OutputTerminalUnderflowControlInvalid)?,
+					
+					overflow_control: Control::parse_u16(bmControls, 5, OutputTerminalOverflowControlInvalid)?,
+					
+					description:
+					{
+						let description = string_finder.find_string(entity_body.u8_unadjusted(adjusted_index::<11>())).map_err(InvalidDescriptionString)?;
+						return_ok_if_dead!(description)
+					},
 				}
 			)
 		)
 	}
 }
 
-impl TerminalEntity for Version1OutputTerminalEntity
+impl TerminalEntity for Version2OutputTerminalEntity
 {
 }
 
-impl Version1OutputTerminalEntity
+impl Version2OutputTerminalEntity
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
@@ -76,9 +106,51 @@ impl Version1OutputTerminalEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
+	pub const fn clock_source(&self) -> Option<ClockEntityIdentifier>
+	{
+		self.clock_source
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
 	pub const fn output_logical_audio_channel_cluster(&self) -> Option<UnitOrTerminalEntityIdentifier>
 	{
 		self.output_logical_audio_channel_cluster
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn copy_protect_control(&self) -> Control
+	{
+		self.copy_protect_control
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn connector_control(&self) -> Control
+	{
+		self.connector_control
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn overload_control(&self) -> Control
+	{
+		self.overload_control
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn underflow_control(&self) -> Control
+	{
+		self.underflow_control
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn overflow_control(&self) -> Control
+	{
+		self.overflow_control
 	}
 	
 	#[allow(missing_docs)]

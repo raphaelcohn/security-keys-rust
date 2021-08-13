@@ -52,9 +52,9 @@ impl Entity for Version2SourceClockEntity
 					
 					synchronized_to_sof: bmAttributes & 0b100 != 0,
 					
-					frequency: Control::parse(bmControls, 0)?,
+					frequency: Control::parse_u8(bmControls, 0, SourceClockFrequencyControlInvalid)?,
 					
-					validity: Control::parse(bmControls, 1)?,
+					validity: Control::parse_u8(bmControls, 1, SourceClockValidityControlInvalid)?,
 					
 					associated_terminal: entity_body.optional_non_zero_u8_unadjusted(adjusted_index::<6>()),
 					

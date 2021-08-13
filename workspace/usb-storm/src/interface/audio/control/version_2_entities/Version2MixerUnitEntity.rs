@@ -69,11 +69,11 @@ impl Entity for Version2MixerUnitEntity
 					
 					controls_bit_map: Vec::new_from(entity_body.bytes_unadjusted(adjusted_index_non_constant(11 + p), N)).map_err(CouldNotAllocateMemoryForMixerControls)?,
 					
-					cluster_control: Control::parse(bmControls, 0)?,
+					cluster_control: Control::parse_u8(bmControls, 0, MixerUnitClusterControlInvalid)?,
 					
-					underflow_control: Control::parse(bmControls, 1)?,
+					underflow_control: Control::parse_u8(bmControls, 1, MixerUnitUnderflowControlInvalid)?,
 					
-					overflow_control: Control::parse(bmControls, 2)?,
+					overflow_control: Control::parse_u8(bmControls, 2, MixerUnitOverflowControlInvalid)?,
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(adjusted_index_non_constant(12 + p + N))).map_err(InvalidDescriptionString)?),
 				}

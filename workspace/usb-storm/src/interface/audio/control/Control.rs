@@ -22,8 +22,23 @@ pub enum Control
 impl Control
 {
 	#[inline(always)]
-	fn parse(bitmap: u8, control_index: u8) -> Result<Control, Version2EntityDescriptorParseError>
+	fn parse_u8<E: error::Error>(bitmap: u8, control_index: u8, invalid_control_error: E) -> Result<Control, E>
 	{
+		debug_assert!(control_index < 4);
+		Self::parse_u16(bitmap as u16, control_index as u16, invalid_control_error)
+	}
+	
+	#[inline(always)]
+	fn parse_u16<E: error::Error>(bitmap: u16, control_index: u16, invalid_control_error: E) -> Result<Control, E>
+	{
+		debug_assert!(control_index < 8);
+		Self::parse_u32(bitmap as u32, control_index as u32, invalid_control_error)
+	}
+	
+	#[inline(always)]
+	fn parse_u32<E: error::Error>(bitmap: u32, control_index: u32, invalid_control_error: E) -> Result<Control, E>
+	{
+		debug_assert!(control_index < 16);
 		use Control::*;
 		let shift = control_index * 2;
 		match (bitmap >> shift) & 0b11
@@ -32,7 +47,7 @@ impl Control
 			
 			0b01 => Ok(ReadOnly),
 			
-			0b10 => Err(Version2EntityDescriptorParseError::InvalidControl),
+			0b10 => Err(invalid_control_error),
 			
 			0b11 => Ok(HostProgrammable),
 			

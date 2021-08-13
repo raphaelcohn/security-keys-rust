@@ -21,11 +21,13 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
 use std::mem::transmute;
+use super::Control;
 use super::DescriptorEntityMinimumLength;
 use super::entities::ClockEntity;
 use super::entities::Entities;
 use super::entities::Entity;
 use super::entities::UnitEntity;
+use super::entities::TerminalEntity;
 use super::EntityDescriptorParseError;
 use super::EntityDescriptors;
 use super::adjusted_index;
@@ -40,6 +42,7 @@ use super::parse_p;
 use self::logical_audio_channel_cluster::Version2LogicalAudioChannelClusterParseError;
 use super::logical_audio_channels::LogicalAudioChannelClusterParseError;
 use super::logical_audio_channels::InputLogicalAudioChannelClusters;
+use crate::interface::audio::control::terminal_types::{InputTerminalType, TerminalTypeParseError, OutputTerminalType};
 
 
 /// Logical audio channel cluster.
@@ -47,11 +50,12 @@ pub mod logical_audio_channel_cluster;
 
 
 include!("ClockType.rs");
-include!("Control.rs");
 include!("Version2EntityDescriptorParseError.rs");
 include!("Version2EntityDescriptors.rs");
+include!("Version2InputTerminalEntity.rs");
 include!("Version2MixerUnitEntity.rs");
 include!("Version2MultiplierClockEntity.rs");
+include!("Version2OutputTerminalEntity.rs");
 include!("Version2SamplingRateConverterUnitEntity.rs");
 include!("Version2SelectorClockEntity.rs");
 include!("Version2SourceClockEntity.rs");
