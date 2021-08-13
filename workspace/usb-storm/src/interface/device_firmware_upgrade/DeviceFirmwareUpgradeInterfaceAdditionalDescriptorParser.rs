@@ -5,7 +5,7 @@
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub(super) struct DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser;
 
-impl AdditionalDescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser
+impl DescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser
 {
 	type Descriptor = DeviceFirmwareUpgradeInterfaceAdditionalDescriptor;
 	

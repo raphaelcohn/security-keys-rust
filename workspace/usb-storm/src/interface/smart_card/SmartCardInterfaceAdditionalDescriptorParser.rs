@@ -10,7 +10,7 @@ pub(super) struct SmartCardInterfaceAdditionalDescriptorParser
 	expected: u8,
 }
 
-impl AdditionalDescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
+impl DescriptorParser for SmartCardInterfaceAdditionalDescriptorParser
 {
 	type Descriptor = SmartCardInterfaceAdditionalDescriptor;
 	

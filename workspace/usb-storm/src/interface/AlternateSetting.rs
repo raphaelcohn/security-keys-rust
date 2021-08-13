@@ -14,7 +14,7 @@ pub struct AlternateSetting
 
 	description: Option<LocalizedStrings>,
 	
-	additional_descriptors: Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>,
+	additional_descriptors: Vec<Descriptor<InterfaceAdditionalDescriptor>>,
 
 	end_points: WrappedIndexMap<EndPointNumber, EndPoint>,
 }
@@ -44,7 +44,7 @@ impl AlternateSetting
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn additional_descriptors(&self) -> &[AdditionalDescriptor<InterfaceAdditionalDescriptor>]
+	pub fn additional_descriptors(&self) -> &[Descriptor<InterfaceAdditionalDescriptor>]
 	{
 		&self.additional_descriptors
 	}
@@ -168,34 +168,34 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 	{
 		#[inline(always)]
-		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
 			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
 		}
 		
 		#[inline(always)]
-		fn human_interface_device(string_finder: &StringFinder, extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn human_interface_device(string_finder: &StringFinder, extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
 			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(variant))
 		}
 		
 		#[inline(always)]
-		fn smart_card(string_finder: &StringFinder, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn smart_card(string_finder: &StringFinder, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
 			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, SmartCardInterfaceAdditionalDescriptorParser::new(smart_card_protocol, bDescriptorType))
 		}
 		
 		#[inline(always)]
-		fn unsupported_smart_card_with_descriptor_at_end_of_end_points(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn unsupported_smart_card_with_descriptor_at_end_of_end_points(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
 			unsupported(string_finder, extra)
 		}
 		
 		#[inline(always)]
-		fn unsupported(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+		fn unsupported(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
 			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, UnsupportedInterfaceAdditionalDescriptorParser)
 		}

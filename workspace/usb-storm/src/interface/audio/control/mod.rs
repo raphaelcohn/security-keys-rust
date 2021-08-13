@@ -5,7 +5,7 @@
 use crate::collections::Bytes;
 use crate::descriptors::adjust_descriptor_index;
 use crate::collections::VecExt;
-use crate::descriptors::AdditionalDescriptorParser;
+use crate::descriptors::DescriptorParser;
 use crate::descriptors::DescriptorHeaderLength;
 use crate::descriptors::DescriptorType;
 use crate::descriptors::verify_remaining_bytes;

@@ -6,7 +6,7 @@
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum AdditionalDescriptor<K>
+pub enum Descriptor<K>
 {
 	Known(K),
 	

@@ -2,12 +2,12 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-struct InterfaceAdditionalDescriptorParser<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>>
+struct InterfaceAdditionalDescriptorParser<Inner: DescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>>
 {
 	inner: Inner,
 }
 
-impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>> AdditionalDescriptorParser for InterfaceAdditionalDescriptorParser<Inner>
+impl<Inner: DescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>> DescriptorParser for InterfaceAdditionalDescriptorParser<Inner>
 {
 	type Descriptor = InterfaceAdditionalDescriptor;
 	
@@ -29,15 +29,15 @@ impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescr
 	}
 }
 
-impl<Inner: AdditionalDescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>> InterfaceAdditionalDescriptorParser<Inner>
+impl<Inner: DescriptorParser<Descriptor: Into<InterfaceAdditionalDescriptor>, Error: Into<InterfaceAdditionalDescriptorParseError>>> InterfaceAdditionalDescriptorParser<Inner>
 {
 	#[inline(always)]
-	fn parse_additional_descriptors(string_finder: &StringFinder, extra: &[u8], inner: Inner) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<InterfaceAdditionalDescriptor>>>, AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+	fn parse_additional_descriptors(string_finder: &StringFinder, extra: &[u8], inner: Inner) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 	{
 		let this = Self
 		{
 			inner
 		};
-		parse_additional_descriptors(string_finder, extra, this)
+		parse_descriptors(string_finder, extra, this)
 	}
 }

@@ -6,7 +6,7 @@ use crate::collections::Bytes;
 use crate::descriptors::adjust_descriptor_index;
 use crate::version::Version;
 use crate::version::VersionParseError;
-use crate::descriptors::AdditionalDescriptorParser;
+use crate::descriptors::DescriptorParser;
 use crate::descriptors::DescriptorType;
 use crate::descriptors::reduce_b_length_to_descriptor_body_length;
 use crate::descriptors::verify_remaining_bytes;

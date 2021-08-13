@@ -23,12 +23,12 @@ use crate::device::DeadOrAlive::{Alive, Dead};
 
 
 include!("adjust_descriptor_index.rs");
-include!("AdditionalDescriptor.rs");
-include!("AdditionalDescriptorParseError.rs");
-include!("AdditionalDescriptorParser.rs");
+include!("Descriptor.rs");
 include!("DescriptorHeaderLength.rs");
+include!("DescriptorParseError.rs");
+include!("DescriptorParser.rs");
 include!("DescriptorType.rs");
 include!("extra_to_slice.rs");
-include!("parse_additional_descriptors.rs");
+include!("parse_descriptors.rs");
 include!("reduce_b_length_to_descriptor_body_length.rs");
 include!("verify_remaining_bytes.rs");

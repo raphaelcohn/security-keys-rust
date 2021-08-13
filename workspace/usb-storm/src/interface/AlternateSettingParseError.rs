@@ -105,7 +105,7 @@ pub enum AlternateSettingParseError
 	#[allow(missing_docs)]
 	CouldNotParseAlternateSettingAdditionalDescriptor
 	{
-		cause: AdditionalDescriptorParseError<InterfaceAdditionalDescriptorParseError>,
+		cause: DescriptorParseError<InterfaceAdditionalDescriptorParseError>,
 		
 		interface_index: u8,
 		

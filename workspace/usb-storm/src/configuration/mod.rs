@@ -4,12 +4,12 @@
 
 use super::integers::u3;
 use super::integers::u5;
-use super::descriptors::AdditionalDescriptor;
-use super::descriptors::AdditionalDescriptorParseError;
-use super::descriptors::AdditionalDescriptorParser;
+use super::descriptors::Descriptor;
+use super::descriptors::DescriptorParseError;
+use super::descriptors::DescriptorParser;
 use super::descriptors::DescriptorType;
 use super::descriptors::extra_to_slice;
-use super::descriptors::parse_additional_descriptors;
+use super::descriptors::parse_descriptors;
 use super::control_transfers::ControlTransferError;
 use super::device::Speed;
 use super::interface::Interface;

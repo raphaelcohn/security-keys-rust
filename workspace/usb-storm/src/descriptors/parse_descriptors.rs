@@ -3,10 +3,10 @@
 
 
 #[inline(always)]
-pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(string_finder: &StringFinder, mut extra: &[u8], mut additional_descriptor_parser: ADP) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<ADP::Descriptor>>>, AdditionalDescriptorParseError<ADP::Error>>
+pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFinder, mut extra: &[u8], mut additional_descriptor_parser: ADP) -> Result<DeadOrAlive<Vec<Descriptor<ADP::Descriptor>>>, DescriptorParseError<ADP::Error>>
 {
-	use AdditionalDescriptor::*;
-	use AdditionalDescriptorParseError::*;
+	use Descriptor::*;
+	use DescriptorParseError::*;
 	
 	let extra_length = extra.len();
 	if likely!(extra_length == 0)

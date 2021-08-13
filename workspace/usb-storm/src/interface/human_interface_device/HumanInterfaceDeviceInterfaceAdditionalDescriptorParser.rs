@@ -5,7 +5,7 @@
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub(super) struct HumanInterfaceDeviceInterfaceAdditionalDescriptorParser(HumanInterfaceDeviceInterfaceAdditionalVariant);
 
-impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescriptorParser
+impl DescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescriptorParser
 {
 	type Descriptor = HumanInterfaceDeviceInterfaceAdditionalDescriptor;
 	

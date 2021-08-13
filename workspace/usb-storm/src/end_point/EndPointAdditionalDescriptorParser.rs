@@ -10,7 +10,7 @@ struct EndPointAdditionalDescriptorParser<'a>
 	maximum_packet_size: u11,
 }
 
-impl<'a> AdditionalDescriptorParser for EndPointAdditionalDescriptorParser<'a>
+impl<'a> DescriptorParser for EndPointAdditionalDescriptorParser<'a>
 {
 	type Descriptor = EndPointAdditionalDescriptor;
 	

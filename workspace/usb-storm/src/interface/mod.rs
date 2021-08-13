@@ -13,12 +13,12 @@ use self::human_interface_device::HumanInterfaceDeviceInterfaceAdditionalVariant
 use self::smart_card::SmartCardInterfaceAdditionalDescriptor;
 use self::smart_card::SmartCardInterfaceAdditionalDescriptorParseError;
 use self::unsupported::UnsupportedInterfaceAdditionalDescriptor;
-use super::descriptors::AdditionalDescriptor;
-use super::descriptors::AdditionalDescriptorParseError;
-use super::descriptors::AdditionalDescriptorParser;
+use super::descriptors::Descriptor;
+use super::descriptors::DescriptorParseError;
+use super::descriptors::DescriptorParser;
 use super::descriptors::DescriptorType;
 use super::descriptors::extra_to_slice;
-use super::descriptors::parse_additional_descriptors;
+use super::descriptors::parse_descriptors;
 use super::class_and_protocol::ApplicationSpecificInterfaceSubClass;
 use super::class_and_protocol::HumanInterfaceDeviceInterfaceBootProtocol;
 use super::class_and_protocol::HumanInterfaceDeviceInterfaceSubClass;

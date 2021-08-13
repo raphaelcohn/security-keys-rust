@@ -4,7 +4,7 @@
 
 /// Descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum AdditionalDescriptorParseError<E: error::Error>
+pub enum DescriptorParseError<E: error::Error>
 {
 	/// libusb returned null for extra; should not be possible, but trusting third party C libraries is the way to madness.
 	ExtraIsNullButLengthIsNonZero,
@@ -28,7 +28,7 @@ pub enum AdditionalDescriptorParseError<E: error::Error>
 	CanNotAllocateAdditionalDescriptor(TryReserveError),
 }
 
-impl<E: error::Error> Display for AdditionalDescriptorParseError<E>
+impl<E: error::Error> Display for DescriptorParseError<E>
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -37,12 +37,12 @@ impl<E: error::Error> Display for AdditionalDescriptorParseError<E>
 	}
 }
 
-impl<E: 'static + error::Error> error::Error for AdditionalDescriptorParseError<E>
+impl<E: 'static + error::Error> error::Error for DescriptorParseError<E>
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use AdditionalDescriptorParseError::*;
+		use DescriptorParseError::*;
 		
 		match self
 		{

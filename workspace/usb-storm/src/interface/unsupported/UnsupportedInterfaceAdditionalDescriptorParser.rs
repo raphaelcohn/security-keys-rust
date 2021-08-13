@@ -5,7 +5,7 @@
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub(super) struct UnsupportedInterfaceAdditionalDescriptorParser;
 
-impl AdditionalDescriptorParser for UnsupportedInterfaceAdditionalDescriptorParser
+impl DescriptorParser for UnsupportedInterfaceAdditionalDescriptorParser
 {
 	type Descriptor = UnsupportedInterfaceAdditionalDescriptor;
 	

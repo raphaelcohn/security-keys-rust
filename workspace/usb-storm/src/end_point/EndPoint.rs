@@ -14,7 +14,7 @@ pub struct EndPoint
 	
 	audio_extension: Option<EndPointAudioExtension>,
 
-	additional_descriptors: Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>,
+	additional_descriptors: Vec<Descriptor<EndPointAdditionalDescriptor>>,
 }
 
 impl EndPoint
@@ -42,7 +42,7 @@ impl EndPoint
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn additional_descriptors(&self) -> &[AdditionalDescriptor<EndPointAdditionalDescriptor>]
+	pub fn additional_descriptors(&self) -> &[Descriptor<EndPointAdditionalDescriptor>]
 	{
 		&self.additional_descriptors
 	}
@@ -124,7 +124,7 @@ impl EndPoint
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors<'a>(string_finder: &StringFinder, end_point_descriptor: &libusb_endpoint_descriptor, transfer_type: &'a mut TransferType, maximum_packet_size: u11) -> Result<DeadOrAlive<Vec<AdditionalDescriptor<EndPointAdditionalDescriptor>>>, AdditionalDescriptorParseError<EndPointAdditionalDescriptorParseError>>
+	fn parse_additional_descriptors<'a>(string_finder: &StringFinder, end_point_descriptor: &libusb_endpoint_descriptor, transfer_type: &'a mut TransferType, maximum_packet_size: u11) -> Result<DeadOrAlive<Vec<Descriptor<EndPointAdditionalDescriptor>>>, DescriptorParseError<EndPointAdditionalDescriptorParseError>>
 	{
 		let extra = extra_to_slice(end_point_descriptor.extra, end_point_descriptor.extra_length)?;
 		let additional_descriptor_parser = EndPointAdditionalDescriptorParser
@@ -134,6 +134,6 @@ impl EndPoint
 			maximum_packet_size,
 		};
 		
-		parse_additional_descriptors(string_finder, extra, additional_descriptor_parser)
+		parse_descriptors(string_finder, extra, additional_descriptor_parser)
 	}
 }

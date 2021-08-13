@@ -3,9 +3,9 @@
 
 
 #[inline(always)]
-pub(crate) fn extra_to_slice<'a, E: error::Error>(extra: *const u8, extra_length: i32) -> Result<&'a [u8], AdditionalDescriptorParseError<E>>
+pub(crate) fn extra_to_slice<'a, E: error::Error>(extra: *const u8, extra_length: i32) -> Result<&'a [u8], DescriptorParseError<E>>
 {
-	use AdditionalDescriptorParseError::*;
+	use DescriptorParseError::*;
 	
 	if unlikely!(extra_length < 0)
 	{

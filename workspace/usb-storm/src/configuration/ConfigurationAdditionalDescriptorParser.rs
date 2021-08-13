@@ -5,7 +5,7 @@
 #[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 struct ConfigurationAdditionalDescriptorParser;
 
-impl AdditionalDescriptorParser for ConfigurationAdditionalDescriptorParser
+impl DescriptorParser for ConfigurationAdditionalDescriptorParser
 {
 	type Descriptor = ConfigurationAdditionalDescriptor;
 	

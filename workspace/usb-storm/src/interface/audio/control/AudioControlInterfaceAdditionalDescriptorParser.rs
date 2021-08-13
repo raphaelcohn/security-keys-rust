@@ -5,7 +5,7 @@
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub(super) struct AudioControlInterfaceAdditionalDescriptorParser(AudioProtocol);
 
-impl AdditionalDescriptorParser for AudioControlInterfaceAdditionalDescriptorParser
+impl DescriptorParser for AudioControlInterfaceAdditionalDescriptorParser
 {
 	type Descriptor = AudioControlInterfaceAdditionalDescriptor;
 	
