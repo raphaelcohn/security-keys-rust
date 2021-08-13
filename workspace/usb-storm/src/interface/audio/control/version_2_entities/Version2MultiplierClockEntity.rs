@@ -35,7 +35,7 @@ impl Entity for Version2MultiplierClockEntity
 	{
 		use Version2EntityDescriptorParseError::*;
 		
-		let bmControls = entity_body.u8_unadjusted(entity_index::<5>());
+		let bmControls = entity_body.u8(entity_index::<5>());
 		
 		Ok
 		(
@@ -43,13 +43,13 @@ impl Entity for Version2MultiplierClockEntity
 			(
 				Self
 				{
-					source: entity_body.optional_non_zero_u8_unadjusted(entity_index::<4>()),
+					source: entity_body.optional_non_zero_u8(entity_index::<4>()),
 					
 					numerator: Control::parse_u8(bmControls, 0, MultiplierClockNumeratorControlInvalid)?,
 					
 					denominator: Control::parse_u8(bmControls, 1, MultiplierClockDenominatorControlInvalid)?,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_index::<7>())).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index::<7>())).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

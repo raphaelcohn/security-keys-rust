@@ -73,7 +73,7 @@ impl Entity for Version1ProcessingUnitEntity
 		let controls_bytes_size_plus_process_specific_size = entity_body.len().checked_sub(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize + StringDescriptorSize).ok_or(ProcessingUnitHasTooFewBytesForControlsAndProcessSpecificData)?;
 		let process_specific_size = controls_bytes_size_plus_process_specific_size.checked_sub(controls_bytes_size.get()).ok_or(ProcessingUnitHasTooFewBytesForProcessSpecificData)?;
 		
-		let bmControls = entity_body.bytes_unadjusted(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
+		let bmControls = entity_body.bytes(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
 		let enable = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
 		
 		let output_logical_audio_channel_cluster = return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7 + p, string_finder, entity_body)?);
@@ -91,7 +91,7 @@ impl Entity for Version1ProcessingUnitEntity
 					{
 						let process_type_specific_bytes = entity_body.get_unchecked_range_safe(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize + controls_bytes_size.get() + StringDescriptorSize .. );
 						debug_assert_eq!(process_type_specific_bytes.len(), process_specific_size);
-						match entity_body.u16_unadjusted(entity_index::<DescriptorEntityMinimumLength>())
+						match entity_body.u16(entity_index::<DescriptorEntityMinimumLength>())
 						{
 							0x00 => ProcessType::parse_undefined(bmControls, process_type_specific_bytes)?,
 							
@@ -113,7 +113,7 @@ impl Entity for Version1ProcessingUnitEntity
 					
 					output_logical_audio_channel_cluster,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize + controls_bytes_size.get())).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize + controls_bytes_size.get())).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

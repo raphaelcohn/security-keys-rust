@@ -35,7 +35,7 @@ impl Usb2ExtensionDeviceCapability
 		
 		let supports_link_power_management_protocol =
 		{
-			let bmAttributes = device_capability_bytes.u32_unadjusted(0);
+			let bmAttributes = device_capability_bytes.u32(0);
 			const Mask: u32 = 0b0010;
 			bmAttributes & Mask != 0
 		};

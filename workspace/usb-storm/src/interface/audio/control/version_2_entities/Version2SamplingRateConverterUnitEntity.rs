@@ -41,13 +41,13 @@ impl Entity for Version2SamplingRateConverterUnitEntity
 			(
 				Self
 				{
-					source_cluster_identifier: entity_body.optional_non_zero_u8_unadjusted(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
+					source_cluster_identifier: entity_body.optional_non_zero_u8(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
 					
-					source_input_clock_entity: entity_body.optional_non_zero_u8_unadjusted(entity_index::<5>()),
+					source_input_clock_entity: entity_body.optional_non_zero_u8(entity_index::<5>()),
 					
-					source_output_clock_entity: entity_body.optional_non_zero_u8_unadjusted(entity_index::<6>()),
+					source_output_clock_entity: entity_body.optional_non_zero_u8(entity_index::<6>()),
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_index::<7>())).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index::<7>())).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

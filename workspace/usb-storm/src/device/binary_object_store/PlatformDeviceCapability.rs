@@ -40,7 +40,7 @@ impl PlatformDeviceCapability
 			return Err(TooShort)
 		}
 		
-		let bReserved = device_capability_bytes.u8_unadjusted(0);
+		let bReserved = device_capability_bytes.u8(0);
 		if unlikely!(bReserved != 0)
 		{
 			return Err(HasReservedByteSet)
@@ -50,7 +50,7 @@ impl PlatformDeviceCapability
 		(
 			Self
 			{
-				key: device_capability_bytes.uuid_unadjusted(1),
+				key: device_capability_bytes.uuid(1),
 			
 				value: Vec::new_from(device_capability_bytes.get_unchecked_range_safe(MinimumSize .. ))?,
 			}

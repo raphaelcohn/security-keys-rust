@@ -50,7 +50,7 @@ impl Entity for Version2SelectorClockEntity
 			return Err(SelectorClockPIsTooLarge);
 		}
 		
-		let bmControls = entity_body.u8_unadjusted(entity_index_non_constant(DescriptorEntityMinimumLength + sources_size));
+		let bmControls = entity_body.u8(entity_index_non_constant(DescriptorEntityMinimumLength + sources_size));
 		
 		Ok
 		(
@@ -65,12 +65,12 @@ impl Entity for Version2SelectorClockEntity
 						let mut sources = Vec::new_with_capacity(p).map_err(SelectorClockCouldNotAllocateSources)?;
 						for index in 0 .. p
 						{
-							sources.push(entity_body.optional_non_zero_u8_unadjusted(entity_index_non_constant(5 + index)));
+							sources.push(entity_body.optional_non_zero_u8(entity_index_non_constant(5 + index)));
 						}
 						sources
 					},
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

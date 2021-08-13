@@ -67,12 +67,12 @@ impl ConfigurationSummaryDeviceCapability
 			return Err(TooShort)
 		}
 		
-		let version = device_capability_bytes.version_unadjusted(0)?;
+		let version = device_capability_bytes.version(0)?;
 		
-		let class_code = device_capability_bytes.u8_unadjusted(2);
-		let subclass_code = device_capability_bytes.u8_unadjusted(3);
-		let protocol = device_capability_bytes.u8_unadjusted(4);
-		let bConfigurationCount = device_capability_bytes.u8_unadjusted(5);
+		let class_code = device_capability_bytes.u8(2);
+		let subclass_code = device_capability_bytes.u8(3);
+		let protocol = device_capability_bytes.u8(4);
+		let bConfigurationCount = device_capability_bytes.u8(5);
 		
 		if unlikely!(bConfigurationCount > MaximumNumberOfConfigurations)
 		{
@@ -84,7 +84,7 @@ impl ConfigurationSummaryDeviceCapability
 			let mut configuration_descriptor_indices = WrappedIndexSet::with_capacity(bConfigurationCount).map_err(OutOfMemoryForConfigurationDescriptorIndices)?;
 			for offset in 0..bConfigurationCount
 			{
-				let configuration_descriptor_index = device_capability_bytes.u8_unadjusted((6 + offset) as usize);
+				let configuration_descriptor_index = device_capability_bytes.u8((6 + offset) as usize);
 				let outcome = configuration_descriptor_indices.insert(configuration_descriptor_index);
 				if unlikely!(outcome == false)
 				{

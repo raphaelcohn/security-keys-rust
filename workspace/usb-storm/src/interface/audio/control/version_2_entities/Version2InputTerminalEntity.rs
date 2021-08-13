@@ -49,7 +49,7 @@ impl Entity for Version2InputTerminalEntity
 	{
 		use Version2EntityDescriptorParseError::*;
 		
-		let bmControls = entity_body.u16_unadjusted(entity_index::<14>());
+		let bmControls = entity_body.u16(entity_index::<14>());
 		
 		Ok
 		(
@@ -57,11 +57,11 @@ impl Entity for Version2InputTerminalEntity
 			(
 				Self
 				{
-					input_terminal_type: InputTerminalType::parse(entity_body.u16_unadjusted(entity_index::<4>())).map_err(InputTerminalTypeParse)?,
+					input_terminal_type: InputTerminalType::parse(entity_body.u16(entity_index::<4>())).map_err(InputTerminalTypeParse)?,
 					
-					associated_output_terminal: entity_body.optional_non_zero_u8_unadjusted(entity_index::<6>()),
+					associated_output_terminal: entity_body.optional_non_zero_u8(entity_index::<6>()),
 					
-					clock_source: entity_body.optional_non_zero_u8_unadjusted(entity_index::<7>()),
+					clock_source: entity_body.optional_non_zero_u8(entity_index::<7>()),
 					
 					input_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(8, string_finder, entity_body)?),
 					
@@ -79,7 +79,7 @@ impl Entity for Version2InputTerminalEntity
 					
 					description:
 					{
-						let description = string_finder.find_string(entity_body.u8_unadjusted(entity_index::<16>())).map_err(InvalidDescriptionString)?;
+						let description = string_finder.find_string(entity_body.u8(entity_index::<16>())).map_err(InvalidDescriptionString)?;
 						return_ok_if_dead!(description)
 					},
 				}

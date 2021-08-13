@@ -50,7 +50,7 @@ impl TerminalControls
 	#[inline(always)]
 	fn new<const index: usize>(entity_body: &[u8]) -> Self
 	{
-		let bmControls = entity_body.u32_unadjusted(entity_index::<index>());
+		let bmControls = entity_body.u32(entity_index::<index>());
 		
 		Self
 		{

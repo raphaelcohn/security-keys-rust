@@ -5,7 +5,7 @@
 #[inline(always)]
 fn parse_control_size(entity_body: &[u8], index: usize, error: Version1EntityDescriptorParseError) -> Result<NonZeroUsize, Version1EntityDescriptorParseError>
 {
-	let bControlSize = entity_body.u8_unadjusted(entity_index_non_constant(index));
+	let bControlSize = entity_body.u8(entity_index_non_constant(index));
 	if bControlSize == 0
 	{
 		return Err(error)

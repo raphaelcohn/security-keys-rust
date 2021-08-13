@@ -74,7 +74,7 @@ impl Entity for Version1ExtensionUnitEntity
 			return Err(ExtensionUnitTooShort)
 		}
 		
-		let bmControls = entity_body.bytes_unadjusted(ExtensionCodeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
+		let bmControls = entity_body.bytes(ExtensionCodeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
 		let enable = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
 		
 		Ok
@@ -89,9 +89,9 @@ impl Entity for Version1ExtensionUnitEntity
 					
 					controls_bit_map: Vec::new_from(bmControls).map_err(CouldNotAllocateMemoryForExtensionUnitControlsBitMap)?,
 					
-					extension_code: entity_body.u16_unadjusted(entity_index::<4>()),
+					extension_code: entity_body.u16(entity_index::<4>()),
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

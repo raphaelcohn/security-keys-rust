@@ -58,9 +58,9 @@ impl Entity for Version1MixerUnitEntity
 					
 					output_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body)?),
 					
-					mixer_controls_bit_map: Vec::new_from(entity_body.bytes_unadjusted(entity_index_non_constant(9 + p), N)).map_err(CouldNotAllocateMemoryForMixerControls)?,
+					mixer_controls_bit_map: Vec::new_from(entity_body.bytes(entity_index_non_constant(9 + p), N)).map_err(CouldNotAllocateMemoryForMixerControls)?,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_index_non_constant(9 + p + N))).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(9 + p + N))).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

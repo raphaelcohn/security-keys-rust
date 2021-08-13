@@ -55,7 +55,7 @@ impl Entity for Version2MixerUnitEntity
 			(bLength - MinimumBLength).checked_sub(p).ok_or(MixerUnitBLengthTooShort)?
 		};
 		
-		let bmControls = entity_body.u8_unadjusted(entity_index_non_constant(11 + p + N));
+		let bmControls = entity_body.u8(entity_index_non_constant(11 + p + N));
 		
 		Ok
 		(
@@ -67,7 +67,7 @@ impl Entity for Version2MixerUnitEntity
 					
 					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body)?),
 					
-					controls_bit_map: Vec::new_from(entity_body.bytes_unadjusted(entity_index_non_constant(11 + p), N)).map_err(CouldNotAllocateMemoryForMixerControls)?,
+					controls_bit_map: Vec::new_from(entity_body.bytes(entity_index_non_constant(11 + p), N)).map_err(CouldNotAllocateMemoryForMixerControls)?,
 					
 					cluster_control: Control::parse_u8(bmControls, 0, MixerUnitClusterControlInvalid)?,
 					
@@ -75,7 +75,7 @@ impl Entity for Version2MixerUnitEntity
 					
 					overflow_control: Control::parse_u8(bmControls, 2, MixerUnitOverflowControlInvalid)?,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_index_non_constant(12 + p + N))).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(12 + p + N))).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

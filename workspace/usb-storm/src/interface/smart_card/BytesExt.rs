@@ -7,13 +7,13 @@ trait BytesExt: Bytes
 	#[inline(always)]
 	fn kilohertz(&self, index: usize) -> Kilohertz
 	{
-		self.u32_unadjusted(index)
+		self.u32(index)
 	}
 	
 	#[inline(always)]
 	fn baud(&self, index: usize) -> Baud
 	{
-		self.u32_unadjusted(index)
+		self.u32(index)
 	}
 }
 

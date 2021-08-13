@@ -23,14 +23,14 @@ pub(super) fn parse_additional_descriptors<ADP: AdditionalDescriptorParser>(stri
 			return Err(NotEnoughDescriptorBytes)
 		}
 		
-		let bLength = extra.u8_unadjusted(0);
+		let bLength = extra.u8(0);
 		let descriptor_length = bLength as usize;
 		if unlikely!(descriptor_length > remaining_length)
 		{
 			return Err(DescriptorLengthExceedsRemainingBytes)
 		}
 		
-		let descriptor_type = extra.u8_unadjusted(1);
+		let descriptor_type = extra.u8(1);
 		let remaining_bytes = extra.get_unchecked_range_safe(DescriptorHeaderLength .. );
 		let (additional_descriptor, consumed_length) = match additional_descriptor_parser.parse_descriptor(string_finder, bLength, descriptor_type, remaining_bytes)
 		{

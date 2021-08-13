@@ -76,14 +76,14 @@ impl DeviceCapability
 			return Err(DescriptorTooShort { remaining_length })
 		}
 		
-		let bDescriptorType = device_capabilities_bytes.u8_unadjusted(1);
+		let bDescriptorType = device_capabilities_bytes.u8(1);
 		
 		if unlikely!(bDescriptorType != 0x10)
 		{
 			return Err(DescriptorTypeWasInvalid { bDescriptorType })
 		}
 		
-		let bLength = device_capabilities_bytes.u8_unadjusted(0);
+		let bLength = device_capabilities_bytes.u8(0);
 		let length = bLength as usize;
 		if unlikely!(length < MinimumSize)
 		{
@@ -94,7 +94,7 @@ impl DeviceCapability
 			return Err(BLengthTooLong { bLength })
 		}
 		
-		let bDevCapabilityType = device_capabilities_bytes.u8_unadjusted(2);
+		let bDevCapabilityType = device_capabilities_bytes.u8(2);
 		let device_capability_bytes = device_capabilities_bytes.get_unchecked_range_safe(MinimumSize .. length);
 		let device_capability = match bDevCapabilityType
 		{

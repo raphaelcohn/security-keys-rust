@@ -28,7 +28,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 		
 		let number_of_class_descriptors_including_mandatory_report =
 		{
-			let bNumClassDescriptors = descriptor_body.u8_adjusted::<5>();
+			let bNumClassDescriptors = descriptor_body.u8(adjust_descriptor_index::<5>());
 			if unlikely!(bNumClassDescriptors == 0)
 			{
 				return Err(ZeroNumberOfClassDescriptors)
@@ -37,7 +37,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 		};
 		
 		{
-			let report_descriptor_type = descriptor_body.u8_adjusted::<6>(); //
+			let report_descriptor_type = descriptor_body.u8(adjust_descriptor_index::<6>()); //
 			if unlikely!(report_descriptor_type != 0x22)
 			{
 				return Err(UnrecognisedReportDescriptorType(report_descriptor_type))
@@ -55,9 +55,9 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 						{
 							variant: self.0,
 							
-							version: descriptor_body.version_unadjusted(adjust_descriptor_index::<2>()).map_err(Version)?,
+							version: descriptor_body.version(adjust_descriptor_index::<2>()).map_err(Version)?,
 							
-							country_code: match descriptor_body.u8_adjusted::<4>()
+							country_code: match descriptor_body.u8(adjust_descriptor_index::<4>())
 							{
 								0 => None,
 								
@@ -66,7 +66,7 @@ impl AdditionalDescriptorParser for HumanInterfaceDeviceInterfaceAdditionalDescr
 								reserved => return Err(ReservedCountryCode(reserved))
 							}
 							,
-							report_descriptor_length: descriptor_body.u16_adjusted::<7>(),
+							report_descriptor_length: descriptor_body.u16(adjust_descriptor_index::<7>()),
 						
 							optional_descriptors: Self::parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report, descriptor_body.get_unchecked_range_safe(((MinimumBLength as usize) - DescriptorHeaderLength) .. ))?,
 						},
@@ -119,7 +119,7 @@ impl HumanInterfaceDeviceInterfaceAdditionalDescriptorParser
 			(
 				HumanInterfaceDeviceOptionalDescriptor
 				{
-					descriptor_type: match optional_descriptors_bytes.u8_unadjusted(byte_index)
+					descriptor_type: match optional_descriptors_bytes.u8(byte_index)
 					{
 						0x23 => Physical,
 						
@@ -128,7 +128,7 @@ impl HumanInterfaceDeviceInterfaceAdditionalDescriptorParser
 						bDescriptorType @ _ => return Err(InvalidOptionalDescriptor { bDescriptorType })
 					},
 					
-					length: optional_descriptors_bytes.u16_unadjusted(byte_index + OptionalDescriptorTypeSize),
+					length: optional_descriptors_bytes.u16(byte_index + OptionalDescriptorTypeSize),
 				}
 			);
 			

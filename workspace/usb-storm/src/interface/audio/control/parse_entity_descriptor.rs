@@ -18,7 +18,7 @@ fn parse_entity_descriptor<E: Entity, const BLength: u8>(string_finder: &StringF
 	let x = parse_entity_descriptor_body(entity_descriptors_bytes, string_finder)?;
 	let entity = return_ok_if_dead!(x);
 	
-	match descriptor_body.optional_non_zero_u8_unadjusted(adjust_descriptor_index::<3>())
+	match descriptor_body.optional_non_zero_u8(adjust_descriptor_index::<3>())
 	{
 		None => entities.push_anonymous(entity)?,
 		

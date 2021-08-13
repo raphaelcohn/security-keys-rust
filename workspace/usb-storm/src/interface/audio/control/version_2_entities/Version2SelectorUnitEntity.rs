@@ -40,7 +40,7 @@ impl Entity for Version2SelectorUnitEntity
 			return Err(SelectorUnitLengthWrong)
 		}
 		
-		let bmControls = entity_body.u8_unadjusted(entity_index_non_constant(5 + p));
+		let bmControls = entity_body.u8(entity_index_non_constant(5 + p));
 		
 		Ok
 		(
@@ -52,7 +52,7 @@ impl Entity for Version2SelectorUnitEntity
 					
 					selector_control: Control::parse_u8(bmControls, 0, SelectorUnitSelectorControlInvalid)?,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_index_non_constant(5 + p))).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(5 + p))).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

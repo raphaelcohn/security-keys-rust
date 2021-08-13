@@ -253,19 +253,19 @@ impl SmartCardInterfaceAdditionalDescriptor
 	{
 		use SmartCardInterfaceAdditionalDescriptorParseError::*;
 		
-		let iso_7816_protocols = WrappedBitFlags::from_bits_truncate(descriptor_body.u32_unadjusted(adjust_descriptor_index::<6>()));
-		let features = crate::interface::smart_card::Features::parse(descriptor_body.u32_unadjusted(adjust_descriptor_index::<40>()), iso_7816_protocols).map_err(Features)?;
+		let iso_7816_protocols = WrappedBitFlags::from_bits_truncate(descriptor_body.u32(adjust_descriptor_index::<6>()));
+		let features = crate::interface::smart_card::Features::parse(descriptor_body.u32(adjust_descriptor_index::<40>()), iso_7816_protocols).map_err(Features)?;
 		Ok
 		(
 			Self
 			{
 				protocol,
 			
-				firmware_version: descriptor_body.version_unadjusted(adjust_descriptor_index::<2>()).map_err(Version)?,
+				firmware_version: descriptor_body.version(adjust_descriptor_index::<2>()).map_err(Version)?,
 				
-				maximum_slot_index: descriptor_body.u8_adjusted::<4>(),
+				maximum_slot_index: descriptor_body.u8(adjust_descriptor_index::<4>()),
 				
-				voltages_supported: WrappedBitFlags::from_bits_truncate(descriptor_body.u8_adjusted::<5>()),
+				voltages_supported: WrappedBitFlags::from_bits_truncate(descriptor_body.u8(adjust_descriptor_index::<5>())),
 	
 				iso_7816_protocols,
 			
@@ -273,40 +273,40 @@ impl SmartCardInterfaceAdditionalDescriptor
 			
 				inclusive_maximum_clock_frequency: descriptor_body.kilohertz(adjust_descriptor_index::<14>()),
 				
-				number_of_clock_frequencies_supported: descriptor_body.optional_non_zero_u8_unadjusted(adjust_descriptor_index::<18>()),
+				number_of_clock_frequencies_supported: descriptor_body.optional_non_zero_u8(adjust_descriptor_index::<18>()),
 				
 				default_data_rate: descriptor_body.baud(adjust_descriptor_index::<19>()),
 				
 				inclusive_maximum_data_rate: descriptor_body.baud(adjust_descriptor_index::<23>()),
 				
-				number_of_data_rates_supported: descriptor_body.optional_non_zero_u8_unadjusted(adjust_descriptor_index::<27>()),
+				number_of_data_rates_supported: descriptor_body.optional_non_zero_u8(adjust_descriptor_index::<27>()),
 				
 				maximum_ifsd_for_protocol_t_1: if iso_7816_protocols.contains(Iso7816Protocol::T1)
 				{
-					Some(descriptor_body.u32_unadjusted(adjust_descriptor_index::<28>()))
+					Some(descriptor_body.u32(adjust_descriptor_index::<28>()))
 				}
 				else
 				{
 					None
 				},
 				
-				synchronization_protocols: WrappedBitFlags::from_bits_truncate(descriptor_body.u32_unadjusted(adjust_descriptor_index::<32>())),
+				synchronization_protocols: WrappedBitFlags::from_bits_truncate(descriptor_body.u32(adjust_descriptor_index::<32>())),
 				
-				mechanical_features: WrappedBitFlags::from_bits_truncate(descriptor_body.u32_unadjusted(adjust_descriptor_index::<36>())),
+				mechanical_features: WrappedBitFlags::from_bits_truncate(descriptor_body.u32(adjust_descriptor_index::<36>())),
 				
 				features,
 				
-				maximum_message_length: descriptor_body.u32_unadjusted(adjust_descriptor_index::<44>()),
+				maximum_message_length: descriptor_body.u32(adjust_descriptor_index::<44>()),
 				
 				unconfigured_classes_for_protocol_t_0: Self::parse_get_response_class_and_envelope_class(descriptor_body, features.level_of_exchange(), iso_7816_protocols)?,
 				
-				lcd_layout: LcdLayout::from(descriptor_body.u16_adjusted::<50>()),
+				lcd_layout: LcdLayout::from(descriptor_body.u16(adjust_descriptor_index::<50>())),
 				
-				pin_support: WrappedBitFlags::from_bits_truncate(descriptor_body.u8_adjusted::<52>()),
+				pin_support: WrappedBitFlags::from_bits_truncate(descriptor_body.u8(adjust_descriptor_index::<52>())),
 				
 				maximum_slots_that_can_be_simultaneously_used:
 				{
-					let raw = descriptor_body.u8_adjusted::<53>();
+					let raw = descriptor_body.u8(adjust_descriptor_index::<53>());
 					if unlikely!(raw == 0)
 					{
 						new_non_zero_u8(1)
@@ -345,7 +345,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 						// Values observed in the wild:-
 						// * 0x00
 						// * 0xFF commonest value
-						let bClassGetResponse = descriptor_bytes.u8_adjusted::<48>();
+						let bClassGetResponse = descriptor_bytes.u8(adjust_descriptor_index::<48>());
 						T0ProtocolUnconfiguredClass::parse(bClassGetResponse, UnsupportedClassGetResponse)?
 					},
 					
@@ -366,7 +366,7 @@ impl SmartCardInterfaceAdditionalDescriptor
 						// * 0x00
 						// * 0x01 Plaenta (0x21AB) RC700-NFC CCID (0x0010); however, this device does not support an extended APDU level of exchange.
 						// * 0xFF commonest value
-						let bClassEnvelope = descriptor_bytes.u8_adjusted::<49>();
+						let bClassEnvelope = descriptor_bytes.u8(adjust_descriptor_index::<49>());
 						Some(T0ProtocolUnconfiguredClass::parse(bClassEnvelope, UnsupportedClassEnvelope)?)
 					}
 					else

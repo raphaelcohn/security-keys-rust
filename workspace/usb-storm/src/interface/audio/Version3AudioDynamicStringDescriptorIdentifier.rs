@@ -19,7 +19,7 @@ impl Version3AudioDynamicStringDescriptorIdentifier
 	#[inline(always)]
 	fn parse<E>(entity_body: &[u8], adjusted_index: usize, error: E) -> Result<Option<Self>, E>
 	{
-		match entity_body.optional_non_zero_u16_unadjusted(adjusted_index)
+		match entity_body.optional_non_zero_u16(adjusted_index)
 		{
 			None => Ok(None),
 			

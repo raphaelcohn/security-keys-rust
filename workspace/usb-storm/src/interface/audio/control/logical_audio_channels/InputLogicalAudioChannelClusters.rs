@@ -66,7 +66,7 @@ impl InputLogicalAudioChannelClusters
 		let mut input_logical_audio_channel_clusters = Vec::new_with_capacity(p)?;
 		for cluster_index in 0 .. p
 		{
-			let cluster_identifier = entity_body.optional_non_zero_u8_unadjusted(entity_index_non_constant(start_index + cluster_index)).map(UnitOrTerminalEntityIdentifier::new);
+			let cluster_identifier = entity_body.optional_non_zero_u8(entity_index_non_constant(start_index + cluster_index)).map(UnitOrTerminalEntityIdentifier::new);
 			input_logical_audio_channel_clusters.push(cluster_identifier)
 		}
 		Ok(Self(input_logical_audio_channel_clusters))

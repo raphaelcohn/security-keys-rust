@@ -39,8 +39,8 @@ impl Entity for Version2SourceClockEntity
 	{
 		use Version2EntityDescriptorParseError::*;
 		
-		let bmAttributes = entity_body.u8_unadjusted(entity_index::<4>());
-		let bmControls = entity_body.u8_unadjusted(entity_index::<5>());
+		let bmAttributes = entity_body.u8(entity_index::<4>());
+		let bmControls = entity_body.u8(entity_index::<5>());
 		
 		Ok
 		(
@@ -56,11 +56,11 @@ impl Entity for Version2SourceClockEntity
 					
 					validity: Control::parse_u8(bmControls, 1, SourceClockValidityControlInvalid)?,
 					
-					associated_terminal: entity_body.optional_non_zero_u8_unadjusted(entity_index::<6>()),
+					associated_terminal: entity_body.optional_non_zero_u8(entity_index::<6>()),
 					
 					description:
 					{
-						let description = string_finder.find_string(entity_body.u8_unadjusted(entity_index::<7>())).map_err(InvalidDescriptionString)?;
+						let description = string_finder.find_string(entity_body.u8(entity_index::<7>())).map_err(InvalidDescriptionString)?;
 						return_ok_if_dead!(description)
 					},
 				}

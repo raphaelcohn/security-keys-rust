@@ -47,7 +47,7 @@ impl Entity for Version2OutputTerminalEntity
 	{
 		use Version2EntityDescriptorParseError::*;
 		
-		let bmControls = entity_body.u16_unadjusted(entity_index::<9>());
+		let bmControls = entity_body.u16(entity_index::<9>());
 		
 		Ok
 		(
@@ -55,13 +55,13 @@ impl Entity for Version2OutputTerminalEntity
 			(
 				Self
 				{
-					output_terminal_type: OutputTerminalType::parse(entity_body.u16_unadjusted(entity_index::<4>())).map_err(OutputTerminalTypeParse)?,
+					output_terminal_type: OutputTerminalType::parse(entity_body.u16(entity_index::<4>())).map_err(OutputTerminalTypeParse)?,
 					
-					associated_input_terminal: entity_body.optional_non_zero_u8_unadjusted(entity_index::<6>()),
+					associated_input_terminal: entity_body.optional_non_zero_u8(entity_index::<6>()),
 					
-					output_logical_audio_channel_cluster: entity_body.optional_non_zero_u8_unadjusted(entity_index::<7>()).map(UnitOrTerminalEntityIdentifier::new),
+					output_logical_audio_channel_cluster: entity_body.optional_non_zero_u8(entity_index::<7>()).map(UnitOrTerminalEntityIdentifier::new),
 					
-					clock_source: entity_body.optional_non_zero_u8_unadjusted(entity_index::<8>()),
+					clock_source: entity_body.optional_non_zero_u8(entity_index::<8>()),
 					
 					copy_protect_control: Control::parse_u16(bmControls, 0, OutputTerminalCopyProtectControlInvalid)?,
 					
@@ -75,7 +75,7 @@ impl Entity for Version2OutputTerminalEntity
 					
 					description:
 					{
-						let description = string_finder.find_string(entity_body.u8_unadjusted(entity_index::<11>())).map_err(InvalidDescriptionString)?;
+						let description = string_finder.find_string(entity_body.u8(entity_index::<11>())).map_err(InvalidDescriptionString)?;
 						return_ok_if_dead!(description)
 					},
 				}

@@ -104,12 +104,12 @@ impl ProcessType
 			return Err(UpDownMixProcessTypeMustHaveAtLeastOneByteOfProcessSpecificData)
 		}
 		
-		let bNrModes = process_type_specific_bytes.u8_unadjusted(0) as usize;
+		let bNrModes = process_type_specific_bytes.u8(0) as usize;
 		
 		let mut modes = WrappedIndexSet::with_capacity(bNrModes).map_err(CouldNotAllocateMemoryForUpDownProcessTypeModes)?;
 		for mode_index in 0 .. bNrModes
 		{
-			let mode = WrappedBitFlags::from_bits_unchecked(process_type_specific_bytes.u16_unadjusted(1 + (mode_index * 2)));
+			let mode = WrappedBitFlags::from_bits_unchecked(process_type_specific_bytes.u16(1 + (mode_index * 2)));
 			for spatial_location in mode.iter()
 			{
 				if unlikely!(!output_logical_audio_channel_cluster.contains_spatial_channel(spatial_location))
@@ -151,7 +151,7 @@ impl ProcessType
 			return Err(DolbyProLogicProcessTypeMustHaveAtLeastOneByteOfProcessSpecificData)
 		}
 		
-		let bNrModes = process_type_specific_bytes.u8_unadjusted(0) as usize;
+		let bNrModes = process_type_specific_bytes.u8(0) as usize;
 		const MaximumNumberOfModes: usize = 3;
 		if unlikely!(bNrModes > MaximumNumberOfModes)
 		{
@@ -162,7 +162,7 @@ impl ProcessType
 		for mode_index in 0 .. bNrModes
 		{
 			use DolbyProLogicMode::*;
-			let mode = match process_type_specific_bytes.u16_unadjusted(1 + (mode_index * 2))
+			let mode = match process_type_specific_bytes.u16(1 + (mode_index * 2))
 			{
 				0x0007 => LeftRightCentre,
 				

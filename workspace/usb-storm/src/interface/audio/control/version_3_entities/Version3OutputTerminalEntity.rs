@@ -39,27 +39,27 @@ impl Entity for Version3OutputTerminalEntity
 			(
 				Self
 				{
-					output_terminal_type: OutputTerminalType::parse(entity_body.u16_unadjusted(entity_index::<4>()))?,
+					output_terminal_type: OutputTerminalType::parse(entity_body.u16(entity_index::<4>()))?,
 					
-					associated_input_terminal: entity_body.optional_non_zero_u8_unadjusted(entity_index::<7>()),
+					associated_input_terminal: entity_body.optional_non_zero_u8(entity_index::<7>()),
 					
 					common: TerminalEntityCommon
 					{
 						
-						clock_source: entity_body.optional_non_zero_u8_unadjusted(entity_index::<8>()),
+						clock_source: entity_body.optional_non_zero_u8(entity_index::<8>()),
 						
 						controls: TerminalControls::new::<9>(entity_body),
 						
-						cluster_descriptor_identifier: entity_body.u16_unadjusted(entity_index::<13>()),
+						cluster_descriptor_identifier: entity_body.u16(entity_index::<13>()),
 						
-						extended_terminal_descriptor_identifier: entity_body.optional_non_zero_u16_unadjusted(entity_index::<15>()),
+						extended_terminal_descriptor_identifier: entity_body.optional_non_zero_u16(entity_index::<15>()),
 						
-						connectors_descriptor_identifier: entity_body.optional_non_zero_u16_unadjusted(entity_index::<17>()),
+						connectors_descriptor_identifier: entity_body.optional_non_zero_u16(entity_index::<17>()),
 						
 						description: Version3AudioDynamicStringDescriptorIdentifier::parse(entity_body, entity_index::<19>(), Version3EntityDescriptorParseError::AudioDynamicStringDescriptorIdentifierIsOutOfRange)?,
 					},
 					
-					output_logical_audio_channel_cluster: entity_body.optional_non_zero_u8_unadjusted(entity_index::<7>()).map(UnitOrTerminalEntityIdentifier::new),
+					output_logical_audio_channel_cluster: entity_body.optional_non_zero_u8(entity_index::<7>()).map(UnitOrTerminalEntityIdentifier::new),
 				}
 			)
 		)

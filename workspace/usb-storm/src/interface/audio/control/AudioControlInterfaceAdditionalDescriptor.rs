@@ -74,16 +74,16 @@ impl AudioControlInterfaceAdditionalDescriptor
 		const MinimumBLength: u8 = 8;
 		let (descriptor_body, descriptor_body_length, audio_device_class_specification_release) = Self::parse_descriptor_header_and_version::<MinimumBLength>(bLength, remaining_bytes)?;
 		
-		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16_unadjusted(3), remaining_bytes)?;
+		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16(3), remaining_bytes)?;
 		
 		const InterfaceBaseIndex: usize = 5;
-		let bInCollection = descriptor_body.u8_unadjusted(InterfaceBaseIndex);
+		let bInCollection = descriptor_body.u8(InterfaceBaseIndex);
 		
 		let mut interface_numbers = WrappedIndexSet::with_capacity(bInCollection).map_err(CouldNotAllocateMemoryForInterfaceNumbers)?;
 		const InterfaceFirstIndex: usize = InterfaceBaseIndex + size_of::<u8>();
 		for index in 0 .. bInCollection
 		{
-			let interface_number = descriptor_body.u8_unadjusted(InterfaceFirstIndex + (index as usize));
+			let interface_number = descriptor_body.u8(InterfaceFirstIndex + (index as usize));
 			if unlikely!(interface_number >= MaximumNumberOfInterfaces)
 			{
 				return Err(Version1InterfaceNumberTooBig { index, interface_number } )
@@ -120,11 +120,11 @@ impl AudioControlInterfaceAdditionalDescriptor
 		const MinimumBLength: u8 = 9;
 		let (descriptor_body, descriptor_body_length, audio_device_class_specification_release) = Self::parse_descriptor_header_and_version::<MinimumBLength>(bLength, remaining_bytes)?;
 		
-		let function_category = Self::parse_category(descriptor_body.u8_unadjusted(3));
+		let function_category = Self::parse_category(descriptor_body.u8(3));
 		
-		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16_unadjusted(4), remaining_bytes)?;
+		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16(4), remaining_bytes)?;
 		
-		let bmControls = descriptor_body.u8_unadjusted(6);
+		let bmControls = descriptor_body.u8(6);
 		let latency_control = Control::parse_u8(bmControls, 0, AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
 		
 		Self::ok_alive
@@ -154,11 +154,11 @@ impl AudioControlInterfaceAdditionalDescriptor
 		const MinimumBLength: u8 = 10;
 		let (descriptor_body, descriptor_body_length) = Self::parse_descriptor_header::<MinimumBLength>(bLength, remaining_bytes)?;
 		
-		let function_category = Self::parse_category(descriptor_body.u8_unadjusted(1));
+		let function_category = Self::parse_category(descriptor_body.u8(1));
 		
-		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16_unadjusted(2), remaining_bytes)?;
+		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16(2), remaining_bytes)?;
 		
-		let bmControls = descriptor_body.u32_unadjusted(4);
+		let bmControls = descriptor_body.u32(4);
 		let latency_control = Control::parse_u32(bmControls, 0, AudioControlInterfaceAdditionalDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
 		Self::ok_alive
 		(
@@ -203,7 +203,7 @@ impl AudioControlInterfaceAdditionalDescriptor
 	fn parse_descriptor_header_and_version<const MinimumBLength: u8>(bLength: u8, remaining_bytes: &[u8]) -> Result<(&[u8], usize, Version), AudioControlInterfaceAdditionalDescriptorParseError>
 	{
 		let (descriptor_body, descriptor_body_length) = Self::parse_descriptor_header::<MinimumBLength>(bLength, remaining_bytes)?;
-		let version = descriptor_body.version_unadjusted(1)?;
+		let version = descriptor_body.version(1)?;
 		Ok((descriptor_body, descriptor_body_length, version))
 	}
 	
@@ -216,7 +216,7 @@ impl AudioControlInterfaceAdditionalDescriptor
 		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceAdditionalDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		debug_assert!(descriptor_body_length > 0);
-		let bDescriptorSubType = descriptor_body.u8_unadjusted(0);
+		let bDescriptorSubType = descriptor_body.u8(0);
 		
 		/// Fortuantely, this has the same value in all three versions of the specification.
 		const HEADER: u8 = 0x01;
@@ -306,14 +306,14 @@ impl AudioControlInterfaceAdditionalDescriptor
 				return Err(LessThanFourByteHeader)
 			}
 			
-			let bDescriptorType = entity_descriptors_bytes.u8_unadjusted(1);
+			let bDescriptorType = entity_descriptors_bytes.u8(1);
 			if unlikely!(bDescriptorType != AudioControlInterfaceAdditionalDescriptorParser::CS_INTERFACE)
 			{
 				return Err(ExpectedInterfaceDescriptorType)
 			}
 			
-			let bLength = entity_descriptors_bytes.u8_unadjusted(0);
-			let bDescriptorSubtype = entity_descriptors_bytes.u8_unadjusted(2);
+			let bLength = entity_descriptors_bytes.u8(0);
+			let bDescriptorSubtype = entity_descriptors_bytes.u8(2);
 			match entity_descriptors.parse_entity_body(bDescriptorSubtype, string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers)?
 			{
 				Alive(true) => (),

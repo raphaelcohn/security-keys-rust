@@ -4,57 +4,45 @@
 
 trait Bytes
 {
-	fn bytes_unadjusted(&self, index: usize, length: usize) -> &[u8];
+	fn bytes(&self, index: usize, length: usize) -> &[u8];
 	
 	#[inline(always)]
-	fn version_unadjusted(&self, index: usize) -> Result<Version, VersionParseError>
+	fn version(&self, index: usize) -> Result<Version, VersionParseError>
 	{
-		Version::parse(self.u16_unadjusted(index))
+		Version::parse(self.u16(index))
 	}
 	
-	fn uuid_unadjusted(&self, index: usize) -> Uuid;
+	fn uuid(&self, index: usize) -> Uuid;
 	
 	#[inline(always)]
-	fn optional_non_zero_u8_unadjusted(&self, index: usize) -> Option<NonZeroU8>
+	fn optional_non_zero_u8(&self, index: usize) -> Option<NonZeroU8>
 	{
-		unsafe { transmute(self.u8_unadjusted(index)) }
-	}
-	
-	#[inline(always)]
-	fn optional_non_zero_u16_unadjusted(&self, index: usize) -> Option<NonZeroU16>
-	{
-		unsafe { transmute(self.u16_unadjusted(index)) }
+		unsafe { transmute(self.u8(index)) }
 	}
 	
 	#[inline(always)]
-	fn u8_adjusted<const index: usize>(&self) -> u8
+	fn optional_non_zero_u16(&self, index: usize) -> Option<NonZeroU16>
 	{
-		self.u8_unadjusted(adjust_descriptor_index::<index>())
+		unsafe { transmute(self.u16(index)) }
 	}
 	
-	fn u8_unadjusted(&self, index: usize) -> u8;
+	fn u8(&self, index: usize) -> u8;
 	
-	#[inline(always)]
-	fn u16_adjusted<const index: usize>(&self) -> u16
-	{
-		self.u16_unadjusted(adjust_descriptor_index::<index>())
-	}
+	fn u16(&self, index: usize) -> u16;
 	
-	fn u16_unadjusted(&self, index: usize) -> u16;
-	
-	fn u32_unadjusted(&self, index: usize) -> u32;
+	fn u32(&self, index: usize) -> u32;
 }
 
 impl<'a> Bytes for &'a [u8]
 {
 	#[inline(always)]
-	fn bytes_unadjusted(&self, index: usize, length: usize) -> &[u8]
+	fn bytes(&self, index: usize, length: usize) -> &[u8]
 	{
 		self.get_unchecked_range_safe(index .. (index + length))
 	}
 	
 	#[inline(always)]
-	fn uuid_unadjusted(&self, index: usize) -> Uuid
+	fn uuid(&self, index: usize) -> Uuid
 	{
 		let pointer = self.as_ptr();
 		let uuid_bytes = unsafe { (pointer.add(index) as *const [u8; 16]).read_volatile() };
@@ -64,14 +52,14 @@ impl<'a> Bytes for &'a [u8]
 	}
 	
 	#[inline(always)]
-	fn u8_unadjusted(&self, index: usize) -> u8
+	fn u8(&self, index: usize) -> u8
 	{
 		self.get_unchecked_value_safe(index)
 	}
 	
 	#[inline(always)]
 	#[cfg(target_endian = "little")]
-	fn u16_unadjusted(&self, index: usize) -> u16
+	fn u16(&self, index: usize) -> u16
 	{
 		let pointer = self.as_ptr();
 		let offset = (unsafe { pointer.add(index) }) as *const u16;
@@ -80,14 +68,14 @@ impl<'a> Bytes for &'a [u8]
 	
 	#[inline(always)]
 	#[cfg(target_endian = "big")]
-	fn u16_unadjusted(&self, index: usize) -> u16
+	fn u16(&self, index: usize) -> u16
 	{
 		u16::from_le_bytes([self.get_unchecked_value_safe(index), self.get_unchecked_value_safe(adjusted_index + 1)])
 	}
 	
 	#[inline(always)]
 	#[cfg(target_endian = "little")]
-	fn u32_unadjusted(&self, index: usize) -> u32
+	fn u32(&self, index: usize) -> u32
 	{
 		let pointer = self.as_ptr();
 		let offset = (unsafe { pointer.add(index) }) as *const u32;

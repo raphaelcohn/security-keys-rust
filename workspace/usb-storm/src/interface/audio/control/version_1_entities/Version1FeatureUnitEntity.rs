@@ -53,11 +53,11 @@ impl Entity for Version1FeatureUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8_unadjusted(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
+					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
 					
 					controls_by_channel_number: Self::parse_controls_by_channel_number(controls_bytes_length, control_size, entity_body)?,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8_unadjusted(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)
@@ -99,7 +99,7 @@ impl Version1FeatureUnitEntity
 		let mut controls_by_channel_number = Vec::new_with_capacity(number_of_channels_including_master).map_err(Version1EntityDescriptorParseError::CouldNotAllocateMemoryForFeatureControls)?;
 		for index in 0 .. number_of_channels_including_master
 		{
-			let control_bit_map = entity_body.bytes_unadjusted(6 + (index * control_size.get()), control_size.get());
+			let control_bit_map = entity_body.bytes(6 + (index * control_size.get()), control_size.get());
 			let controls = if control_size == new_non_zero_usize(1)
 			{
 				let lower_byte = control_bit_map.get_unchecked_value_safe(0);

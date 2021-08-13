@@ -69,7 +69,7 @@ impl SuperSpeedPlusDeviceCapability
 		}
 		
 		{
-			let bReserved = device_capability_bytes.u8_unadjusted(0);
+			let bReserved = device_capability_bytes.u8(0);
 			if unlikely!(bReserved != 0)
 			{
 				return Err(HasReservedByteSet)
@@ -78,7 +78,7 @@ impl SuperSpeedPlusDeviceCapability
 		
 		let (number_of_sublink_speed_attributes, number_of_sublink_speed_identifiers) =
 		{
-			let bmAttributes = device_capability_bytes.u32_unadjusted(1);
+			let bmAttributes = device_capability_bytes.u32(1);
 			
 			const ValidBits: u32 = 0b1111_1111;
 			if unlikely!((bmAttributes & (!ValidBits)) != 0)
@@ -101,7 +101,7 @@ impl SuperSpeedPlusDeviceCapability
 		
 		let (minimum_lane_speed_sublink_speed_attribute_identifier, minimum_receive_lane_count, minimum_transmit_lane_count) =
 		{
-			let wFunctionalitySupport = device_capability_bytes.u16_unadjusted(5);
+			let wFunctionalitySupport = device_capability_bytes.u16(5);
 			const ReservedBits: u16 = 0b1111_0000;
 			if unlikely!((wFunctionalitySupport & ReservedBits) != 0)
 			{
@@ -116,7 +116,7 @@ impl SuperSpeedPlusDeviceCapability
 		};
 		
 		{
-			let wReserved = device_capability_bytes.u16_unadjusted(7);
+			let wReserved = device_capability_bytes.u16(7);
 			if unlikely!(wReserved != 0)
 			{
 				return Err(HasReservedWordSet)
@@ -243,7 +243,7 @@ impl SuperSpeedPlusDeviceCapability
 	{
 		use SuperSpeedPlusDeviceCapabilityParseError::*;
 		
-		let sublink_speed_attribute_u32 = sublink_speed_attributes_bytes.u32_unadjusted((sublink_speed_attribute_index as usize) * Self::Scale);
+		let sublink_speed_attribute_u32 = sublink_speed_attributes_bytes.u32((sublink_speed_attribute_index as usize) * Self::Scale);
 		
 		let sublink_speed_attribute_identifier = (sublink_speed_attribute_u32 & 0b1111) as u4;
 		let lane_speed_exponent: BitRate = unsafe { transmute(((sublink_speed_attribute_u32 & 0b0011_0000) >> 4) as u2) };
