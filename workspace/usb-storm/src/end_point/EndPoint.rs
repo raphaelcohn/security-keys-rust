@@ -14,7 +14,7 @@ pub struct EndPoint
 	
 	audio_extension: Option<EndPointAudioExtension>,
 
-	additional_descriptors: Vec<Descriptor<EndPointAdditionalDescriptor>>,
+	descriptors: Vec<Descriptor<EndPointAdditionalDescriptor>>,
 }
 
 impl EndPoint
@@ -42,9 +42,9 @@ impl EndPoint
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn additional_descriptors(&self) -> &[Descriptor<EndPointAdditionalDescriptor>]
+	pub fn descriptors(&self) -> &[Descriptor<EndPointAdditionalDescriptor>]
 	{
-		&self.additional_descriptors
+		&self.descriptors
 	}
 	
 	/// Is a periodic end point?
@@ -99,8 +99,8 @@ impl EndPoint
 		
 		let mut transfer_type = self::TransferType::parse(end_point_descriptor, maximum_supported_usb_version).map_err(TransferType)?;
 		let maximum_packet_size = end_point_descriptor.wMaxPacketSize & 0b0111_1111_1111;
-		let additional_descriptors = Self::parse_additional_descriptors(string_finder, end_point_descriptor, &mut transfer_type, maximum_packet_size).map_err(CouldNotParseEndPointAdditionalDescriptor)?;
-		let additional_descriptors = return_ok_if_dead!(additional_descriptors);
+		let descriptors = Self::parse_descriptors(string_finder, end_point_descriptor, &mut transfer_type, maximum_packet_size).map_err(CouldNotParseEndPointAdditionalDescriptor)?;
+		let descriptors = return_ok_if_dead!(descriptors);
 		Ok
 		(
 			Alive
@@ -116,7 +116,7 @@ impl EndPoint
 						
 						audio_extension,
 						
-						additional_descriptors,
+						descriptors,
 					}
 				)
 			)
@@ -124,16 +124,16 @@ impl EndPoint
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors<'a>(string_finder: &StringFinder, end_point_descriptor: &libusb_endpoint_descriptor, transfer_type: &'a mut TransferType, maximum_packet_size: u11) -> Result<DeadOrAlive<Vec<Descriptor<EndPointAdditionalDescriptor>>>, DescriptorParseError<EndPointAdditionalDescriptorParseError>>
+	fn parse_descriptors<'a>(string_finder: &StringFinder, end_point_descriptor: &libusb_endpoint_descriptor, transfer_type: &'a mut TransferType, maximum_packet_size: u11) -> Result<DeadOrAlive<Vec<Descriptor<EndPointAdditionalDescriptor>>>, DescriptorParseError<EndPointAdditionalDescriptorParseError>>
 	{
 		let extra = extra_to_slice(end_point_descriptor.extra, end_point_descriptor.extra_length)?;
-		let additional_descriptor_parser = EndPointAdditionalDescriptorParser
+		let descriptor_parser = EndPointAdditionalDescriptorParser
 		{
 			transfer_type,
 			
 			maximum_packet_size,
 		};
 		
-		parse_descriptors(string_finder, extra, additional_descriptor_parser)
+		parse_descriptors(string_finder, extra, descriptor_parser)
 	}
 }

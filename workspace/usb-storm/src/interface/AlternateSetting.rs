@@ -14,7 +14,7 @@ pub struct AlternateSetting
 
 	description: Option<LocalizedStrings>,
 	
-	additional_descriptors: Vec<Descriptor<InterfaceAdditionalDescriptor>>,
+	descriptors: Vec<Descriptor<InterfaceAdditionalDescriptor>>,
 
 	end_points: WrappedIndexMap<EndPointNumber, EndPoint>,
 }
@@ -44,9 +44,9 @@ impl AlternateSetting
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn additional_descriptors(&self) -> &[Descriptor<InterfaceAdditionalDescriptor>]
+	pub fn descriptors(&self) -> &[Descriptor<InterfaceAdditionalDescriptor>]
 	{
-		&self.additional_descriptors
+		&self.descriptors
 	}
 	
 	// #[inline(always)]
@@ -91,7 +91,7 @@ impl AlternateSetting
 		let interface_class = InterfaceClass::parse(alternate_setting);
 		let end_point_descriptors = Self::parse_end_point_descriptors(alternate_setting, interface_index, alternate_setting_index)?;
 		let description = string_finder.find_string(alternate_setting.iInterface).map_err(|cause| DescriptionString { cause, interface_index, alternate_setting_index })?;
-		let additional_descriptors = Self::parse_additional_descriptors(alternate_setting, interface_class, string_finder).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
+		let descriptors = Self::parse_descriptors(alternate_setting, interface_class, string_finder).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
 		let end_points = Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, maximum_supported_usb_version, string_finder)?;
 		Ok
 		(
@@ -108,7 +108,7 @@ impl AlternateSetting
 						
 						description: return_ok_if_dead!(description),
 						
-						additional_descriptors: return_ok_if_dead!(additional_descriptors),
+						descriptors: return_ok_if_dead!(descriptors),
 						
 						end_points: return_ok_if_dead!(end_points),
 					}
@@ -168,24 +168,24 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
+	fn parse_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 	{
 		#[inline(always)]
 		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
+			InterfaceAdditionalDescriptorParser::parse_descriptors(string_finder, extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
 		}
 		
 		#[inline(always)]
 		fn human_interface_device(string_finder: &StringFinder, extra: &[u8], variant: HumanInterfaceDeviceInterfaceAdditionalVariant) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(variant))
+			InterfaceAdditionalDescriptorParser::parse_descriptors(string_finder, extra, HumanInterfaceDeviceInterfaceAdditionalDescriptorParser::new(variant))
 		}
 		
 		#[inline(always)]
 		fn smart_card(string_finder: &StringFinder, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, SmartCardInterfaceAdditionalDescriptorParser::new(smart_card_protocol, bDescriptorType))
+			InterfaceAdditionalDescriptorParser::parse_descriptors(string_finder, extra, SmartCardInterfaceAdditionalDescriptorParser::new(smart_card_protocol, bDescriptorType))
 		}
 		
 		#[inline(always)]
@@ -197,7 +197,7 @@ impl AlternateSetting
 		#[inline(always)]
 		fn unsupported(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceAdditionalDescriptor>>>, DescriptorParseError<InterfaceAdditionalDescriptorParseError>>
 		{
-			InterfaceAdditionalDescriptorParser::parse_additional_descriptors(string_finder, extra, UnsupportedInterfaceAdditionalDescriptorParser)
+			InterfaceAdditionalDescriptorParser::parse_descriptors(string_finder, extra, UnsupportedInterfaceAdditionalDescriptorParser)
 		}
 		
 		use HumanInterfaceDeviceInterfaceAdditionalVariant::*;

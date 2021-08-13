@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFinder, mut extra: &[u8], mut additional_descriptor_parser: ADP) -> Result<DeadOrAlive<Vec<Descriptor<ADP::Descriptor>>>, DescriptorParseError<ADP::Error>>
+pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFinder, mut extra: &[u8], mut descriptor_parser: ADP) -> Result<DeadOrAlive<Vec<Descriptor<ADP::Descriptor>>>, DescriptorParseError<ADP::Error>>
 {
 	use Descriptor::*;
 	use DescriptorParseError::*;
@@ -13,7 +13,7 @@ pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFin
 	{
 		return Ok(Alive(Vec::new()))
 	}
-	let mut additional_descriptors = Vec::new();
+	let mut descriptors = Vec::new();
 	let mut remaining_length = extra_length;
 	
 	loop
@@ -32,9 +32,9 @@ pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFin
 		
 		let descriptor_type = extra.u8(1);
 		let remaining_bytes = extra.get_unchecked_range_safe(DescriptorHeaderLength .. );
-		let (additional_descriptor, consumed_length) = match additional_descriptor_parser.parse_descriptor(string_finder, bLength, descriptor_type, remaining_bytes)
+		let (descriptor, consumed_length) = match descriptor_parser.parse_descriptor(string_finder, bLength, descriptor_type, remaining_bytes)
 		{
-			Ok(Some(Alive((additional_descriptor, consumed_length)))) => (Known(additional_descriptor), consumed_length),
+			Ok(Some(Alive((descriptor, consumed_length)))) => (Known(descriptor), consumed_length),
 			
 			Ok(Some(Dead)) => return Ok(Dead),
 			
@@ -58,7 +58,7 @@ pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFin
 			
 			Err(error) => return Err(Specific(error)),
 		};
-		additional_descriptors.try_push(additional_descriptor).map_err(CanNotAllocateAdditionalDescriptor)?;
+		descriptors.try_push(descriptor).map_err(CanNotAllocateAdditionalDescriptor)?;
 		
 		let consumed_length_including_header = DescriptorHeaderLength + consumed_length;
 		if remaining_length == consumed_length_including_header
@@ -69,5 +69,5 @@ pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFin
 		extra = extra.get_unchecked_range_safe(consumed_length_including_header .. );
 	}
 	
-	Ok(Alive(additional_descriptors))
+	Ok(Alive(descriptors))
 }

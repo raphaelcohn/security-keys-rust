@@ -14,7 +14,7 @@ pub struct Configuration
 	
 	description: Option<LocalizedStrings>,
 	
-	additional_descriptors: Vec<Descriptor<ConfigurationAdditionalDescriptor>>,
+	descriptors: Vec<Descriptor<ConfigurationAdditionalDescriptor>>,
 	
 	interfaces: WrappedIndexMap<InterfaceNumber, Interface>,
 }
@@ -51,9 +51,9 @@ impl Configuration
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn additional_descriptors(&self) -> &[Descriptor<ConfigurationAdditionalDescriptor>]
+	pub fn descriptors(&self) -> &[Descriptor<ConfigurationAdditionalDescriptor>]
 	{
-		&self.additional_descriptors
+		&self.descriptors
 	}
 	
 	// #[inline(always)]
@@ -89,7 +89,7 @@ impl Configuration
 		
 		let (supports_remote_wake_up, is_self_powered_or_self_powered_and_bus_powered) = Self::parse_attributes(&configuration_descriptor)?;
 		let description = string_finder.find_string(configuration_descriptor.iConfiguration).map_err(DescriptionString)?;
-		let additional_descriptors = Self::parse_additional_descriptors(string_finder, &configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?;
+		let descriptors = Self::parse_descriptors(string_finder, &configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?;
 		let interfaces = Self::parse_interfaces(&configuration_descriptor, string_finder, maximum_supported_usb_version)?;
 		Ok
 		(
@@ -106,7 +106,7 @@ impl Configuration
 						
 						description: return_ok_if_dead!(description),
 						
-						additional_descriptors: return_ok_if_dead!(additional_descriptors),
+						descriptors: return_ok_if_dead!(descriptors),
 						
 						interfaces: return_ok_if_dead!(interfaces),
 					}
@@ -200,12 +200,12 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_additional_descriptors(string_finder: &StringFinder, configuration_descriptor: &libusb_config_descriptor) -> Result<DeadOrAlive<Vec<Descriptor<ConfigurationAdditionalDescriptor>>>, DescriptorParseError<Infallible>>
+	fn parse_descriptors(string_finder: &StringFinder, configuration_descriptor: &libusb_config_descriptor) -> Result<DeadOrAlive<Vec<Descriptor<ConfigurationAdditionalDescriptor>>>, DescriptorParseError<Infallible>>
 	{
 		let extra = extra_to_slice(configuration_descriptor.extra, configuration_descriptor.extra_length)?;
 		
-		let additional_descriptor_parser = ConfigurationAdditionalDescriptorParser;
-		parse_descriptors(string_finder, extra, additional_descriptor_parser)
+		let descriptor_parser = ConfigurationAdditionalDescriptorParser;
+		parse_descriptors(string_finder, extra, descriptor_parser)
 	}
 	
 	#[inline(always)]

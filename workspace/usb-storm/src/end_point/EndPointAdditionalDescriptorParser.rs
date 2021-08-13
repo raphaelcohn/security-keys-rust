@@ -95,17 +95,17 @@ impl<'a> DescriptorParser for EndPointAdditionalDescriptorParser<'a>
 				
 				// If this field is set to one then a SuperSpeedPlus Isochronous Endpoint Companion descriptor shall immediately follow this descriptor.
 				let has_ssp_iso_companion = (bmAttributes & 0b1000_0000) != 0;
-				let (additional_consumed_length, super_speed_isochronous) = if has_ssp_iso_companion
+				let (consumed_length, super_speed_isochronous) = if has_ssp_iso_companion
 				{
 					if unlikely!(wBytesInterval != 1)
 					{
 						return Err(BytesIntervalMustBeOneIfAnIsochronousEndPointHasASuperSpeedPlusIsochronousEndPointCompanionIndicated)
 					}
 					
-					let (dwBytesPerInterval, additional_consumed_length) = Self::parse_super_speed_plus_isochronous_end_point_companion_descriptor(remaining_bytes)?;
+					let (dwBytesPerInterval, consumed_length) = Self::parse_super_speed_plus_isochronous_end_point_companion_descriptor(remaining_bytes)?;
 					
 					(
-						additional_consumed_length,
+						consumed_length,
 						SuperSpeedIsochronous
 						{
 							maximum_number_of_packets_that_can_burst_at_a_time: new_non_zero_u32(dwBytesPerInterval / bMaxBurst_plus_one / (self.maximum_packet_size as u32)),
@@ -146,7 +146,7 @@ impl<'a> DescriptorParser for EndPointAdditionalDescriptorParser<'a>
 				};
 				
 				*super_speed = Some(super_speed_isochronous);
-				descriptor_body_length + additional_consumed_length
+				descriptor_body_length + consumed_length
 			}
 		};
 		
