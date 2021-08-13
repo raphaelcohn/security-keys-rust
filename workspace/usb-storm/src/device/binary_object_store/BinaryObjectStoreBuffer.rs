@@ -14,14 +14,18 @@ impl BinaryObjectStoreBuffer
 	{
 		const MaximumSize: usize = u16::MAX as usize;
 		
-		let mut buffer = Vec::new_buffer(MaximumSize)?;
-		if cfg!(debug_assertions)
+		let buffer = if cfg!(debug_assertions)
 		{
-			for index in 0 ..MaximumSize
+			Vec::new_populated(MaximumSize, |cause| cause, |_|
 			{
-				*buffer.get_unchecked_mut_safe(index) = MaybeUninit::zeroed();
-			}
+				Ok(MaybeUninit::zeroed())
+			})
 		}
+		else
+		{
+			Vec::new_buffer(MaximumSize)
+		}?;
+		
 		Ok(Self(buffer))
 	}
 	
