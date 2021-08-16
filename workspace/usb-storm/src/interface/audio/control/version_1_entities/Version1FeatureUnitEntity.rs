@@ -15,7 +15,6 @@ pub struct Version1FeatureUnitEntity
 	description: Option<LocalizedStrings>,
 }
 
-
 impl Entity for Version1FeatureUnitEntity
 {
 	type EntityIdentifier = UnitEntityIdentifier;
@@ -31,20 +30,20 @@ impl Entity for Version1FeatureUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version1EntityDescriptorParseError::*;
+		use Version1FeatureUnitEntityParseError::*;
 		
-		let control_size = parse_control_size(entity_body, 5, FeatureUnitControlSizeIsZero)?;
+		let control_size = parse_control_size(entity_body, 5, UnitControlSizeIsZero)?;
 		
 		const ControlSizeSize: usize = 1;
 		const StringDescriptorSize: usize = 1;
 		let controls_bytes_length = entity_body.len() - ControlSizeSize - StringDescriptorSize;
 		if unlikely!(controls_bytes_length % control_size.get() != 0)
 		{
-			return Err(FeatureUnitControlsHaveRemainder)
+			Err(UnitControlsHaveRemainder)?
 		}
 		if unlikely!(((Version1EntityDescriptors::FeatureUnitMinimumBLength as usize) + controls_bytes_length) != (DescriptorEntityMinimumLength + entity_body.len()))
 		{
-			return Err(FeatureUnitLengthWrong)
+			Err(BLengthWrong)?
 		}
 		
 		Ok
@@ -92,11 +91,11 @@ impl Version1FeatureUnitEntity
 	}
 	
 	#[inline(always)]
-	fn parse_controls_by_channel_number(controls_bytes_length: usize, control_size: NonZeroUsize, entity_body: &[u8]) -> Result<ChannelControlsByChannelNumber<WrappedBitFlags<Version1AudioChannelFeatureControl>>, Version1EntityDescriptorParseError>
+	fn parse_controls_by_channel_number(controls_bytes_length: usize, control_size: NonZeroUsize, entity_body: &[u8]) -> Result<ChannelControlsByChannelNumber<WrappedBitFlags<Version1AudioChannelFeatureControl>>, Version1FeatureUnitEntityParseError>
 	{
 		let number_of_channels_including_master = controls_bytes_length / control_size.get();
 		
-		let channel_controls_by_channel_number = Vec::new_populated(number_of_channels_including_master, Version1EntityDescriptorParseError::CouldNotAllocateMemoryForFeatureControls, |index|
+		let channel_controls_by_channel_number = Vec::new_populated(number_of_channels_including_master, Version1FeatureUnitEntityParseError::CouldNotAllocateMemoryForControls, |index|
 		{
 			let control_bit_map = entity_body.bytes(6 + (index * control_size.get()), control_size.get());
 			let controls = if control_size == new_non_zero_usize(1)

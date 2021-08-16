@@ -2,28 +2,18 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Dolby ProLogic mode.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-#[repr(u16)]
-pub enum DolbyProLogicMode
+#[inline(always)]
+fn validate_process_type_empty<E: error::Error>(process_type_specific_bytes: &[u8], p: usize, not_empty_error: E, not_exactly_one_pin_error: E) -> Result<(), E>
 {
-	/// Left-Right-Centre.
-	LeftRightCentre = 0x0007,
-	
-	/// Left-Right-Surround.
-	LeftRightSurround = 0x0103,
-	
-	/// Left-Right-Centre-Surround.
-	LeftRightCentreSurround = 0x0107,
-}
-
-impl Into<WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>> for DolbyProLogicMode
-{
-	#[inline(always)]
-	fn into(self) -> WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>
+	if unlikely!(!process_type_specific_bytes.is_empty())
 	{
-		WrappedBitFlags::from_bits_unchecked(self as u16)
+		return Err(not_empty_error)
 	}
+	
+	if unlikely!(p != 1)
+	{
+		return Err(not_exactly_one_pin_error)
+	}
+	
+	Ok(())
 }

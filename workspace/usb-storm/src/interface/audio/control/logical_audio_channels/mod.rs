@@ -26,6 +26,7 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::hash::Hash;
+use std::mem::size_of;
 use std::num::NonZeroU8;
 use std::ops::Deref;
 use enumflags2::BitFlag;

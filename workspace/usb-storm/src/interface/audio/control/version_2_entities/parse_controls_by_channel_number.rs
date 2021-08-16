@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-fn parse_controls_by_channel_number<Controls>(entity_body: &[u8], controls_parser: impl Fn(u32, u8) -> Result<Controls, Version2EntityDescriptorParseError>) -> Result<ChannelControlsByChannelNumber<Controls>, Version2EntityDescriptorParseError>
+fn parse_controls_by_channel_number<Controls, E: error::Error, ControlsError: error::Error>(entity_body: &[u8], controls_parser: impl Fn(u32) -> Result<Controls, ControlsError>, controls_length_error: E, controls_parser_error: impl FnOnce(ControlsError, u8) -> E) -> Result<ChannelControlsByChannelNumber<Controls>, E>
 {
 	use Version2EntityDescriptorParseError::*;
 	
@@ -21,8 +21,8 @@ fn parse_controls_by_channel_number<Controls>(entity_body: &[u8], controls_parse
 	let channel_controls_by_channel_number = Vec::new_populated(number_of_channels_including_master, CouldNotAllocateMemoryForFeatureControls, |channel_index|
 	{
 		let bmaControls = entity_body.u32(entity_index_non_constant(5 + (channel_index * bmaControlSize)));
-		controls_parser(bmaControls, channel_index as u8)
-	})?;
+		controls_parser(bmaControls)
+	}).map_err(controls_parser_error)?;
 	
 	Ok(ChannelControlsByChannelNumber(channel_controls_by_channel_number))
 }

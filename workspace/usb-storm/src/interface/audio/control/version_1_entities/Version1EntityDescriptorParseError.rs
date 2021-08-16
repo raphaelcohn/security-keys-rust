@@ -7,155 +7,25 @@
 pub enum Version1EntityDescriptorParseError
 {
 	#[allow(missing_docs)]
-	InputTerminalTypeParse(TerminalTypeParseError),
+	InputTerminalEntityParse(Version1InputTerminalEntityParseError),
 	
 	#[allow(missing_docs)]
-	OutputTerminalTypeParse(TerminalTypeParseError),
+	OutputTerminalEntityParse(Version1OutputTerminalEntityParseError),
 	
 	#[allow(missing_docs)]
-	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Infallible>),
+	MixerUnitEntityParse(Version1MixerUnitEntityParseError),
 	
 	#[allow(missing_docs)]
-	InvalidDescriptionString(GetLocalizedStringError),
+	SelectorUnitEntityParse(Version1SelectorUnitEntityParseError),
 	
 	#[allow(missing_docs)]
-	MixerUnitBLengthTooShort,
+	FeatureUnitEntityParse(Version1FeatureUnitEntityParseError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForSources(TryReserveError),
+	ProcessingUnitEntityParse(Version1ProcessingUnitEntityParseError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForMixerControls(TryReserveError),
-	
-	#[allow(missing_docs)]
-	SelectorUnitLengthWrong,
-	
-	#[allow(missing_docs)]
-	FeatureUnitControlSizeIsZero,
-	
-	#[allow(missing_docs)]
-	FeatureUnitControlsHaveRemainder,
-	
-	#[allow(missing_docs)]
-	FeatureUnitLengthWrong,
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForFeatureControls(TryReserveError),
-	
-	#[allow(missing_docs)]
-	ProcessingUnitPIsTooLarge,
-	
-	#[allow(missing_docs)]
-	ProcessingUnitControlSizeIsZero,
-	
-	#[allow(missing_docs)]
-	ProcessingUnitHasTooFewBytesForControlsAndProcessSpecificData,
-	
-	#[allow(missing_docs)]
-	ProcessingUnitHasTooFewBytesForProcessSpecificData,
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForProcessTypeUndefinedData(TryReserveError),
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForProcessTypeUnrecognizedControls(TryReserveError),
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForProcessTypeUnrecognizedData(TryReserveError),
-	
-	#[allow(missing_docs)]
-	UpDownMixProcessTypeMustHaveAtLeastOneByteOfProcessSpecificData,
-	
-	#[allow(missing_docs)]
-	UpDownMixProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent
-	{
-		mode: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>,
-		
-		spatial_location: Version1LogicalAudioChannelSpatialLocation,
-	},
-	
-	#[allow(missing_docs)]
-	UpDownMixProcessTypeHasDuplicateMode
-	{
-		mode: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>,
-	},
-	
-	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeMustHaveAtLeastOneByteOfProcessSpecificData,
-	
-	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeCanNotHaveMoreThanThreeModes,
-	
-	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeCanNotHaveThisMode
-	{
-		mode: u16
-	},
-	
-	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeHasDuplicateMode
-	{
-		mode: DolbyProLogicMode,
-	},
-	
-	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent
-	{
-		mode: DolbyProLogicMode,
-		
-		spatial_location: Version1LogicalAudioChannelSpatialLocation,
-	},
-	
-	#[allow(missing_docs)]
-	ThreeDimensionalStereoExtendedProcessTypeMustHaveLeftAndRightSpatialChannels,
-	
-	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	UpDownMixProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	ThreeDimensionalStereoExtendedProcessTypeMustNotHaveProcessTypeSpecificBytes,
-	
-	#[allow(missing_docs)]
-	ThreeDimensionalStereoExtendedProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	ReverberationProcessTypeMustNotHaveProcessTypeSpecificBytes,
-	
-	#[allow(missing_docs)]
-	ReverberationProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	ChorusProcessTypeMustNotHaveProcessTypeSpecificBytes,
-	
-	#[allow(missing_docs)]
-	ChorusProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorProcessTypeMustNotHaveProcessTypeSpecificBytes,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	ExtensionUnitPIsTooLarge,
-	
-	#[allow(missing_docs)]
-	ExtensionUnitControlSizeIsZero,
-	
-	#[allow(missing_docs)]
-	ExtensionUnitTooShort,
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForExtensionUnitControlsBitMap(TryReserveError),
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUpDownProcessTypeModes(TryReserveError),
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForDolbyProLogicProcessTypeModes(TryReserveError),
+	ExtensionUnitEntityParse(Version1ExtensionUnitEntityParseError),
 }
 
 impl Display for Version1EntityDescriptorParseError
@@ -176,42 +46,84 @@ impl error::Error for Version1EntityDescriptorParseError
 		
 		match self
 		{
-			InputTerminalTypeParse(cause) => Some(cause),
+			InputTerminalEntityParse(cause) => Some(cause),
 			
-			OutputTerminalTypeParse(cause) => Some(cause),
+			OutputTerminalEntityParse(cause) => Some(cause),
 			
-			LogicalAudioChannelClusterParse(cause) => Some(cause),
+			SelectorUnitEntityParse(cause) => Some(cause),
 			
-			InvalidDescriptionString(cause) => Some(cause),
+			MixerUnitEntityParse(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForSources(cause) => Some(cause),
+			FeatureUnitEntityParse(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForMixerControls(cause) => Some(cause),
+			ProcessingUnitEntityParse(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForFeatureControls(cause) => Some(cause),
-			
-			CouldNotAllocateMemoryForProcessTypeUndefinedData(cause) => Some(cause),
-			
-			CouldNotAllocateMemoryForProcessTypeUnrecognizedControls(cause) => Some(cause),
-			
-			CouldNotAllocateMemoryForProcessTypeUnrecognizedData(cause) => Some(cause),
-			
-			CouldNotAllocateMemoryForExtensionUnitControlsBitMap(cause) => Some(cause),
-			
-			CouldNotAllocateMemoryForUpDownProcessTypeModes(cause) => Some(cause),
-			
-			CouldNotAllocateMemoryForDolbyProLogicProcessTypeModes(cause) => Some(cause),
+			ExtensionUnitEntityParse(cause) => Some(cause),
 			
 			_ => None,
 		}
 	}
 }
 
-impl From<LogicalAudioChannelClusterParseError<Infallible>> for Version1EntityDescriptorParseError
+impl From<Version1InputTerminalEntityParseError> for Version1EntityDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: LogicalAudioChannelClusterParseError<Infallible>) -> Self
+	fn from(cause: Version1InputTerminalEntityParseError) -> Self
 	{
-		Version1EntityDescriptorParseError::LogicalAudioChannelClusterParse(cause)
+		Version1EntityDescriptorParseError::InputTerminalEntityParse(cause)
+	}
+}
+
+impl From<Version1OutputTerminalEntityParseError> for Version1EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1OutputTerminalEntityParseError) -> Self
+	{
+		Version1EntityDescriptorParseError::OutputTerminalEntityParse(cause)
+	}
+}
+
+impl From<Version1MixerUnitEntityParseError> for Version1EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1MixerUnitEntityParseError) -> Self
+	{
+		Version1EntityDescriptorParseError::MixerUnitEntityParse(cause)
+	}
+}
+
+impl From<Version1SelectorUnitEntityParseError> for Version1EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1SelectorUnitEntityParseError) -> Self
+	{
+		Version1EntityDescriptorParseError::SelectorUnitEntityParse(cause)
+	}
+}
+
+impl From<Version1FeatureUnitEntityParseError> for Version1EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1FeatureUnitEntityParseError) -> Self
+	{
+		Version1EntityDescriptorParseError::FeatureUnitEntityParse(cause)
+	}
+}
+
+impl From<Version1ProcessingUnitEntityParseError> for Version1EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1ProcessingUnitEntityParseError) -> Self
+	{
+		Version1EntityDescriptorParseError::ProcessingUnitEntityParse(cause)
+	}
+}
+
+impl From<Version1ExtensionUnitEntityParseError> for Version1EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1ExtensionUnitEntityParseError) -> Self
+	{
+		Version1EntityDescriptorParseError::ExtensionUnitEntityParse(cause)
 	}
 }

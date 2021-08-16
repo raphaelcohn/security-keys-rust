@@ -61,4 +61,9 @@ pub enum Version1LogicalAudioChannelSpatialLocation
 
 impl LogicalAudioChannelSpatialLocation for Version1LogicalAudioChannelSpatialLocation
 {
+	#[inline(always)]
+	fn parse_mode_bit_map(process_type_specific_bytes: &[u8], index: usize) -> Self::Numeric
+	{
+		process_type_specific_bytes.u16(index)
+	}
 }

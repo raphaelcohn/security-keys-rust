@@ -28,13 +28,13 @@ impl Entity for Version1SelectorUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version1EntityDescriptorParseError::*;
+		use Version1SelectorUnitEntityParseError::*;
 		
 		let p = parse_p::<DescriptorEntityMinimumLength>(entity_body);
 		
 		if unlikely!(((Version1EntityDescriptors::SelectorUnitMinimumBLength as usize) + p) != (DescriptorEntityMinimumLength + entity_body.len()))
 		{
-			return Err(SelectorUnitLengthWrong)
+			Err(BLengthWrong)?
 		}
 		
 		Ok
@@ -43,7 +43,7 @@ impl Entity for Version1SelectorUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 5)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(5 + p))).map_err(InvalidDescriptionString)?),
 				}

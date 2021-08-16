@@ -84,7 +84,7 @@ impl<'a> Bytes for &'a [u8]
 	
 	#[inline(always)]
 	#[cfg(target_endian = "big")]
-	fn u32_unadjusted(&self, index: usize) -> u32
+	fn u32(&self, index: usize) -> u32
 	{
 		u32::from_le_bytes([self.get_unchecked_value_safe(index), self.get_unchecked_value_safe(index + 1), self.get_unchecked_value_safe(index + 2), self.get_unchecked_value_safe(index + 3)])
 	}

@@ -7,15 +7,6 @@ pub type Version1LogicalAudioChannelCluster = LogicalAudioChannelCluster<Version
 
 impl Version1LogicalAudioChannelCluster
 {
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub(super) fn has_left_and_right(&self) -> bool
-	{
-		use Version1LogicalAudioChannelSpatialLocation::*;
-		
-		self.contains_spatial_channel(LeftFront) && self.contains_spatial_channel(RightFront)
-	}
-	
 	#[inline(always)]
 	pub(super) fn parse(channels_index: usize, string_finder: &StringFinder, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Infallible>>
 	{

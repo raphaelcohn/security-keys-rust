@@ -32,7 +32,7 @@ impl Entity for Version1OutputTerminalEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version1EntityDescriptorParseError::*;
+		use Version1InputOutputEntityParseError::*;
 		
 		Ok
 		(
@@ -40,7 +40,7 @@ impl Entity for Version1OutputTerminalEntity
 			(
 				Self
 				{
-					output_terminal_type: OutputTerminalType::parse(entity_body.u16(entity_index::<4>())).map_err(OutputTerminalTypeParse)?,
+					output_terminal_type: OutputTerminalType::parse(entity_body.u16(entity_index::<4>()))?,
 					
 					associated_input_terminal: entity_body.optional_non_zero_u8(entity_index::<6>()),
 					

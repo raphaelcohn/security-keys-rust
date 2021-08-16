@@ -2,13 +2,22 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[inline(always)]
-fn parse_control_size(entity_body: &[u8], index: usize, error: Version1EntityDescriptorParseError) -> Result<NonZeroUsize, Version1EntityDescriptorParseError>
+/// Dolby ProLogic conversion error.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub struct DolbyProLogicModeConversionError<LACSL: LogicalAudioChannelSpatialLocation>
 {
-	let bControlSize = entity_body.u8(entity_index_non_constant(index));
-	if bControlSize == 0
+	mode: WrappedBitFlags<LACSL>
+}
+
+impl<LACSL: LogicalAudioChannelSpatialLocation> Display for DolbyProLogicModeConversionError<LACSL>
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		return Err(error)
+		Debug::fmt(self, f)
 	}
-	Ok(new_non_zero_usize(bControlSize as usize))
+}
+
+impl<LACSL: LogicalAudioChannelSpatialLocation> error::Error for DolbyProLogicModeConversionError<LACSL>
+{
 }

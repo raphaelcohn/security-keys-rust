@@ -147,43 +147,43 @@ impl Version2AudioChannelFeatureControls
 	}
 	
 	#[inline(always)]
-	fn parse(bmaControls: u32, channel_index: u8) -> Result<Self, Version2EntityDescriptorParseError>
+	fn parse(bmaControls: u32) -> Result<Self, Version2FeatureUnitEntityChannelControlParseError>
 	{
-		use Version2EntityDescriptorParseError::*;
+		use Version2FeatureUnitEntityChannelControlParseError::*;
 		
 		Ok
 		(
 			Self
 			{
-				mute_control: Control::parse_u32(bmaControls, 0, FeatureUnitMuteControlInvalid { channel_index })?,
+				mute_control: Control::parse_u32(bmaControls, 0, Mute)?,
 				
-				volume_control: Control::parse_u32(bmaControls, 1, FeatureUnitVolumeControlInvalid { channel_index })?,
+				volume_control: Control::parse_u32(bmaControls, 1, Volume)?,
 				
-				bass_control: Control::parse_u32(bmaControls, 2, FeatureUnitBassControlInvalid { channel_index })?,
+				bass_control: Control::parse_u32(bmaControls, 2, Bass)?,
 				
-				mid_control: Control::parse_u32(bmaControls, 3, FeatureUnitMidControlInvalid { channel_index })?,
+				mid_control: Control::parse_u32(bmaControls, 3, Mid)?,
 				
-				treble_control: Control::parse_u32(bmaControls, 4, FeatureUnitTrebleControlInvalid { channel_index })?,
+				treble_control: Control::parse_u32(bmaControls, 4, Treble)?,
 				
-				graphic_equalizer_control: Control::parse_u32(bmaControls, 5, FeatureUnitGraphicEqualizerControlInvalid { channel_index })?,
+				graphic_equalizer_control: Control::parse_u32(bmaControls, 5, GraphicEqualizer)?,
 				
-				automatic_gain_control: Control::parse_u32(bmaControls, 6, FeatureUnitAutomaticGainControlInvalid { channel_index })?,
+				automatic_gain_control: Control::parse_u32(bmaControls, 6, AutomaticGain)?,
 				
-				delay_control: Control::parse_u32(bmaControls, 7, FeatureUnitDelayControlInvalid { channel_index })?,
+				delay_control: Control::parse_u32(bmaControls, 7, Delay)?,
 				
-				bass_boost_control: Control::parse_u32(bmaControls, 8, FeatureUnitBassBoostControlInvalid { channel_index })?,
+				bass_boost_control: Control::parse_u32(bmaControls, 8, BassBoost)?,
 				
-				loudness_control: Control::parse_u32(bmaControls, 9, FeatureUnitLoudnessControlInvalid { channel_index })?,
+				loudness_control: Control::parse_u32(bmaControls, 9, Loudness)?,
 				
-				input_gain_control: Control::parse_u32(bmaControls, 10, FeatureUnitInputGainControlInvalid { channel_index })?,
+				input_gain_control: Control::parse_u32(bmaControls, 10, InputGain)?,
 				
-				input_gain_pad_control: Control::parse_u32(bmaControls, 11, FeatureUnitInputGainPadControlInvalid { channel_index })?,
+				input_gain_pad_control: Control::parse_u32(bmaControls, 11, InputGainPad)?,
 				
-				phase_inverter_control: Control::parse_u32(bmaControls, 12, FeatureUnitPhaseInverterControlInvalid { channel_index })?,
+				phase_inverter_control: Control::parse_u32(bmaControls, 12, PhaseInverter)?,
 				
-				underflow_control: Control::parse_u32(bmaControls, 13, FeatureUnitUnderflowControlInvalid { channel_index })?,
+				underflow_control: Control::parse_u32(bmaControls, 13, Underflow)?,
 				
-				overflow_control: Control::parse_u32(bmaControls, 14, FeatureUnitOverflowControlInvalid { channel_index })?,
+				overflow_control: Control::parse_u32(bmaControls, 14, Overflow)?,
 			}
 		)
 	}

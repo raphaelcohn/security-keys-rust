@@ -34,7 +34,7 @@ impl Entity for Version1ExtensionUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version1EntityDescriptorParseError::*;
+		use Version1ExtensionUnitEntityParseError::*;
 		
 		let p =
 		{
@@ -64,14 +64,14 @@ impl Entity for Version1ExtensionUnitEntity
 			let control_size_index = DescriptorEntityMinimumLength + ExtensionCodeSize + sources_size + OutputClusterSize;
 			if unlikely!(entity_index_non_constant(control_size_index) >= entity_body.len())
 			{
-				return Err(ExtensionUnitPIsTooLarge);
+				Err(UnitPIsTooLarge)?
 			}
-			parse_control_size(entity_body, control_size_index, ExtensionUnitControlSizeIsZero)?
+			parse_control_size(entity_body, control_size_index, UnitControlSizeIsZero)?
 		};
 		
 		if unlikely!(entity_body.len() == ExtensionCodeSize + sources_size + OutputClusterSize + ControlSizeSize + controls_bytes_size.get() + StringDescriptorSize)
 		{
-			return Err(ExtensionUnitTooShort)
+			Err(BLengthTooShort)?
 		}
 		
 		let bmControls = entity_body.bytes(ExtensionCodeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
@@ -83,11 +83,11 @@ impl Entity for Version1ExtensionUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 7)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 7, CouldNotAllocateMemoryForSources)?,
 					
 					enable,
 					
-					controls_bit_map: Vec::new_from(bmControls).map_err(CouldNotAllocateMemoryForExtensionUnitControlsBitMap)?,
+					controls_bit_map: Vec::new_from(bmControls).map_err(CouldNotAllocateMemoryForControls)?,
 					
 					extension_code: entity_body.u16(entity_index::<4>()),
 					

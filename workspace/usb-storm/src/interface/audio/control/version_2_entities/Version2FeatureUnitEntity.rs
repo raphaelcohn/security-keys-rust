@@ -31,7 +31,7 @@ impl Entity for Version2FeatureUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version2EntityDescriptorParseError::*;
+		use Version2FeatureUnitEntityParseError::*;
 		
 		Ok
 		(
@@ -41,7 +41,7 @@ impl Entity for Version2FeatureUnitEntity
 				{
 					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
 					
-					controls_by_channel_number: parse_controls_by_channel_number(entity_body, Version2AudioChannelFeatureControls::parse)?,
+					controls_by_channel_number: parse_controls_by_channel_number(entity_body, Version2AudioChannelFeatureControls::parse, ControlsLengthNotAMultipleOfFour, |cause, channel_index| ChannelControlInvalid { cause, channel_index })?,
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}

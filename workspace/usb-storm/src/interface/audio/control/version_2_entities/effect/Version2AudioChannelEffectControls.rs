@@ -97,7 +97,7 @@ pub enum Version2AudioChannelEffectControls
 	#[allow(missing_docs)]
 	Unrecognized
 	{
-		effect_type: u16,
+		effect_type_code: NonZeroU16,
 	
 		controls: u32,
 	}
@@ -106,7 +106,7 @@ pub enum Version2AudioChannelEffectControls
 impl Version2AudioChannelEffectControls
 {
 	#[inline(always)]
-	fn parse_undefined(controls: u32, _channel_index: u8) -> Result<Self, Version2EntityDescriptorParseError>
+	fn parse_undefined(controls: u32) -> Result<Self, Version2EntityDescriptorParseError>
 	{
 		Ok
 		(
@@ -118,7 +118,7 @@ impl Version2AudioChannelEffectControls
 	}
 	
 	#[inline(always)]
-	fn parse_parametric_equalizer_section(controls: u32, _channel_index: u8) -> Result<Self, Version2EntityDescriptorParseError>
+	fn parse_parametric_equalizer_section(controls: u32) -> Result<Self, Version2EntityDescriptorParseError>
 	{
 		use Version2EntityDescriptorParseError::*;
 		
@@ -142,7 +142,7 @@ impl Version2AudioChannelEffectControls
 	}
 	
 	#[inline(always)]
-	fn parse_reverberation(controls: u32, _channel_index: u8) -> Result<Self, Version2EntityDescriptorParseError>
+	fn parse_reverberation(controls: u32) -> Result<Self, Version2EntityDescriptorParseError>
 	{
 		use Version2EntityDescriptorParseError::*;
 		
@@ -175,7 +175,7 @@ impl Version2AudioChannelEffectControls
 	}
 	
 	#[inline(always)]
-	fn parse_modulation_delay(controls: u32, _channel_index: u8) -> Result<Self, Version2EntityDescriptorParseError>
+	fn parse_modulation_delay(controls: u32) -> Result<Self, Version2EntityDescriptorParseError>
 	{
 		use Version2EntityDescriptorParseError::*;
 		
@@ -203,7 +203,7 @@ impl Version2AudioChannelEffectControls
 	}
 	
 	#[inline(always)]
-	fn parse_dynamic_range_compressor(controls: u32, _channel_index: u8) -> Result<Self, Version2EntityDescriptorParseError>
+	fn parse_dynamic_range_compressor(controls: u32) -> Result<Self, Version2EntityDescriptorParseError>
 	{
 		use Version2EntityDescriptorParseError::*;
 		
@@ -232,13 +232,13 @@ impl Version2AudioChannelEffectControls
 	}
 	
 	#[inline(always)]
-	fn parse_unrecognized(controls: u32, _channel_index: u8, effect_type: u16) -> Result<Self, Version2EntityDescriptorParseError>
+	fn parse_unrecognized(controls: u32, effect_type_code: NonZeroU16) -> Result<Self, Version2EntityDescriptorParseError>
 	{
 		Ok
 		(
 			Version2AudioChannelEffectControls::Unrecognized
 			{
-				effect_type,
+				effect_type_code,
 				
 				controls,
 			}

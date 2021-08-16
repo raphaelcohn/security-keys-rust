@@ -14,7 +14,7 @@ pub struct Version1ProcessingUnitEntity
 	
 	enable: bool,
 	
-	process_type: ProcessType,
+	process_type: Version1ProcessType,
 	
 	description: Option<LocalizedStrings>,
 }
@@ -34,7 +34,7 @@ impl Entity for Version1ProcessingUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version1EntityDescriptorParseError::*;
+		use Version1ProcessingUnitEntityParseError::*;
 		
 		let p =
 		{
@@ -64,14 +64,14 @@ impl Entity for Version1ProcessingUnitEntity
 			let control_size_index = DescriptorEntityMinimumLength + ProcessTypeSize + sources_size + OutputClusterSize;
 			if unlikely!(entity_index_non_constant(control_size_index) >= entity_body.len())
 			{
-				return Err(ProcessingUnitPIsTooLarge);
+				Err(PIsTooLarge)?;
 			}
-			parse_control_size(entity_body, control_size_index, ProcessingUnitControlSizeIsZero)?
+			parse_control_size(entity_body, control_size_index, ControlSizeIsZero)?
 		};
 		
 		// entity_body.len() == ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize + controls_bytes_size + StringDescriptorSize + process_specific_size;
-		let controls_bytes_size_plus_process_specific_size = entity_body.len().checked_sub(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize + StringDescriptorSize).ok_or(ProcessingUnitHasTooFewBytesForControlsAndProcessSpecificData)?;
-		let process_specific_size = controls_bytes_size_plus_process_specific_size.checked_sub(controls_bytes_size.get()).ok_or(ProcessingUnitHasTooFewBytesForProcessSpecificData)?;
+		let controls_bytes_size_plus_process_specific_size = entity_body.len().checked_sub(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize + StringDescriptorSize).ok_or(HasTooFewBytesForControlsAndProcessSpecificData)?;
+		let process_specific_size = controls_bytes_size_plus_process_specific_size.checked_sub(controls_bytes_size.get()).ok_or(HasTooFewBytesForProcessSpecificData)?;
 		
 		let bmControls = entity_body.bytes(ProcessTypeSize + sources_size + OutputClusterSize + ControlSizeSize, controls_bytes_size.get());
 		let enable = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
@@ -83,7 +83,7 @@ impl Entity for Version1ProcessingUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 7)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 7, CouldNotAllocateMemoryForSources)?,
 					
 					enable,
 					
@@ -93,21 +93,21 @@ impl Entity for Version1ProcessingUnitEntity
 						debug_assert_eq!(process_type_specific_bytes.len(), process_specific_size);
 						match entity_body.u16(entity_index::<DescriptorEntityMinimumLength>())
 						{
-							0x00 => ProcessType::parse_undefined(bmControls, process_type_specific_bytes)?,
+							0x00 => Version1ProcessType::parse_undefined(bmControls, process_type_specific_bytes)?,
 							
-							0x01 => ProcessType::parse_up_down_mix(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
+							0x01 => Version1ProcessType::parse_up_down_mix(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
 							
-							0x02 => ProcessType::parse_dolby_pro_logic(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
+							0x02 => Version1ProcessType::parse_dolby_pro_logic(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
 							
-							0x03 => ProcessType::parse_three_dimensional_stereo_extended(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
+							0x03 => Version1ProcessType::parse_three_dimensional_stereo_extended(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
 							
-							0x04 => ProcessType::parse_reverberation(bmControls, process_type_specific_bytes, p)?,
+							0x04 => Version1ProcessType::parse_reverberation(bmControls, process_type_specific_bytes, p)?,
 							
-							0x05 => ProcessType::parse_chorus(bmControls, process_type_specific_bytes, p)?,
+							0x05 => Version1ProcessType::parse_chorus(bmControls, process_type_specific_bytes, p)?,
 							
-							0x06 => ProcessType::parse_dynamic_range_compressor(bmControls, process_type_specific_bytes, p)?,
+							0x06 => Version1ProcessType::parse_dynamic_range_compressor(bmControls, process_type_specific_bytes, p)?,
 							
-							process_type_code @ _ => ProcessType::parse_unrecognized(bmControls, process_type_specific_bytes, process_type_code)?,
+							process_type_code @ _ => Version1ProcessType::parse_unrecognized(bmControls, process_type_specific_bytes, process_type_code)?,
 						}
 					},
 					
@@ -142,7 +142,7 @@ impl Version1ProcessingUnitEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn process_type(&self) -> &ProcessType
+	pub const fn process_type(&self) -> &Version1ProcessType
 	{
 		&self.process_type
 	}

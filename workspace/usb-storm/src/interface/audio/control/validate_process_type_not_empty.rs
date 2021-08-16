@@ -2,9 +2,18 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A logical audio channel spatial location.
-pub trait LogicalAudioChannelSpatialLocation: Debug + Copy + Eq + Ord + Hash + BitFlag
+#[inline(always)]
+fn validate_process_type_not_empty<E: error::Error>(process_type_specific_bytes: &[u8], p: usize, empty_error: E, not_exactly_one_pin_error: E) -> Result<(), E>
 {
-	#[doc(hidden)]
-	fn parse_mode_bit_map(process_type_specific_bytes: &[u8], index: usize) -> Self::Numeric;
+	if unlikely!(process_type_specific_bytes.is_empty())
+	{
+		return Err(empty_error)
+	}
+	
+	if unlikely!(p != 1)
+	{
+		return Err(not_exactly_one_pin_error)
+	}
+	
+	Ok(())
 }

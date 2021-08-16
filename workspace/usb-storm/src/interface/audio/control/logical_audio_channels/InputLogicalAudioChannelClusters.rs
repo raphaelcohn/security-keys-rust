@@ -49,9 +49,9 @@ impl InputLogicalAudioChannelClusters
 	}
 	
 	#[inline(always)]
-	pub(crate) fn version_1_parse(p: usize, entity_body: &[u8], start_index: usize) -> Result<Self, Version1EntityDescriptorParseError>
+	pub(crate) fn version_1_parse<E: error::Error>(p: usize, entity_body: &[u8], start_index: usize, error: impl FnOnce(TryReserveError) -> E) -> Result<Self, E>
 	{
-		Self::parse(p, entity_body, start_index).map_err(Version1EntityDescriptorParseError::CouldNotAllocateMemoryForSources)
+		Self::parse(p, entity_body, start_index).map_err(error)
 	}
 	
 	#[inline(always)]

@@ -31,7 +31,8 @@ impl Entity for Version2EffectUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version2EntityDescriptorParseError::*;
+		use Version2EffectUnitEntityParseError::*;
+		use Version2EffectTypeParseError::*;
 		
 		const EFFECT_UNDEFINED: u16 = 0x00;
 		const PARAM_EQ_SECTION_EFFECT: u16 = 0x01;
@@ -41,17 +42,17 @@ impl Entity for Version2EffectUnitEntity
 		
 		let controls_by_channel_number = match entity_body.u16(entity_index::<4>())
 		{
-			EFFECT_UNDEFINED => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_undefined),
+			EFFECT_UNDEFINED => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_undefined, ControlsLengthNotAMultipleOfFour, |cause, channel_index| ChannelControlInvalid { cause, channel_index }),
 			
-			PARAM_EQ_SECTION_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_parametric_equalizer_section),
+			PARAM_EQ_SECTION_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_parametric_equalizer_section, ControlsLengthNotAMultipleOfFour),
 			
-			REVERBERATION_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_reverberation),
+			REVERBERATION_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_reverberation, ControlsLengthNotAMultipleOfFour),
 			
-			MOD_DELAY_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_modulation_delay),
+			MOD_DELAY_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_modulation_delay, ControlsLengthNotAMultipleOfFour),
 			
-			DYN_RANGE_COMP_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_dynamic_range_compressor),
+			DYN_RANGE_COMP_EFFECT => parse_controls_by_channel_number(entity_body, Version2AudioChannelEffectControls::parse_dynamic_range_compressor, ControlsLengthNotAMultipleOfFour),
 			
-			effect_type @ _ => parse_controls_by_channel_number(entity_body, |controls, channel_index| Version2AudioChannelEffectControls::parse_unrecognized(controls, channel_index, effect_type)),
+			effect_type @ _ => parse_controls_by_channel_number(entity_body, |controls| Version2AudioChannelEffectControls::parse_unrecognized(controls, new_non_zero_u16(effect_type)), ControlsLengthNotAMultipleOfFour),
 		}?;
 		
 		Ok

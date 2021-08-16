@@ -7,16 +7,41 @@
 pub enum Version2EntityDescriptorParseError
 {
 	#[allow(missing_docs)]
-	InputTerminalTypeParse(TerminalTypeParseError),
+	InputTerminalEntityParse(Version2InputTerminalEntityParseError),
 	
 	#[allow(missing_docs)]
-	OutputTerminalTypeParse(TerminalTypeParseError),
+	OutputTerminalEntityParse(Version2OutputTerminalEntityParseError),
 	
 	#[allow(missing_docs)]
-	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>),
+	MixerUnitEntityParse(Version2MixerUnitEntityParseError),
 	
 	#[allow(missing_docs)]
-	InvalidDescriptionString(GetLocalizedStringError),
+	SelectorUnitEntityParse(Version2SelectorUnitEntityParseError),
+	
+	#[allow(missing_docs)]
+	FeatureUnitEntityParse(Version2FeatureUnitEntityParseError),
+	
+	#[allow(missing_docs)]
+	ProcessingUnitEntityParse(Version2ProcessingUnitEntityParseError),
+	
+	#[allow(missing_docs)]
+	ExtensionUnitEntityParse(Version2ExtensionUnitEntityParseError),
+	
+	#[allow(missing_docs)]
+	SamplingRateConverterUnitEntityParse(Version2ExtensionUnitEntityParseError),
+	
+	#[allow(missing_docs)]
+	SelectorClockEntityParse(Version2SelectorClockEntityParseError),
+	
+	#[allow(missing_docs)]
+	MultiplierClockEntityParse(Version2MultiplierClockEntityParseError),
+	
+	#[allow(missing_docs)]
+	SourceClockEntityParse(Version2SourceClockEntityParseError),
+	
+	
+	
+	
 	
 	#[allow(missing_docs)]
 	SelectorClockCouldNotAllocateSources(TryReserveError),
@@ -103,193 +128,202 @@ pub enum Version2EntityDescriptorParseError
 	CouldNotAllocateMemoryForFeatureControls(TryReserveError),
 	
 	#[allow(missing_docs)]
-	FeatureUnitMuteControlInvalid
+	EffectUnitControlsLengthNotAMultipleOfFour
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitVolumeControlInvalid
+	ParametericEqualizerSectionEffectUnitEnableControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitBassControlInvalid
+	ParametericEqualizerSectionEffectUnitCenterFrequencyControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitMidControlInvalid
+	ParametericEqualizerSectionEffectUnitQFactorControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitTrebleControlInvalid
+	ParametericEqualizerSectionEffectUnitGainControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitGraphicEqualizerControlInvalid
+	ParametericEqualizerSectionEffectUnitUnderflowControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitAutomaticGainControlInvalid
+	ParametericEqualizerSectionEffectUnitOverflowControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitDelayControlInvalid
+	ReverberationEffectUnitEnableControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitBassBoostControlInvalid
+	ReverberationEffectUnitTypeControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitLoudnessControlInvalid
+	ReverberationEffectUnitLevelControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitInputGainControlInvalid
+	ReverberationEffectUnitTimeControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitInputGainPadControlInvalid
+	ReverberationEffectUnitDelayFeedbackControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitPhaseInverterControlInvalid
+	ReverberationEffectUnitPreDelayControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitUnderflowControlInvalid
+	ReverberationEffectUnitDensityControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	FeatureUnitOverflowControlInvalid
+	ReverberationEffectUnitHighFrequencyRollOffControlInvalid
 	{
 		channel_index: u8,
 	},
 	
 	#[allow(missing_docs)]
-	EffectUnitControlsLengthNotAMultipleOfFour,
+	ReverberationEffectUnitUnderflowControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ParametericEqualizerSectionEffectUnitEnableControlInvalid,
+	ReverberationEffectUnitOverflowControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ParametericEqualizerSectionEffectUnitCenterFrequencyControlInvalid,
+	ModulationDelayEffectUnitEnableControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ParametericEqualizerSectionEffectUnitQFactorControlInvalid,
+	ModulationDelayEffectUnitBalanceControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ParametericEqualizerSectionEffectUnitGainControlInvalid,
+	ModulationDelayEffectUnitRateControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ParametericEqualizerSectionEffectUnitUnderflowControlInvalid,
+	ModulationDelayEffectUnitDepthControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ParametericEqualizerSectionEffectUnitOverflowControlInvalid,
+	ModulationDelayEffectUnitTimeControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitEnableControlInvalid,
+	ModulationDelayEffectUnitFeedbackLevelControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitTypeControlInvalid,
+	ModulationDelayEffectUnitUnderflowControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitLevelControlInvalid,
+	ModulationDelayEffectUnitOverflowControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitTimeControlInvalid,
+	DynamicRangeCompressorEffectUnitEnableControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitDelayFeedbackControlInvalid,
+	DynamicRangeCompressorEffectUnitCompressionRatioControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitPreDelayControlInvalid,
+	DynamicRangeCompressorEffectUnitMaximumAmplitudeControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitDensityControlInvalid,
+	DynamicRangeCompressorEffectUnitThresholControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitHighFrequencyRollOffControlInvalid,
+	DynamicRangeCompressorEffectUnitAttackTimeControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitUnderflowControlInvalid,
+	DynamicRangeCompressorEffectUnitReleaseTimeControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ReverberationEffectUnitOverflowControlInvalid,
+	DynamicRangeCompressorEffectUnitUnderflowControlInvalid
+	{
+		channel_index: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ModulationDelayEffectUnitEnableControlInvalid,
-	
-	#[allow(missing_docs)]
-	ModulationDelayEffectUnitBalanceControlInvalid,
-	
-	#[allow(missing_docs)]
-	ModulationDelayEffectUnitRateControlInvalid,
-	
-	#[allow(missing_docs)]
-	ModulationDelayEffectUnitDepthControlInvalid,
-	
-	#[allow(missing_docs)]
-	ModulationDelayEffectUnitTimeControlInvalid,
-	
-	#[allow(missing_docs)]
-	ModulationDelayEffectUnitFeedbackLevelControlInvalid,
-	
-	#[allow(missing_docs)]
-	ModulationDelayEffectUnitUnderflowControlInvalid,
-	
-	#[allow(missing_docs)]
-	ModulationDelayEffectUnitOverflowControlInvalid,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorEffectUnitEnableControlInvalid,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorEffectUnitCompressionRatioControlInvalid,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorEffectUnitMaximumAmplitudeControlInvalid,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorEffectUnitThresholControlInvalid,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorEffectUnitAttackTimeControlInvalid,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorEffectUnitReleaseTimeControlInvalid,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorEffectUnitUnderflowControlInvalid,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorEffectUnitOverflowControlInvalid,
+	DynamicRangeCompressorEffectUnitOverflowControlInvalid
+	{
+		channel_index: u8,
+	},
 }
 
 impl Display for Version2EntityDescriptorParseError
@@ -310,32 +344,128 @@ impl error::Error for Version2EntityDescriptorParseError
 		
 		match self
 		{
-			InputTerminalTypeParse(cause) => Some(cause),
+			InputTerminalEntityParse(cause) => Some(cause),
 			
-			OutputTerminalTypeParse(cause) => Some(cause),
+			OutputTerminalEntityParse(cause) => Some(cause),
 			
-			LogicalAudioChannelClusterParse(cause) => Some(cause),
+			SelectorUnitEntityParse(cause) => Some(cause),
 			
-			InvalidDescriptionString(cause) => Some(cause),
+			MixerUnitEntityParse(cause) => Some(cause),
 			
-			SelectorClockCouldNotAllocateSources(cause) => Some(cause),
+			FeatureUnitEntityParse(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForSources(cause) => Some(cause),
+			ProcessingUnitEntityParse(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForMixerControls(cause) => Some(cause),
+			ExtensionUnitEntityParse(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForFeatureControls(cause) => Some(cause),
+			SamplingRateConverterUnitEntityParse(cause) => Some(cause),
+			
+			SelectorClockEntityParse(cause) => Some(cause),
+			
+			MultiplierClockEntityParse(cause) => Some(cause),
+			
+			SourceClockEntityParse(cause) => Some(cause),
 			
 			_ => None,
 		}
 	}
 }
 
-impl From<LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>> for Version2EntityDescriptorParseError
+impl From<Version2InputTerminalEntityParseError> for Version2EntityDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>) -> Self
+	fn from(cause: Version2InputTerminalEntityParseError) -> Self
 	{
-		Version2EntityDescriptorParseError::LogicalAudioChannelClusterParse(cause)
+		Version2EntityDescriptorParseError::InputTerminalEntityParse(cause)
+	}
+}
+
+impl From<Version2OutputTerminalEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version2OutputTerminalEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::OutputTerminalEntityParse(cause)
+	}
+}
+
+impl From<Version2MixerUnitEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version2MixerUnitEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::MixerUnitEntityParse(cause)
+	}
+}
+
+impl From<Version2SelectorUnitEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version2SelectorUnitEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::SelectorUnitEntityParse(cause)
+	}
+}
+
+impl From<Version2FeatureUnitEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version2FeatureUnitEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::FeatureUnitEntityParse(cause)
+	}
+}
+
+impl From<Version2ProcessingUnitEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version2ProcessingUnitEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::ProcessingUnitEntityParse(cause)
+	}
+}
+
+impl From<Version2ExtensionUnitEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version2ExtensionUnitEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::ExtensionUnitEntityParse(cause)
+	}
+}
+
+impl From<SamplingRateConverterUnitEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: SamplingRateConverterUnitEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::SamplingRateConverterUnitEntityParse(cause)
+	}
+}
+
+impl From<SelectorClockEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: SelectorClockEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::SelectorClockEntityParse(cause)
+	}
+}
+
+impl From<MultiplierClockEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: MultiplierClockEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::MultiplierClockEntityParse(cause)
+	}
+}
+
+impl From<SourceClockEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: SourceClockEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::SourceClockEntityParse(cause)
 	}
 }
