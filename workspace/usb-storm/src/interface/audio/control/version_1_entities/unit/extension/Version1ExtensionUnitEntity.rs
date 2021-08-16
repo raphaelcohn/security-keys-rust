@@ -83,7 +83,7 @@ impl Entity for Version1ExtensionUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 7, CouldNotAllocateMemoryForSources)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 7, CouldNotAllocateMemoryForSources)?,
 					
 					enable,
 					

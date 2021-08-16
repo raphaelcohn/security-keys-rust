@@ -30,7 +30,7 @@ pub enum Version1DolbyProLogicProcessTypeParseError
 	},
 	
 	#[allow(missing_docs)]
-	CanNotHaveThisMode(DolbyProLogicModeConversionError),
+	CanNotHaveThisMode(DolbyProLogicModeConversionError<Version1LogicalAudioChannelSpatialLocation>),
 }
 
 impl Display for Version1DolbyProLogicProcessTypeParseError

@@ -49,19 +49,13 @@ impl InputLogicalAudioChannelClusters
 	}
 	
 	#[inline(always)]
-	pub(crate) fn version_1_parse<E: error::Error>(p: usize, entity_body: &[u8], start_index: usize, error: impl FnOnce(TryReserveError) -> E) -> Result<Self, E>
+	pub(crate) fn parse<E: error::Error>(p: usize, entity_body: &[u8], start_index: usize, error: impl FnOnce(TryReserveError) -> E) -> Result<Self, E>
 	{
-		Self::parse(p, entity_body, start_index).map_err(error)
+		Self::parse_inner(p, entity_body, start_index).map_err(error)
 	}
 	
 	#[inline(always)]
-	pub(crate) fn version_2_parse(p: usize, entity_body: &[u8], start_index: usize) -> Result<Self, Version2EntityDescriptorParseError>
-	{
-		Self::parse(p, entity_body, start_index).map_err(Version2EntityDescriptorParseError::CouldNotAllocateMemoryForSources)
-	}
-	
-	#[inline(always)]
-	fn parse(p: usize, entity_body: &[u8], start_index: usize) -> Result<Self, TryReserveError>
+	fn parse_inner(p: usize, entity_body: &[u8], start_index: usize) -> Result<Self, TryReserveError>
 	{
 		let input_logical_audio_channel_clusters = Vec::new_populated(p, |cause| cause, |cluster_index|
 		{

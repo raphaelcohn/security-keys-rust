@@ -29,8 +29,6 @@ impl error::Error for Version2UnrecognizedProcessTypeParseError
 		match self
 		{
 			CouldNotAllocateMemoryForData(cause) => Some(cause),
-			
-			_ => None,
 		}
 	}
 }

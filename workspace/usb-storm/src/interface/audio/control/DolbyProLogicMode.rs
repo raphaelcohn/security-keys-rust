@@ -39,14 +39,14 @@ impl Into<WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>> for Dolby
 
 impl TryFrom<WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>> for DolbyProLogicMode
 {
-	type Error = DolbyProLogicModeConversionError;
+	type Error = DolbyProLogicModeConversionError<Version1LogicalAudioChannelSpatialLocation>;
 	
 	#[inline(always)]
-	fn from(value: WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>) -> Result<Self, Self::Error>
+	fn try_from(value: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>) -> Result<Self, Self::Error>
 	{
 		use DolbyProLogicMode::*;
 		
-		let mode: u16 = value.into();
+		let mode: u16 = value.bits();
 		match mode
 		{
 			0x0007 => Ok(LeftRightCenter),
@@ -62,14 +62,14 @@ impl TryFrom<WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>> for Do
 
 impl TryFrom<WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>> for DolbyProLogicMode
 {
-	type Error = DolbyProLogicModeConversionError;
+	type Error = DolbyProLogicModeConversionError<Version2LogicalAudioChannelSpatialLocation>;
 	
 	#[inline(always)]
-	fn from(value: WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>) -> Result<Self, Self::Error>
+	fn try_from(value: WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>) -> Result<Self, Self::Error>
 	{
 		use DolbyProLogicMode::*;
 		
-		let mode: u32 = value.into();
+		let mode: u32 = value.bits();
 		match mode
 		{
 			0x0000_0007 => Ok(LeftRightCenter),

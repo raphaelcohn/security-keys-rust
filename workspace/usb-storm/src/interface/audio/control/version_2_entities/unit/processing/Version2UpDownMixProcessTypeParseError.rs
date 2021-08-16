@@ -40,6 +40,9 @@ pub enum Version2UpDownMixProcessTypeParseError
 	{
 		mode: WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>,
 	},
+	
+	#[allow(missing_docs)]
+	RawDataIsNotUsableForThis,
 }
 
 impl Display for Version2UpDownMixProcessTypeParseError

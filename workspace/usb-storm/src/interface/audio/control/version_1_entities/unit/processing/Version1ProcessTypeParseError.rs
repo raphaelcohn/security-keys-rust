@@ -19,7 +19,7 @@ pub enum Version1ProcessTypeParseError
 	ThreeDimensionalStereoExtended(Version1ThreeDimensionalStereoExtendedProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	Reveberation(Version1ReveberationProcessTypeParseError),
+	Reverberation(Version1ReverberationProcessTypeParseError),
 	
 	#[allow(missing_docs)]
 	Chorus(Version1ChorusProcessTypeParseError),
@@ -57,15 +57,13 @@ impl error::Error for Version1ProcessTypeParseError
 			
 			ThreeDimensionalStereoExtended(cause) => Some(cause),
 			
-			Reveberation(cause) => Some(cause),
+			Reverberation(cause) => Some(cause),
 			
 			Chorus(cause) => Some(cause),
 			
 			DynamicRangeCompressor(cause) => Some(cause),
 			
 			Unrecognized(cause) => Some(cause),
-			
-			_ => None,
 		}
 	}
 }
@@ -120,7 +118,7 @@ impl From<Version1ChorusProcessTypeParseError> for Version1ProcessTypeParseError
 	#[inline(always)]
 	fn from(cause: Version1ChorusProcessTypeParseError) -> Self
 	{
-		Version1ProcessTypeParseError::Chrous(cause)
+		Version1ProcessTypeParseError::Chorus(cause)
 	}
 }
 

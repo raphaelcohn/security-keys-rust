@@ -16,7 +16,10 @@ pub enum Version3EntityDescriptorParseError
 	AudioDynamicStringDescriptorIdentifierIsOutOfRange,
 	
 	#[allow(missing_docs)]
-	TerminalTypeParse(TerminalTypeParseError),
+	TerminalTypeIsOutputOnly,
+	
+	#[allow(missing_docs)]
+	TerminalTypeIsInputOnly,
 }
 
 impl Display for Version3EntityDescriptorParseError
@@ -30,24 +33,4 @@ impl Display for Version3EntityDescriptorParseError
 
 impl error::Error for Version3EntityDescriptorParseError
 {
-	#[inline(always)]
-	fn source(&self) -> Option<&(dyn error::Error + 'static)>
-	{
-		use Version3EntityDescriptorParseError::*;
-		
-		match self
-		{
-			TerminalTypeParse(cause) => Some(cause),
-			
-			_ => None,
-		}
-	}
-}
-
-impl From<TerminalTypeParseError> for Version3EntityDescriptorParseError
-{
-	fn from(cause: TerminalTypeParseError) -> Self
-	{
-		Version3EntityDescriptorParseError::TerminalTypeParse(cause)
-	}
 }

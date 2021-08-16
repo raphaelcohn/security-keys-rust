@@ -32,24 +32,7 @@ impl Entity for Version1InputTerminalEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version1InputTerminalEntityParseError::*;
-		
-		Ok
-		(
-			Alive
-			(
-				Self
-				{
-					input_terminal_type: InputTerminalType::parse(entity_body.u16(entity_index::<4>()))?,
-					
-					associated_output_terminal: entity_body.optional_non_zero_u8(entity_index::<6>()),
-					
-					input_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7, string_finder, entity_body)?),
-					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index::<11>())).map_err(InvalidDescriptionString)?),
-				}
-			)
-		)
+		Ok(Self::parse_inner(entity_body, string_finder)?)
 	}
 }
 
@@ -85,5 +68,28 @@ impl Version1InputTerminalEntity
 	pub const fn description(&self) -> Option<&LocalizedStrings>
 	{
 		self.description.as_ref()
+	}
+	
+	#[inline(always)]
+	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version1InputTerminalEntityParseError>
+	{
+		use Version1InputTerminalEntityParseError::*;
+		
+		Ok
+		(
+			Alive
+			(
+				Self
+				{
+					input_terminal_type: InputTerminalType::parse(entity_body.u16(entity_index::<4>()), TerminalTypeIsOutputOnly)?,
+					
+					associated_output_terminal: entity_body.optional_non_zero_u8(entity_index::<6>()),
+					
+					input_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7, string_finder, entity_body)?),
+					
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index::<11>())).map_err(InvalidDescriptionString)?),
+				}
+			)
+		)
 	}
 }

@@ -39,6 +39,68 @@ impl Entity for Version2MixerUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
+		Ok(Self::parse_inner(entity_body, string_finder)?)
+	}
+}
+
+impl UnitEntity for Version2MixerUnitEntity
+{
+}
+
+impl Version2MixerUnitEntity
+{
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn input_logical_audio_channel_clusters(&self) -> &InputLogicalAudioChannelClusters
+	{
+		&self.input_logical_audio_channel_clusters
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn output_logical_audio_channel_cluster(&self) -> &Version2LogicalAudioChannelCluster
+	{
+		&self.output_logical_audio_channel_cluster
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn controls_bit_map(&self) -> &[u8]
+	{
+		&self.controls_bit_map
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn cluster_control(&self) -> Control
+	{
+		self.cluster_control
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn underflow_control(&self) -> Control
+	{
+		self.underflow_control
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn overflow_control(&self) -> Control
+	{
+		self.overflow_control
+	}
+	
+	#[inline(always)]
+	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version2MixerUnitEntityParseError>
+	{
 		use Version2MixerUnitEntityParseError::*;
 		
 		let p = parse_p::<DescriptorEntityMinimumLength>(entity_body);
@@ -63,9 +125,9 @@ impl Entity for Version2MixerUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_2_parse(p, entity_body, 5)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
 					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body)?),
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?),
 					
 					controls_bit_map: Vec::new_from(entity_body.bytes(entity_index_non_constant(11 + p), N)).map_err(CouldNotAllocateMemoryForControlsBitMap)?,
 					
@@ -79,19 +141,5 @@ impl Entity for Version2MixerUnitEntity
 				}
 			)
 		)
-	}
-}
-
-impl UnitEntity for Version2MixerUnitEntity
-{
-}
-
-impl Version2MixerUnitEntity
-{
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 }

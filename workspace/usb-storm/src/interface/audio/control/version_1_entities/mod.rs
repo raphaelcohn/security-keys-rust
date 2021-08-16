@@ -4,7 +4,7 @@
 
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
-use crate::interface::audio::control::EntityDescriptorParseError;
+use crate::interface::audio::control::{EntityDescriptorParseError, entity_index_non_constant};
 use crate::interface::audio::control::EntityDescriptors;
 use crate::interface::audio::control::entities::Entities;
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
@@ -32,6 +32,9 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
+use crate::collections::Bytes;
+use std::num::NonZeroUsize;
+use swiss_army_knife::non_zero::new_non_zero_usize;
 
 
 /// Logical audio channel cluster.

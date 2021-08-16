@@ -65,9 +65,9 @@ impl error::Error for Version1ProcessingUnitEntityParseError
 impl From<Version1ProcessTypeParseError> for Version1ProcessingUnitEntityParseError
 {
 	#[inline(always)]
-	fn from(cause: Version1ProcessTypeParseError<Infallible>) -> Self
+	fn from(cause: Version1ProcessTypeParseError) -> Self
 	{
-		Version1ProcessingUnitParseError::ProcessTypeParse(cause)
+		Version1ProcessingUnitEntityParseError::ProcessTypeParse(cause)
 	}
 }
 

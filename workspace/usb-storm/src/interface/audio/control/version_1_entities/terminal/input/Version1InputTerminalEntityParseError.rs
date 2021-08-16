@@ -7,7 +7,7 @@
 pub enum Version1InputTerminalEntityParseError
 {
 	#[allow(missing_docs)]
-	TerminalTypeParse(TerminalTypeParseError),
+	TerminalTypeIsOutputOnly,
 	
 	#[allow(missing_docs)]
 	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Infallible>),
@@ -34,23 +34,12 @@ impl error::Error for Version1InputTerminalEntityParseError
 		
 		match self
 		{
-			TerminalTypeParse(cause) => Some(cause),
-			
 			LogicalAudioChannelClusterParse(cause) => Some(cause),
 			
 			InvalidDescriptionString(cause) => Some(cause),
 			
 			_ => None,
 		}
-	}
-}
-
-impl From<TerminalTypeParseError> for Version1InputTerminalEntityParseError
-{
-	#[inline(always)]
-	fn from(cause: TerminalTypeParseError) -> Self
-	{
-		Version1InputTerminalEntityParseError::TerminalTypeParse(cause)
 	}
 }
 

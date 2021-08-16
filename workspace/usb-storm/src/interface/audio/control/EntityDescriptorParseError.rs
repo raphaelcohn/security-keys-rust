@@ -25,9 +25,6 @@ pub enum EntityDescriptorParseError<E: error::Error>
 	UnrecognizedEntityDescriptorType,
 	
 	#[allow(missing_docs)]
-	ExtendedTerminalIsAHighCapacityDescriptor,
-	
-	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]

@@ -12,13 +12,11 @@ use crate::interface::audio::control::entity_identifiers::TerminalEntityIdentifi
 use crate::interface::audio::control::entity_index;
 use crate::interface::audio::control::logical_audio_channels::LogicalAudioChannelClusterParseError;
 use crate::interface::audio::control::terminal_types::InputTerminalType;
-use crate::interface::audio::control::terminal_types::TerminalTypeParseError;
 use crate::interface::audio::control::version_1_entities::Version1EntityDescriptorParseError;
 use crate::interface::audio::control::version_1_entities::logical_audio_channel_cluster::Version1LogicalAudioChannelCluster;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::string::StringFinder;
-use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
 use std::convert::Infallible;
@@ -27,7 +25,6 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::size_of;
 use std::mem::transmute;
 
 

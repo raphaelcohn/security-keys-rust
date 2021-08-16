@@ -12,6 +12,7 @@ pub enum Version2FeatureUnitEntityParseError
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForControls(TryReserveError),
 	
+	#[allow(missing_docs)]
 	ChannelControlInvalid
 	{
 		cause: Version2FeatureUnitEntityChannelControlParseError,
@@ -49,14 +50,5 @@ impl error::Error for Version2FeatureUnitEntityParseError
 			
 			_ => None,
 		}
-	}
-}
-
-impl From<Version2FeatureTypeParseError> for Version2FeatureUnitEntityParseError
-{
-	#[inline(always)]
-	fn from(cause: Version2FeatureTypeParseError) -> Self
-	{
-		Version2FeatureUnitEntityParseError::FeatureTypeParse(cause)
 	}
 }

@@ -32,38 +32,7 @@ impl Entity for Version1MixerUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version1MixerUnitEntityParseError::*;
-		
-		let p = parse_p::<DescriptorEntityMinimumLength>(entity_body);
-		
-		/// 10.
-		const MinimumBLength: usize = Version1EntityDescriptors::MixerUnitMinimumBLength as usize;
-		
-		let N =
-		{
-			let bLength = DescriptorEntityMinimumLength + entity_body.len();
-			
-			// bLength = 10 + p + N
-			// Thus N = (bLength - 10 - p)
-			(bLength - MinimumBLength).checked_sub(p).ok_or(BLengthTooShort)?
-		};
-		
-		Ok
-		(
-			Alive
-			(
-				Self
-				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
-					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body)?),
-					
-					mixer_controls_bit_map: Vec::new_from(entity_body.bytes(entity_index_non_constant(9 + p), N)).map_err(CouldNotAllocateMemoryForControls)?,
-					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(9 + p + N))).map_err(InvalidDescriptionString)?),
-				}
-			)
-		)
+		Ok(Self::parse_inner(entity_body, string_finder)?)
 	}
 }
 
@@ -110,5 +79,42 @@ impl Version1MixerUnitEntity
 	pub const fn description(&self) -> Option<&LocalizedStrings>
 	{
 		self.description.as_ref()
+	}
+	
+	#[inline(always)]
+	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version1MixerUnitEntityParseError>
+	{
+		use Version1MixerUnitEntityParseError::*;
+		
+		let p = parse_p::<DescriptorEntityMinimumLength>(entity_body);
+		
+		/// 10.
+		const MinimumBLength: usize = Version1EntityDescriptors::MixerUnitMinimumBLength as usize;
+		
+		let N =
+		{
+			let bLength = DescriptorEntityMinimumLength + entity_body.len();
+			
+			// bLength = 10 + p + N
+			// Thus N = (bLength - 10 - p)
+			(bLength - MinimumBLength).checked_sub(p).ok_or(BLengthTooShort)?
+		};
+		
+		Ok
+		(
+			Alive
+			(
+				Self
+				{
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
+					
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body)?),
+					
+					mixer_controls_bit_map: Vec::new_from(entity_body.bytes(entity_index_non_constant(9 + p), N)).map_err(CouldNotAllocateMemoryForControls)?,
+					
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(9 + p + N))).map_err(InvalidDescriptionString)?),
+				}
+			)
+		)
 	}
 }

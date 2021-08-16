@@ -89,9 +89,12 @@ pub enum Version1ProcessType
 impl Version1ProcessType
 {
 	#[inline(always)]
-	fn parse_undefined(_bmControls: &[u8], process_type_specific_bytes: &[u8]) -> Result<Self, Version1ProcessTypeParseError>
+	fn parse_undefined(bmControls: &[u8], process_type_specific_bytes: &[u8]) -> Result<Self, Version1ProcessTypeParseError>
 	{
+		debug_assert_ne!(bmControls.len(), 0);
+		
 		use Version1UnrecognizedProcessTypeParseError::*;
+		
 		Ok
 		(
 			Version1ProcessType::Undefined
@@ -106,6 +109,8 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_up_down_mix(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1ProcessTypeParseError>
 	{
+		debug_assert_ne!(bmControls.len(), 0);
+		
 		use Version1UpDownMixProcessTypeParseError::*;
 		
 		validate_process_type_not_empty(process_type_specific_bytes, p, MustHaveAtLeastOneByteOfProcessSpecificData, MustHaveOnlyOneInputPin)?;
@@ -133,6 +138,8 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_dolby_pro_logic(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1ProcessTypeParseError>
 	{
+		debug_assert_ne!(bmControls.len(), 0);
+		
 		use Version1DolbyProLogicProcessTypeParseError::*;
 		
 		validate_process_type_not_empty(process_type_specific_bytes, p, MustHaveAtLeastOneByteOfProcessSpecificData, MustHaveOnlyOneInputPin)?;
@@ -158,8 +165,10 @@ impl Version1ProcessType
 	}
 	
 	#[inline(always)]
-	fn parse_three_dimensional_stereo_extended(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1ProcessTypeParseError>
+	fn parse_three_dimensional_stereo_extended(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1ProcessTypeParseError>
 	{
+		debug_assert_ne!(bmControls.len(), 0);
+		
 		use Version1ThreeDimensionalStereoExtendedProcessTypeParseError::*;
 		
 		validate_process_type_empty(process_type_specific_bytes, p, MustNotHaveProcessSpecificBytes, MustHaveOnlyOneInputPin)?;
@@ -177,6 +186,8 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_reverberation(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1ProcessTypeParseError>
 	{
+		debug_assert_ne!(bmControls.len(), 0);
+		
 		use Version1ReverberationProcessTypeParseError::*;
 		
 		validate_process_type_empty(process_type_specific_bytes, p, MustNotHaveProcessSpecificBytes, MustHaveOnlyOneInputPin)?;
@@ -200,6 +211,8 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_chorus(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1ProcessTypeParseError>
 	{
+		debug_assert_ne!(bmControls.len(), 0);
+		
 		use Version1ChorusProcessTypeParseError::*;
 		
 		validate_process_type_empty(process_type_specific_bytes, p, MustNotHaveProcessSpecificBytes, MustHaveOnlyOneInputPin)?;
@@ -221,6 +234,8 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_dynamic_range_compressor(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1ProcessTypeParseError>
 	{
+		debug_assert_ne!(bmControls.len(), 0);
+		
 		use Version1DynamicRangeCompressorProcessTypeParseError::*;
 		
 		validate_process_type_empty(process_type_specific_bytes, p, MustNotHaveProcessSpecificBytes, MustHaveOnlyOneInputPin)?;
@@ -246,6 +261,8 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_unrecognized(bmControls: &[u8], process_type_specific_bytes: &[u8], process_type_code: u16) -> Result<Self, Version1ProcessTypeParseError>
 	{
+		debug_assert_ne!(bmControls.len(), 0);
+		
 		use Version1UnrecognizedProcessTypeParseError::*;
 		
 		Ok

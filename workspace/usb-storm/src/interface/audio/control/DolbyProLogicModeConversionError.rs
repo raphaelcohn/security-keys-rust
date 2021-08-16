@@ -3,7 +3,7 @@
 
 
 /// Dolby ProLogic conversion error.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct DolbyProLogicModeConversionError<LACSL: LogicalAudioChannelSpatialLocation>
 {
 	mode: WrappedBitFlags<LACSL>

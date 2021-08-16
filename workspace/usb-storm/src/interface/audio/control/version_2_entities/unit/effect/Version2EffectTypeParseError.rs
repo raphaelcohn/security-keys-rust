@@ -12,6 +12,7 @@ pub enum Version2EffectTypeParseError<ControlsError: error::Error>
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForControls(TryReserveError),
 	
+	#[allow(missing_docs)]
 	ChannelControlInvalid
 	{
 		cause: ControlsError,

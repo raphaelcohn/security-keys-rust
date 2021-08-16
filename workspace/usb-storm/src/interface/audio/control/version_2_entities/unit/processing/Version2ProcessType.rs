@@ -103,14 +103,15 @@ impl Version2ProcessType
 			
 				overflow_control: Control::parse_u32(bmControls, 4, OverflowControlInvalid)?,
 			
-				modes: parse_process_type_modes
+				modes: Self::parse_process_type_modes
 				(
 					process_type_specific_bytes,
 					output_logical_audio_channel_cluster,
 					|mode| Ok(mode),
 					CouldNotAllocateMemoryForModes,
 					|mode, spatial_location| CanNotHaveThisModeAsASpatialChannelOutputIsAbsent { mode, spatial_location },
-					|mode| HasDuplicateMode { mode }
+					|mode| HasDuplicateMode { mode },
+					RawDataIsNotUsableForThis
 				)?,
 			}
 		)
@@ -135,21 +136,22 @@ impl Version2ProcessType
 				
 				overflow_control: Control::parse_u32(bmControls, 4, OverflowControlInvalid)?,
 				
-				modes: parse_process_type_modes
+				modes: Self::parse_process_type_modes
 				(
 					process_type_specific_bytes,
 					output_logical_audio_channel_cluster,
 					|mode| DolbyProLogicMode::try_from(mode).map_err(CanNotHaveThisMode),
 					CouldNotAllocateMemoryForModes,
 					|mode, spatial_location| CanNotHaveThisModeAsASpatialChannelOutputIsAbsent { mode, spatial_location },
-					|mode| HasDuplicateMode { mode }
+					|mode| HasDuplicateMode { mode },
+					RawDataIsNotUsableForThis,
 				)?,
 			}
 		)
 	}
 	
 	#[inline(always)]
-	fn parse_stereo_extender(bmControls: u32, process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version2LogicalAudioChannelCluster) -> Result<Self, Version2ProcessTypeParseError>
+	fn parse_stereo_extender(bmControls: u32, process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version2ProcessTypeParseError>
 	{
 		use Version2StereoExtenderProcessTypeParseError::*;
 		
@@ -183,6 +185,29 @@ impl Version2ProcessType
 			
 				process_type_code: new_non_zero_u16(process_type_code),
 			}
+		)
+	}
+	
+	#[inline(always)]
+	fn parse_process_type_modes<E: error::Error, Output: Eq + Hash + Ord>(process_type_specific_bytes: &[u8], output_logical_audio_channel_cluster: &Version2LogicalAudioChannelCluster, into_output_mode: impl Fn(WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>) -> Result<Output, E>, out_of_memory_error: impl FnOnce(TryReserveError) -> E, missing_spatial_location_error: impl FnOnce(WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>, Version2LogicalAudioChannelSpatialLocation) -> E, duplicate_error: impl FnOnce(WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>) -> E, raw_data_error: E) -> Result<WrappedIndexSet<Output>, E>
+	{
+		use Version2LogicalAudioChannelCluster::*;
+		
+		let output_logical_audio_channel_cluster = match output_logical_audio_channel_cluster
+		{
+			RawData => return Err(raw_data_error),
+			
+			Cluster(output_logical_audio_channel_cluster) => output_logical_audio_channel_cluster,
+		};
+		
+		parse_process_type_modes
+		(
+			process_type_specific_bytes,
+			output_logical_audio_channel_cluster,
+			into_output_mode,
+			out_of_memory_error,
+			missing_spatial_location_error,
+			duplicate_error
 		)
 	}
 }

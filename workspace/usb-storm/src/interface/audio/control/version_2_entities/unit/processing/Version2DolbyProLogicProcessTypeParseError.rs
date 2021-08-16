@@ -25,9 +25,6 @@ pub enum Version2DolbyProLogicProcessTypeParseError
 	OverflowControlInvalid,
 	
 	#[allow(missing_docs)]
-	CanNotHaveThisMode(DolbyProLogicModeConversionError),
-	
-	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForModes(TryReserveError),
 	
 	#[allow(missing_docs)]
@@ -43,6 +40,12 @@ pub enum Version2DolbyProLogicProcessTypeParseError
 	{
 		mode: WrappedBitFlags<Version2LogicalAudioChannelSpatialLocation>,
 	},
+	
+	#[allow(missing_docs)]
+	RawDataIsNotUsableForThis,
+	
+	#[allow(missing_docs)]
+	CanNotHaveThisMode(DolbyProLogicModeConversionError<Version2LogicalAudioChannelSpatialLocation>),
 }
 
 impl Display for Version2DolbyProLogicProcessTypeParseError

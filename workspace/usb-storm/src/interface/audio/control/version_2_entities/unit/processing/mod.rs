@@ -16,13 +16,13 @@ use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
 use crate::interface::audio::control::entity_identifiers::UnitEntityIdentifier;
 use crate::interface::audio::control::entity_index;
 use crate::interface::audio::control::entity_index_non_constant;
-use crate::interface::audio::control::logical_audio_channels::InputLogicalAudioChannelClusters;
+use crate::interface::audio::control::logical_audio_channels::{InputLogicalAudioChannelClusters, LogicalAudioChannelClusterParseError};
 use crate::interface::audio::control::parse_p;
 use crate::interface::audio::control::parse_process_type_modes;
 use crate::interface::audio::control::validate_process_type_empty;
 use crate::interface::audio::control::validate_process_type_not_empty;
 use crate::interface::audio::control::version_2_entities::Version2EntityDescriptorParseError;
-use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelCluster;
+use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::{Version2LogicalAudioChannelCluster, Version2LogicalAudioChannelClusterParseError};
 use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelSpatialLocation;
 use crate::interface::audio::control::{Control, DolbyProLogicModeConversionError};
 use crate::string::GetLocalizedStringError;
@@ -42,6 +42,7 @@ use std::mem::transmute;
 use std::num::NonZeroU16;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u16;
+use std::hash::Hash;
 
 
 include!("Version2ProcessType.rs");

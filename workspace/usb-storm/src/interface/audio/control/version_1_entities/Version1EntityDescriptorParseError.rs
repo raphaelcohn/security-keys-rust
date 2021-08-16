@@ -59,8 +59,6 @@ impl error::Error for Version1EntityDescriptorParseError
 			ProcessingUnitEntityParse(cause) => Some(cause),
 			
 			ExtensionUnitEntityParse(cause) => Some(cause),
-			
-			_ => None,
 		}
 	}
 }

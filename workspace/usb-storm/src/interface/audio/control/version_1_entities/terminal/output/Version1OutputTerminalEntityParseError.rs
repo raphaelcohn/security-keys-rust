@@ -7,7 +7,7 @@
 pub enum Version1OutputTerminalEntityParseError
 {
 	#[allow(missing_docs)]
-	TerminalTypeParse(TerminalTypeParseError),
+	TerminalTypeIsInputOnly,
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
@@ -31,20 +31,9 @@ impl error::Error for Version1OutputTerminalEntityParseError
 		
 		match self
 		{
-			TerminalTypeParse(cause) => Some(cause),
-			
 			InvalidDescriptionString(cause) => Some(cause),
 			
 			_ => None,
 		}
-	}
-}
-
-impl From<TerminalTypeParseError> for Version1OutputTerminalEntityParseError
-{
-	#[inline(always)]
-	fn from(cause: TerminalTypeParseError) -> Self
-	{
-		Version1OutputTerminalEntityParseError::TerminalTypeParse(cause)
 	}
 }

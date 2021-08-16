@@ -6,9 +6,6 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::error;
 use std::fmt::Debug;
-use std::fmt::Display;
-use std::fmt::Formatter;
-use std::fmt;
 
 
 include!("BidirectionalTerminalType.rs");
@@ -21,5 +18,4 @@ include!("InputEmbeddedFunctionTerminalType.rs");
 include!("InputSpecificTerminalType.rs");
 include!("InputTerminalType.rs");
 include!("TelephonyTerminalType.rs");
-include!("TerminalTypeParseError.rs");
 include!("UsbTerminalType.rs");

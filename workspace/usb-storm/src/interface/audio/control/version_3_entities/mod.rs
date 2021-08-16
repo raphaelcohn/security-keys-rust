@@ -33,7 +33,6 @@ use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::parse_entity_descriptor;
 use super::terminal_types::InputTerminalType;
 use super::terminal_types::OutputTerminalType;
-use super::terminal_types::TerminalTypeParseError;
 use std::ops::Deref;
 use crate::string::StringFinder;
 use crate::device::DeadOrAlive;

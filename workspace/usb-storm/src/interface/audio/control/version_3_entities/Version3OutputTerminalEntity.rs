@@ -33,13 +33,15 @@ impl Entity for Version3OutputTerminalEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], _string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
+		use Version3EntityDescriptorParseError::*;
+		
 		Ok
 		(
 			Alive
 			(
 				Self
 				{
-					output_terminal_type: OutputTerminalType::parse(entity_body.u16(entity_index::<4>()))?,
+					output_terminal_type: OutputTerminalType::parse(entity_body.u16(entity_index::<4>()), TerminalTypeIsInputOnly)?,
 					
 					associated_input_terminal: entity_body.optional_non_zero_u8(entity_index::<7>()),
 					
@@ -56,7 +58,7 @@ impl Entity for Version3OutputTerminalEntity
 						
 						connectors_descriptor_identifier: entity_body.optional_non_zero_u16(entity_index::<17>()),
 						
-						description: Version3AudioDynamicStringDescriptorIdentifier::parse(entity_body, entity_index::<19>(), Version3EntityDescriptorParseError::AudioDynamicStringDescriptorIdentifierIsOutOfRange)?,
+						description: Version3AudioDynamicStringDescriptorIdentifier::parse(entity_body, entity_index::<19>(), AudioDynamicStringDescriptorIdentifierIsOutOfRange)?,
 					},
 					
 					output_logical_audio_channel_cluster: entity_body.optional_non_zero_u8(entity_index::<7>()).map(UnitOrTerminalEntityIdentifier::new),

@@ -159,7 +159,7 @@ impl AudioControlInterfaceExtraDescriptor
 		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16(2), remaining_bytes)?;
 		
 		let bmControls = descriptor_body.u32(4);
-		let latency_control = Control::parse_u32(bmControls, 0, AudioControlInterfaceExtraDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
+		let latency_control = Control::parse_u32(bmControls, 0, AudioControlInterfaceExtraDescriptorParseError::ParseVersion3Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
 		Self::ok_alive
 		(
 			AudioControlInterfaceExtraDescriptor::Version_3_0

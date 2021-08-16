@@ -29,8 +29,6 @@ impl error::Error for Version2SamplingRateConverterUnitEntityParseError
 		match self
 		{
 			InvalidDescriptionString(cause) => Some(cause),
-			
-			_ => None,
 		}
 	}
 }

@@ -47,44 +47,7 @@ impl Entity for Version2InputTerminalEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version2InputTerminalEntityParseError::*;
-		
-		let bmControls = entity_body.u16(entity_index::<14>());
-		
-		Ok
-		(
-			Alive
-			(
-				Self
-				{
-					input_terminal_type: InputTerminalType::parse(entity_body.u16(entity_index::<4>()))?,
-					
-					associated_output_terminal: entity_body.optional_non_zero_u8(entity_index::<6>()),
-					
-					clock_source: entity_body.optional_non_zero_u8(entity_index::<7>()),
-					
-					input_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(8, string_finder, entity_body)?),
-					
-					copy_protect_control: Control::parse_u16(bmControls, 0, CopyProtectControlInvalid)?,
-					
-					connector_control: Control::parse_u16(bmControls, 1, ConnectorControlInvalid)?,
-					
-					overload_control: Control::parse_u16(bmControls, 2, OverloadControlInvalid)?,
-					
-					cluster_control: Control::parse_u16(bmControls, 3, ClusterControlInvalid)?,
-					
-					underflow_control: Control::parse_u16(bmControls, 4, UnderflowControlInvalid)?,
-					
-					overflow_control: Control::parse_u16(bmControls, 5, OverflowControlInvalid)?,
-					
-					description:
-					{
-						let description = string_finder.find_string(entity_body.u8(entity_index::<16>())).map_err(InvalidDescriptionString)?;
-						return_ok_if_dead!(description)
-					},
-				}
-			)
-		)
+		Ok(Self::parse_inner(entity_body, string_finder)?)
 	}
 }
 
@@ -169,5 +132,48 @@ impl Version2InputTerminalEntity
 	pub const fn description(&self) -> Option<&LocalizedStrings>
 	{
 		self.description.as_ref()
+	}
+	
+	#[inline(always)]
+	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version2InputTerminalEntityParseError>
+	{
+		use Version2InputTerminalEntityParseError::*;
+		
+		let bmControls = entity_body.u16(entity_index::<14>());
+		
+		Ok
+		(
+			Alive
+			(
+				Self
+				{
+					input_terminal_type: InputTerminalType::parse(entity_body.u16(entity_index::<4>()), TerminalTypeIsOutputOnly)?,
+					
+					associated_output_terminal: entity_body.optional_non_zero_u8(entity_index::<6>()),
+					
+					clock_source: entity_body.optional_non_zero_u8(entity_index::<7>()),
+					
+					input_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(8, string_finder, entity_body)?),
+					
+					copy_protect_control: Control::parse_u16(bmControls, 0, CopyProtectControlInvalid)?,
+					
+					connector_control: Control::parse_u16(bmControls, 1, ConnectorControlInvalid)?,
+					
+					overload_control: Control::parse_u16(bmControls, 2, OverloadControlInvalid)?,
+					
+					cluster_control: Control::parse_u16(bmControls, 3, ClusterControlInvalid)?,
+					
+					underflow_control: Control::parse_u16(bmControls, 4, UnderflowControlInvalid)?,
+					
+					overflow_control: Control::parse_u16(bmControls, 5, OverflowControlInvalid)?,
+					
+					description:
+					{
+						let description = string_finder.find_string(entity_body.u8(entity_index::<16>())).map_err(InvalidDescriptionString)?;
+						return_ok_if_dead!(description)
+					},
+				}
+			)
+		)
 	}
 }

@@ -25,6 +25,9 @@ pub enum Version2ExtensionUnitEntityParseError
 	CouldNotAllocateMemoryForSources(TryReserveError),
 	
 	#[allow(missing_docs)]
+	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>),
+	
+	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
 }
 
@@ -48,18 +51,11 @@ impl error::Error for Version2ExtensionUnitEntityParseError
 		{
 			CouldNotAllocateMemoryForSources(cause) => Some(cause),
 			
+			LogicalAudioChannelClusterParse(cause) => Some(cause),
+			
 			InvalidDescriptionString(cause) => Some(cause),
 			
 			_ => None,
 		}
-	}
-}
-
-impl From<Version2ExtensionTypeParseError> for Version2ExtensionUnitEntityParseError
-{
-	#[inline(always)]
-	fn from(cause: Version2ExtensionTypeParseError) -> Self
-	{
-		Version2ExtensionUnitEntityParseError::ExtensionTypeParse(cause)
 	}
 }

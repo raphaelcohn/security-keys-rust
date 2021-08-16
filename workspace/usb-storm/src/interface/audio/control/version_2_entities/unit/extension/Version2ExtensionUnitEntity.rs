@@ -41,46 +41,7 @@ impl Entity for Version2ExtensionUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version2ExtensionUnitEntityParseError::*;
-		
-		let p =
-		{
-			const ExtensionCodeSize: usize = 2;
-			const PIndex: usize = DescriptorEntityMinimumLength + ExtensionCodeSize;
-			parse_p::<PIndex>(entity_body)
-		};
-		
-		if unlikely!(((Version2EntityDescriptors::ExtensionUnitMinimumBLength + p) - DescriptorEntityMinimumLength) != entity_body.len())
-		{
-			Err(PIsTooLarge)?
-		}
-		
-		let bmControls = entity_body.u8(entity_index_non_constant(14 + p));
-		
-		Ok
-		(
-			Alive
-			(
-				Self
-				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 7, CouldNotAllocateMemoryForSources)?,
-					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(8 + p, string_finder, entity_body)?),
-					
-					enable_control: Control::parse_u8(bmControls, 0, EnableControlInvalid)?,
-					
-					cluster_control: Control::parse_u8(bmControls, 0, ClusterControlInvalid)?,
-					
-					underflow_control: Control::parse_u8(bmControls, 0, UnderflowControlInvalid)?,
-					
-					overflow_control: Control::parse_u8(bmControls, 0, OverflowControlInvalid)?,
-					
-					extension_code: entity_body.u16(entity_index::<4>()),
-					
-					description: return_ok_if_dead!(string_finder.find_string(entity_index_non_constant(15 + p)).map_err(InvalidDescriptionString)?),
-				}
-			)
-		)
+		Ok(Self::parse_inner(entity_body, string_finder)?)
 	}
 }
 
@@ -123,6 +84,52 @@ impl Version2ExtensionUnitEntity
 	pub const fn description(&self) -> Option<&LocalizedStrings>
 	{
 		self.description.as_ref()
+	}
+	
+	#[inline(always)]
+	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version2ExtensionUnitEntityParseError>
+	{
+		use Version2ExtensionUnitEntityParseError::*;
+		
+		let p =
+		{
+			const ExtensionCodeSize: usize = 2;
+			const PIndex: usize = DescriptorEntityMinimumLength + ExtensionCodeSize;
+			parse_p::<PIndex>(entity_body)
+		};
+		
+		let x = (Version2EntityDescriptors::ExtensionUnitMinimumBLength as usize) + p - DescriptorEntityMinimumLength;
+		if unlikely!(x != entity_body.len())
+		{
+			Err(PIsTooLarge)?
+		}
+		
+		let bmControls = entity_body.u8(entity_index_non_constant(14 + p));
+		
+		Ok
+		(
+			Alive
+			(
+				Self
+				{
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 7, CouldNotAllocateMemoryForSources)?,
+					
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(8 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?),
+					
+					enable_control: Control::parse_u8(bmControls, 0, EnableControlInvalid)?,
+					
+					cluster_control: Control::parse_u8(bmControls, 0, ClusterControlInvalid)?,
+					
+					underflow_control: Control::parse_u8(bmControls, 0, UnderflowControlInvalid)?,
+					
+					overflow_control: Control::parse_u8(bmControls, 0, OverflowControlInvalid)?,
+					
+					extension_code: entity_body.u16(entity_index::<4>()),
+					
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(15 + p))).map_err(InvalidDescriptionString)?),
+				}
+			)
+		)
 	}
 	
 }

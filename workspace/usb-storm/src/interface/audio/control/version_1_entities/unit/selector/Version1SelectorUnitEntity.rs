@@ -36,14 +36,14 @@ impl 	Entity for Version1SelectorUnitEntity
 		{
 			Err(BLengthWrong)?
 		}
-		
+
 		Ok
 		(
 			Alive
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_1_parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
 					
 					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(5 + p))).map_err(InvalidDescriptionString)?),
 				}

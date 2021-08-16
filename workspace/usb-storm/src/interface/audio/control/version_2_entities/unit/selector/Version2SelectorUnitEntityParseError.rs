@@ -13,6 +13,9 @@ pub enum Version2SelectorUnitEntityParseError
 	SelectorControlInvalid,
 	
 	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForSources(TryReserveError),
+	
+	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
 }
 
@@ -34,6 +37,8 @@ impl error::Error for Version2SelectorUnitEntityParseError
 		
 		match self
 		{
+			CouldNotAllocateMemoryForSources(cause) => Some(cause),
+			
 			InvalidDescriptionString(cause) => Some(cause),
 			
 			_ => None,

@@ -19,7 +19,6 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use std::mem::size_of;
 
 
 include!("Version2LogicalAudioChannelCluster.rs");

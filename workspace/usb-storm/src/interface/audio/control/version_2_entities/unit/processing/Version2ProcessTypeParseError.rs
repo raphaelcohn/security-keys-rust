@@ -10,7 +10,7 @@ pub enum Version2ProcessTypeParseError
 	Undefined(Version2UndefinedProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	UpDownMixParse(Version2UpDownMixParseProcessTypeParseError),
+	UpDownMixParse(Version2UpDownMixProcessTypeParseError),
 	
 	#[allow(missing_docs)]
 	DolbyProLogicParse(Version2DolbyProLogicProcessTypeParseError),
@@ -60,10 +60,10 @@ impl From<Version2UndefinedProcessTypeParseError> for Version2ProcessTypeParseEr
 	}
 }
 
-impl From<Version2UpDownMixParseProcessTypeParseError> for Version2ProcessTypeParseError
+impl From<Version2UpDownMixProcessTypeParseError> for Version2ProcessTypeParseError
 {
 	#[inline(always)]
-	fn from(cause: Version2UpDownMixParseProcessTypeParseError) -> Self
+	fn from(cause: Version2UpDownMixProcessTypeParseError) -> Self
 	{
 		Version2ProcessTypeParseError::UpDownMixParse(cause)
 	}

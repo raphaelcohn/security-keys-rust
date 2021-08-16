@@ -48,7 +48,7 @@ impl Entity for Version2SelectorUnitEntity
 			(
 				Self
 				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_2_parse(p, entity_body, 5)?,
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
 					
 					selector_control: Control::parse_u8(bmControls, 0, SelectorControlInvalid)?,
 					

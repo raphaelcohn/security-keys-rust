@@ -18,7 +18,7 @@ pub struct Version2EntityDescriptors
 	
 	feature_unit: Entities<Version2FeatureUnitEntity>,
 	
-	effect_unit: Entities<Version2FeatureUnitEntity>,
+	effect_unit: Entities<Version2EffectUnitEntity>,
 	
 	processing_unit: Entities<Version2ProcessingUnitEntity>,
 	
@@ -92,7 +92,7 @@ impl EntityDescriptors for Version2EntityDescriptors
 			
 			EXTENSION_UNIT =>
 			{
-				const MinimumBLength: u8 = Self::ExtensionUnitMinimumBLength;
+				const MinimumBLength: u8 = Version2EntityDescriptors::ExtensionUnitMinimumBLength;
 				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.extension_unit)?
 			}
 			

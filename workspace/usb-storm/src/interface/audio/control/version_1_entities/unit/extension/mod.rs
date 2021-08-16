@@ -11,8 +11,8 @@ use crate::interface::audio::control::entities::UnitEntity;
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
 use crate::interface::audio::control::entity_identifiers::UnitEntityIdentifier;
 use crate::interface::audio::control::logical_audio_channels::InputLogicalAudioChannelClusters;
-use crate::interface::audio::control::version_1_entities::Version1EntityDescriptorParseError;
-use crate::interface::audio::control::{DescriptorEntityMinimumLength, parse_p, entity_index};
+use crate::interface::audio::control::version_1_entities::{Version1EntityDescriptorParseError, parse_control_size};
+use crate::interface::audio::control::{DescriptorEntityMinimumLength, parse_p, entity_index, entity_index_non_constant};
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::string::StringFinder;
@@ -25,7 +25,6 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::size_of;
 use std::mem::transmute;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 

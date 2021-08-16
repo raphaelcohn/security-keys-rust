@@ -13,7 +13,7 @@ use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
 use crate::interface::audio::control::entity_identifiers::TerminalEntityIdentifier;
 use crate::interface::audio::control::entity_index;
 use crate::interface::audio::control::version_2_entities::Version2EntityDescriptorParseError;
-use crate::string::LocalizedStrings;
+use crate::string::{LocalizedStrings, GetLocalizedStringError};
 use crate::string::StringFinder;
 use serde::Deserialize;
 use serde::Serialize;

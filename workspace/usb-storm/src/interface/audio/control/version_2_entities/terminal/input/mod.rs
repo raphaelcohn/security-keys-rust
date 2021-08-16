@@ -14,13 +14,14 @@ use crate::interface::audio::control::entity_identifiers::TerminalEntityIdentifi
 use crate::interface::audio::control::entity_index;
 use crate::interface::audio::control::logical_audio_channels::LogicalAudioChannelClusterParseError;
 use crate::interface::audio::control::terminal_types::InputTerminalType;
-use crate::interface::audio::control::terminal_types::TerminalTypeParseError;
 use crate::interface::audio::control::version_2_entities::Version2EntityDescriptorParseError;
 use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelCluster;
 use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelClusterParseError;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::string::StringFinder;
+use serde::Deserialize;
+use serde::Serialize;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;

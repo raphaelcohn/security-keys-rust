@@ -19,6 +19,9 @@ pub enum Version2EntityDescriptorParseError
 	SelectorUnitEntityParse(Version2SelectorUnitEntityParseError),
 	
 	#[allow(missing_docs)]
+	EffectUnitEntityParse(Version2EffectUnitEntityParseError),
+	
+	#[allow(missing_docs)]
 	FeatureUnitEntityParse(Version2FeatureUnitEntityParseError),
 	
 	#[allow(missing_docs)]
@@ -66,6 +69,8 @@ impl error::Error for Version2EntityDescriptorParseError
 			
 			MixerUnitEntityParse(cause) => Some(cause),
 			
+			EffectUnitEntityParse(cause) => Some(cause),
+			
 			FeatureUnitEntityParse(cause) => Some(cause),
 			
 			ProcessingUnitEntityParse(cause) => Some(cause),
@@ -79,8 +84,6 @@ impl error::Error for Version2EntityDescriptorParseError
 			MultiplierClockEntityParse(cause) => Some(cause),
 			
 			SourceClockEntityParse(cause) => Some(cause),
-			
-			_ => None,
 		}
 	}
 }
@@ -121,6 +124,15 @@ impl From<Version2SelectorUnitEntityParseError> for Version2EntityDescriptorPars
 	}
 }
 
+impl From<Version2EffectUnitEntityParseError> for Version2EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version2EffectUnitEntityParseError) -> Self
+	{
+		Version2EntityDescriptorParseError::EffectUnitEntityParse(cause)
+	}
+}
+
 impl From<Version2FeatureUnitEntityParseError> for Version2EntityDescriptorParseError
 {
 	#[inline(always)]
@@ -148,37 +160,37 @@ impl From<Version2ExtensionUnitEntityParseError> for Version2EntityDescriptorPar
 	}
 }
 
-impl From<SamplingRateConverterUnitEntityParseError> for Version2EntityDescriptorParseError
+impl From<Version2SamplingRateConverterUnitEntityParseError> for Version2EntityDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: SamplingRateConverterUnitEntityParseError) -> Self
+	fn from(cause: Version2SamplingRateConverterUnitEntityParseError) -> Self
 	{
 		Version2EntityDescriptorParseError::SamplingRateConverterUnitEntityParse(cause)
 	}
 }
 
-impl From<SelectorClockEntityParseError> for Version2EntityDescriptorParseError
+impl From<Version2SelectorClockEntityParseError> for Version2EntityDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: SelectorClockEntityParseError) -> Self
+	fn from(cause: Version2SelectorClockEntityParseError) -> Self
 	{
 		Version2EntityDescriptorParseError::SelectorClockEntityParse(cause)
 	}
 }
 
-impl From<MultiplierClockEntityParseError> for Version2EntityDescriptorParseError
+impl From<Version2MultiplierClockEntityParseError> for Version2EntityDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: MultiplierClockEntityParseError) -> Self
+	fn from(cause: Version2MultiplierClockEntityParseError) -> Self
 	{
 		Version2EntityDescriptorParseError::MultiplierClockEntityParse(cause)
 	}
 }
 
-impl From<SourceClockEntityParseError> for Version2EntityDescriptorParseError
+impl From<Version2SourceClockEntityParseError> for Version2EntityDescriptorParseError
 {
 	#[inline(always)]
-	fn from(cause: SourceClockEntityParseError) -> Self
+	fn from(cause: Version2SourceClockEntityParseError) -> Self
 	{
 		Version2EntityDescriptorParseError::SourceClockEntityParse(cause)
 	}

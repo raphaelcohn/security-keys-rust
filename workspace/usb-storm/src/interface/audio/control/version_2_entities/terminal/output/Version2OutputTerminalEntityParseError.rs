@@ -7,7 +7,7 @@
 pub enum Version2OutputTerminalEntityParseError
 {
 	#[allow(missing_docs)]
-	TerminalTypeParse(TerminalTypeParseError),
+	TerminalTypeIsInputOnly,
 	
 	#[allow(missing_docs)]
 	CopyProtectControlInvalid,
@@ -46,20 +46,9 @@ impl error::Error for Version2OutputTerminalEntityParseError
 		
 		match self
 		{
-			TerminalTypeParse(cause) => Some(cause),
-			
 			InvalidDescriptionString(cause) => Some(cause),
 			
 			_ => None,
 		}
-	}
-}
-
-impl From<TerminalTypeParseError> for Version2OutputTerminalEntityParseError
-{
-	#[inline(always)]
-	fn from(cause: TerminalTypeParseError) -> Self
-	{
-		Version2OutputTerminalEntityParseError::TerminalTypeParse(cause)
 	}
 }

@@ -22,7 +22,6 @@ use crate::interface::audio::control::version_1_entities::logical_audio_channel_
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::string::StringFinder;
-use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::TryReserveError;
@@ -32,7 +31,6 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::size_of;
 use std::mem::transmute;
 
 

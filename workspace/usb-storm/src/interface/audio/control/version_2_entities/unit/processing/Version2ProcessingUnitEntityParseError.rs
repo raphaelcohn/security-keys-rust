@@ -7,6 +7,9 @@
 pub enum Version2ProcessingUnitEntityParseError
 {
 	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForSources(TryReserveError),
+	
+	#[allow(missing_docs)]
 	ProcessTypeParse(Version2ProcessTypeParseError),
 	
 	#[allow(missing_docs)]
@@ -14,6 +17,9 @@ pub enum Version2ProcessingUnitEntityParseError
 	
 	#[allow(missing_docs)]
 	EnableControlInvalid,
+	
+	#[allow(missing_docs)]
+	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>),
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
@@ -37,7 +43,11 @@ impl error::Error for Version2ProcessingUnitEntityParseError
 		
 		match self
 		{
+			CouldNotAllocateMemoryForSources(cause) => Some(cause),
+			
 			ProcessTypeParse(cause) => Some(cause),
+			
+			LogicalAudioChannelClusterParse(cause) => Some(cause),
 			
 			InvalidDescriptionString(cause) => Some(cause),
 			

@@ -46,11 +46,19 @@ impl error::Error for Version2EffectUnitEntityParseError
 		
 		match self
 		{
-			EffectTypeParse(cause) => Some(cause),
+			UndefinedEffectTypeParse(cause) => Some(cause),
+			
+			ParametricEqualizerSectionEffectTypeParse(cause) => Some(cause),
+			
+			ReverberationEffectTypeParse(cause) => Some(cause),
+			
+			ModulationDelayEffectTypeParse(cause) => Some(cause),
+			
+			DynamicRangeCompressorEffectTypeParse(cause) => Some(cause),
+			
+			UnrecognizedEffectTypeParse(cause) => Some(cause),
 			
 			InvalidDescriptionString(cause) => Some(cause),
-			
-			_ => None,
 		}
 	}
 }

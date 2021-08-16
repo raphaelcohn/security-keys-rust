@@ -10,6 +10,9 @@ pub enum Version2MixerUnitEntityParseError
 	BLengthTooShort,
 	
 	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForSources(TryReserveError),
+	
+	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForControlsBitMap(TryReserveError),
 	
 	#[allow(missing_docs)]
@@ -20,6 +23,9 @@ pub enum Version2MixerUnitEntityParseError
 	
 	#[allow(missing_docs)]
 	OverflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>),
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
@@ -43,7 +49,11 @@ impl error::Error for Version2MixerUnitEntityParseError
 		
 		match self
 		{
+			CouldNotAllocateMemoryForSources(cause) => Some(cause),
+			
 			CouldNotAllocateMemoryForControlsBitMap(cause) => Some(cause),
+			
+			LogicalAudioChannelClusterParse(cause) => Some(cause),
 			
 			InvalidDescriptionString(cause) => Some(cause),
 			

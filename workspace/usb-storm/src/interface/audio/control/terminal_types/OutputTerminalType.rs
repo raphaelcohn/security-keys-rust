@@ -27,10 +27,9 @@ pub enum OutputTerminalType
 impl OutputTerminalType
 {
 	#[inline(always)]
-	pub(super) fn parse(value: u16) -> Result<Self, TerminalTypeParseError>
+	pub(super) fn parse<E: error::Error>(value: u16, error: E) -> Result<Self, E>
 	{
 		use OutputTerminalType::*;
-		use TerminalTypeParseError::*;
 		
 		let top_byte = ((value & 0xFF00) >> 8) as u8;
 		let bottom_byte = (value & 0x00FF) as u8;
@@ -49,13 +48,13 @@ impl OutputTerminalType
 			
 			0x02 => match bottom_byte
 			{
-				0x00 => return Err(InputOnlyTerminalType),
-				0x01 => return Err(InputOnlyTerminalType),
-				0x02 => return Err(InputOnlyTerminalType),
-				0x03 => return Err(InputOnlyTerminalType),
-				0x04 => return Err(InputOnlyTerminalType),
-				0x05 => return Err(InputOnlyTerminalType),
-				0x06 => return Err(InputOnlyTerminalType),
+				0x00 => return Err(error),
+				0x01 => return Err(error),
+				0x02 => return Err(error),
+				0x03 => return Err(error),
+				0x04 => return Err(error),
+				0x05 => return Err(error),
+				0x06 => return Err(error),
 				_ => Unknown(value),
 			},
 			
@@ -113,20 +112,20 @@ impl OutputTerminalType
 				0x00 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::Undefined)),
 				0x01 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::LevelCalibrationNoiseSource),
 				0x02 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::EqualizationNoise),
-				0x03 => return Err(InputOnlyTerminalType),
+				0x03 => return Err(error),
 				0x04 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::DigitalAudioTape)),
 				0x05 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::DigitalCompactCassette)),
 				0x06 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::CompressedAudioPlayer)),
 				0x07 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::AnalogAudioTape)),
-				0x08 => return Err(InputOnlyTerminalType),
-				0x09 => return Err(InputOnlyTerminalType),
-				0x0A => return Err(InputOnlyTerminalType),
-				0x0B => return Err(InputOnlyTerminalType),
-				0x0C => return Err(InputOnlyTerminalType),
-				0x0D => return Err(InputOnlyTerminalType),
-				0x0E => return Err(InputOnlyTerminalType),
-				0x0F => return Err(InputOnlyTerminalType),
-				0x10 => return Err(InputOnlyTerminalType),
+				0x08 => return Err(error),
+				0x09 => return Err(error),
+				0x0A => return Err(error),
+				0x0B => return Err(error),
+				0x0C => return Err(error),
+				0x0D => return Err(error),
+				0x0E => return Err(error),
+				0x0F => return Err(error),
+				0x10 => return Err(error),
 				0x11 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::RadioTransmitter),
 				0x12 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::MultitrackRecorder)),
 				0x13 => EmbeddedFunction(OutputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::Synthesizer)),

@@ -14,9 +14,8 @@ use crate::interface::audio::control::entity_identifiers::UnitOrTerminalEntityId
 use crate::interface::audio::control::entity_index;
 use crate::interface::audio::control::terminal_types::OutputTerminalType;
 use crate::interface::audio::control::version_1_entities::Version1EntityDescriptorParseError;
-use crate::string::LocalizedStrings;
+use crate::string::{LocalizedStrings, GetLocalizedStringError};
 use crate::string::StringFinder;
-use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
 use std::error;
@@ -24,7 +23,6 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::size_of;
 use std::mem::transmute;
 
 

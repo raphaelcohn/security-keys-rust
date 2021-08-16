@@ -33,7 +33,7 @@ impl Entity for Version2SamplingRateConverterUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version2EntityDescriptorParseError::*;
+		use Version2SamplingRateConverterUnitEntityParseError::*;
 		
 		Ok
 		(

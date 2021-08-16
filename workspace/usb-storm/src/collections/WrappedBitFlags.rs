@@ -146,4 +146,11 @@ impl<T: BitFlag> WrappedBitFlags<T>
 	{
 		self.0.is_empty()
 	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn bits(self) -> T::Numeric
+	{
+		self.0.bits()
+	}
 }

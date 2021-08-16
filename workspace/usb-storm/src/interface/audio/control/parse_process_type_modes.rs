@@ -10,10 +10,7 @@ fn parse_process_type_modes<E: error::Error, LACSL: LogicalAudioChannelSpatialLo
 	let mut output_modes = WrappedIndexSet::with_capacity(bNrModes).map_err(out_of_memory_error)?;
 	for mode_index in 0 .. bNrModes
 	{
-		// TODO: Problems with RawData in V2.
-		xxxx;
-		
-		let bit_map = LACSL::parse_mode_bit_map(process_type_specific_bytes, (1 + (mode_index * size_of::<Self::Numeric>())));
+		let bit_map = LACSL::parse_mode_bit_map(process_type_specific_bytes, 1 + (mode_index * size_of::<LACSL::Numeric>()));
 		
 		let mode = WrappedBitFlags::from_bits_truncate(bit_map);
 		for spatial_location in mode.iter()

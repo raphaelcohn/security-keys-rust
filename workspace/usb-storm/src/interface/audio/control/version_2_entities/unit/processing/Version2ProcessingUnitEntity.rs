@@ -14,7 +14,7 @@ pub struct Version2ProcessingUnitEntity
 	
 	enable_control: Control,
 	
-	process_type: ProcessType,
+	process_type: Version2ProcessType,
 	
 	description: Option<LocalizedStrings>,
 }
@@ -34,72 +34,7 @@ impl Entity for Version2ProcessingUnitEntity
 	#[inline(always)]
 	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		use Version2ProcessingUnitEntityParseError::*;
-		
-		let p =
-		{
-			const PIndex: usize = DescriptorEntityMinimumLength + ProcessTypeSize;
-			parse_p::<PIndex>(entity_body)
-		};
-		
-		const ProcessTypeSize: usize = 2;
-		let sources_size: usize =
-		{
-			const PSize: usize = 1;
-			const ClusterIdentifierSize: usize = 1;
-			PSize + (p * ClusterIdentifierSize)
-		};
-		const OutputClusterSize: usize =
-		{
-			const NumberOfChannelsSize: usize = 1;
-			const ChannelConfigSize: usize = 2;
-			const ChannelNamesSize: usize = 1;
-			NumberOfChannelsSize + ChannelConfigSize + ChannelNamesSize
-		};
-		const ControlSizeSize: usize = 1;
-		const StringDescriptorSize: usize = 1;
-		
-		let iProcessingIndex: usize = entity_index_non_constant(16 + p);
-		if unlikely!(iProcessingIndex >= entity_body.len())
-		{
-			Err(PIsTooLarge)?
-		}
-		
-		let bmControls = entity_body.u32(entity_index_non_constant(13 + p));
-		Ok
-		(
-			Alive
-			(
-				Self
-				{
-					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::version_2_parse(p, entity_body, 7)?,
-					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(7 + p, string_finder, entity_body)?),
-					
-					enable_control: Control::parse_u32(bmControls, 0, EnableControlInvalid)?,
-					
-					process_type:
-					{
-						let process_type_specific_bytes = entity_body.get_unchecked_range_safe((iProcessingIndex + 1) .. );
-						debug_assert_eq!(process_type_specific_bytes.len(), process_specific_size);
-						match entity_body.u16(entity_index::<DescriptorEntityMinimumLength>())
-						{
-							0x00 => Version2ProcessType::parse_undefined(bmControls, process_type_specific_bytes)?,
-							
-							0x01 => Version2ProcessType::parse_up_down_mix(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
-							
-							0x02 => Version2ProcessType::parse_dolby_pro_logic(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
-							
-							0x03 => Version2ProcessType::parse_stereo_extender(bmControls, process_type_specific_bytes, p, &output_logical_audio_channel_cluster)?,
-							
-							process_type_code @ _ => Version2ProcessType::parse_unrecognized(bmControls, process_type_specific_bytes, process_type_code)?,
-						}
-					},
-					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(iProcessingIndex)).map_err(InvalidDescriptionString)?),
-				}
-			)
-		)
+		Ok(Self::parse_inner(entity_body, string_finder)?)
 	}
 }
 
@@ -142,5 +77,68 @@ impl Version2ProcessingUnitEntity
 	pub const fn output_logical_audio_channel_cluster(&self) -> &Version2LogicalAudioChannelCluster
 	{
 		&self.output_logical_audio_channel_cluster
+	}
+	
+	#[inline(always)]
+	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version2ProcessingUnitEntityParseError>
+	{
+		use Version2ProcessingUnitEntityParseError::*;
+		
+		let p =
+		{
+			const PIndex: usize = DescriptorEntityMinimumLength + ProcessTypeSize;
+			parse_p::<PIndex>(entity_body)
+		};
+		
+		const ProcessTypeSize: usize = 2;
+		
+		let iProcessingIndex = entity_index_non_constant(16 + p);
+		if unlikely!(iProcessingIndex >= entity_body.len())
+		{
+			Err(PIsTooLarge)?
+		}
+		
+		let bmControls = entity_body.u32(entity_index_non_constant(13 + p));
+		let output_logical_audio_channel_cluster = return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(7 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?);
+		Ok
+		(
+			Alive
+			(
+				Self
+				{
+					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 7, CouldNotAllocateMemoryForSources)?,
+					
+					enable_control: Control::parse_u32(bmControls, 0, EnableControlInvalid)?,
+					
+					process_type: Self::parse_process_type(entity_body, iProcessingIndex, bmControls, p, &output_logical_audio_channel_cluster)?,
+					
+					output_logical_audio_channel_cluster,
+					
+					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(iProcessingIndex)).map_err(InvalidDescriptionString)?),
+				}
+			)
+		)
+	}
+	
+	#[inline(always)]
+	fn parse_process_type(entity_body: &[u8], iProcessingIndex: usize, bmControls: u32, p: usize, output_logical_audio_channel_cluster: &Version2LogicalAudioChannelCluster) -> Result<Version2ProcessType, Version2ProcessTypeParseError>
+	{
+		let process_type_specific_bytes = entity_body.get_unchecked_range_safe((iProcessingIndex + 1) .. );
+		let process_type_code = entity_body.u16(entity_index::<DescriptorEntityMinimumLength>());
+		Ok
+		(
+			match process_type_code
+			{
+				0x00 => Version2ProcessType::parse_undefined(bmControls, process_type_specific_bytes)?,
+				
+				0x01 => Version2ProcessType::parse_up_down_mix(bmControls, process_type_specific_bytes, p, output_logical_audio_channel_cluster)?,
+				
+				0x02 => Version2ProcessType::parse_dolby_pro_logic(bmControls, process_type_specific_bytes, p, output_logical_audio_channel_cluster)?,
+				
+				0x03 => Version2ProcessType::parse_stereo_extender(bmControls, process_type_specific_bytes, p)?,
+				
+				_ => Version2ProcessType::parse_unrecognized(bmControls, process_type_specific_bytes, process_type_code)?,
+			}
+		)
 	}
 }

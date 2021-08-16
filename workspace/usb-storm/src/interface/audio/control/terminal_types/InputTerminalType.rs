@@ -27,10 +27,9 @@ pub enum InputTerminalType
 impl InputTerminalType
 {
 	#[inline(always)]
-	pub(super) fn parse(value: u16) -> Result<Self, TerminalTypeParseError>
+	pub(super) fn parse<E: error::Error>(value: u16, error: E) -> Result<Self, E>
 	{
 		use InputTerminalType::*;
-		use TerminalTypeParseError::*;
 		
 		let top_byte = ((value & 0xFF00) >> 8) as u8;
 		let bottom_byte = (value & 0x00FF) as u8;
@@ -61,14 +60,14 @@ impl InputTerminalType
 			
 			0x03 => match bottom_byte
 			{
-				0x00 => return Err(OutputOnlyTerminalOutput),
-				0x01 => return Err(OutputOnlyTerminalOutput),
-				0x02 => return Err(OutputOnlyTerminalOutput),
-				0x03 => return Err(OutputOnlyTerminalOutput),
-				0x04 => return Err(OutputOnlyTerminalOutput),
-				0x05 => return Err(OutputOnlyTerminalOutput),
-				0x06 => return Err(OutputOnlyTerminalOutput),
-				0x07 => return Err(OutputOnlyTerminalOutput),
+				0x00 => return Err(error),
+				0x01 => return Err(error),
+				0x02 => return Err(error),
+				0x03 => return Err(error),
+				0x04 => return Err(error),
+				0x05 => return Err(error),
+				0x06 => return Err(error),
+				0x07 => return Err(error),
 				_ => Unknown(value),
 			},
 			
@@ -111,8 +110,8 @@ impl InputTerminalType
 			0x07 => match bottom_byte
 			{
 				0x00 => EmbeddedFunction(InputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::Undefined)),
-				0x01 => return Err(OutputOnlyTerminalOutput),
-				0x02 => return Err(OutputOnlyTerminalOutput),
+				0x01 => return Err(error),
+				0x02 => return Err(error),
 				0x03 => EmbeddedFunction(InputEmbeddedFunctionTerminalType::CompactDiscPlayer),
 				0x04 => EmbeddedFunction(InputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::DigitalAudioTape)),
 				0x05 => EmbeddedFunction(InputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::DigitalCompactCassette)),
@@ -127,7 +126,7 @@ impl InputTerminalType
 				0x0E => EmbeddedFunction(InputEmbeddedFunctionTerminalType::AudioTrackCableTuner),
 				0x0F => EmbeddedFunction(InputEmbeddedFunctionTerminalType::AudioTrackDssReceiver),
 				0x10 => EmbeddedFunction(InputEmbeddedFunctionTerminalType::RadioReceiver),
-				0x11 => return Err(OutputOnlyTerminalOutput),
+				0x11 => return Err(error),
 				0x12 => EmbeddedFunction(InputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::MultitrackRecorder)),
 				0x13 => EmbeddedFunction(InputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::Synthesizer)),
 				0x14 => EmbeddedFunction(InputEmbeddedFunctionTerminalType::Common(CommonEmbeddedFunctionTerminalType::Piano)),

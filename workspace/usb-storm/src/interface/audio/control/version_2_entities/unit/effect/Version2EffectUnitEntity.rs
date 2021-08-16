@@ -40,7 +40,7 @@ impl Entity for Version2EffectUnitEntity
 		const DYN_RANGE_COMP_EFFECT: u16 = 0x04;
 		
 		#[inline(always)]
-		fn parse_effect_type_controls_by_channel_number<E: error::Error, ControlsError: error::Error>(entity_body: &[u8], controls_parser: impl Fn(u32) -> Result<Version2AudioChannelEffectControls, ControlsError>, map_error: impl FnOnce(E) -> Version2EffectUnitEntityParseError) -> Result<ChannelControlsByChannelNumber<Version2AudioChannelEffectControls>, Version2EffectUnitEntityParseError>
+		fn parse_effect_type_controls_by_channel_number<ControlsError: 'static + error::Error>(entity_body: &[u8], controls_parser: impl Fn(u32) -> Result<Version2AudioChannelEffectControls, ControlsError> + Copy, map_error: impl FnOnce(Version2EffectTypeParseError<ControlsError>) -> Version2EffectUnitEntityParseError) -> Result<ChannelControlsByChannelNumber<Version2AudioChannelEffectControls>, Version2EffectUnitEntityParseError>
 		{
 			use Version2EffectTypeParseError::*;
 			

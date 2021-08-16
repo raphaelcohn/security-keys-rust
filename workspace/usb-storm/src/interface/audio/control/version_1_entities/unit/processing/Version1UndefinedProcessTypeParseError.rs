@@ -34,8 +34,6 @@ impl error::Error for Version1UndefinedProcessTypeParseError
 			CouldNotAllocateMemoryForControls(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForData(cause) => Some(cause),
-			
-			_ => None,
 		}
 	}
 }
