@@ -6,6 +6,10 @@
 pub mod effect;
 
 
+/// Extension.
+pub mod extension;
+
+
 /// Feature.
 pub mod feature;
 

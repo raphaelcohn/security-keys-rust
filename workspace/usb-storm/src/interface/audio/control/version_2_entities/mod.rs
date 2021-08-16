@@ -28,6 +28,8 @@ use self::terminal::output::Version2OutputTerminalEntity;
 use self::terminal::output::Version2OutputTerminalEntityParseError;
 use self::unit::effect::Version2EffectUnitEntity;
 use self::unit::effect::Version2EffectUnitEntityParseError;
+use self::unit::extension::Version2ExtensionUnitEntity;
+use self::unit::extension::Version2ExtensionUnitEntityParseError;
 use self::unit::feature::Version2FeatureUnitEntity;
 use self::unit::feature::Version2FeatureUnitEntityParseError;
 use self::unit::mixer::Version2MixerUnitEntity;
