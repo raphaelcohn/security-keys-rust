@@ -46,7 +46,15 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u16;
 
 
+include!("Version1ChorusProcessTypeParseError.rs");
+include!("Version1DolbyProLogicProcessTypeParseError.rs");
+include!("Version1DynamicRangeCompressorProcessTypeParseError.rs");
 include!("Version1ProcessingUnitEntity.rs");
 include!("Version1ProcessingUnitEntityParseError.rs");
 include!("Version1ProcessType.rs");
 include!("Version1ProcessTypeParseError.rs");
+include!("Version1ReverberationProcessTypeParseError.rs");
+include!("Version1ThreeDimensionalStereoExtendedProcessTypeParseError.rs");
+include!("Version1UndefinedProcessTypeParseError.rs");
+include!("Version1UnrecognizedProcessTypeParseError.rs");
+include!("Version1UpDownMixProcessTypeParseError.rs");

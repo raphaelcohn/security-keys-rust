@@ -9,8 +9,13 @@
 pub enum Version1ProcessType
 {
 	#[allow(missing_docs)]
-	Undefined(Vec<u8>),
-	
+	Undefined
+	{
+		controls: Vec<u8>,
+		
+		data: Vec<u8>,
+	},
+
 	#[allow(missing_docs)]
 	UpDownMix
 	{
@@ -86,16 +91,24 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_undefined(_bmControls: &[u8], process_type_specific_bytes: &[u8]) -> Result<Self, Version1ProcessTypeParseError>
 	{
-		let data = Vec::new_from(process_type_specific_bytes).map_err(Version1ProcessTypeParseError::CouldNotAllocateMemoryForProcessTypeUndefinedData)?;
-		Ok(Version1ProcessType::Undefined(data))
+		use Version1UnrecognizedProcessTypeParseError::*;
+		Ok
+		(
+			Version1ProcessType::Undefined
+			{
+				controls: Vec::new_from(bmControls).map_err(CouldNotAllocateMemoryForControls)?,
+				
+				data: Vec::new_from(process_type_specific_bytes).map_err(CouldNotAllocateMemoryForData)?,
+			}
+		)
 	}
 	
 	#[inline(always)]
 	fn parse_up_down_mix(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1ProcessTypeParseError>
 	{
-		use Version1ProcessTypeParseError::*;
+		use Version1UpDownMixProcessTypeParseError::*;
 		
-		validate_process_type_not_empty(process_type_specific_bytes, p, UpDownMixProcessTypeMustHaveAtLeastOneByteOfProcessSpecificData, UpDownMixProcessTypeMustHaveOnlyOneInputPin)?;
+		validate_process_type_not_empty(process_type_specific_bytes, p, MustHaveAtLeastOneByteOfProcessSpecificData, MustHaveOnlyOneInputPin)?;
 		
 		let byte = bmControls.get_unchecked_value_safe(0);
 		Ok
@@ -109,9 +122,9 @@ impl Version1ProcessType
 					process_type_specific_bytes,
 					output_logical_audio_channel_cluster,
 					|mode| Ok(mode),
-					CouldNotAllocateMemoryForUpDownMixProcessTypeModes,
-					|mode, spatial_location| UpDownMixProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent { mode, spatial_location },
-					|mode| UpDownMixProcessTypeHasDuplicateMode { mode }
+					CouldNotAllocateMemoryForModes,
+					|mode, spatial_location| CanNotHaveThisModeAsASpatialChannelOutputIsAbsent { mode, spatial_location },
+					|mode| HasDuplicateMode { mode }
 				)?,
 			}
 		)
@@ -120,9 +133,9 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_dolby_pro_logic(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1ProcessTypeParseError>
 	{
-		use Version1ProcessTypeParseError::*;
+		use Version1DolbyProLogicProcessTypeParseError::*;
 		
-		validate_process_type_not_empty(process_type_specific_bytes, p, DolbyProLogicProcessTypeMustHaveAtLeastOneByteOfProcessSpecificData, DolbyProLogicProcessTypeMustHaveOnlyOneInputPin)?;
+		validate_process_type_not_empty(process_type_specific_bytes, p, MustHaveAtLeastOneByteOfProcessSpecificData, MustHaveOnlyOneInputPin)?;
 		
 		let byte = bmControls.get_unchecked_value_safe(0);
 		Ok
@@ -135,10 +148,10 @@ impl Version1ProcessType
 				(
 					process_type_specific_bytes,
 					output_logical_audio_channel_cluster,
-					|mode| DolbyProLogicMode::try_from(mode).map_err(DolbyProLogicProcessTypeCanNotHaveThisMode),
-					CouldNotAllocateMemoryForDolbyProLogicProcessTypeModes,
-					|mode, spatial_location| DolbyProLogicProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent { mode, spatial_location },
-					|mode| DolbyProLogicProcessTypeHasDuplicateMode { mode }
+					|mode| DolbyProLogicMode::try_from(mode).map_err(CanNotHaveThisMode),
+					CouldNotAllocateMemoryForModes,
+					|mode, spatial_location| CanNotHaveThisModeAsASpatialChannelOutputIsAbsent { mode, spatial_location },
+					|mode| HasDuplicateMode { mode }
 				)?,
 			}
 		)
@@ -147,9 +160,9 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_three_dimensional_stereo_extended(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize, output_logical_audio_channel_cluster: &Version1LogicalAudioChannelCluster) -> Result<Self, Version1ProcessTypeParseError>
 	{
-		use Version1ProcessTypeParseError::*;
+		use Version1ThreeDimensionalStereoExtendedProcessTypeParseError::*;
 		
-		validate_process_type_empty(process_type_specific_bytes, p, ThreeDimensionalStereoExtendedProcessTypeMustNotHaveProcessTypeSpecificBytes, ThreeDimensionalStereoExtendedProcessTypeMustHaveOnlyOneInputPin)?;
+		validate_process_type_empty(process_type_specific_bytes, p, MustNotHaveProcessSpecificBytes, MustHaveOnlyOneInputPin)?;
 		
 		let byte = bmControls.get_unchecked_value_safe(0);
 		Ok
@@ -164,9 +177,9 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_reverberation(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1ProcessTypeParseError>
 	{
-		use Version1ProcessTypeParseError::*;
+		use Version1ReverberationProcessTypeParseError::*;
 		
-		validate_process_type_empty(process_type_specific_bytes, p, ReverberationProcessTypeMustNotHaveProcessTypeSpecificBytes, ReverberationProcessTypeMustHaveOnlyOneInputPin)?;
+		validate_process_type_empty(process_type_specific_bytes, p, MustNotHaveProcessSpecificBytes, MustHaveOnlyOneInputPin)?;
 		
 		let byte = bmControls.get_unchecked_value_safe(0);
 		Ok
@@ -187,9 +200,9 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_chorus(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1ProcessTypeParseError>
 	{
-		use Version1ProcessTypeParseError::*;
+		use Version1ChorusProcessTypeParseError::*;
 		
-		validate_process_type_empty(process_type_specific_bytes, p, ChorusProcessTypeMustNotHaveProcessTypeSpecificBytes, ChorusProcessTypeMustHaveOnlyOneInputPin)?;
+		validate_process_type_empty(process_type_specific_bytes, p, MustNotHaveProcessSpecificBytes, MustHaveOnlyOneInputPin)?;
 				
 		let byte = bmControls.get_unchecked_value_safe(0);
 		Ok
@@ -208,9 +221,9 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_dynamic_range_compressor(bmControls: &[u8], process_type_specific_bytes: &[u8], p: usize) -> Result<Self, Version1ProcessTypeParseError>
 	{
-		use Version1ProcessTypeParseError::*;
+		use Version1DynamicRangeCompressorProcessTypeParseError::*;
 		
-		validate_process_type_empty(process_type_specific_bytes, p, DynamicRangeCompressorProcessTypeMustNotHaveProcessTypeSpecificBytes, DynamicRangeCompressorProcessTypeMustHaveOnlyOneInputPin)?;
+		validate_process_type_empty(process_type_specific_bytes, p, MustNotHaveProcessSpecificBytes, MustHaveOnlyOneInputPin)?;
 		
 		let byte = bmControls.get_unchecked_value_safe(0);
 		Ok
@@ -233,14 +246,15 @@ impl Version1ProcessType
 	#[inline(always)]
 	fn parse_unrecognized(bmControls: &[u8], process_type_specific_bytes: &[u8], process_type_code: u16) -> Result<Self, Version1ProcessTypeParseError>
 	{
-		use Version1ProcessTypeParseError::*;
+		use Version1UnrecognizedProcessTypeParseError::*;
+		
 		Ok
 		(
 			Version1ProcessType::Unrecognized
 			{
-				controls: Vec::new_from(bmControls).map_err(CouldNotAllocateMemoryForProcessTypeUnrecognizedControls)?,
-			
-				data: Vec::new_from(process_type_specific_bytes).map_err(CouldNotAllocateMemoryForProcessTypeUnrecognizedData)?,
+				controls: Vec::new_from(bmControls).map_err(CouldNotAllocateMemoryForControls)?,
+				
+				data: Vec::new_from(process_type_specific_bytes).map_err(CouldNotAllocateMemoryForData)?,
 			
 				process_type_code: new_non_zero_u16(process_type_code),
 			}

@@ -7,86 +7,28 @@
 pub enum Version1ProcessTypeParseError
 {
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForProcessTypeUndefinedData(TryReserveError),
+	Undefined(Version1UndefinedProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForProcessTypeUnrecognizedControls(TryReserveError),
+	UpDownMix(Version1UpDownMixProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForProcessTypeUnrecognizedData(TryReserveError),
+	DolbyProLogic(Version1DolbyProLogicProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	UpDownMixProcessTypeMustHaveAtLeastOneByteOfProcessSpecificData,
+	ThreeDimensionalStereoExtended(Version1ThreeDimensionalStereoExtendedProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	UpDownMixProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent
-	{
-		mode: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>,
-		
-		spatial_location: Version1LogicalAudioChannelSpatialLocation,
-	},
+	Reveberation(Version1ReveberationProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	UpDownMixProcessTypeHasDuplicateMode
-	{
-		mode: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>,
-	},
+	Chorus(Version1ChorusProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeMustHaveAtLeastOneByteOfProcessSpecificData,
+	DynamicRangeCompressor(Version1DynamicRangeCompressorProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeCanNotHaveThisMode(DolbyProLogicModeConversionError),
-	
-	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeHasDuplicateMode
-	{
-		mode: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>,
-	},
-	
-	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeCanNotHaveThisModeAsASpatialChannelOutputIsAbsent
-	{
-		mode: WrappedBitFlags<Version1LogicalAudioChannelSpatialLocation>,
-		
-		spatial_location: Version1LogicalAudioChannelSpatialLocation,
-	},
-	
-	#[allow(missing_docs)]
-	DolbyProLogicProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	UpDownMixProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	ThreeDimensionalStereoExtendedProcessTypeMustNotHaveProcessTypeSpecificBytes,
-	
-	#[allow(missing_docs)]
-	ThreeDimensionalStereoExtendedProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	ReverberationProcessTypeMustNotHaveProcessTypeSpecificBytes,
-	
-	#[allow(missing_docs)]
-	ReverberationProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	ChorusProcessTypeMustNotHaveProcessTypeSpecificBytes,
-	
-	#[allow(missing_docs)]
-	ChorusProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorProcessTypeMustNotHaveProcessTypeSpecificBytes,
-	
-	#[allow(missing_docs)]
-	DynamicRangeCompressorProcessTypeMustHaveOnlyOneInputPin,
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUpDownMixProcessTypeModes(TryReserveError),
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForDolbyProLogicProcessTypeModes(TryReserveError),
+	Unrecognized(Version1UnrecognizedProcessTypeParseError),
 }
 
 impl Display for Version1ProcessTypeParseError
@@ -107,19 +49,95 @@ impl error::Error for Version1ProcessTypeParseError
 		
 		match self
 		{
-			CouldNotAllocateMemoryForProcessTypeUndefinedData(cause) => Some(cause),
+			Undefined(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForProcessTypeUnrecognizedControls(cause) => Some(cause),
+			UpDownMix(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForProcessTypeUnrecognizedData(cause) => Some(cause),
+			DolbyProLogic(cause) => Some(cause),
 			
-			DolbyProLogicProcessTypeCanNotHaveThisMode(cause) => Some(cause),
+			ThreeDimensionalStereoExtended(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForUpDownMixProcessTypeModes(cause) => Some(cause),
+			Reveberation(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForDolbyProLogicProcessTypeModes(cause) => Some(cause),
+			Chorus(cause) => Some(cause),
+			
+			DynamicRangeCompressor(cause) => Some(cause),
+			
+			Unrecognized(cause) => Some(cause),
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<Version1UndefinedProcessTypeParseError> for Version1ProcessTypeParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1UndefinedProcessTypeParseError) -> Self
+	{
+		Version1ProcessTypeParseError::Undefined(cause)
+	}
+}
+
+impl From<Version1UpDownMixProcessTypeParseError> for Version1ProcessTypeParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1UpDownMixProcessTypeParseError) -> Self
+	{
+		Version1ProcessTypeParseError::UpDownMix(cause)
+	}
+}
+
+impl From<Version1DolbyProLogicProcessTypeParseError> for Version1ProcessTypeParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1DolbyProLogicProcessTypeParseError) -> Self
+	{
+		Version1ProcessTypeParseError::DolbyProLogic(cause)
+	}
+}
+
+impl From<Version1ThreeDimensionalStereoExtendedProcessTypeParseError> for Version1ProcessTypeParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1ThreeDimensionalStereoExtendedProcessTypeParseError) -> Self
+	{
+		Version1ProcessTypeParseError::ThreeDimensionalStereoExtended(cause)
+	}
+}
+
+impl From<Version1ReverberationProcessTypeParseError> for Version1ProcessTypeParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1ReverberationProcessTypeParseError) -> Self
+	{
+		Version1ProcessTypeParseError::Reverberation(cause)
+	}
+}
+
+impl From<Version1ChorusProcessTypeParseError> for Version1ProcessTypeParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1ChorusProcessTypeParseError) -> Self
+	{
+		Version1ProcessTypeParseError::Chrous(cause)
+	}
+}
+
+impl From<Version1DynamicRangeCompressorProcessTypeParseError> for Version1ProcessTypeParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1DynamicRangeCompressorProcessTypeParseError) -> Self
+	{
+		Version1ProcessTypeParseError::DynamicRangeCompressor(cause)
+	}
+}
+
+impl From<Version1UnrecognizedProcessTypeParseError> for Version1ProcessTypeParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1UnrecognizedProcessTypeParseError) -> Self
+	{
+		Version1ProcessTypeParseError::Unrecognized(cause)
 	}
 }
