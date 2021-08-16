@@ -13,7 +13,7 @@ pub struct Version1SelectorUnitEntity
 	description: Option<LocalizedStrings>,
 }
 
-impl Entity for Version1SelectorUnitEntity
+impl 	Entity for Version1SelectorUnitEntity
 {
 	type EntityIdentifier = UnitEntityIdentifier;
 	
