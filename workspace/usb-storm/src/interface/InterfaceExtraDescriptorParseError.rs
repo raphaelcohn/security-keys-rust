@@ -6,6 +6,9 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InterfaceExtraDescriptorParseError
 {
+	/// Audio Control (AC).
+	AudioControl(AudioControlInterfaceExtraDescriptorParseError),
+	
 	/// Device Firmware Upgrade (DFU).
 	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError),
 	
@@ -34,12 +37,23 @@ impl error::Error for InterfaceExtraDescriptorParseError
 		
 		match self
 		{
+			AudioControl(cause) => Some(cause),
+			
 			DeviceFirmwareUpgrade(cause) => Some(cause),
 			
 			HumanInterfaceDevice(cause) => Some(cause),
 			
 			SmartCard(cause) => Some(cause),
 		}
+	}
+}
+
+impl From<AudioControlInterfaceExtraDescriptorParseError> for InterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: AudioControlInterfaceExtraDescriptorParseError) -> Self
+	{
+		InterfaceExtraDescriptorParseError::AudioControl(cause)
 	}
 }
 

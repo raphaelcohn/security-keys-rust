@@ -9,6 +9,9 @@
 pub enum InterfaceExtraDescriptor
 {
 	#[allow(missing_docs)]
+	AudioControl(AudioControlInterfaceExtraDescriptor),
+	
+	#[allow(missing_docs)]
 	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceExtraDescriptor),
 	
 	#[allow(missing_docs)]
@@ -16,6 +19,15 @@ pub enum InterfaceExtraDescriptor
 	
 	#[allow(missing_docs)]
 	SmartCard(SmartCardInterfaceExtraDescriptor),
+}
+
+impl From<AudioControlInterfaceExtraDescriptor> for InterfaceExtraDescriptor
+{
+	#[inline(always)]
+	fn from(value: AudioControlInterfaceExtraDescriptor) -> Self
+	{
+		InterfaceExtraDescriptor::AudioControl(value)
+	}
 }
 
 impl From<DeviceFirmwareUpgradeInterfaceExtraDescriptor> for InterfaceExtraDescriptor

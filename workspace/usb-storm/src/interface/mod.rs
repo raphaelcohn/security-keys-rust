@@ -3,6 +3,9 @@
 
 
 use super::integers::u5;
+use self::audio::control::AudioControlInterfaceExtraDescriptor;
+use self::audio::control::AudioControlInterfaceExtraDescriptorParser;
+use self::audio::control::AudioControlInterfaceExtraDescriptorParseError;
 use self::device_firmware_upgrade::DeviceFirmwareUpgradeInterfaceExtraDescriptor;
 use self::device_firmware_upgrade::DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError;
 use self::device_firmware_upgrade::DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser;
@@ -19,6 +22,8 @@ use super::descriptors::DescriptorParser;
 use super::descriptors::DescriptorType;
 use super::descriptors::extra_to_slice;
 use super::descriptors::parse_descriptors;
+use super::class_and_protocol::AudioProtocol;
+use super::class_and_protocol::AudioSubClass;
 use super::class_and_protocol::ApplicationSpecificInterfaceSubClass;
 use super::class_and_protocol::HumanInterfaceDeviceInterfaceBootProtocol;
 use super::class_and_protocol::HumanInterfaceDeviceInterfaceSubClass;
@@ -59,7 +64,8 @@ use swiss_army_knife::non_zero::new_non_zero_u8;
 use crate::version::Version;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive::Dead;
-use crate::collections::{WrappedIndexMap, WithCapacity};
+use crate::collections::WrappedIndexMap;
+use crate::collections::WithCapacity;
 use std::collections::TryReserveError;
 
 

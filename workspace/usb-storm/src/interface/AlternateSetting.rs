@@ -171,6 +171,12 @@ impl AlternateSetting
 	fn parse_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 	{
 		#[inline(always)]
+		fn audio_control(string_finder: &StringFinder, extra: &[u8], protocol: AudioProtocol) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		{
+			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, AudioControlInterfaceExtraDescriptorParser(protocol))
+		}
+		
+		#[inline(always)]
 		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
@@ -216,6 +222,8 @@ impl AlternateSetting
 		
 		match interface_class
 		{
+			Audio(AudioSubClass::Control(audio_protocol)) => audio_control(string_finder, extra, audio_protocol),
+			
 			ApplicationSpecific(DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol::Known)) => device_upgrade_firmware(string_finder, extra),
 			
 			HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: None }) => human_interface_device(string_finder, extra, NotBoot),

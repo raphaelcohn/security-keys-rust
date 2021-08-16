@@ -3,7 +3,7 @@
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub(super) struct AudioControlInterfaceExtraDescriptorParser(AudioProtocol);
+pub(crate) struct AudioControlInterfaceExtraDescriptorParser(pub(crate) AudioProtocol);
 
 impl DescriptorParser for AudioControlInterfaceExtraDescriptorParser
 {
