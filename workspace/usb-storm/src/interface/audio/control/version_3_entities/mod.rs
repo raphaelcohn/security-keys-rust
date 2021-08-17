@@ -7,7 +7,6 @@ use crate::integers::u2;
 use crate::interface::audio::Version3AudioDynamicStringDescriptorIdentifier;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashSet;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;

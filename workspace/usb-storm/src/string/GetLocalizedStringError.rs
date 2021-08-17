@@ -22,13 +22,39 @@ pub enum GetLocalizedStringError
 		language: Language,
 	},
 	
-	GetStandardUsbDescriptor(GetStandardUsbDescriptorError),
+	GetStandardUsbDescriptor
+	{
+		cause: GetStandardUsbDescriptorError,
+		
+		string_descriptor_index: NonZeroU8,
 	
-	NotACorrectUtf16LittleEndianSize,
+		language: Language,
+	},
 	
-	CouldNotAllocateString(TryReserveError),
+	NotACorrectUtf16LittleEndianSize
+	{
+		string_descriptor_index: NonZeroU8,
+		
+		language: Language,
+	},
+	
+	CouldNotAllocateString
+	{
+		cause: TryReserveError,
+		
+		string_descriptor_index: NonZeroU8,
+		
+		language: Language,
+	},
 
-	InvalidUtf16LittleEndianSequence(DecodeUtf16Error),
+	InvalidUtf16LittleEndianSequence
+	{
+		cause: DecodeUtf16Error,
+		
+		string_descriptor_index: NonZeroU8,
+		
+		language: Language,
+	},
 }
 
 impl Display for GetLocalizedStringError
@@ -49,22 +75,13 @@ impl error::Error for GetLocalizedStringError
 		
 		match self
 		{
-			GetStandardUsbDescriptor(cause) => Some(cause),
+			GetStandardUsbDescriptor { cause, .. } => Some(cause),
 			
-			CouldNotAllocateString(cause) => Some(cause),
+			CouldNotAllocateString { cause, .. } => Some(cause),
 			
-			InvalidUtf16LittleEndianSequence(cause) => Some(cause),
+			InvalidUtf16LittleEndianSequence { cause, .. } => Some(cause),
 			
 			_ => None,
 		}
-	}
-}
-
-impl From<GetStandardUsbDescriptorError> for GetLocalizedStringError
-{
-	#[inline(always)]
-	fn from(cause: GetStandardUsbDescriptorError) -> Self
-	{
-		GetLocalizedStringError::GetStandardUsbDescriptor(cause)
 	}
 }

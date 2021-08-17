@@ -28,7 +28,7 @@ impl EntityDescriptors for Version1EntityDescriptors
 	type Error = Version1EntityDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_entity_body(&mut self, bDescriptorSubtype: u8, string_finder: &StringFinder, entity_descriptors_bytes: &[u8], bLength: u8, entity_identifiers: &mut HashSet<EntityIdentifier>) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
+	fn parse_entity_body(&mut self, bDescriptorSubtype: u8, string_finder: &StringFinder, entity_descriptors_bytes: &[u8], bLength: u8) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
 	{
 		// These constants differ in value between versions 1, 2 and 3 of the Audio specifications!
 		const INPUT_TERMINAL: u8 = 0x02;
@@ -41,38 +41,38 @@ impl EntityDescriptors for Version1EntityDescriptors
 		
 		let dead_or_alive = match bDescriptorSubtype
 		{
-			INPUT_TERMINAL => parse_entity_descriptor::<_, 12>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.input_terminal)?,
+			INPUT_TERMINAL => parse_entity_descriptor::<_, 12>(string_finder, entity_descriptors_bytes, bLength, &mut self.input_terminal)?,
 			
-			OUTPUT_TERMINAL => parse_entity_descriptor::<_, 9>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.output_terminal)?,
+			OUTPUT_TERMINAL => parse_entity_descriptor::<_, 9>(string_finder, entity_descriptors_bytes, bLength, &mut self.output_terminal)?,
 			
 			MIXER_UNIT =>
 			{
 				const MinimumBLength: u8 = Version1EntityDescriptors::MixerUnitMinimumBLength;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.mixer_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut self.mixer_unit)?
 			}
 			
 			SELECTOR_UNIT =>
 			{
 				const MinimumBLength: u8 = Version1EntityDescriptors::SelectorUnitMinimumBLength;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.selector_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut self.selector_unit)?
 			}
 			
 			FEATURE_UNIT =>
 			{
 				const MinimumBLength: u8 = Version1EntityDescriptors::FeatureUnitMinimumBLength;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.feature_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut self.feature_unit)?
 			}
 			
 			PROCESSING_UNIT =>
 			{
 				const MinimumBLength: u8 = 13;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.processing_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut self.processing_unit)?
 			}
 			
 			EXTENSION_UNIT =>
 			{
 				const MinimumBLength: u8 = 13;
-				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, entity_identifiers, &mut self.extension_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(string_finder, entity_descriptors_bytes, bLength, &mut self.extension_unit)?
 			}
 			
 			_ => return Ok(Alive(false))

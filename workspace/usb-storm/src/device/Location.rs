@@ -30,7 +30,7 @@ impl Location
 	}
 	
 	#[inline(always)]
-	fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Self, DeviceParseError>
+	fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Self, ()>
 	{
 		Ok
 		(
@@ -44,7 +44,7 @@ impl Location
 	}
 	
 	#[inline(always)]
-	fn parent_from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Option<Self>, DeviceParseError>
+	fn parent_from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Option<Self>, ()>
 	{
 		match get_parent(libusb_device)
 		{

@@ -44,13 +44,13 @@ impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL
 		}
 		
 		let spatial_logical_audio_channels_count = logical_audio_channels.len() as u8;
-		
 		if unlikely!(number_of_logical_audio_channels < spatial_logical_audio_channels_count)
 		{
 			return Err(NumberOfLogicalAudioChannelsIsLessThanNumberOfSpatialLogicalAudioChannels)
 		}
 		
 		let non_spatial_channel_count = number_of_logical_audio_channels - spatial_logical_audio_channels_count;
+		
 		if first_logical_channel_name_string_identifier == 0
 		{
 			for index in 0 .. non_spatial_channel_count
@@ -62,10 +62,12 @@ impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL
 		}
 		else
 		{
-			let maximum_inclusive_string_identifier = (first_logical_channel_name_string_identifier as u16) + (non_spatial_channel_count as u16);
-			if unlikely!(maximum_inclusive_string_identifier > (u8::MAX as u16))
 			{
-				return Err(NamedLogicalAudioChannelStringIdentifierGreaterThan255)
+				let maximum_inclusive_string_identifier = (first_logical_channel_name_string_identifier as u16) + (non_spatial_channel_count as u16);
+				if unlikely!(maximum_inclusive_string_identifier > (u8::MAX as u16))
+				{
+					return Err(NamedLogicalAudioChannelStringIdentifierGreaterThan255)
+				}
 			}
 			
 			for index in 0 .. non_spatial_channel_count

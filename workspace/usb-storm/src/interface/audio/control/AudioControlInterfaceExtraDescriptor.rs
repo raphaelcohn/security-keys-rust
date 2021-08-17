@@ -212,8 +212,7 @@ impl AudioControlInterfaceExtraDescriptor
 	{
 		use AudioControlInterfaceExtraDescriptorParseError::*;
 		
-		const MinimumBLength: u8 = 10;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, HeaderBLengthIsLessThanMinimum, HeaderBLengthExceedsRemainingBytes)?;
 		
 		debug_assert!(descriptor_body_length > 0);
 		let bDescriptorSubType = descriptor_body.u8(0);
@@ -280,12 +279,13 @@ impl AudioControlInterfaceExtraDescriptor
 	#[inline(always)]
 	fn total_length_excluding_header(wTotalLength: u16, remaining_bytes: &[u8]) -> Result<usize, AudioControlInterfaceExtraDescriptorParseError>
 	{
-		let total_length_excluding_header = (wTotalLength as usize) - DescriptorHeaderLength;
-		if unlikely!(remaining_bytes.len() < total_length_excluding_header)
+		let expected_length = remaining_bytes.len() + DescriptorHeaderLength;
+		let wTotalLengthUsize = wTotalLength as usize;
+		if unlikely!(expected_length < wTotalLengthUsize)
 		{
-			return Err(AudioControlInterfaceExtraDescriptorParseError::wTotalLengthExceedsRemainingBytes)
+			return Err(AudioControlInterfaceExtraDescriptorParseError::wTotalLengthExceedsRemainingBytes { expected_length, wTotalLength })
 		}
-		Ok(total_length_excluding_header)
+		Ok(wTotalLengthUsize - DescriptorHeaderLength)
 	}
 	
 	#[inline(always)]
@@ -297,7 +297,6 @@ impl AudioControlInterfaceExtraDescriptor
 		const HEADER: u8 = 0x01;
 		
 		let mut entity_descriptors_bytes = remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. total_length_excluding_header);
-		let mut entity_identifiers = HashSet::new();
 		let mut entity_descriptors = ED::default();
 		while !entity_descriptors_bytes.is_empty()
 		{
@@ -314,7 +313,7 @@ impl AudioControlInterfaceExtraDescriptor
 			
 			let bLength = entity_descriptors_bytes.u8(0);
 			let bDescriptorSubtype = entity_descriptors_bytes.u8(2);
-			match entity_descriptors.parse_entity_body(bDescriptorSubtype, string_finder, entity_descriptors_bytes, bLength, &mut entity_identifiers)?
+			match entity_descriptors.parse_entity_body(bDescriptorSubtype, string_finder, entity_descriptors_bytes, bLength)?
 			{
 				Alive(true) => (),
 				

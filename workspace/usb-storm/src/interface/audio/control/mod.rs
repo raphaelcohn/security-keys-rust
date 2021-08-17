@@ -35,7 +35,6 @@ use self::version_3_entities::Version3EntityDescriptorParseError;
 use self::version_3_entities::Version3EntityDescriptors;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashSet;
 use std::collections::TryReserveError;
 use std::convert::TryFrom;
 use std::error;

@@ -39,15 +39,15 @@ impl Vendor
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(identifier: VendorIdentifier, manufacturer_name: Option<LocalizedStrings>) -> Self
+	pub(super) fn parse(vendor_identifier: VendorIdentifier, manufacturer_name: Option<LocalizedStrings>) -> Self
 	{
 		Self
 		{
-			identifier,
+			identifier: vendor_identifier,
 		
 			manufacturer_name,
 		
-			registration: VendorRegistration::parse(identifier),
+			registration: VendorRegistration::parse(vendor_identifier),
 		}
 	}
 }

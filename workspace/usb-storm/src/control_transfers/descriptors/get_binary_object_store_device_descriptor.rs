@@ -9,5 +9,5 @@ pub(crate) fn get_binary_object_store_device_descriptor(device_handle: NonNull<l
 {
 	const descriptor_type: DescriptorType = LIBUSB_DT_BOS;
 	let descriptor_bytes = get_standard_device_descriptor(device_handle, buffer, descriptor_type, 0, 0)?;
-	Ok(StandardUsbDescriptorError::parse::<descriptor_type>(descriptor_bytes)?)
+	Ok(StandardUsbDescriptorError::parse::<descriptor_type, false>(descriptor_bytes)?)
 }

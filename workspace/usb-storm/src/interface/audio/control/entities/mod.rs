@@ -11,12 +11,14 @@ use crate::collections::VecExt;
 use crate::collections::WrappedHashMap;
 use crate::device::DeadOrAlive;
 use crate::string::StringFinder;
+use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::error;
 use std::fmt::Debug;
 use std::hash::Hash;
+use std::num::NonZeroU8;
 
 
 include!("ClockEntity.rs");

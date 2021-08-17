@@ -2,32 +2,35 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Parse error.
+/// Device descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Version1FeatureUnitEntityParseError
+pub enum DevicesParseError
 {
 	#[allow(missing_docs)]
-	UnitControlSizeIsZero,
+	CouldNotAllocateMemoryForDevices(TryReserveError),
 	
 	#[allow(missing_docs)]
-	UnitControlsHaveRemainder
+	UnassignedAddress
 	{
-		controls_bytes_length: usize,
-		
-		control_size: NonZeroUsize,
+		vendor_identifier: VendorIdentifier,
+	
+		product_identifier: ProductIdentifier,
 	},
 	
 	#[allow(missing_docs)]
-	BLengthWrong,
+	DeviceParse
+	{
+		cause: DeviceParseError,
+		
+		vendor_identifier: VendorIdentifier,
+		
+		product_identifier: ProductIdentifier,
 	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForControls(TryReserveError),
-	
-	#[allow(missing_docs)]
-	InvalidDescriptionString(GetLocalizedStringError),
+		location: Location,
+	},
 }
 
-impl Display for Version1FeatureUnitEntityParseError
+impl Display for DevicesParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -36,18 +39,18 @@ impl Display for Version1FeatureUnitEntityParseError
 	}
 }
 
-impl error::Error for Version1FeatureUnitEntityParseError
+impl error::Error for DevicesParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use Version1FeatureUnitEntityParseError::*;
+		use DevicesParseError::*;
 		
 		match self
 		{
-			CouldNotAllocateMemoryForControls(cause) => Some(cause),
+			CouldNotAllocateMemoryForDevices(cause) => Some(cause),
 			
-			InvalidDescriptionString(cause) => Some(cause),
+			DeviceParse { cause, .. } => Some(cause),
 			
 			_ => None,
 		}

@@ -70,7 +70,7 @@ impl<'a> Bytes for &'a [u8]
 	#[cfg(target_endian = "big")]
 	fn u16(&self, index: usize) -> u16
 	{
-		u16::from_le_bytes([self.get_unchecked_value_safe(index), self.get_unchecked_value_safe(adjusted_index + 1)])
+		u16::from_le_bytes([self.get_unchecked_value_safe(index), self.get_unchecked_value_safe(index + 1)])
 	}
 	
 	#[inline(always)]

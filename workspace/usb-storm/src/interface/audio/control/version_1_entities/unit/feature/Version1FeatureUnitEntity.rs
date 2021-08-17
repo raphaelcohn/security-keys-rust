@@ -37,13 +37,13 @@ impl Entity for Version1FeatureUnitEntity
 		const ControlSizeSize: usize = 1;
 		const StringDescriptorSize: usize = 1;
 		let controls_bytes_length = entity_body.len() - ControlSizeSize - StringDescriptorSize;
-		if unlikely!(controls_bytes_length % control_size.get() != 0)
-		{
-			Err(UnitControlsHaveRemainder)?
-		}
 		if unlikely!(((Version1EntityDescriptors::FeatureUnitMinimumBLength as usize) + controls_bytes_length) != (DescriptorEntityMinimumLength + entity_body.len()))
 		{
 			Err(BLengthWrong)?
+		}
+		if unlikely!(controls_bytes_length % control_size.get() != 0)
+		{
+			Err(UnitControlsHaveRemainder { controls_bytes_length, control_size } )?
 		}
 		
 		Ok

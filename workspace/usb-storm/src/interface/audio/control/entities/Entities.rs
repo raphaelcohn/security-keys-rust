@@ -37,10 +37,15 @@ impl<E: Entity> Entities<E>
 	}
 	
 	#[inline(always)]
-	pub(crate) fn push_identified(&mut self, entity: E, entity_identifier: E::EntityIdentifier) -> Result<(), EntityDescriptorParseError<E::ParseError>>
+	pub(crate) fn push_identified(&mut self, entity: E, entity_identifier: NonZeroU8) -> Result<(), EntityDescriptorParseError<E::ParseError>>
 	{
-		let outcome = self.identified.try_to_insert(entity_identifier, entity).map_err(EntityDescriptorParseError::OutOfMemoryPushingIdentifiedEntityDescriptor)?;
-		debug_assert!(outcome.is_none());
+		use EntityDescriptorParseError::*;
+		
+		let outcome = self.identified.try_to_insert(E::cast_entity_identifier(entity_identifier), entity).map_err(OutOfMemoryPushingIdentifiedEntityDescriptor)?;
+		if unlikely!(outcome.is_some())
+		{
+			return Err(DuplicateEntityIdentifier { entity_identifier })
+		}
 		Ok(())
 	}
 }

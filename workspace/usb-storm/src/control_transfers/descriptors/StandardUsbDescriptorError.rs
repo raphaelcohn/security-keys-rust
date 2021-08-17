@@ -23,6 +23,12 @@ pub enum StandardUsbDescriptorError
 		bLength: u8,
 	},
 	
+	/// A zero bLength can occur when requesting a string descriptor that does not exist.
+	BLengthWasZero,
+	
+	/// The bLength was 1, as the minimum is 2.
+	BLengthWasShorterThanDescriptorMinimum,
+	
 	#[allow(missing_docs)]
 	DescriptorMismatch
 	{
@@ -47,8 +53,9 @@ impl error::Error for StandardUsbDescriptorError
 
 impl StandardUsbDescriptorError
 {
+	/// Some devices, eg a HD Pro Webcam C920 (0x046D, product_identifier: 0x082D) return a completely empty descriptor for a string (ie one with a bLength of 0x00 and with a descriptor_bytes.len() of 255) rather than a valid empty string (0x00 0x03).
 	#[inline(always)]
-	fn parse<const descriptor_type: DescriptorType>(descriptor_bytes: DeadOrAlive<Option<&[u8]>>) -> Result<DeadOrAlive<Option<(&[u8], u8)>>, Self>
+	fn parse<const descriptor_type: DescriptorType, const permit_empty: bool>(descriptor_bytes: DeadOrAlive<Option<&[u8]>>) -> Result<DeadOrAlive<Option<(&[u8], u8)>>, Self>
 	{
 		use StandardUsbDescriptorError::*;
 		
@@ -61,6 +68,23 @@ impl StandardUsbDescriptorError
 		}
 		
 		let bLength = descriptor_bytes.get_unchecked_value_safe(0);
+		if unlikely!(bLength == 0)
+		{
+			// Hack for devices such as a HD Pro Webcam C920.
+			if permit_empty
+			{
+				if length == MaximumStandardUsbDescriptorLength
+				{
+					static EmptyDescriptor: &'static [u8] = b"";
+					return Ok(Alive(Some((EmptyDescriptor, 2))))
+				}
+			}
+			return Err(BLengthWasZero)
+		}
+		if unlikely!(bLength == 1)
+		{
+			return Err(BLengthWasShorterThanDescriptorMinimum)
+		}
 		if unlikely!((bLength as usize) > length)
 		{
 			return Err(ReportedLengthTooLong { length, bLength })

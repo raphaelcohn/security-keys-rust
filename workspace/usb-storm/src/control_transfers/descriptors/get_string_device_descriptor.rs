@@ -7,7 +7,7 @@ fn get_string_device_descriptor(device_handle: NonNull<libusb_device_handle>, bu
 {
 	const descriptor_type: DescriptorType = LIBUSB_DT_STRING;
 	let descriptor_bytes = get_standard_device_descriptor(device_handle, buffer.get_unchecked_range_mut_safe(..), descriptor_type, unsafe { transmute(descriptor_index) }, language_identifier)?;
-	match StandardUsbDescriptorError::parse::<descriptor_type>(descriptor_bytes)?
+	match StandardUsbDescriptorError::parse::<descriptor_type, true>(descriptor_bytes)?
 	{
 		Dead => Ok(Dead),
 		

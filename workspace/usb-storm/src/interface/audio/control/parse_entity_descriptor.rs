@@ -3,19 +3,13 @@
 
 
 #[inline(always)]
-fn parse_entity_descriptor<E: Entity, const BLength: u8>(string_finder: &StringFinder, entity_descriptors_bytes: &[u8], bLength: u8, entity_identifiers: &mut HashSet<EntityIdentifier>, entities: &mut Entities<E>) -> Result<DeadOrAlive<()>, EntityDescriptorParseError<E::ParseError>>
+fn parse_entity_descriptor<E: Entity, const MinimumBLength: u8>(string_finder: &StringFinder, entity_descriptors_bytes: &[u8], bLength: u8, entities: &mut Entities<E>) -> Result<DeadOrAlive<()>, EntityDescriptorParseError<E::ParseError>>
 {
 	use EntityDescriptorParseError::*;
 	
-	#[inline(always)]
-	fn parse_entity_descriptor_body<E: Entity>(descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<E>, EntityDescriptorParseError<E::ParseError>>
-	{
-		E::parse(descriptor_body.get_unchecked_range_safe(DescriptorSubTypeAndEntityIdentifierLength .. ), string_finder).map_err(Version)
-	}
+	let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<EntityDescriptorParseError<E::ParseError>, MinimumBLength>(entity_descriptors_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 	
-	let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<EntityDescriptorParseError<E::ParseError>, BLength>(entity_descriptors_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
-	
-	let x = parse_entity_descriptor_body(entity_descriptors_bytes, string_finder)?;
+	let x = E::parse(descriptor_body.get_unchecked_range_safe(DescriptorSubTypeAndEntityIdentifierLength .. ), string_finder).map_err(Version)?;
 	let entity = return_ok_if_dead!(x);
 	
 	match descriptor_body.optional_non_zero_u8(adjust_descriptor_index::<3>())
@@ -24,13 +18,7 @@ fn parse_entity_descriptor<E: Entity, const BLength: u8>(string_finder: &StringF
 		
 		Some(entity_identifier) =>
 		{
-			let inserted = entity_identifiers.insert(entity_identifier);
-			if unlikely!(inserted == false)
-			{
-				return Err(DuplicateEntityIdentifier { entity_identifier })
-			}
-			
-			entities.push_identified(entity, E::cast_entity_identifier(entity_identifier))?
+			entities.push_identified(entity, entity_identifier)?
 		}
 	};
 	

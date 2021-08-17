@@ -3,7 +3,6 @@
 
 
 use super::super::integers::NonZeroU7;
-use super::DeviceParseError;
 use libusb1_sys::libusb_device;
 use libusb1_sys::libusb_get_bus_number;
 use libusb1_sys::libusb_get_device_address;

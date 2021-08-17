@@ -15,7 +15,7 @@ pub struct Version2InputTerminalEntity
 	
 	clock_source: Option<ClockEntityIdentifier>,
 	
-	input_logical_audio_channel_cluster: Version2LogicalAudioChannelCluster,
+	output_logical_audio_channel_cluster: Version2LogicalAudioChannelCluster,
 	
 	copy_protect_control: Control,
 	
@@ -122,9 +122,9 @@ impl Version2InputTerminalEntity
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn input_logical_audio_channel_cluster(&self) -> &Version2LogicalAudioChannelCluster
+	pub const fn output_logical_audio_channel_cluster(&self) -> &Version2LogicalAudioChannelCluster
 	{
-		&self.input_logical_audio_channel_cluster
+		&self.output_logical_audio_channel_cluster
 	}
 	
 	#[allow(missing_docs)]
@@ -153,7 +153,7 @@ impl Version2InputTerminalEntity
 					
 					clock_source: entity_body.optional_non_zero_u8(entity_index::<7>()),
 					
-					input_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(8, string_finder, entity_body)?),
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(8, string_finder, entity_body)?),
 					
 					copy_protect_control: Control::parse_u16(bmControls, 0, CopyProtectControlInvalid)?,
 					

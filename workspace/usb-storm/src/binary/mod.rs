@@ -26,7 +26,7 @@ use std::io::Write;
 use std::path::Path;
 use usb_storm::device::Device;
 use usb_storm::device::Devices;
-use usb_storm::device::DeviceParseError;
+use usb_storm::device::DevicesParseError;
 use usb_storm::device::ListDevicesError;
 use usb_storm::simple_serializer::SimpleSerializer;
 use usb_storm::simple_serializer::SimpleSerializerError;

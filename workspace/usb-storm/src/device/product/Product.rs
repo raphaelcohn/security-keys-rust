@@ -16,11 +16,11 @@ pub struct Product
 impl Product
 {
 	#[inline(always)]
-	pub(super) const fn new(identifier: ProductIdentifier, name: Option<LocalizedStrings>) -> Self
+	pub(super) const fn new(product_identifier: ProductIdentifier, name: Option<LocalizedStrings>) -> Self
 	{
 		Self
 		{
-			identifier,
+			identifier: product_identifier,
 		
 			name,
 		}

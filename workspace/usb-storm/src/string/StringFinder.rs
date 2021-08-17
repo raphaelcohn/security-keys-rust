@@ -89,7 +89,7 @@ impl<'a> StringFinder<'a>
 		use GetLocalizedStringError::*;
 		
 		let mut buffer = MaybeUninit::uninit_array();
-		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle.as_non_null(), &mut buffer, string_descriptor_index, language_identifier)?
+		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle.as_non_null(), &mut buffer, string_descriptor_index, language_identifier).map_err(|cause| GetStandardUsbDescriptor { cause, string_descriptor_index, language })?
 		{
 			Dead => return Ok(Dead),
 			
@@ -102,7 +102,7 @@ impl<'a> StringFinder<'a>
 		const ArrayElementSize: usize = 2;
 		if unlikely!(array_length_in_bytes % ArrayElementSize != 0)
 		{
-			return Err(NotACorrectUtf16LittleEndianSize)
+			return Err(NotACorrectUtf16LittleEndianSize { string_descriptor_index, language })
 		}
 		
 		let array_length_in_u16 = array_length_in_bytes / ArrayElementSize;
@@ -111,11 +111,11 @@ impl<'a> StringFinder<'a>
 		// UTF-16 LE 0xFFFF encodes to three bytes; 1.5x growth.
 		let maximum_number_of_utf_8_bytes = array_length_in_bytes * 3;
 		
-		let mut utf_8_bytes = Vec::new_with_capacity(maximum_number_of_utf_8_bytes).map_err(CouldNotAllocateString)?;
+		let mut utf_8_bytes = Vec::new_with_capacity(maximum_number_of_utf_8_bytes).map_err(|cause| CouldNotAllocateString { cause, string_descriptor_index, language })?;
 		let array = unsafe { from_raw_parts(remaining_bytes.as_ptr() as *const u16, array_length_in_u16) };
 		for result in decode_utf16(array.iter().cloned())
 		{
-			let character = result.map_err(InvalidUtf16LittleEndianSequence)?;
+			let character = result.map_err(|cause| InvalidUtf16LittleEndianSequence { cause, string_descriptor_index, language })?;
 			Self::encode_utf8_raw(character, &mut utf_8_bytes);
 		}
 		

@@ -7,10 +7,10 @@
 pub enum DeviceParseError
 {
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForDevices(TryReserveError),
+	CouldNotAllocateMemoryForConfigurations(TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForConfigurations(TryReserveError),
+	UnassignedAddressForParent,
 	
 	#[allow(missing_docs)]
 	DeviceHandleOpen(DeviceHandleOpenError),
@@ -35,9 +35,6 @@ pub enum DeviceParseError
 	
 	#[allow(missing_docs)]
 	SerialNumberString(GetLocalizedStringError),
-	
-	#[allow(missing_docs)]
-	UnassignedAddress,
 	
 	#[allow(missing_docs)]
 	GetConfigurationDescriptor
@@ -122,8 +119,6 @@ impl error::Error for DeviceParseError
 			ParseConfigurationNumberOfActiveConfigurationDescriptor(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForLanguages(cause) => Some(cause),
-			
-			CouldNotAllocateMemoryForDevices(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForConfigurations(cause) => Some(cause),
 			

@@ -16,7 +16,7 @@ pub struct LogicalLocation
 impl LogicalLocation
 {
 	#[inline(always)]
-	pub(super) fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Self, DeviceParseError>
+	pub(super) fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Self, ()>
 	{
 		Ok
 		(
@@ -29,7 +29,7 @@ impl LogicalLocation
 					let address = get_device_address(libusb_device);
 					if unlikely!(address == 0)
 					{
-						return Err(DeviceParseError::UnassignedAddress)
+						return Err(())
 					}
 					new_non_zero_u8(address)
 				}

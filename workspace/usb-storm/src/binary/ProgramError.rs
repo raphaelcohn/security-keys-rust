@@ -19,7 +19,7 @@ pub(super) enum ProgramError
 	CouldNotCreateBinaryObjectStoreBuffer(TryReserveError),
 	
 	#[allow(missing_docs)]
-	DeviceParse(DeviceParseError),
+	DevicesParse(DevicesParseError),
 	
 	#[allow(missing_docs)]
 	Serializing(SerializingError),
@@ -51,7 +51,7 @@ impl error::Error for ProgramError
 			
 			CouldNotCreateBinaryObjectStoreBuffer(cause) => Some(cause),
 			
-			DeviceParse(cause) => Some(cause),
+			DevicesParse(cause) => Some(cause),
 			
 			Serializing(cause) => Some(cause),
 		}
@@ -76,12 +76,12 @@ impl From<ListDevicesError> for ProgramError
 	}
 }
 
-impl From<DeviceParseError> for ProgramError
+impl From<DevicesParseError> for ProgramError
 {
 	#[inline(always)]
-	fn from(cause: DeviceParseError) -> Self
+	fn from(cause: DevicesParseError) -> Self
 	{
-		ProgramError::DeviceParse(cause)
+		ProgramError::DevicesParse(cause)
 	}
 }
 

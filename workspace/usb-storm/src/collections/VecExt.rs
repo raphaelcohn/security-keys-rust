@@ -79,7 +79,7 @@ impl<T> VecExt<T> for Vec<T>
 				
 				Ok(element) =>
 				{
-					let entry = partly_initialized.get_unchecked_mut_safe(index);
+					let entry = unsafe { partly_initialized.get_unchecked_mut(index) };
 					unsafe { entry.as_mut_ptr().write(element) };
 				}
 			}

@@ -7,10 +7,10 @@
 pub enum AudioControlInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
+	HeaderBLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
+	HeaderBLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
 	ParseVersion(VersionParseError),
@@ -19,7 +19,12 @@ pub enum AudioControlInterfaceExtraDescriptorParseError
 	ExpectedHeaderDescriptorSubtype,
 	
 	#[allow(missing_docs)]
-	wTotalLengthExceedsRemainingBytes,
+	wTotalLengthExceedsRemainingBytes
+	{
+		expected_length: usize,
+		
+		wTotalLength: u16,
+	},
 	
 	#[allow(missing_docs)]
 	ParseVersion1Entity(EntityDescriptorParseError<Version1EntityDescriptorParseError>),
