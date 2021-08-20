@@ -14,7 +14,7 @@ use std::fmt::Formatter;
 use std::fmt;
 use std::hash::Hash;
 use std::mem::transmute;
-use std::num::NonZeroU16;
+use std::num::{NonZeroU16, NonZeroU8};
 use super::entities::ClockEntity;
 use super::entities::Entities;
 use super::entities::Entity;

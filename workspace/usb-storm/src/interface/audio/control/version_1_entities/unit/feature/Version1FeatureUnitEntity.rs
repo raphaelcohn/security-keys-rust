@@ -32,11 +32,14 @@ impl Entity for Version1FeatureUnitEntity
 	{
 		use Version1FeatureUnitEntityParseError::*;
 		
+		let input_logical_audio_channel_cluster = entity_body.optional_non_zero_u8(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new);
 		let control_size = parse_control_size(entity_body, 5, UnitControlSizeIsZero)?;
+		let description = return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?);
 		
+		const SourceIdSize: usize = 1;
 		const ControlSizeSize: usize = 1;
 		const StringDescriptorSize: usize = 1;
-		let controls_bytes_length = entity_body.len() - ControlSizeSize - StringDescriptorSize;
+		let controls_bytes_length = entity_body.len() - SourceIdSize - ControlSizeSize - StringDescriptorSize;
 		if unlikely!(((Version1EntityDescriptors::FeatureUnitMinimumBLength as usize) + controls_bytes_length) != (DescriptorEntityMinimumLength + entity_body.len()))
 		{
 			Err(BLengthWrong)?
@@ -46,17 +49,18 @@ impl Entity for Version1FeatureUnitEntity
 			Err(UnitControlsHaveRemainder { controls_bytes_length, control_size } )?
 		}
 		
+		
 		Ok
 		(
 			Alive
 			(
 				Self
 				{
-					input_logical_audio_channel_cluster: entity_body.optional_non_zero_u8(entity_index::<4>()).map(UnitOrTerminalEntityIdentifier::new),
+					input_logical_audio_channel_cluster,
 					
 					controls_by_channel_number: Self::parse_controls_by_channel_number(controls_bytes_length, control_size, entity_body)?,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
+					description,
 				}
 			)
 		)
@@ -93,27 +97,36 @@ impl Version1FeatureUnitEntity
 	#[inline(always)]
 	fn parse_controls_by_channel_number(controls_bytes_length: usize, control_size: NonZeroUsize, entity_body: &[u8]) -> Result<ChannelControlsByChannelNumber<WrappedBitFlags<Version1AudioChannelFeatureControl>>, Version1FeatureUnitEntityParseError>
 	{
-		let number_of_channels_including_master = controls_bytes_length / control_size.get();
+		let control_size = control_size.get();
+		let number_of_channels_including_master = controls_bytes_length / control_size;
 		
-		let channel_controls_by_channel_number = Vec::new_populated(number_of_channels_including_master, Version1FeatureUnitEntityParseError::CouldNotAllocateMemoryForControls, |index|
+		if control_size == 1
 		{
-			let control_bit_map = entity_body.bytes(6 + (index * control_size.get()), control_size.get());
-			let controls = if control_size == new_non_zero_usize(1)
+			Self::channel_controls_by_channel_number(control_size, number_of_channels_including_master, entity_body, |lower_byte, _remaining_control_bit_map|
 			{
-				let lower_byte = control_bit_map.get_unchecked_value_safe(0);
 				let value = lower_byte as u16;
 				WrappedBitFlags::from_bits_unchecked(value)
-			}
-			else
+			})
+		}
+		else
+		{
+			Self::channel_controls_by_channel_number(control_size, number_of_channels_including_master, entity_body, |lower_byte, remaining_control_bit_map|
 			{
-				let lower_byte = control_bit_map.get_unchecked_value_safe(0);
-				let upper_byte = control_bit_map.get_unchecked_value_safe(1);
+				let upper_byte = remaining_control_bit_map.get_unchecked_value_safe(1);
 				let value = ((upper_byte as u16) << 8) | (lower_byte as u16);
 				WrappedBitFlags::from_bits_truncate(value)
-			};
-			Ok(controls)
-		})?;
-		
-		Ok(ChannelControlsByChannelNumber(channel_controls_by_channel_number))
+			})
+		}
+	}
+	
+	#[inline(always)]
+	fn channel_controls_by_channel_number(control_size: usize, number_of_channels_including_master: usize, entity_body: &[u8], controls_parse: impl Fn(u8, &[u8]) -> WrappedBitFlags<Version1AudioChannelFeatureControl>) -> Result<ChannelControlsByChannelNumber<WrappedBitFlags<Version1AudioChannelFeatureControl>>, Version1FeatureUnitEntityParseError>
+	{
+		Vec::new_populated(number_of_channels_including_master, Version1FeatureUnitEntityParseError::CouldNotAllocateMemoryForControls, |index|
+		{
+			let control_bit_map = entity_body.bytes(entity_index_non_constant(6 + (index * control_size)), control_size);
+			let lower_byte = control_bit_map.get_unchecked_value_safe(0);
+			Ok(controls_parse(lower_byte, control_bit_map.get_unchecked_range_safe(1 .. )))
+		}).map(ChannelControlsByChannelNumber)
 	}
 }

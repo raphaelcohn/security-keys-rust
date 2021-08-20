@@ -7,9 +7,6 @@
 pub enum LogicalAudioChannelClusterParseError<E: error::Error>
 {
 	#[allow(missing_docs)]
-	NumberOfLogicalAudioChannelsIsLessThanNumberOfSpatialLogicalAudioChannels,
-	
-	#[allow(missing_docs)]
 	NamedLogicalAudioChannelStringIdentifierGreaterThan255,
 	
 	#[allow(missing_docs)]

@@ -48,6 +48,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
 use std::mem::size_of;
+use std::num::NonZeroU8;
 
 
 /// Clock.

@@ -31,7 +31,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
 use crate::collections::Bytes;
-use std::num::NonZeroUsize;
+use std::num::{NonZeroUsize, NonZeroU8};
 use swiss_army_knife::non_zero::new_non_zero_usize;
 
 

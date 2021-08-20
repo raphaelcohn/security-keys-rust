@@ -125,7 +125,7 @@ impl AudioControlInterfaceExtraDescriptor
 		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16(4), remaining_bytes)?;
 		
 		let bmControls = descriptor_body.u8(6);
-		let latency_control = Control::parse_u8(bmControls, 0, AudioControlInterfaceExtraDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
+		let latency_control = Control::parse_u8(bmControls, 0, AudioControlInterfaceExtraDescriptorParseError::ParseVersion2Entity(EntityDescriptorParseError::Version(Version2EntityDescriptorParseError::LatencyControlInvalid)))?;
 		
 		Self::ok_alive
 		(
@@ -159,7 +159,7 @@ impl AudioControlInterfaceExtraDescriptor
 		let total_length_excluding_header = Self::total_length_excluding_header(descriptor_body.u16(2), remaining_bytes)?;
 		
 		let bmControls = descriptor_body.u32(4);
-		let latency_control = Control::parse_u32(bmControls, 0, AudioControlInterfaceExtraDescriptorParseError::ParseVersion3Entity(EntityDescriptorParseError::LatencyControlInvalid))?;
+		let latency_control = Control::parse_u32(bmControls, 0, AudioControlInterfaceExtraDescriptorParseError::ParseVersion3Entity(EntityDescriptorParseError::Version(Version3EntityDescriptorParseError::LatencyControlInvalid)))?;
 		Self::ok_alive
 		(
 			AudioControlInterfaceExtraDescriptor::Version_3_0
@@ -296,13 +296,23 @@ impl AudioControlInterfaceExtraDescriptor
 		const AC_DESCRIPTOR_UNDEFINED: u8 = 0x00;
 		const HEADER: u8 = 0x01;
 		
+		let mut unique_entity_identifiers = WrappedHashSet::empty();
+		
 		let mut entity_descriptors_bytes = remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. total_length_excluding_header);
 		let mut entity_descriptors = ED::default();
 		while !entity_descriptors_bytes.is_empty()
 		{
-			if unlikely!(entity_descriptors_bytes.len() < DescriptorEntityMinimumLength)
+			let length = entity_descriptors_bytes.len();
+			if unlikely!(length < DescriptorEntityMinimumLength)
 			{
 				return Err(LessThanFourByteHeader)
+			}
+			
+			let bLength = entity_descriptors_bytes.u8(0);
+			let bLengthUsize = bLength as usize;
+			if unlikely!(bLengthUsize > length)
+			{
+				return Err(BLengthExceedsRemainingBytes)
 			}
 			
 			let bDescriptorType = entity_descriptors_bytes.u8(1);
@@ -311,9 +321,19 @@ impl AudioControlInterfaceExtraDescriptor
 				return Err(ExpectedInterfaceDescriptorType)
 			}
 			
-			let bLength = entity_descriptors_bytes.u8(0);
+			let entity_identifier = entity_descriptors_bytes.optional_non_zero_u8(3);
+			if let Some(entity_identifier) = entity_identifier
+			{
+				let inserted = unique_entity_identifiers.try_to_insert(entity_identifier).map_err(OutOfMemoryCheckingUniqueIdentifiedEntityDescriptor)?;
+				if unlikely!(!inserted)
+				{
+					return Err(NonUniqueEntityIdentifier { entity_identifier })
+				}
+			}
+			
 			let bDescriptorSubtype = entity_descriptors_bytes.u8(2);
-			match entity_descriptors.parse_entity_body(bDescriptorSubtype, string_finder, entity_descriptors_bytes, bLength)?
+			
+			match entity_descriptors.parse_entity_body(bLength, bDescriptorSubtype, entity_identifier, entity_descriptors_bytes.get_unchecked_range_safe(DescriptorEntityMinimumLength .. bLengthUsize), string_finder)?
 			{
 				Alive(true) => (),
 				

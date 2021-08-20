@@ -6,5 +6,5 @@ trait EntityDescriptors: Default
 {
 	type Error: error::Error;
 	
-	fn parse_entity_body(&mut self, bDescriptorSubtype: u8, string_finder: &StringFinder, entity_descriptors_bytes: &[u8], bLength: u8) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>;
+	fn parse_entity_body(&mut self, bLength: u8, bDescriptorSubtype: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>;
 }

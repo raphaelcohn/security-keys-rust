@@ -78,6 +78,7 @@ impl Version1InputTerminalEntity
 		let input_terminal_type = InputTerminalType::parse(entity_body.u16(entity_index::<4>()), TerminalTypeIsOutputOnly)?;
 		let associated_output_terminal = entity_body.optional_non_zero_u8(entity_index::<6>());
 		let description = return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index::<11>())).map_err(InvalidDescriptionString)?);
+		
 		Ok
 		(
 			Alive

@@ -5,7 +5,7 @@
 use crate::collections::{WrappedBitFlags, Bytes, VecExt};
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
-use crate::interface::audio::control::{ChannelControlsByChannelNumber, DescriptorEntityMinimumLength};
+use crate::interface::audio::control::{ChannelControlsByChannelNumber, DescriptorEntityMinimumLength, entity_index_non_constant};
 use crate::interface::audio::control::entities::Entity;
 use crate::interface::audio::control::entities::UnitEntity;
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
@@ -30,7 +30,6 @@ use std::fmt;
 use std::mem::transmute;
 use std::num::NonZeroUsize;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use swiss_army_knife::non_zero::new_non_zero_usize;
 
 
 include!("Version1FeatureUnitEntity.rs");

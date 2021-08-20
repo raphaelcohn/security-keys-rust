@@ -10,15 +10,15 @@ pub enum Version1FeatureUnitEntityParseError
 	UnitControlSizeIsZero,
 	
 	#[allow(missing_docs)]
+	BLengthWrong,
+	
+	#[allow(missing_docs)]
 	UnitControlsHaveRemainder
 	{
 		controls_bytes_length: usize,
 		
 		control_size: NonZeroUsize,
 	},
-	
-	#[allow(missing_docs)]
-	BLengthWrong,
 	
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForControls(TryReserveError),

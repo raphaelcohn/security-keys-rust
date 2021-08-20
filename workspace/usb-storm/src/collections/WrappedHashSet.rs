@@ -85,3 +85,19 @@ impl<K: Eq + Hash + Ord> WithCapacity for WrappedHashSet<K>
 		Ok(Self(HashSet::with_capacity(capacity.as_usize())))
 	}
 }
+
+impl<K: Eq + Hash + Ord> WrappedHashSet<K>
+{
+	#[inline(always)]
+	pub(crate) fn empty() -> Self
+	{
+		Self(HashSet::new())
+	}
+	
+	#[inline(always)]
+	pub(crate) fn try_to_insert(&mut self, key: K) -> Result<bool, TryReserveError>
+	{
+		self.try_reserve(1)?;
+		Ok(self.insert(key))
+	}
+}

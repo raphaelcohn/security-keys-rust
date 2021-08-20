@@ -7,6 +7,9 @@
 pub enum Version2EntityDescriptorParseError
 {
 	#[allow(missing_docs)]
+	LatencyControlInvalid,
+	
+	#[allow(missing_docs)]
 	InputTerminalEntityParse(Version2InputTerminalEntityParseError),
 	
 	#[allow(missing_docs)]
@@ -84,6 +87,8 @@ impl error::Error for Version2EntityDescriptorParseError
 			MultiplierClockEntityParse(cause) => Some(cause),
 			
 			SourceClockEntityParse(cause) => Some(cause),
+			
+			_ => None,
 		}
 	}
 }

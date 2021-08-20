@@ -39,14 +39,16 @@ impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL
 		
 		for channel_spatial_location in WrappedBitFlags::from_bits_unchecked(channel_configuration).iter()
 		{
-			let inserted = logical_audio_channels.insert(Spatial(channel_spatial_location));
+			let logical_audio_channel = Spatial(channel_spatial_location);
+			let inserted = logical_audio_channels.insert(logical_audio_channel);
 			debug_assert!(inserted);
 		}
 		
 		let spatial_logical_audio_channels_count = logical_audio_channels.len() as u8;
+		// Whilst technically a specification violation, this has been observed in practice; it is arguable that the specification is not explicit enough.
 		if unlikely!(number_of_logical_audio_channels < spatial_logical_audio_channels_count)
 		{
-			return Err(NumberOfLogicalAudioChannelsIsLessThanNumberOfSpatialLogicalAudioChannels)
+			return Ok(Alive(Self(logical_audio_channels)))
 		}
 		
 		let non_spatial_channel_count = number_of_logical_audio_channels - spatial_logical_audio_channels_count;

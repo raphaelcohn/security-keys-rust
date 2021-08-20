@@ -2,8 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::{Bytes, WrappedBitFlags};
-use crate::descriptors::adjust_descriptor_index;
+use crate::collections::WrappedBitFlags;
+use crate::collections::Bytes;
+use crate::collections::WrappedHashSet;
 use crate::collections::VecExt;
 use crate::descriptors::DescriptorParser;
 use crate::descriptors::DescriptorHeaderLength;
@@ -47,6 +48,7 @@ use std::mem::size_of;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use self::version_1_entities::logical_audio_channel_cluster::Version1LogicalAudioChannelSpatialLocation;
 use self::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelSpatialLocation;
+use std::num::NonZeroU8;
 
 
 /// Entities.

@@ -7,6 +7,9 @@
 pub enum Version3EntityDescriptorParseError
 {
 	#[allow(missing_docs)]
+	LatencyControlInvalid,
+	
+	#[allow(missing_docs)]
 	ExtendedTerminalIsAHighCapacityDescriptor,
 	
 	#[allow(missing_docs)]

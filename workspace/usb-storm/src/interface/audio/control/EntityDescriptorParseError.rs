@@ -7,13 +7,25 @@
 pub enum EntityDescriptorParseError<E: error::Error>
 {
 	#[allow(missing_docs)]
-	LatencyControlInvalid,
-	
-	#[allow(missing_docs)]
 	LessThanFourByteHeader,
 	
 	#[allow(missing_docs)]
 	ExpectedInterfaceDescriptorType,
+	
+	#[allow(missing_docs)]
+	BLengthExceedsRemainingBytes,
+	
+	#[allow(missing_docs)]
+	OutOfMemoryCheckingUniqueIdentifiedEntityDescriptor(TryReserveError),
+	
+	#[allow(missing_docs)]
+	NonUniqueEntityIdentifier
+	{
+		entity_identifier: EntityIdentifier,
+	},
+	
+	#[allow(missing_docs)]
+	BLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]
 	UndefinedInterfaceDescriptorType,
@@ -23,12 +35,6 @@ pub enum EntityDescriptorParseError<E: error::Error>
 	
 	#[allow(missing_docs)]
 	UnrecognizedEntityDescriptorType,
-	
-	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
 	OutOfMemoryPushingAnonymousEntityDescriptor(TryReserveError),
@@ -64,6 +70,8 @@ impl<E: 'static + error::Error> error::Error for EntityDescriptorParseError<E>
 		
 		match self
 		{
+			OutOfMemoryCheckingUniqueIdentifiedEntityDescriptor(cause) => Some(cause),
+			
 			OutOfMemoryPushingAnonymousEntityDescriptor(cause) => Some(cause),
 			
 			OutOfMemoryPushingIdentifiedEntityDescriptor(cause) => Some(cause),
