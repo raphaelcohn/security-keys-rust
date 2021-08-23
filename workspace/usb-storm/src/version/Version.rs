@@ -60,6 +60,12 @@ impl Version
 		self.major >= 3
 	}
 	
+	#[inline(always)]
+	pub(crate) const fn is_0x0110_or_greater(&self) -> bool
+	{
+		self.major >= 1 && self.minor >= 1
+	}
+	
 	/// An USB binary coded decimal field is structured as `0xJJMN`:-
 	///
 	/// * `JJ` is the major version.

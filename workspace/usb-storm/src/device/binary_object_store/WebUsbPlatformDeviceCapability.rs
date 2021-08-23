@@ -29,7 +29,7 @@ impl WebUsbPlatformDeviceCapability
 			(
 				Self
 				{
-					version: Version::parse(value_bytes.u16(0))?,
+					version: value_bytes.version(0)?,
 					
 					landing_page_url:
 					{

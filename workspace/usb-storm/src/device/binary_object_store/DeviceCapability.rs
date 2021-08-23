@@ -45,13 +45,13 @@ pub enum DeviceCapability
 	WirelessUsbExtended(Vec<u8>),
 	
 	/// Billboard.
-	Billboard(Vec<u8>),
+	Billboard(BillboardDeviceCapability),
 	
 	/// Authentication.
 	Authentication(Vec<u8>),
 	
-	/// Billboard extended.
-	BillboardExtended(Vec<u8>),
+	/// Billboard alternate mode.
+	BillboardAlternateMode(BillboardAlternateModeDeviceCapability),
 	
 	/// Configuration summary.
 	ConfigurationSummary(ConfigurationSummaryDeviceCapability),
@@ -62,6 +62,8 @@ pub enum DeviceCapability
 
 impl DeviceCapability
 {
+	const DeviceCapabilityHeaderSize: usize = DescriptorHeaderLength + 1;
+	
 	#[inline(always)]
 	fn parse(device_capabilities_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(usize, DeviceCapability)>, DeviceCapabilityParseError>
 	{
@@ -70,8 +72,7 @@ impl DeviceCapability
 		
 		let remaining_length = device_capabilities_bytes.len();
 		
-		const MinimumSize: usize = 3;
-		if unlikely!(remaining_length < MinimumSize)
+		if unlikely!(remaining_length < Self::DeviceCapabilityHeaderSize)
 		{
 			return Err(DescriptorTooShort { remaining_length })
 		}
@@ -85,7 +86,7 @@ impl DeviceCapability
 		
 		let bLength = device_capabilities_bytes.u8(0);
 		let length = bLength as usize;
-		if unlikely!(length < MinimumSize)
+		if unlikely!(length < Self::DeviceCapabilityHeaderSize)
 		{
 			return Err(BLengthTooShort { bLength })
 		}
@@ -94,8 +95,8 @@ impl DeviceCapability
 			return Err(BLengthTooLong { bLength })
 		}
 		
-		let bDevCapabilityType = device_capabilities_bytes.u8(2);
-		let device_capability_bytes = device_capabilities_bytes.get_unchecked_range_safe(MinimumSize .. length);
+		let bDevCapabilityType = device_capabilities_bytes.u8(DescriptorHeaderLength);
+		let device_capability_bytes = device_capabilities_bytes.get_unchecked_range_safe(Self::DeviceCapabilityHeaderSize .. length);
 		let device_capability = match bDevCapabilityType
 		{
 			0x01 => WirelessUsb(Self::parse_blob(device_capability_bytes, ParseWirelessUsbDeviceCapability)?),
@@ -122,11 +123,11 @@ impl DeviceCapability
 			
 			0x0C => WirelessUsbExtended(Self::parse_blob(device_capability_bytes, ParseWirelessUsbExtendedDeviceCapability)?),
 			
-			0x0D => Billboard(Self::parse_blob(device_capability_bytes, ParseBillboardDeviceCapability)?),
+			0x0D => Billboard(return_ok_if_dead!(BillboardDeviceCapability::parse(device_capability_bytes, string_finder)?)),
 			
 			0x0E => Authentication(Self::parse_blob(device_capability_bytes, ParseAuthenticationDeviceCapability)?),
 			
-			0x0F => BillboardExtended(Self::parse_blob(device_capability_bytes, ParseBillboardExtendedDeviceCapability)?),
+			0x0F => BillboardAlternateMode(BillboardAlternateModeDeviceCapability::parse(device_capability_bytes)?),
 			
 			0x10 => ConfigurationSummary(ConfigurationSummaryDeviceCapability::parse(device_capability_bytes)?),
 			

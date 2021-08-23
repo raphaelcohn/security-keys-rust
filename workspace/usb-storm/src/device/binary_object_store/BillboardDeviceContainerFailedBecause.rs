@@ -2,40 +2,52 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Mandatory for hubs.
+/// Billboard device container failed because information.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-#[repr(transparent)]
-pub struct ContainerIdentifierDeviceCapability(Uuid);
-
-impl ContainerIdentifierDeviceCapability
+pub struct BillboardDeviceContainerFailedBecause
 {
-	/// Support for this is mandatory for hubs.
+	lack_of_power: bool,
+	
+	no_power_delivery_communication: bool,
+}
+
+impl BillboardDeviceContainerFailedBecause
+{
+	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn unique_identifier(&self) -> Uuid
+	pub const fn lack_of_power(&self) -> bool
 	{
-		self.0
+		self.lack_of_power
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn no_power_delivery_communication(&self) -> bool
+	{
+		self.lack_of_power
 	}
 	
 	#[inline(always)]
-	fn parse(device_capability_bytes: &[u8]) -> Result<Self, ContainerIdentifierDeviceCapabilityParseError>
+	fn parse(version: Version, device_capability_bytes: &[u8]) -> Option<Self>
 	{
-		use ContainerIdentifierDeviceCapabilityParseError::*;
-		
-		const MinimumSize: usize = minimum_size::<20>();
-		if unlikely!(device_capability_bytes.len() < MinimumSize)
+		if version.is_0x0110_or_greater()
 		{
-			return Err(TooShort)
+			let bAdditionalFailInfo = device_capability_bytes.u8(capability_descriptor_index::<42>());
+			Some
+			(
+				Self
+				{
+					lack_of_power: bAdditionalFailInfo & 0b01 != 0,
+					
+					no_power_delivery_communication: bAdditionalFailInfo & 0b10 != 0,
+				}
+			)
 		}
-		
-		let bReserved = device_capability_bytes.u8(0);
-		if unlikely!(bReserved != 0)
+		else
 		{
-			return Err(HasReservedByteSet)
+			None
 		}
-		
-		let uuid = device_capability_bytes.uuid(1);
-		Ok(Self(uuid))
 	}
 }

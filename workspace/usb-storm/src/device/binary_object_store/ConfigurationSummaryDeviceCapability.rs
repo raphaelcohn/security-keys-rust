@@ -43,7 +43,7 @@ impl ConfigurationSummaryDeviceCapability
 	{
 		use ConfigurationSummaryDeviceCapabilityParseError::*;
 		
-		const MinimumSize: usize = 9 - 3;
+		const MinimumSize: usize = minimum_size::<9>();
 		if unlikely!(device_capability_bytes.len() < MinimumSize)
 		{
 			return Err(TooShort)

@@ -49,11 +49,11 @@ pub enum DeviceCapabilityParseError
 	
 	ParseWirelessUsbExtendedDeviceCapability(TryReserveError),
 	
-	ParseBillboardDeviceCapability(TryReserveError),
+	ParseBillboardDeviceCapability(BillboardDeviceCapabilityParseError),
 	
 	ParseAuthenticationDeviceCapability(TryReserveError),
 	
-	ParseBillboardExtendedDeviceCapability(TryReserveError),
+	ParseBillboardAlternateModeDeviceCapability(BillboardAlternateModeDeviceCapabilityParseError),
 	
 	ParseConfigurationSummaryDeviceCapability(ConfigurationSummaryDeviceCapabilityParseError),
 	
@@ -104,7 +104,7 @@ impl error::Error for DeviceCapabilityParseError
 			
 			ParseAuthenticationDeviceCapability(cause) => Some(cause),
 			
-			ParseBillboardExtendedDeviceCapability(cause) => Some(cause),
+			ParseBillboardAlternateModeDeviceCapability(cause) => Some(cause),
 			
 			ParseConfigurationSummaryDeviceCapability(cause) => Some(cause),
 			
@@ -157,6 +157,24 @@ impl From<SuperSpeedPlusDeviceCapabilityParseError> for DeviceCapabilityParseErr
 	fn from(cause: SuperSpeedPlusDeviceCapabilityParseError) -> Self
 	{
 		DeviceCapabilityParseError::ParseSuperSpeedPlusDeviceCapability(cause)
+	}
+}
+
+impl From<BillboardDeviceCapabilityParseError> for DeviceCapabilityParseError
+{
+	#[inline(always)]
+	fn from(cause: BillboardDeviceCapabilityParseError) -> Self
+	{
+		DeviceCapabilityParseError::ParseBillboardDeviceCapability(cause)
+	}
+}
+
+impl From<BillboardAlternateModeDeviceCapabilityParseError> for DeviceCapabilityParseError
+{
+	#[inline(always)]
+	fn from(cause: BillboardAlternateModeDeviceCapabilityParseError) -> Self
+	{
+		DeviceCapabilityParseError::ParseBillboardAlternateModeDeviceCapability(cause)
 	}
 }
 

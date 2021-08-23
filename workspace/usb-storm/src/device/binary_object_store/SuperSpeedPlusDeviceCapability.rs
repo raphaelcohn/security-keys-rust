@@ -21,7 +21,7 @@ pub struct SuperSpeedPlusDeviceCapability
 
 impl SuperSpeedPlusDeviceCapability
 {
-	const MinimumSize: usize = 12 - 3;
+	const MinimumSize: usize = minimum_size::<12>();
 	
 	#[allow(missing_docs)]
 	#[inline(always)]

@@ -27,7 +27,7 @@ impl PlatformDeviceCapability
 	{
 		use PlatformDeviceCapabilityParseError::*;
 		
-		const MinimumSize: usize = 20 - 3;
+		const MinimumSize: usize = minimum_size::<20>();
 		if unlikely!(device_capability_bytes.len() < MinimumSize)
 		{
 			return Err(TooShort)
