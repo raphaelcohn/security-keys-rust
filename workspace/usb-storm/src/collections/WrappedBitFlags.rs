@@ -7,24 +7,53 @@
 #[repr(transparent)]
 pub struct WrappedBitFlags<T: BitFlag>(BitFlags<T>);
 
-impl<'a, T: BitFlag> Deserialize<'a> for WrappedBitFlags<T>
-where T::Numeric: Deserialize<'a> + Into<u64>
+impl<'de, T: BitFlag + Deserialize<'de>> Deserialize<'de> for WrappedBitFlags<T>
 {
 	#[inline(always)]
-	fn deserialize<D: Deserializer<'a>>(d: D) -> Result<Self, D::Error>
+	fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error>
 	{
-		let value = T::Numeric::deserialize(d)?;
-		Self::from_bits(value).map_err(|_| D::Error::invalid_value(Unexpected::Unsigned(value.into()),&"valid bit representation"))
+		struct WrappedBitFlagsVisitor<T: BitFlag>(PhantomData<T>);
+		
+		impl<'de, T: BitFlag + Deserialize<'de>> Visitor<'de> for WrappedBitFlagsVisitor<T>
+		{
+			type Value = WrappedBitFlags<T>;
+			
+			#[inline(always)]
+			fn expecting(&self, formatter: &mut Formatter) -> fmt::Result
+			{
+				formatter.write_str("A sequence of wrapped bit flag enum names")
+			}
+			
+			#[inline(always)]
+			fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<Self::Value, A::Error>
+			{
+				let mut bit_flags = BitFlags::EMPTY;
+				while let Some(next) = seq.next_element::<T>()?
+				{
+					bit_flags |= next;
+				}
+				
+				Ok(WrappedBitFlags(bit_flags))
+			}
+		}
+		
+		deserializer.deserialize_seq(WrappedBitFlagsVisitor(PhantomData))
 	}
 }
 
-impl<T: BitFlag> Serialize for WrappedBitFlags<T>
-where T::Numeric: Serialize
+impl<T: BitFlag + Serialize> Serialize for WrappedBitFlags<T>
 {
 	#[inline(always)]
 	fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error>
 	{
-		self.0.bits().serialize(serializer)
+		let mut sequence_serializer = serializer.serialize_seq(None)?;
+		
+		for bit_flag in self.iter()
+		{
+			sequence_serializer.serialize_element(&bit_flag)?;
+		}
+		
+		sequence_serializer.end()
 	}
 }
 
