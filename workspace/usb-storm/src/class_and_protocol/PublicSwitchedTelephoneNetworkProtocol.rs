@@ -2,4 +2,21 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(crate) const MinimumStandardUsbDescriptorLength: usize = DescriptorHeaderLength;
+/// AT (modem) commands.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum PublicSwitchedTelephoneNetworkProtocol
+{
+	/// ITU-T V.250.
+	ITU_T_V_250,
+	
+	#[allow(missing_docs)]
+	Unrecognized
+	{
+		protocol_code: u8,
+	},
+	
+	#[allow(missing_docs)]
+	VendorSpecific,
+}

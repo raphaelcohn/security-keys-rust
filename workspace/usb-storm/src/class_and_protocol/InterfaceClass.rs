@@ -12,7 +12,7 @@ pub enum InterfaceClass
 	Audio(AudioSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass02h>.
-	CommunicationsDeviceClassControl(UnrecognizedSubClass),
+	CommunicationsDeviceClassControl(CommunicationsDeviceClassControlSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass03h>.
 	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass),
@@ -32,7 +32,7 @@ pub enum InterfaceClass
 	/// Communications Device Class (CDC) Data.
 	///
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Ah>.
-	CommunicationsDeviceClassData(UnrecognizedSubClass),
+	CommunicationsDeviceClassData(CommunicationsDeviceClassDataSubClassAndProtocol),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Bh>.
 	SmartCard(SmartCardInterfaceSubClass),
@@ -117,6 +117,10 @@ impl InterfaceClass
 		use WireAdapterProtocol::*;
 		use WirelessControllerSubClass::Bluetooth;
 		use WirelessControllerSubClass::WireAdapter;
+		use CommunicationsDeviceClassControlSubClass::*;
+		use PublicSwitchedTelephoneNetworkProtocol::*;
+		use WirelessProtocol::*;
+		use CommunicationsDeviceClassDataSubClassAndProtocol::*;
 		
 		let class_code = alternate_setting.bInterfaceClass;
 		let sub_class_code = alternate_setting.bInterfaceSubClass;
@@ -138,7 +142,81 @@ impl InterfaceClass
 			(0x01, 0x03, _) => Audio(AudioSubClass::MidiStreaming(KnownOrUnrecognizedProtocol::Unrecognized(protocol_code))),
 			(0x01, _, _) => Audio(AudioSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
-			(0x02, _, _) => CommunicationsDeviceClassControl(UnrecognizedSubClass { sub_class_code, protocol_code }),
+			(0x02, 0x00, _) => CommunicationsDeviceClassControl(Reserved0x00 { protocol_code }),
+			(0x02, 0x01, 0x00) => CommunicationsDeviceClassControl(DirectLineControlModel(PublicSwitchedTelephoneNetworkProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x01, 0x01) => CommunicationsDeviceClassControl(DirectLineControlModel(ITU_T_V_250)),
+			(0x02, 0x01, 0x02 ..= 0xFE) => CommunicationsDeviceClassControl(DirectLineControlModel(PublicSwitchedTelephoneNetworkProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x01, 0xFF) => CommunicationsDeviceClassControl(DirectLineControlModel(PublicSwitchedTelephoneNetworkProtocol::VendorSpecific)),
+			(0x02, 0x02, 0x00) => CommunicationsDeviceClassControl(AbstractControlModel(PublicSwitchedTelephoneNetworkProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x02, 0x01) => CommunicationsDeviceClassControl(AbstractControlModel(ITU_T_V_250)),
+			(0x02, 0x02, 0x02 ..= 0xFE) => CommunicationsDeviceClassControl(AbstractControlModel(PublicSwitchedTelephoneNetworkProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x02, 0xFF) => CommunicationsDeviceClassControl(AbstractControlModel(PublicSwitchedTelephoneNetworkProtocol::VendorSpecific)),
+			(0x02, 0x03, 0x00) => CommunicationsDeviceClassControl(TelephoneControlModel(PublicSwitchedTelephoneNetworkProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x03, 0x01) => CommunicationsDeviceClassControl(TelephoneControlModel(ITU_T_V_250)),
+			(0x02, 0x03, 0x02 ..= 0xFE) => CommunicationsDeviceClassControl(TelephoneControlModel(PublicSwitchedTelephoneNetworkProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x03, 0xFF) => CommunicationsDeviceClassControl(TelephoneControlModel(PublicSwitchedTelephoneNetworkProtocol::VendorSpecific)),
+			(0x02, 0x04, 0x00) => CommunicationsDeviceClassControl(MultiChannelControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Known)),
+			(0x02, 0x04, 0x01 ..= 0xFE) => CommunicationsDeviceClassControl(MultiChannelControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x04, 0xFF) => CommunicationsDeviceClassControl(MultiChannelControlModel(KnownVendorSpecificOrUnrecognizedProtocol::VendorSpecific)),
+			(0x02, 0x05, 0x00) => CommunicationsDeviceClassControl(CapiControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Known)),
+			(0x02, 0x05, 0x01 ..= 0xFE) => CommunicationsDeviceClassControl(CapiControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x05, 0xFF) => CommunicationsDeviceClassControl(CapiControlModel(KnownVendorSpecificOrUnrecognizedProtocol::VendorSpecific)),
+			(0x02, 0x06, 0x00) => CommunicationsDeviceClassControl(EthernetControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Known)),
+			(0x02, 0x06, 0x01 ..= 0xFE) => CommunicationsDeviceClassControl(EthernetControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x06, 0xFF) => CommunicationsDeviceClassControl(EthernetControlModel(KnownVendorSpecificOrUnrecognizedProtocol::VendorSpecific)),
+			(0x02, 0x07, 0x00) => CommunicationsDeviceClassControl(AsynchronousTransferModeControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Known)),
+			(0x02, 0x07, 0x01 ..= 0xFE) => CommunicationsDeviceClassControl(AsynchronousTransferModeControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x07, 0xFF) => CommunicationsDeviceClassControl(AsynchronousTransferModeControlModel(KnownVendorSpecificOrUnrecognizedProtocol::VendorSpecific)),
+			(0x02, 0x08, 0x00 ..= 0x01) => CommunicationsDeviceClassControl(WirelessHandsetControlModel(WirelessProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x08, 0x02) => CommunicationsDeviceClassControl(WirelessHandsetControlModel(PCCA_101)),
+			(0x02, 0x08, 0x03) => CommunicationsDeviceClassControl(WirelessHandsetControlModel(PCCA_101_and_Annex_O)),
+			(0x02, 0x08, 0x04) => CommunicationsDeviceClassControl(WirelessHandsetControlModel(GSM_07_07)),
+			(0x02, 0x08, 0x05) => CommunicationsDeviceClassControl(WirelessHandsetControlModel(_3GPP_27_007)),
+			(0x02, 0x08, 0x06) => CommunicationsDeviceClassControl(WirelessHandsetControlModel(TIA_for_CDMA_C_S0017_0)),
+			(0x02, 0x08, 0x07 ..= 0xFD) => CommunicationsDeviceClassControl(WirelessHandsetControlModel(WirelessProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x08, 0xFE) => CommunicationsDeviceClassControl(WirelessHandsetControlModel(ExternalProtocol)),
+			(0x02, 0x08, 0xFF) => CommunicationsDeviceClassControl(WirelessHandsetControlModel(WirelessProtocol::VendorSpecific)),
+			(0x02, 0x09, 0x00 ..= 0x01) => CommunicationsDeviceClassControl(DeviceManagementModel(WirelessProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x09, 0x02) => CommunicationsDeviceClassControl(DeviceManagementModel(PCCA_101)),
+			(0x02, 0x09, 0x03) => CommunicationsDeviceClassControl(DeviceManagementModel(PCCA_101_and_Annex_O)),
+			(0x02, 0x09, 0x04) => CommunicationsDeviceClassControl(DeviceManagementModel(GSM_07_07)),
+			(0x02, 0x09, 0x05) => CommunicationsDeviceClassControl(DeviceManagementModel(_3GPP_27_007)),
+			(0x02, 0x09, 0x06) => CommunicationsDeviceClassControl(DeviceManagementModel(TIA_for_CDMA_C_S0017_0)),
+			(0x02, 0x09, 0x07 ..= 0xFD) => CommunicationsDeviceClassControl(DeviceManagementModel(WirelessProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x09, 0xFE) => CommunicationsDeviceClassControl(DeviceManagementModel(ExternalProtocol)),
+			(0x02, 0x09, 0xFF) => CommunicationsDeviceClassControl(DeviceManagementModel(WirelessProtocol::VendorSpecific)),
+			(0x02, 0x0A, 0x00 ..= 0x01) => CommunicationsDeviceClassControl(MobileDirectLineModel(WirelessProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x0A, 0x02) => CommunicationsDeviceClassControl(MobileDirectLineModel(PCCA_101)),
+			(0x02, 0x0A, 0x03) => CommunicationsDeviceClassControl(MobileDirectLineModel(PCCA_101_and_Annex_O)),
+			(0x02, 0x0A, 0x04) => CommunicationsDeviceClassControl(MobileDirectLineModel(GSM_07_07)),
+			(0x02, 0x0A, 0x05) => CommunicationsDeviceClassControl(MobileDirectLineModel(_3GPP_27_007)),
+			(0x02, 0x0A, 0x06) => CommunicationsDeviceClassControl(MobileDirectLineModel(TIA_for_CDMA_C_S0017_0)),
+			(0x02, 0x0A, 0x07 ..= 0xFD) => CommunicationsDeviceClassControl(MobileDirectLineModel(WirelessProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x0A, 0xFE) => CommunicationsDeviceClassControl(MobileDirectLineModel(ExternalProtocol)),
+			(0x02, 0x0A, 0xFF) => CommunicationsDeviceClassControl(MobileDirectLineModel(WirelessProtocol::VendorSpecific)),
+			(0x02, 0x0B, 0x00 ..= 0x01) => CommunicationsDeviceClassControl(OBjectEXchange(WirelessProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x0B, 0x02) => CommunicationsDeviceClassControl(OBjectEXchange(PCCA_101)),
+			(0x02, 0x0B, 0x03) => CommunicationsDeviceClassControl(OBjectEXchange(PCCA_101_and_Annex_O)),
+			(0x02, 0x0B, 0x04) => CommunicationsDeviceClassControl(OBjectEXchange(GSM_07_07)),
+			(0x02, 0x0B, 0x05) => CommunicationsDeviceClassControl(OBjectEXchange(_3GPP_27_007)),
+			(0x02, 0x0B, 0x06) => CommunicationsDeviceClassControl(OBjectEXchange(TIA_for_CDMA_C_S0017_0)),
+			(0x02, 0x0B, 0x07 ..= 0xFD) => CommunicationsDeviceClassControl(OBjectEXchange(WirelessProtocol::Unrecognized { protocol_code })),
+			(0x02, 0x0B, 0xFE) => CommunicationsDeviceClassControl(OBjectEXchange(ExternalProtocol)),
+			(0x02, 0x0B, 0xFF) => CommunicationsDeviceClassControl(OBjectEXchange(WirelessProtocol::VendorSpecific)),
+			(0x02, 0x0C, 0x00 ..= 0x06) => CommunicationsDeviceClassControl(EthernetEmulationModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x0C, 0x07) => CommunicationsDeviceClassControl(EthernetEmulationModel(KnownVendorSpecificOrUnrecognizedProtocol::Known)),
+			(0x02, 0x0C, 0x08 ..= 0xFE) => CommunicationsDeviceClassControl(EthernetEmulationModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x0C, 0xFF) => CommunicationsDeviceClassControl(EthernetEmulationModel(KnownVendorSpecificOrUnrecognizedProtocol::VendorSpecific)),
+			(0x02, 0x0D, 0x00) => CommunicationsDeviceClassControl(NetworkControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x0D, 0x01) => CommunicationsDeviceClassControl(NetworkControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Known)),
+			(0x02, 0x0D, 0x02 ..= 0xFE) => CommunicationsDeviceClassControl(NetworkControlModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x0D, 0xFF) => CommunicationsDeviceClassControl(NetworkControlModel(KnownVendorSpecificOrUnrecognizedProtocol::VendorSpecific)),
+			(0x02, 0x0E, 0x00 ..= 0x01) => CommunicationsDeviceClassControl(MobileBroadbandInterfaceModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x0E, 0x02) => CommunicationsDeviceClassControl(MobileBroadbandInterfaceModel(KnownVendorSpecificOrUnrecognizedProtocol::Known)),
+			(0x02, 0x0E, 0x03 ..= 0xFE) => CommunicationsDeviceClassControl(MobileBroadbandInterfaceModel(KnownVendorSpecificOrUnrecognizedProtocol::Unrecognized(protocol_code))),
+			(0x02, 0x0E, 0xFF) => CommunicationsDeviceClassControl(MobileBroadbandInterfaceModel(KnownVendorSpecificOrUnrecognizedProtocol::VendorSpecific)),
+			(0x02, 0x0F ..= 0x7F, _) => CommunicationsDeviceClassControl(CommunicationsDeviceClassControlSubClass::ReservedFutureUse { sub_class_code, protocol_code }),
+			(0x02, 0x80 ..= 0xFF, _) => CommunicationsDeviceClassControl(CommunicationsDeviceClassControlSubClass::VendorSpecific { sub_class_code, protocol_code }),
 			
 			(0x03, 0x00, 0x00) => HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: None }),
 			(0x03, 0x00, _) => HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: Some(new_non_zero_u8(protocol_code)) }),
@@ -160,7 +238,27 @@ impl InterfaceClass
 			
 			(0x09, _, _) => ShouldBeDeviceOnly { class_code, sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
-			(0x0A, _, _) => CommunicationsDeviceClassData(UnrecognizedSubClass { sub_class_code, protocol_code }),
+			(0x0A, 0x00, 0x00) => CommunicationsDeviceClassData(NoSpecificProtocolRequired),
+			(0x0A, 0x00, 0x01) => CommunicationsDeviceClassData(NetworkTransferBlock),
+			(0x0A, 0x00, 0x02) => CommunicationsDeviceClassData(NetworkTransferBlockMobileBroadbandInterfaceModel),
+			(0x0A, 0x00, 0x03 ..= 0x2F) => CommunicationsDeviceClassData(CommunicationsDeviceClassDataSubClassAndProtocol::Reserved { protocol_code }),
+			(0x0A, 0x00, 0x30) => CommunicationsDeviceClassData(IsdnBri),
+			(0x0A, 0x00, 0x31) => CommunicationsDeviceClassData(HighLevelDataLinkControl),
+			(0x0A, 0x00, 0x32) => CommunicationsDeviceClassData(Transparent),
+			(0x0A, 0x00, 0x33 ..= 0x4F) => CommunicationsDeviceClassData(CommunicationsDeviceClassDataSubClassAndProtocol::Reserved { protocol_code }),
+			(0x0A, 0x00, 0x50) => CommunicationsDeviceClassData(ManagementProtocolForQ921DataLinkProtocol),
+			(0x0A, 0x00, 0x51) => CommunicationsDeviceClassData(DataLinkProtocolForQ921),
+			(0x0A, 0x00, 0x52) => CommunicationsDeviceClassData(TeiMultiplexorForQ921DataLinkProtocol),
+			(0x0A, 0x00, 0x53 ..= 0x8F) => CommunicationsDeviceClassData(CommunicationsDeviceClassDataSubClassAndProtocol::Reserved { protocol_code }),
+			(0x0A, 0x00, 0x90) => CommunicationsDeviceClassData(V42bis),
+			(0x0A, 0x00, 0x91) => CommunicationsDeviceClassData(EuroIsdnProtocolControl),
+			(0x0A, 0x00, 0x92) => CommunicationsDeviceClassData(V120),
+			(0x0A, 0x00, 0x93) => CommunicationsDeviceClassData(Capi2),
+			(0x0A, 0x00, 0x94 ..= 0xFC) => CommunicationsDeviceClassData(CommunicationsDeviceClassDataSubClassAndProtocol::Reserved { protocol_code }),
+			(0x0A, 0x00, 0xFD) => CommunicationsDeviceClassData(HostBasedDriver),
+			(0x0A, 0x00, 0xFE) => CommunicationsDeviceClassData(UseProtocolUnitFunctionalDescriptorsOnCommunicationsClassInterface),
+			(0x0A, 0x00, 0xFF) => CommunicationsDeviceClassData(CommunicationsDeviceClassDataSubClassAndProtocol::VendorSpecific),
+			(0x0A, 0x01 ..= 0xFF, _) => CommunicationsDeviceClassData(CommunicationsDeviceClassDataSubClassAndProtocol::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x0B, 0x00, 0x00) => SmartCard(Known(BulkTransfer)),
 			(0x0B, 0x00, 0x01) => SmartCard(Known(IccdVersionA)),
@@ -283,7 +381,7 @@ impl InterfaceClass
 			(0xFE, 0x03, _) => ApplicationSpecific(TestAndMeasurementDevice(TestAndMeasurementProtocol::UnrecognizedProtocol(new_non_zero_u8(protocol_code)))),
 			(0xFE, _, _) => ApplicationSpecific(Unrecognised(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
-			(0xFF, _, _) => VendorSpecific(UnrecognizedSubClass { sub_class_code, protocol_code }),
+			(0xFF, _, _) => InterfaceClass::VendorSpecific(UnrecognizedSubClass { sub_class_code, protocol_code }),
 		}
 	}
 }

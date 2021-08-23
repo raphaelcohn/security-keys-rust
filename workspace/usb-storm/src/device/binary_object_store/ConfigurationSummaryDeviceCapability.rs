@@ -10,11 +10,7 @@ pub struct ConfigurationSummaryDeviceCapability
 {
 	version: Version,
 
-	class_code: u8,
-
-	subclass_code: u8,
-
-	protocol: u8,
+	function_class: FunctionClass,
 
 	configuration_descriptor_indices: WrappedIndexSet<u8>,
 }
@@ -30,23 +26,9 @@ impl ConfigurationSummaryDeviceCapability
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn class_code(&self) -> u8
+	pub const fn function_class(&self) -> FunctionClass
 	{
-		self.class_code
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn subclass_code(&self) -> u8
-	{
-		self.subclass_code
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn protocol(&self) -> u8
-	{
-		self.protocol
+		self.function_class
 	}
 	
 	#[allow(missing_docs)]
@@ -68,10 +50,8 @@ impl ConfigurationSummaryDeviceCapability
 		}
 		
 		let version = device_capability_bytes.version(0)?;
+		let function_class = FunctionClass::parse(device_capability_bytes.u8(2), device_capability_bytes.u8(3), device_capability_bytes.u8(4)).map_err(FunctionClassParse)?;
 		
-		let class_code = device_capability_bytes.u8(2);
-		let subclass_code = device_capability_bytes.u8(3);
-		let protocol = device_capability_bytes.u8(4);
 		let bConfigurationCount = device_capability_bytes.u8(5);
 		
 		if unlikely!(bConfigurationCount > MaximumNumberOfConfigurations)
@@ -100,11 +80,7 @@ impl ConfigurationSummaryDeviceCapability
 			{
 				version,
 				
-				class_code,
-				
-				subclass_code,
-				
-				protocol,
+				function_class,
 				
 				configuration_descriptor_indices
 			}

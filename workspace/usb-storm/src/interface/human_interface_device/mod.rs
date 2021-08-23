@@ -4,7 +4,7 @@
 
 use crate::collections::VecExt;
 use crate::collections::Bytes;
-use crate::descriptors::adjust_descriptor_index;
+use crate::descriptors::descriptor_index;
 use crate::version::Version;
 use crate::version::VersionParseError;
 use crate::descriptors::DescriptorParser;

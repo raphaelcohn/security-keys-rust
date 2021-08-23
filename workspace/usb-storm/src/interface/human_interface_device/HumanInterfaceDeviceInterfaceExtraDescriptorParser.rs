@@ -28,7 +28,7 @@ impl DescriptorParser for HumanInterfaceDeviceInterfaceExtraDescriptorParser
 		
 		let number_of_class_descriptors_including_mandatory_report =
 		{
-			let bNumClassDescriptors = descriptor_body.u8(adjust_descriptor_index::<5>());
+			let bNumClassDescriptors = descriptor_body.u8(descriptor_index::<5>());
 			if unlikely!(bNumClassDescriptors == 0)
 			{
 				return Err(ZeroNumberOfClassDescriptors)
@@ -37,7 +37,7 @@ impl DescriptorParser for HumanInterfaceDeviceInterfaceExtraDescriptorParser
 		};
 		
 		{
-			let report_descriptor_type = descriptor_body.u8(adjust_descriptor_index::<6>()); //
+			let report_descriptor_type = descriptor_body.u8(descriptor_index::<6>()); //
 			if unlikely!(report_descriptor_type != 0x22)
 			{
 				return Err(UnrecognisedReportDescriptorType(report_descriptor_type))
@@ -55,9 +55,9 @@ impl DescriptorParser for HumanInterfaceDeviceInterfaceExtraDescriptorParser
 						{
 							variant: self.0,
 							
-							version: descriptor_body.version(adjust_descriptor_index::<2>()).map_err(Version)?,
+							version: descriptor_body.version(descriptor_index::<2>()).map_err(Version)?,
 							
-							country_code: match descriptor_body.u8(adjust_descriptor_index::<4>())
+							country_code: match descriptor_body.u8(descriptor_index::<4>())
 							{
 								0 => None,
 								
@@ -66,7 +66,7 @@ impl DescriptorParser for HumanInterfaceDeviceInterfaceExtraDescriptorParser
 								reserved => return Err(ReservedCountryCode(reserved))
 							}
 							,
-							report_descriptor_length: descriptor_body.u16(adjust_descriptor_index::<7>()),
+							report_descriptor_length: descriptor_body.u16(descriptor_index::<7>()),
 						
 							optional_descriptors: Self::parse_optional_descriptors(number_of_class_descriptors_including_mandatory_report, descriptor_body.get_unchecked_range_safe(((MinimumBLength as usize) - DescriptorHeaderLength) .. ))?,
 						},

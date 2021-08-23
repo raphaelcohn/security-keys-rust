@@ -68,7 +68,7 @@ pub enum ConfigurationParseError
 	DescriptionString(GetLocalizedStringError),
 	
 	#[allow(missing_docs)]
-	CouldNotParseConfigurationAdditionalDescriptor(DescriptorParseError<Infallible>),
+	CouldNotParseConfigurationAdditionalDescriptor(DescriptorParseError<ConfigurationExtraDescriptorParseError>),
 	
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForInterfaces(TryReserveError),

@@ -10,6 +10,8 @@ pub enum ConfigurationSummaryDeviceCapabilityParseError
 	TooShort,
 
 	Version(VersionParseError),
+
+	FunctionClassParse(FunctionClassParseError),
 	
 	TooManyConfigurations
 	{
@@ -43,6 +45,8 @@ impl error::Error for ConfigurationSummaryDeviceCapabilityParseError
 		match self
 		{
 			Version(cause) => Some(cause),
+			
+			FunctionClassParse(cause) => Some(cause),
 			
 			OutOfMemoryForConfigurationDescriptorIndices(cause) => Some(cause),
 			

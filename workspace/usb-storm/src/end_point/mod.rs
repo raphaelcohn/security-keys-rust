@@ -29,7 +29,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use crate::version::Version;
 use crate::collections::Bytes;
-use crate::descriptors::adjust_descriptor_index;
+use crate::descriptors::descriptor_index;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use swiss_army_knife::non_zero::new_non_zero_u32;
 use crate::integers::{u2, NonZeroU4};

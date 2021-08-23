@@ -2,15 +2,57 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Known or unrecognized.
+/// Audio function category; see Device Class for Audio Release 2.0, Section 3.9 Audio Function Category, page 20.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum KnownOrUnrecognizedSubClassAndProtocol
+pub enum Version2AudioFunctionCategory
 {
 	#[allow(missing_docs)]
-	Known,
+	Undefined,
 	
 	#[allow(missing_docs)]
-	Unrecognized(UnrecognizedSubClass)
+	DesktopSpeaker,
+	
+	#[allow(missing_docs)]
+	HomeTheater,
+	
+	#[allow(missing_docs)]
+	Microphone,
+	
+	#[allow(missing_docs)]
+	Headset,
+	
+	#[allow(missing_docs)]
+	Telephone,
+	
+	#[allow(missing_docs)]
+	Converter,
+	
+	#[allow(missing_docs)]
+	VoiceRecorderOrSoundRecorder,
+	
+	#[allow(missing_docs)]
+	InputOutputBox,
+	
+	#[allow(missing_docs)]
+	MusicalInstrument,
+	
+	#[allow(missing_docs)]
+	ProfessionalAudio,
+	
+	#[allow(missing_docs)]
+	AudioVideo,
+	
+	#[allow(missing_docs)]
+	ControlPanel,
+	
+	#[allow(missing_docs)]
+	Reserved
+	{
+		code: u8,
+	},
+	
+	#[allow(missing_docs)]
+	Other,
 }

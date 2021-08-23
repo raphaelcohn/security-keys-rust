@@ -2,4 +2,36 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(crate) const MinimumStandardUsbDescriptorLength: usize = DescriptorHeaderLength;
+/// Basic audio device definition.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum BasicAudioDeviceDefinition
+{
+	#[allow(missing_docs)]
+	GenericInputOutput,
+	
+	#[allow(missing_docs)]
+	Headphone,
+	
+	#[allow(missing_docs)]
+	Speaker,
+	
+	#[allow(missing_docs)]
+	Microphone,
+	
+	#[allow(missing_docs)]
+	Headset,
+	
+	#[allow(missing_docs)]
+	HeadsetAdapater,
+	
+	#[allow(missing_docs)]
+	Speakerphone,
+	
+	#[allow(missing_docs)]
+	UnrecognizedBasicAudioDeviceDefinition
+	{
+		sub_class_code: u8,
+	}
+}

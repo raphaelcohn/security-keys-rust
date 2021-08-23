@@ -3,9 +3,11 @@
 
 
 /// Configuration additional descriptors.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ConfigurationExtraDescriptor
 {
+	#[allow(missing_docs)]
+	InterfaceAssociation(InterfaceAssociationConfigurationExtraDescriptor),
 }

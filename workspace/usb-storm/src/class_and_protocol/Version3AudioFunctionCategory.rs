@@ -2,4 +2,24 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(crate) const MinimumStandardUsbDescriptorLength: usize = DescriptorHeaderLength;
+/// Audio function category; see Device Class for Audio Release 3.0-Errata, Section 3.8 Audio Function Category, page 23.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum Version3AudioFunctionCategory
+{
+	#[allow(missing_docs)]
+	Common(Version2AudioFunctionCategory),
+	
+	#[allow(missing_docs)]
+	Headphone,
+	
+	#[allow(missing_docs)]
+	GenericSpeaker,
+	
+	#[allow(missing_docs)]
+	HeadsetAdapter,
+	
+	#[allow(missing_docs)]
+	Speakerphone,
+}

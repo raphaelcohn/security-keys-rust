@@ -9,11 +9,33 @@ impl DescriptorParser for ConfigurationExtraDescriptorParser
 {
 	type Descriptor = ConfigurationExtraDescriptor;
 	
-	type Error = Infallible;
+	type Error = ConfigurationExtraDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, _string_finder: &StringFinder, _bLength: u8, _descriptor_type: DescriptorType, _remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
+	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
-		Ok(None)
+		use ConfigurationExtraDescriptor::*;
+		use ConfigurationExtraDescriptorParseError::*;
+		
+		match descriptor_type
+		{
+			Self::INTERFACE_ASSOCIATION => match InterfaceAssociationConfigurationExtraDescriptorParser.parse_descriptor(string_finder, bLength, Self::INTERFACE_ASSOCIATION, remaining_bytes)
+			{
+				Ok(None) => Ok(None),
+				
+				Ok(Some(Dead)) => Ok(Some(Dead)),
+				
+				Ok(Some(Alive((descriptor, consumed_length)))) => Ok(Some(Alive((InterfaceAssociation(descriptor), consumed_length)))),
+				
+				Err(error) => Err(InterfaceAssociationParse(error)),
+			}
+			
+			_ => Ok(None),
+		}
 	}
+}
+
+impl ConfigurationExtraDescriptorParser
+{
+	const INTERFACE_ASSOCIATION: u8 = 11;
 }

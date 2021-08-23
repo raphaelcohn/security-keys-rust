@@ -2,18 +2,10 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Smart Card descriptor parse error.
+/// Interface Association descriptor (IAD) parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SmartCardInterfaceExtraDescriptorParseError
+pub enum InterfaceAssociationConfigurationExtraDescriptorParseError
 {
-	#[allow(missing_docs)]
-	DescriptorIsNeitherOfficialOrVendorSpecific
-	{
-		actual: DescriptorType,
-	
-		expected: DescriptorType,
-	},
-	
 	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
 	
@@ -21,19 +13,33 @@ pub enum SmartCardInterfaceExtraDescriptorParseError
 	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	Version(VersionParseError),
-	
-	/// Features are invalid.
-	Features(FeaturesParseError),
-	
-	#[allow(missing_docs)]
-	UnsupportedClassGetResponse(u8),
+	InterfaceNumberTooLarge
+	{
+		bFirstInterface: u8,
+	},
 	
 	#[allow(missing_docs)]
-	UnsupportedClassEnvelope(u8),
+	InterfaceCountTooLarge
+	{
+		bInterfaceCount: u8,
+	},
+	
+	#[allow(missing_docs)]
+	LastExclusiveInterfaceNumberOutOfRange
+	{
+		first_inclusive_contiguous_interface_number: InterfaceNumber,
+		
+		bInterfaceCount: u8,
+	},
+	
+	#[allow(missing_docs)]
+	FunctionClassParse(FunctionClassParseError),
+	
+	#[allow(missing_docs)]
+	InvalidDescriptionString(GetLocalizedStringError),
 }
 
-impl Display for SmartCardInterfaceExtraDescriptorParseError
+impl Display for InterfaceAssociationConfigurationExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -42,18 +48,18 @@ impl Display for SmartCardInterfaceExtraDescriptorParseError
 	}
 }
 
-impl error::Error for SmartCardInterfaceExtraDescriptorParseError
+impl error::Error for InterfaceAssociationConfigurationExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use SmartCardInterfaceExtraDescriptorParseError::*;
+		use InterfaceAssociationConfigurationExtraDescriptorParseError::*;
 		
 		match self
 		{
-			Version(cause) => Some(cause),
+			FunctionClassParse(cause) => Some(cause),
 			
-			Features(cause) => Some(cause),
+			InvalidDescriptionString(cause) => Some(cause),
 			
 			_ => None,
 		}

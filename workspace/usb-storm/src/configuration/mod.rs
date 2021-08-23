@@ -2,6 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use self::interface_association::InterfaceAssociationConfigurationExtraDescriptor;
+use self::interface_association::InterfaceAssociationConfigurationExtraDescriptorParseError;
+use self::interface_association::InterfaceAssociationConfigurationExtraDescriptorParser;
 use super::integers::u3;
 use super::integers::u5;
 use super::descriptors::Descriptor;
@@ -46,7 +49,6 @@ use likely::likely;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
-use std::convert::Infallible;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;
@@ -69,11 +71,16 @@ use crate::collections::{WrappedIndexMap, WithCapacity};
 use std::collections::TryReserveError;
 
 
+/// Interface association descriptor (IAD).
+pub mod interface_association;
+
+
 include!("Configuration.rs");
 include!("ConfigurationAttributes.rs");
 include!("ConfigurationDescriptor.rs");
 include!("ConfigurationExtraDescriptor.rs");
 include!("ConfigurationExtraDescriptorParser.rs");
+include!("ConfigurationExtraDescriptorParseError.rs");
 include!("ConfigurationNumber.rs");
 include!("ConfigurationParseError.rs");
 include!("get_active_config_descriptor.rs");

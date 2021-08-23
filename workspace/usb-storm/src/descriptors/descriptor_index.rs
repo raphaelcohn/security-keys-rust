@@ -2,4 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(crate) const MinimumStandardUsbDescriptorLength: usize = DescriptorHeaderLength;
+#[inline(always)]
+pub(crate) const fn descriptor_index<const index: usize>() -> usize
+{
+	index - DescriptorHeaderLength
+}

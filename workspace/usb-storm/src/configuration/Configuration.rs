@@ -200,7 +200,7 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_descriptors(string_finder: &StringFinder, configuration_descriptor: &libusb_config_descriptor) -> Result<DeadOrAlive<Vec<Descriptor<ConfigurationExtraDescriptor>>>, DescriptorParseError<Infallible>>
+	fn parse_descriptors(string_finder: &StringFinder, configuration_descriptor: &libusb_config_descriptor) -> Result<DeadOrAlive<Vec<Descriptor<ConfigurationExtraDescriptor>>>, DescriptorParseError<ConfigurationExtraDescriptorParseError>>
 	{
 		let extra = extra_to_slice(configuration_descriptor.extra, configuration_descriptor.extra_length)?;
 		

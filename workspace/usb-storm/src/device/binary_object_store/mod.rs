@@ -34,6 +34,7 @@ use uuid::Uuid;
 use crate::version::{Version, VersionParseError};
 use std::ops::Deref;
 use crate::collections::{WrappedIndexSet, WrappedIndexMap, WithCapacity, WrappedHashMap, WrappedBitFlags};
+use crate::class_and_protocol::{FunctionClass, FunctionClassParseError};
 
 
 include!("DeviceCapability.rs");

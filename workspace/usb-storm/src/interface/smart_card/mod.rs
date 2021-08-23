@@ -11,7 +11,7 @@ use self::features::Features;
 use self::features::FeaturesParseError;
 use self::features::LevelOfExchange;
 use crate::collections::Bytes;
-use crate::descriptors::adjust_descriptor_index;
+use crate::descriptors::descriptor_index;
 use enumflags2::bitflags;
 use likely::likely;
 use likely::unlikely;
