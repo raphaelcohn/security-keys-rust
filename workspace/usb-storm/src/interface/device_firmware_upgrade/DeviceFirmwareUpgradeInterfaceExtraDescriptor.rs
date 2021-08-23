@@ -67,7 +67,7 @@ impl DeviceFirmwareUpgradeInterfaceExtraDescriptor
 		self.maximum_number_of_bytes_per_control_write_transaction
 	}
 	
-	#[allow(missing_docs)]
+	/// Only specified for vversion 1.1 onwwards; version 1.0 does not define this (ie it will be None).
 	#[inline(always)]
 	pub const fn version(&self) -> Option<Version>
 	{

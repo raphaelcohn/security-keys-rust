@@ -27,7 +27,7 @@ pub enum InterfaceClass
 	Printer(UnrecognizedSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass08h>.
-	MassStorage(UnrecognizedSubClass),
+	MassStorage(MassStorageSubClass),
 	
 	/// Communications Device Class (CDC) Data.
 	///
@@ -121,6 +121,7 @@ impl InterfaceClass
 		use PublicSwitchedTelephoneNetworkProtocol::*;
 		use WirelessProtocol::*;
 		use CommunicationsDeviceClassDataSubClassAndProtocol::*;
+		use MassStorageProtocol::*;
 		
 		let class_code = alternate_setting.bInterfaceClass;
 		let sub_class_code = alternate_setting.bInterfaceSubClass;
@@ -234,7 +235,107 @@ impl InterfaceClass
 			
 			(0x07, _, _) => Printer(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
-			(0x08, _, _) => MassStorage(UnrecognizedSubClass { sub_class_code, protocol_code }),
+			(0x08, 0x00, 0x00) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0x00, 0x01) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0x00, 0x02) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(Obsolete)),
+			(0x08, 0x00, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x00, 0x50) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(BulkOnly)),
+			(0x08, 0x00, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x00, 0x62) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(UAS)),
+			(0x08, 0x00, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x00, 0xFF) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(MassStorageProtocol::VendorSpecific)),
+			
+			(0x08, 0x01, 0x00) => MassStorage(MassStorageSubClass::ReducedBlockCommands(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0x01, 0x01) => MassStorage(MassStorageSubClass::ReducedBlockCommands(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0x01, 0x02) => MassStorage(MassStorageSubClass::ReducedBlockCommands(Obsolete)),
+			(0x08, 0x01, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::ReducedBlockCommands(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x01, 0x50) => MassStorage(MassStorageSubClass::ReducedBlockCommands(BulkOnly)),
+			(0x08, 0x01, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::ReducedBlockCommands(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x01, 0x62) => MassStorage(MassStorageSubClass::ReducedBlockCommands(UAS)),
+			(0x08, 0x01, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::ReducedBlockCommands(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x01, 0xFF) => MassStorage(MassStorageSubClass::ReducedBlockCommands(MassStorageProtocol::VendorSpecific)),
+			
+			(0x08, 0x02, 0x00) => MassStorage(MassStorageSubClass::MultiMediaCommandSet5(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0x02, 0x01) => MassStorage(MassStorageSubClass::MultiMediaCommandSet5(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0x02, 0x02) => MassStorage(MassStorageSubClass::MultiMediaCommandSet5(Obsolete)),
+			(0x08, 0x02, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::MultiMediaCommandSet5(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x02, 0x50) => MassStorage(MassStorageSubClass::MultiMediaCommandSet5(BulkOnly)),
+			(0x08, 0x02, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::MultiMediaCommandSet5(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x02, 0x62) => MassStorage(MassStorageSubClass::MultiMediaCommandSet5(UAS)),
+			(0x08, 0x02, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::MultiMediaCommandSet5(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x02, 0xFF) => MassStorage(MassStorageSubClass::MultiMediaCommandSet5(MassStorageProtocol::VendorSpecific)),
+			
+			(0x08, 0x03, 0x00) => MassStorage(MassStorageSubClass::Qic_157(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0x03, 0x01) => MassStorage(MassStorageSubClass::Qic_157(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0x03, 0x02) => MassStorage(MassStorageSubClass::Qic_157(Obsolete)),
+			(0x08, 0x03, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::Qic_157(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x03, 0x50) => MassStorage(MassStorageSubClass::Qic_157(BulkOnly)),
+			(0x08, 0x03, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::Qic_157(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x03, 0x62) => MassStorage(MassStorageSubClass::Qic_157(UAS)),
+			(0x08, 0x03, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::Qic_157(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x03, 0xFF) => MassStorage(MassStorageSubClass::Qic_157(MassStorageProtocol::VendorSpecific)),
+			
+			(0x08, 0x04, 0x00) => MassStorage(MassStorageSubClass::UFI(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0x04, 0x01) => MassStorage(MassStorageSubClass::UFI(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0x04, 0x02) => MassStorage(MassStorageSubClass::UFI(Obsolete)),
+			(0x08, 0x04, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::UFI(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x04, 0x50) => MassStorage(MassStorageSubClass::UFI(BulkOnly)),
+			(0x08, 0x04, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::UFI(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x04, 0x62) => MassStorage(MassStorageSubClass::UFI(UAS)),
+			(0x08, 0x04, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::UFI(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x04, 0xFF) => MassStorage(MassStorageSubClass::UFI(MassStorageProtocol::VendorSpecific)),
+			
+			(0x08, 0x05, 0x00) => MassStorage(MassStorageSubClass::Sff_8070i(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0x05, 0x01) => MassStorage(MassStorageSubClass::Sff_8070i(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0x05, 0x02) => MassStorage(MassStorageSubClass::Sff_8070i(Obsolete)),
+			(0x08, 0x05, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::Sff_8070i(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x05, 0x50) => MassStorage(MassStorageSubClass::Sff_8070i(BulkOnly)),
+			(0x08, 0x05, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::Sff_8070i(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x05, 0x62) => MassStorage(MassStorageSubClass::Sff_8070i(UAS)),
+			(0x08, 0x05, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::Sff_8070i(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x05, 0xFF) => MassStorage(MassStorageSubClass::Sff_8070i(MassStorageProtocol::VendorSpecific)),
+			
+			(0x08, 0x06, 0x00) => MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0x06, 0x01) => MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0x06, 0x02) => MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(Obsolete)),
+			(0x08, 0x06, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x06, 0x50) => MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(BulkOnly)),
+			(0x08, 0x06, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x06, 0x62) => MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(UAS)),
+			(0x08, 0x06, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x06, 0xFF) => MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(MassStorageProtocol::VendorSpecific)),
+			
+			(0x08, 0x07, 0x00) => MassStorage(MassStorageSubClass::LockableStorageDevicesFeatureSpecification(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0x07, 0x01) => MassStorage(MassStorageSubClass::LockableStorageDevicesFeatureSpecification(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0x07, 0x02) => MassStorage(MassStorageSubClass::LockableStorageDevicesFeatureSpecification(Obsolete)),
+			(0x08, 0x07, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::LockableStorageDevicesFeatureSpecification(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x07, 0x50) => MassStorage(MassStorageSubClass::LockableStorageDevicesFeatureSpecification(BulkOnly)),
+			(0x08, 0x07, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::LockableStorageDevicesFeatureSpecification(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x07, 0x62) => MassStorage(MassStorageSubClass::LockableStorageDevicesFeatureSpecification(UAS)),
+			(0x08, 0x07, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::LockableStorageDevicesFeatureSpecification(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x07, 0xFF) => MassStorage(MassStorageSubClass::LockableStorageDevicesFeatureSpecification(MassStorageProtocol::VendorSpecific)),
+			
+			(0x08, 0x08, 0x00) => MassStorage(MassStorageSubClass::Ieee1667(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0x08, 0x01) => MassStorage(MassStorageSubClass::Ieee1667(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0x08, 0x02) => MassStorage(MassStorageSubClass::Ieee1667(Obsolete)),
+			(0x08, 0x08, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::Ieee1667(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x08, 0x50) => MassStorage(MassStorageSubClass::Ieee1667(BulkOnly)),
+			(0x08, 0x08, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::Ieee1667(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x08, 0x62) => MassStorage(MassStorageSubClass::Ieee1667(UAS)),
+			(0x08, 0x08, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::Ieee1667(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0x08, 0xFF) => MassStorage(MassStorageSubClass::Ieee1667(MassStorageProtocol::VendorSpecific)),
+			
+			(0x08, 0x09 ..= 0xFE, _) => MassStorage(MassStorageSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			
+			(0x08, 0xFF, 0x00) => MassStorage(MassStorageSubClass::VendorSpecific(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
+			(0x08, 0xFF, 0x01) => MassStorage(MassStorageSubClass::VendorSpecific(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),
+			(0x08, 0xFF, 0x02) => MassStorage(MassStorageSubClass::VendorSpecific(Obsolete)),
+			(0x08, 0xFF, 0x03 ..= 0x4F) => MassStorage(MassStorageSubClass::VendorSpecific(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0xFF, 0x50) => MassStorage(MassStorageSubClass::VendorSpecific(BulkOnly)),
+			(0x08, 0xFF, 0x51 ..= 0x61) => MassStorage(MassStorageSubClass::VendorSpecific(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0xFF, 0x62) => MassStorage(MassStorageSubClass::VendorSpecific(UAS)),
+			(0x08, 0xFF, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::VendorSpecific(MassStorageProtocol::Unrecognized(protocol_code))),
+			(0x08, 0xFF, 0xFF) => MassStorage(MassStorageSubClass::VendorSpecific(MassStorageProtocol::VendorSpecific)),
 			
 			(0x09, _, _) => ShouldBeDeviceOnly { class_code, sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			

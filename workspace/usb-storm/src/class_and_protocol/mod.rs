@@ -39,6 +39,8 @@ include!("InterfaceClass.rs");
 include!("KnownOrUnrecognizedProtocol.rs");
 include!("KnownOrUnrecognizedSubClassAndProtocol.rs");
 include!("KnownVendorSpecificOrUnrecognizedProtocol.rs");
+include!("MassStorageProtocol.rs");
+include!("MassStorageSubClass.rs");
 include!("MiscellaneousDeviceSubClass.rs");
 include!("MiscellaneousInterfaceSubClass.rs");
 include!("PublicSwitchedTelephoneNetworkProtocol.rs");

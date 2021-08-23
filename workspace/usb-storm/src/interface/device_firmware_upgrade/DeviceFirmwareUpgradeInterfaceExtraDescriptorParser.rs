@@ -16,12 +16,10 @@ impl DescriptorParser for DeviceFirmwareUpgradeInterfaceAdditionalDescriptorPars
 	{
 		use DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError::*;
 		
-		match descriptor_type
+		if unlikely!(descriptor_type != 0x21)
 		{
-			0x21 => (),
-			
-			_ => return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type)),
-		};
+			return Err(DescriptorIsNeitherOfficialOrVendorSpecific(descriptor_type))
+		}
 		
 		// On my Apple Mac Pro trashcan, this USB descriptor omits the trailing `bcdDFUVersion` field and so has a short bLength.
 		const SizeOfVersionField: u8 = size_of::<u16>() as u8;
