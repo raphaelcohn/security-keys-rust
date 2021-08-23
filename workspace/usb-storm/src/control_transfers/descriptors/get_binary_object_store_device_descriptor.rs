@@ -7,7 +7,7 @@
 #[inline(always)]
 pub(crate) fn get_binary_object_store_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<(&[u8], u8)>>, GetStandardUsbDescriptorError>
 {
-	const descriptor_type: DescriptorType = LIBUSB_DT_BOS;
-	let descriptor_bytes = get_standard_device_descriptor(device_handle, buffer, descriptor_type, 0, 0)?;
+	const descriptor_type: u8 = LIBUSB_DT_BOS;
+	let descriptor_bytes = get_standard_device_descriptor(device_handle, descriptor_type, 0, 0, buffer)?;
 	Ok(StandardUsbDescriptorError::parse::<descriptor_type, false>(descriptor_bytes)?)
 }

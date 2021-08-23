@@ -5,22 +5,19 @@
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
 #[allow(missing_docs)]
-pub enum BinaryObjectStoreParseError
+pub enum WebUsbPlatformDeviceCapabilityParseError
 {
-	CouldNotGet(GetStandardUsbDescriptorError),
+	#[allow(missing_docs)]
+	ValueBytesTooShort,
 	
-	TooShort
-	{
-		/// Less than 3 bytes.
-		remaining_length: usize,
-	},
+	#[allow(missing_docs)]
+	VersionParse(VersionParseError),
 	
-	CouldNotAllocateMemoryForDeviceCapabilities(TryReserveError),
-	
-	CouldNotParseDeviceCapability(DeviceCapabilityParseError),
+	#[allow(missing_docs)]
+	GetWebUrl(GetWebUrlError),
 }
 
-impl Display for BinaryObjectStoreParseError
+impl Display for WebUsbPlatformDeviceCapabilityParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -29,40 +26,36 @@ impl Display for BinaryObjectStoreParseError
 	}
 }
 
-impl error::Error for BinaryObjectStoreParseError
+impl error::Error for WebUsbPlatformDeviceCapabilityParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use BinaryObjectStoreParseError::*;
+		use WebUsbPlatformDeviceCapabilityParseError::*;
 		
 		match self
 		{
-			CouldNotGet(cause) => Some(cause),
+			VersionParse(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForDeviceCapabilities(cause) => Some(cause),
-			
-			CouldNotParseDeviceCapability(cause) => Some(cause),
+			GetWebUrl(cause) => Some(cause),
 			
 			_ => None,
 		}
 	}
 }
 
-impl From<GetStandardUsbDescriptorError> for BinaryObjectStoreParseError
+impl From<VersionParseError> for WebUsbPlatformDeviceCapabilityParseError
 {
-	#[inline(always)]
-	fn from(cause: GetStandardUsbDescriptorError) -> Self
+	fn from(cause: VersionParseError) -> Self
 	{
-		BinaryObjectStoreParseError::CouldNotGet(cause)
+		WebUsbPlatformDeviceCapabilityParseError::VersionParse(cause)
 	}
 }
 
-impl From<TryReserveError> for BinaryObjectStoreParseError
+impl From<GetWebUrlError> for WebUsbPlatformDeviceCapabilityParseError
 {
-	#[inline(always)]
-	fn from(cause: TryReserveError) -> Self
+	fn from(cause: GetWebUrlError) -> Self
 	{
-		BinaryObjectStoreParseError::CouldNotAllocateMemoryForDeviceCapabilities(cause)
+		WebUsbPlatformDeviceCapabilityParseError::GetWebUrl(cause)
 	}
 }

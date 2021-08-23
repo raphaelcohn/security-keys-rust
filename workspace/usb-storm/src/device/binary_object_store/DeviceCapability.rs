@@ -63,7 +63,7 @@ pub enum DeviceCapability
 impl DeviceCapability
 {
 	#[inline(always)]
-	fn parse(device_capabilities_bytes: &[u8]) -> Result<(usize, DeviceCapability), DeviceCapabilityParseError>
+	fn parse(device_capabilities_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(usize, DeviceCapability)>, DeviceCapabilityParseError>
 	{
 		use DeviceCapability::*;
 		use DeviceCapabilityParseError::*;
@@ -106,7 +106,7 @@ impl DeviceCapability
 			
 			0x04 => ContainerIdentifier(ContainerIdentifierDeviceCapability::parse(device_capability_bytes)?),
 			
-			0x05 => Platform(PlatformDeviceCapability::parse(device_capability_bytes)?),
+			0x05 => Platform(return_ok_if_dead!(PlatformDeviceCapability::parse(device_capability_bytes, string_finder)?)),
 			
 			0x06 => PowerDelivery(Self::parse_blob(device_capability_bytes, ParsePowerDeliveryDeviceCapability)?),
 			
@@ -133,7 +133,7 @@ impl DeviceCapability
 			0x00 | 0x11 ..= 0xFF => Reserved(ReservedDeviceCapability::parse(bDescriptorType, device_capability_bytes).map_err(ParseReservedDeviceCapability)?),
 		};
 		
-		Ok((length, device_capability))
+		Ok(Alive((length, device_capability)))
 	}
 	
 	#[inline(always)]

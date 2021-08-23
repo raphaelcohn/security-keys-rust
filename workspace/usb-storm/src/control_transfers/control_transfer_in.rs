@@ -3,9 +3,7 @@
 
 
 #[inline(always)]
-fn get_descriptor(device_handle: NonNull<libusb_device_handle>, (request_type, recipient): (ControlTransferRequestType, ControlTransferRecipient), descriptor_type: DescriptorType, descriptor_index: u8, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
+pub(crate) fn control_transfer_in(device_handle: NonNull<libusb_device_handle>, control_transfer_function_identifier: (ControlTransferRequestType, ControlTransferRecipient, impl Into<u8>), value: u16, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<&[u8], ControlTransferError>
 {
-	let value = ((descriptor_type as u16) << 8) | (descriptor_index as u16);
-	let result = control_transfer_in(device_handle, (request_type, recipient, Request::GetDescriptor), value, index, buffer);
-	GetDescriptorError::parse_result(result)
+	control_transfer(device_handle, Direction::In, control_transfer_function_identifier, value, index, buffer)
 }

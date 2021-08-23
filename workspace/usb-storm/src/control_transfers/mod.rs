@@ -58,7 +58,9 @@ pub mod descriptors;
 
 
 include!("control_transfer.rs");
+include!("control_transfer_in.rs");
 include!("ControlTransferError.rs");
 include!("ControlTransferRecipient.rs");
 include!("ControlTransferRequestType.rs");
 include!("Request.rs");
+include!("TimeOut.rs");

@@ -44,11 +44,9 @@ impl<'a> Bytes for &'a [u8]
 	#[inline(always)]
 	fn uuid(&self, index: usize) -> Uuid
 	{
-		let pointer = self.as_ptr();
-		let uuid_bytes = unsafe { (pointer.add(index) as *const [u8; 16]).read_volatile() };
-		
-		// It seems UUIDs are stored big-endian, although the USB 3.2 specification isn't clear on this and everything else in USB is stored little endian.
-		Uuid::from_bytes(uuid_bytes)
+		let pointer = self.as_ptr() as *const u128;
+		let bytes = unsafe { pointer.add(index).read_volatile() };
+		Uuid::from_bytes(bytes.to_be_bytes())
 	}
 	
 	#[inline(always)]

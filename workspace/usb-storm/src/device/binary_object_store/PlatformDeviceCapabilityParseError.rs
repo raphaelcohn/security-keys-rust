@@ -11,7 +11,9 @@ pub enum PlatformDeviceCapabilityParseError
 	
 	HasReservedByteSet,
 
-	CanNotAllocateMemoryForValue(TryReserveError)
+	CanNotAllocateMemoryForValue(TryReserveError),
+	
+	WebUsbPlatformDeviceCapabilityParse(WebUsbPlatformDeviceCapabilityParseError),
 }
 
 impl Display for PlatformDeviceCapabilityParseError
@@ -34,6 +36,8 @@ impl error::Error for PlatformDeviceCapabilityParseError
 		{
 			CanNotAllocateMemoryForValue(cause) => Some(cause),
 			
+			WebUsbPlatformDeviceCapabilityParse(cause) => Some(cause),
+			
 			_ => None,
 		}
 	}
@@ -45,5 +49,14 @@ impl From<TryReserveError> for PlatformDeviceCapabilityParseError
 	fn from(cause: TryReserveError) -> Self
 	{
 		PlatformDeviceCapabilityParseError::CanNotAllocateMemoryForValue(cause)
+	}
+}
+
+impl From<WebUsbPlatformDeviceCapabilityParseError> for PlatformDeviceCapabilityParseError
+{
+	#[inline(always)]
+	fn from(cause: WebUsbPlatformDeviceCapabilityParseError) -> Self
+	{
+		PlatformDeviceCapabilityParseError::WebUsbPlatformDeviceCapabilityParse(cause)
 	}
 }

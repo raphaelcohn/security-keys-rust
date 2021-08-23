@@ -3,10 +3,10 @@
 
 
 #[inline(always)]
-fn get_string_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>; MaximumStandardUsbDescriptorLength], descriptor_index: Option<NonZeroU8>, language_identifier: u16) -> Result<DeadOrAlive<Option<&[u8]>>, GetStandardUsbDescriptorError>
+fn get_string_device_descriptor(device_handle: NonNull<libusb_device_handle>, descriptor_index: Option<NonZeroU8>, language_identifier: u16, buffer: &mut [MaybeUninit<u8>; MaximumStandardUsbDescriptorLength]) -> Result<DeadOrAlive<Option<&[u8]>>, GetStandardUsbDescriptorError>
 {
-	const descriptor_type: DescriptorType = LIBUSB_DT_STRING;
-	let descriptor_bytes = get_standard_device_descriptor(device_handle, buffer.get_unchecked_range_mut_safe(..), descriptor_type, unsafe { transmute(descriptor_index) }, language_identifier)?;
+	const descriptor_type: u8 = LIBUSB_DT_STRING;
+	let descriptor_bytes = get_standard_device_descriptor(device_handle, descriptor_type, unsafe { transmute(descriptor_index) }, language_identifier, buffer.get_unchecked_range_mut_safe(..))?;
 	match StandardUsbDescriptorError::parse::<descriptor_type, true>(descriptor_bytes)?
 	{
 		Dead => Ok(Dead),

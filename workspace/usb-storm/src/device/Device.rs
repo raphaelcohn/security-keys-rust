@@ -190,7 +190,7 @@ impl Device
 		
 		let device_handle = return_ok_if_dead!(DeviceHandle::open(libusb_device)?);
 		let string_finder = return_ok_if_dead!(StringFinder::new(&device_handle).map_err(GetLanguages)?);
-		let binary_object_store = return_ok_if_dead!(BinaryObjectStore::parse(&device_handle, buffer)?);
+		let binary_object_store = return_ok_if_dead!(BinaryObjectStore::parse(&device_handle, buffer, &string_finder)?);
 		let speed = get_device_speed(libusb_device);
 		let maximum_supported_usb_version = Version::parse(device_descriptor.bcdUSB).map_err(MaximumSupportedUsbVersion)?;
 		let configurations = return_ok_if_dead!(Self::get_configurations(libusb_device, &device_descriptor, maximum_supported_usb_version, speed, &string_finder)?);

@@ -23,7 +23,7 @@ impl Deref for BinaryObjectStore
 impl BinaryObjectStore
 {
 	#[inline(always)]
-	pub(super) fn parse(device_handle: &DeviceHandle, buffer: &mut BinaryObjectStoreBuffer) -> Result<DeadOrAlive<Option<Self>>, BinaryObjectStoreParseError>
+	pub(super) fn parse(device_handle: &DeviceHandle, buffer: &mut BinaryObjectStoreBuffer, string_finder: &StringFinder) -> Result<DeadOrAlive<Option<Self>>, BinaryObjectStoreParseError>
 	{
 		use BinaryObjectStoreParseError::*;
 		
@@ -41,12 +41,13 @@ impl BinaryObjectStore
 		
 		let mut device_capabilities_bytes = remaining_bytes.get_unchecked_range_safe(MinimumRemainingSize .. ((total_length as usize) - DescriptorHeaderLength));
 		
-		let device_capabilities = Vec::new_populated(bNumDeviceCaps, CouldNotAllocateMemoryForDeviceCapabilities, |index|
+		let mut device_capabilities = Vec::new_with_capacity(bNumDeviceCaps).map_err(CouldNotAllocateMemoryForDeviceCapabilities)?;
+		while !device_capabilities_bytes.is_empty()
 		{
-			let (length, device_capability) = DeviceCapability::parse(device_capabilities_bytes).map_err(|cause| CouldNotParseDeviceCapability { cause, index: index as u8 })?;
+			let (length, device_capability) = return_ok_if_dead!(DeviceCapability::parse(device_capabilities_bytes, string_finder).map_err(CouldNotParseDeviceCapability)?);
+			device_capabilities.push_unchecked(device_capability);
 			device_capabilities_bytes = device_capabilities_bytes.get_unchecked_range_safe(length .. );
-			Ok(device_capability)
-		})?;
+		}
 		
 		// NOTE: We are allowed excess bytes.
 		

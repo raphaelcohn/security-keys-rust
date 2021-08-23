@@ -53,9 +53,9 @@ impl error::Error for StandardUsbDescriptorError
 
 impl StandardUsbDescriptorError
 {
-	/// Some devices, eg a HD Pro Webcam C920 (0x046D, product_identifier: 0x082D) return a completely empty descriptor for a string (ie one with a bLength of 0x00 and with a descriptor_bytes.len() of 255) rather than a valid empty string (0x00 0x03).
+	/// Some devices, eg a HD Pro Webcam C920 (0x046D, product_identifier: 0x082D) return a completely empty descriptor for a string (ie one with a `bLength` of 0x00 and with a `descriptor_bytes.len()` of 255) rather than a valid empty string (0x00 0x03); hence `permit_empty`.
 	#[inline(always)]
-	fn parse<const descriptor_type: DescriptorType, const permit_empty: bool>(descriptor_bytes: DeadOrAlive<Option<&[u8]>>) -> Result<DeadOrAlive<Option<(&[u8], u8)>>, Self>
+	pub(crate) fn parse<const descriptor_type: DescriptorType, const permit_empty: bool>(descriptor_bytes: DeadOrAlive<Option<&[u8]>>) -> Result<DeadOrAlive<Option<(&[u8], u8)>>, Self>
 	{
 		use StandardUsbDescriptorError::*;
 		

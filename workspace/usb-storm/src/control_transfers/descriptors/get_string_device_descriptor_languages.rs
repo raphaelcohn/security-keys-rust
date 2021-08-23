@@ -5,5 +5,5 @@
 #[inline(always)]
 pub(crate) fn get_string_device_descriptor_languages(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>; MaximumStandardUsbDescriptorLength]) -> Result<DeadOrAlive<Option<&[u8]>>, GetStandardUsbDescriptorError>
 {
-	get_string_device_descriptor(device_handle, buffer, None, 0)
+	get_string_device_descriptor(device_handle, None, 0, buffer)
 }

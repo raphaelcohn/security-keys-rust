@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::{VecExt, WrappedHashSet, WithCapacity};
+use crate::collections::{VecExt, WrappedHashSet, WithCapacity, Bytes};
 use self::language::Language;
 use self::language::LanguageIdentifier;
 use super::control_transfers::descriptors::get_string_device_descriptor_language;
@@ -31,6 +31,14 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive::Dead;
+use crate::control_transfers::ControlTransferRequestType;
+use crate::control_transfers::control_transfer_in;
+use crate::control_transfers::ControlTransferRecipient;
+use crate::control_transfers::descriptors::GetDescriptorError;
+use crate::control_transfers::descriptors::MaximumStandardUsbDescriptorLength;
+use crate::control_transfers::descriptors::StandardUsbDescriptorError;
+use crate::descriptors::DescriptorHeaderLength;
+use std::string::FromUtf8Error;
 
 
 /// USB language.
@@ -39,5 +47,8 @@ pub mod language;
 
 include!("GetLanguagesError.rs");
 include!("GetLocalizedStringError.rs");
+include!("GetWebUrlError.rs");
 include!("StringFinder.rs");
 include!("LocalizedStrings.rs");
+include!("WebUrl.rs");
+include!("WebUrlScheme.rs");

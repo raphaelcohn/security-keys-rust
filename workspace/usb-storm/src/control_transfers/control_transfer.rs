@@ -3,16 +3,20 @@
 
 
 #[inline(always)]
-pub(crate) fn control_transfer(direction: Direction, request_type: ControlTransferRequestType, recipient: ControlTransferRecipient, request: Request, device_handle: NonNull<libusb_device_handle>, time_out: Duration, value: u16, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<&[u8], ControlTransferError>
+fn control_transfer(device_handle: NonNull<libusb_device_handle>, direction: Direction, control_transfer_function_identifier: (ControlTransferRequestType, ControlTransferRecipient, impl Into<u8>), value: u16, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<&[u8], ControlTransferError>
 {
-	let length = buffer.len();
-	
-	let time_out = min(time_out.as_millis(), u32::MAX as u128) as u32;
+	let (request_type, recipient, request) = control_transfer_function_identifier;
 	
 	let request_type = (direction as u8) | (request_type as u8) | (recipient as u8);
+	let length = buffer.len();
+	let time_out =
+	{
+		const TimeOut: Duration = Duration::from_millis(1_000);
+		min(TimeOut.as_millis(), u32::MAX as u128) as u32
+	};
 	
 	// Internally, calls `libusb_submit_transfer()`.
-	let result = unsafe { libusb_control_transfer(device_handle.as_ptr(), request_type,request as u8, value, index, buffer.as_mut_ptr() as *mut u8, length as u16, time_out) };
+	let result = unsafe { libusb_control_transfer(device_handle.as_ptr(), request_type,request.into(), value, index, buffer.as_mut_ptr() as *mut u8, length as u16, time_out) };
 	
 	if likely!(result >= 0)
 	{

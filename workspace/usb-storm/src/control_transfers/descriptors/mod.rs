@@ -5,9 +5,8 @@
 use crate::descriptors::DescriptorType;
 use crate::descriptors::DescriptorHeaderLength;
 use crate::device::DeadOrAlive;
-use crate::end_point::transfer_type::Direction;
 use crate::interface::InterfaceNumber;
-use super::control_transfer;
+use super::control_transfer_in;
 use super::ControlTransferError;
 use super::ControlTransferRecipient;
 use super::ControlTransferRequestType;
@@ -28,7 +27,6 @@ use std::mem::MaybeUninit;
 use std::mem::transmute;
 use std::num::NonZeroU8;
 use std::ptr::NonNull;
-use std::time::Duration;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive::Dead;

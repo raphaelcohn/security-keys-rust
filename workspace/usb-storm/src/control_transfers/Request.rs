@@ -46,3 +46,12 @@ pub enum Request
 	#[allow(missing_docs)]
 	SetIsochronousDelay = LIBUSB_SET_ISOCH_DELAY,
 }
+
+impl Into<u8> for Request
+{
+	#[inline(always)]
+	fn into(self) -> u8
+	{
+		self as u8
+	}
+}

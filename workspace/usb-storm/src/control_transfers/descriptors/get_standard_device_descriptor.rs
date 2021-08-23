@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-fn get_standard_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>], descriptor_type: u8, descriptor_index: u8, index: u16) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
+fn get_standard_device_descriptor(device_handle: NonNull<libusb_device_handle>, descriptor_type: u8, descriptor_index: u8, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
 {
-	get_device_descriptor(ControlTransferRequestType::Standard, device_handle, buffer, descriptor_type, descriptor_index, index)
+	get_device_descriptor(device_handle, ControlTransferRequestType::Standard, descriptor_type, descriptor_index, index, buffer)
 }

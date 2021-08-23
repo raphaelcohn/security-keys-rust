@@ -6,10 +6,10 @@
 pub trait VecExt<T>: Sized
 {
 	/// New with capacity.
-	fn new_with_capacity(length: usize) -> Result<Self, TryReserveError>;
+	fn new_with_capacity<AUI: AsUsizeIndex>(length: AUI) -> Result<Self, TryReserveError>;
 	
 	/// New buffer.
-	fn new_buffer(length: usize) -> Result<Self, TryReserveError>;
+	fn new_buffer<AUI: AsUsizeIndex>(length: AUI) -> Result<Self, TryReserveError>;
 	
 	/// New from values.
 	fn new_from(values: &[T]) -> Result<Self, TryReserveError> where T: Copy;
@@ -27,16 +27,17 @@ pub trait VecExt<T>: Sized
 impl<T> VecExt<T> for Vec<T>
 {
 	#[inline(always)]
-	fn new_with_capacity(length: usize) -> Result<Self, TryReserveError>
+	fn new_with_capacity<AUI: AsUsizeIndex>(length: AUI) -> Result<Self, TryReserveError>
 	{
 		let mut buffer = Vec::new();
-		buffer.try_reserve_exact(length)?;
+		buffer.try_reserve_exact(length.as_usize())?;
 		Ok(buffer)
 	}
 	
 	#[inline(always)]
-	fn new_buffer(length: usize) -> Result<Self, TryReserveError>
+	fn new_buffer<AUI: AsUsizeIndex>(length: AUI) -> Result<Self, TryReserveError>
 	{
+		let length = length.as_usize();
 		let mut buffer = Self::new_with_capacity(length)?;
 		unsafe { buffer.set_len(length) };
 		Ok(buffer)

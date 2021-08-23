@@ -6,5 +6,5 @@
 #[inline(always)]
 pub(crate) fn get_hub_device_descriptor(device_handle: NonNull<libusb_device_handle>, buffer: &mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
 {
-	get_class_device_descriptor(device_handle, buffer, LIBUSB_DT_HUB, 0, 0)
+	get_class_device_descriptor(device_handle, LIBUSB_DT_HUB, 0, 0, buffer)
 }

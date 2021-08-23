@@ -6,31 +6,24 @@
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct PlatformDeviceCapability
+pub enum PlatformDeviceCapability
 {
-	key: Uuid,
-
-	value: Vec<u8>,
+	#[allow(missing_docs)]
+	WebUsb(WebUsbPlatformDeviceCapability),
+	
+	#[allow(missing_docs)]
+	Other
+	{
+		key: Uuid,
+		
+		value: Vec<u8>,
+	}
 }
 
 impl PlatformDeviceCapability
 {
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn key(&self) -> Uuid
-	{
-		self.key
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub fn value(&self) -> &[u8]
-	{
-		&self.value
-	}
-	
-	#[inline(always)]
-	fn parse(device_capability_bytes: &[u8]) -> Result<Self, PlatformDeviceCapabilityParseError>
+	fn parse(device_capability_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, PlatformDeviceCapabilityParseError>
 	{
 		use PlatformDeviceCapabilityParseError::*;
 		
@@ -46,14 +39,28 @@ impl PlatformDeviceCapability
 			return Err(HasReservedByteSet)
 		}
 		
+		let key = device_capability_bytes.uuid(1);
+		let value_bytes = device_capability_bytes.get_unchecked_range_safe(MinimumSize .. );
+		
+		const WebUsbUuid: Uuid = Uuid::from_bytes(u128::from_le_bytes([0x38, 0xB6, 0x08, 0x34, 0xA9, 0x09, 0xA0, 0x47, 0x8B, 0xFD, 0xA0, 0x76, 0x88, 0x15, 0xB6, 0x65]).to_be_bytes());
+		
+		use PlatformDeviceCapability::*;
 		Ok
 		(
-			Self
-			{
-				key: device_capability_bytes.uuid(1),
-			
-				value: Vec::new_from(device_capability_bytes.get_unchecked_range_safe(MinimumSize .. ))?,
-			}
+			Alive
+			(
+				match key
+				{
+					WebUsbUuid => WebUsb(return_ok_if_dead!(WebUsbPlatformDeviceCapability::parse(value_bytes, string_finder)?)),
+					
+					_ => Other
+					{
+						key,
+						
+						value: Vec::new_from(value_bytes)?,
+					}
+				}
+			)
 		)
 	}
 }

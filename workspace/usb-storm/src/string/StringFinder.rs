@@ -89,7 +89,7 @@ impl<'a> StringFinder<'a>
 		use GetLocalizedStringError::*;
 		
 		let mut buffer = MaybeUninit::uninit_array();
-		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle.as_non_null(), &mut buffer, string_descriptor_index, language_identifier).map_err(|cause| GetStandardUsbDescriptor { cause, string_descriptor_index, language })?
+		let remaining_bytes = match get_string_device_descriptor_language(self.device_handle.as_non_null(), string_descriptor_index, language_identifier, &mut buffer).map_err(|cause| GetStandardUsbDescriptor { cause, string_descriptor_index, language })?
 		{
 			Dead => return Ok(Dead),
 			
@@ -192,4 +192,51 @@ impl<'a> StringFinder<'a>
 		
 		Ok(Alive(Some(languages)))
 	}
+	
+	#[inline(always)]
+	pub(crate) fn find_web_usb_url(&self, vendor_code: u8, url_descriptor_index: u8) -> Result<DeadOrAlive<Option<WebUrl>>, GetWebUrlError>
+	{
+		if unlikely!(url_descriptor_index == 0)
+		{
+			Ok(Alive(None))
+		}
+		else
+		{
+			self.find_web_usb_url_non_zero(vendor_code, new_non_zero_u8(url_descriptor_index))
+		}
+	}
+	
+	#[inline(always)]
+	fn find_web_usb_url_non_zero(&self, vendor_code: u8, url_descriptor_index: NonZeroU8) -> Result<DeadOrAlive<Option<WebUrl>>, GetWebUrlError>
+	{
+		let mut buffer: [MaybeUninit<u8>; MaximumStandardUsbDescriptorLength] = MaybeUninit::uninit_array();
+		let descriptor_bytes = self.find_web_usb_url_control_transfer(vendor_code, url_descriptor_index, &mut buffer).map_err(|cause| GetWebUrlError::GetStandardUsbDescriptor { cause, vendor_code, url_descriptor_index })?;
+		let descriptor_bytes = return_ok_if_dead_or_alive_none!(descriptor_bytes);
+		
+		let web_url = WebUrl::parse(descriptor_bytes, vendor_code, url_descriptor_index)?;
+		Ok(Alive(Some(web_url)))
+	}
+	
+	#[inline(always)]
+	fn find_web_usb_url_control_transfer<'b>(&self, vendor_code: u8, url_descriptor_index: NonZeroU8, buffer: &'b mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<&'b [u8]>>, GetStandardUsbDescriptorError>
+	{
+		const WEBUSB_URL: u8 = 3;
+		const GET_URL: u16 = 2;
+		
+		let result = control_transfer_in(self.device_handle.as_non_null(), (ControlTransferRequestType::Vendor, ControlTransferRecipient::Device, vendor_code), url_descriptor_index.get() as u16, GET_URL, buffer);
+		let descriptor_bytes = GetDescriptorError::parse_result(result)?;
+		match StandardUsbDescriptorError::parse::<WEBUSB_URL, false>(descriptor_bytes)?
+		{
+			Dead => Ok(Dead),
+			
+			Alive(None) => Ok(Alive(None)),
+			
+			Alive(Some((remaining_bytes, bLength))) =>
+			{
+				let length = (bLength as usize) - DescriptorHeaderLength;
+				Ok(Alive(Some(remaining_bytes.get_unchecked_range_safe(.. length))))
+			}
+		}
+	}
+	
 }

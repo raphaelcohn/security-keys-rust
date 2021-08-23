@@ -30,3 +30,34 @@ impl Display for GetDescriptorError
 impl error::Error for GetDescriptorError
 {
 }
+
+impl GetDescriptorError
+{
+	#[inline(always)]
+	pub(crate) fn parse_result(result: Result<&[u8], ControlTransferError>) -> Result<DeadOrAlive<Option<&[u8]>>, Self>
+	{
+		use ControlTransferError::*;
+		use GetDescriptorError::*;
+		
+		match result
+		{
+			Ok(bytes) => Ok(Alive(Some(bytes))),
+			
+			Err(TransferInputOutputErrorOrTransferCancelled) => Ok(Dead),
+			
+			Err(DeviceDisconnected) => Ok(Dead),
+			
+			Err(RequestedResourceNotFound) => unreachable!("RequestedResourceNotFound should not occur for GET_DESCRIPTOR or similar"),
+			
+			Err(TimedOut) => Ok(Dead),
+			
+			Err(BufferOverflow) => Err(ControlRequestBufferOverflow),
+			
+			Err(NotSupported { .. }) =>Ok(Alive(None)),
+			
+			Err(OutOfMemory) => Err(ControlRequestOutOfMemory),
+			
+			Err(Other) => Err(ControlRequestOther),
+		}
+	}
+}
