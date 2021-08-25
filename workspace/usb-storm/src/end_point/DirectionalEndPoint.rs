@@ -11,12 +11,14 @@ pub enum DirectionalEndPoint
 	#[allow(missing_docs)]
 	In
 	{
+		#[serde(flatten)]
 		in_: EndPointCommonAndDirectionalTransferType,
 	},
 	
 	#[allow(missing_docs)]
 	Out
 	{
+		#[serde(flatten)]
 		out: EndPointCommonAndDirectionalTransferType,
 	},
 	

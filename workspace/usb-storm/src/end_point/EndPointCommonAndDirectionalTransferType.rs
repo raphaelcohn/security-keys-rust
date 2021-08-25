@@ -8,8 +8,10 @@
 #[serde(deny_unknown_fields)]
 pub struct EndPointCommonAndDirectionalTransferType
 {
+	#[serde(flatten)]
 	common: EndPointCommon,
 	
+	#[serde(flatten)]
 	directional_transfer_type: DirectionalTransferType,
 }
 
