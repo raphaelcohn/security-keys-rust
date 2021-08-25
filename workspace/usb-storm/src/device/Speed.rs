@@ -52,6 +52,12 @@ impl From<SuperSpeedDeviceCapabilitySupportedSpeed> for Speed
 
 impl Speed
 {
+	#[inline(always)]
+	pub(crate) fn is_low(self) -> bool
+	{
+		self == Speed::Low
+	}
+	
 	/// Is this a Gen X speed?
 	#[inline(always)]
 	pub fn is_gen_x_speed(self) -> bool
@@ -59,5 +65,16 @@ impl Speed
 		use Speed::*;
 		
 		self == Super || self == SuperPlus
+	}
+	
+	#[inline(always)]
+	pub(crate) fn is_low_speed(speed: Option<Self>) -> bool
+	{
+		match speed
+		{
+			None => false,
+			
+			Some(speed) => speed.is_low()
+		}
 	}
 }

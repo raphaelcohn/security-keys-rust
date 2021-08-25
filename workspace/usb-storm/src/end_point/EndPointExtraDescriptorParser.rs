@@ -5,7 +5,7 @@
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
 struct EndPointExtraDescriptorParser<'a>
 {
-	transfer_type: &'a mut TransferType,
+	transfer_type: &'a mut Either<Option<NonZeroU8>, (Direction, DirectionalTransferType)>,
 	
 	maximum_packet_size: u11,
 }
@@ -20,7 +20,7 @@ impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
 	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		use EndPointExtraDescriptorParseError::*;
-		use TransferType::*;
+		use DirectionalTransferType::*;
 		
 		const LIBUSB_DT_SS_ENDPOINT_COMPANION: u8 = 0x30;
 		if descriptor_type != LIBUSB_DT_SS_ENDPOINT_COMPANION
@@ -39,7 +39,7 @@ impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
 		{
 			 0 ..= 15 => match self.transfer_type
 			{
-				Control { .. } => if unlikely!(bMaxBurst != 0)
+				Left(..) => if unlikely!(bMaxBurst != 0)
 				{
 					return Err(ControlEndPointsDoNotSupportPacketBurst)
 				},
@@ -52,9 +52,9 @@ impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
 		
 		let consumed_length = match self.transfer_type
 		{
-			Control { .. } => descriptor_body_length,
+			Left(..) => descriptor_body_length,
 			
-			Interrupt { ref mut super_speed, .. } =>
+			Right((_, Interrupt { ref mut super_speed, .. })) =>
 			{
 				*super_speed = Some
 				(
@@ -68,7 +68,7 @@ impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
 				descriptor_body_length
 			}
 			
-			Bulk { ref mut super_speed, .. } =>
+			Right((_, Bulk { ref mut super_speed, .. })) =>
 			{
 				*super_speed = Some
 				(
@@ -89,7 +89,7 @@ impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
 				descriptor_body_length
 			}
 			
-			Isochronous { ref mut super_speed, .. } =>
+			Right((_, Isochronous { ref mut super_speed, .. })) =>
 			{
 				let bMaxBurst_plus_one = (bMaxBurst + 1) as u32;
 				

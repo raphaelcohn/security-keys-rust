@@ -67,6 +67,8 @@ use crate::device::DeadOrAlive::Dead;
 use crate::collections::WrappedIndexMap;
 use crate::collections::WithCapacity;
 use std::collections::TryReserveError;
+use crate::device::Speed;
+use std::cmp::min;
 
 
 /// Audio.

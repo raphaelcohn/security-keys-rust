@@ -13,7 +13,16 @@ pub enum TransferTypeParseError
 	ReservedInterruptUsageType,
 	
 	/// `bInterval` is zero.
-	IntervalIsZero,
+	IsochronousIntervalIsZero,
+	
+	/// `bInterval` is zero.
+	InterruptIntervalIsZero,
+
+	#[allow(missing_docs)]
+	LowSpeedDevicesCanNotHaveBulkEndpoints,
+
+	#[allow(missing_docs)]
+	LowSpeedDevicesCanNotHaveIsochronousEndpoints,
 }
 
 impl Display for TransferTypeParseError

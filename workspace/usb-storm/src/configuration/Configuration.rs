@@ -56,23 +56,6 @@ impl Configuration
 		&self.descriptors
 	}
 	
-	// #[inline(always)]
-	// pub(super) fn smart_card_interface_additional_descriptors(&self) -> Result<Vec<&SmartCardInterfaceAdditionalDescriptor>, TryReserveError>
-	// {
-	// 	// A small number of cards have more than one interface.
-	// 	let mut smart_card_interface_additional_descriptors = Vec::new_with_capacity(self.interfaces.len())?;
-	// 	for interface in self.interfaces.iter()
-	// 	{
-	// 		if let Some(smart_card_interface_additional_descriptor) = interface.smart_card_interface_additional_descriptor()
-	// 		{
-	// 			smart_card_interface_additional_descriptors.push(smart_card_interface_additional_descriptor);
-	// 		}
-	// 	}
-	//
-	// 	smart_card_interface_additional_descriptors.shrink_to_fit();
-	// 	Ok(smart_card_interface_additional_descriptors)
-	// }
-	
 	#[inline(always)]
 	pub(super) fn parse_configuration_number_only(configuration_descriptor: &ConfigurationDescriptor) -> Result<ConfigurationNumber, ConfigurationParseError>
 	{
@@ -90,7 +73,7 @@ impl Configuration
 		let (supports_remote_wake_up, is_self_powered_or_self_powered_and_bus_powered) = Self::parse_attributes(&configuration_descriptor)?;
 		let description = string_finder.find_string(configuration_descriptor.iConfiguration).map_err(DescriptionString)?;
 		let descriptors = Self::parse_descriptors(string_finder, &configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?;
-		let interfaces = Self::parse_interfaces(&configuration_descriptor, string_finder, maximum_supported_usb_version)?;
+		let interfaces = Self::parse_interfaces(&configuration_descriptor, string_finder, maximum_supported_usb_version, speed)?;
 		Ok
 		(
 			Alive
@@ -209,7 +192,7 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<WrappedIndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
+	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<WrappedIndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
 	{
 		use ConfigurationParseError::*;
 		
@@ -220,7 +203,7 @@ impl Configuration
 		for interface_index in 0 .. number_of_interfaces.get()
 		{
 			let libusb_interface = libusb_interfaces.get_unchecked_safe(interface_index);
-			let (interface_number, interface) = return_ok_if_dead!(Interface::parse(libusb_interface, string_finder, interface_index, maximum_supported_usb_version).map_err(|cause| CouldNotParseInterface { cause, interface_index })?);
+			let (interface_number, interface) = return_ok_if_dead!(Interface::parse(libusb_interface, string_finder, interface_index, maximum_supported_usb_version, speed).map_err(|cause| CouldNotParseInterface { cause, interface_index })?);
 			
 			let outcome = interfaces.insert(interface_number, interface);
 			if unlikely!(outcome.is_some())

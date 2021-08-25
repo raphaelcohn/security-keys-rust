@@ -28,6 +28,38 @@ pub enum EndPointParseError
 	
 	#[allow(missing_docs)]
 	CouldNotParseEndPointAdditionalDescriptor(DescriptorParseError<EndPointExtraDescriptorParseError>),
+
+	#[allow(missing_docs)]
+	ControlEndPointIsDuplicate
+	{
+		end_point_number: EndPointNumber,
+	},
+	
+	#[allow(missing_docs)]
+	ControlPointAlreadyIn
+	{
+		end_point_number: EndPointNumber,
+	},
+	
+	#[allow(missing_docs)]
+	ControlPointAlreadyOut
+	{
+		end_point_number: EndPointNumber,
+	},
+	
+	#[allow(missing_docs)]
+	ControlPointAlreadyInAndOut
+	{
+		end_point_number: EndPointNumber,
+	
+		direction: Direction,
+	},
+	
+	#[allow(missing_docs)]
+	ControlEndPointsCanNotAlsoBeDirectional
+	{
+		end_point_number: EndPointNumber,
+	},
 }
 
 impl Display for EndPointParseError

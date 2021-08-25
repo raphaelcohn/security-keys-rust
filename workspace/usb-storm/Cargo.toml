@@ -20,6 +20,7 @@ version = "0.0.0"
 
 [dependencies]
 arrayvec = { version = "^0.7.1", features = ["serde"] }
+either = "1.6.1"
 enum_default = "^0.2.5"
 enumflags2 = { version = "^0.7.1", features = ["std", "serde"] }
 indexmap = { version = "^1.7.0", features = ["std", "serde-1"] }

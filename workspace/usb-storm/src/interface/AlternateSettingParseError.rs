@@ -76,22 +76,6 @@ pub enum AlternateSettingParseError
 		end_point_index: u8,
 	},
 	
-	/// This can happen if the end point is repeated with two different directions.
-	DuplicateEndPointNumber
-	{
-		#[allow(missing_docs)]
-		interface_index: u8,
-		
-		#[allow(missing_docs)]
-		alternate_setting_index: u8,
-		
-		#[allow(missing_docs)]
-		end_point_index: u8,
-		
-		#[allow(missing_docs)]
-		end_point_number: EndPointNumber,
-	},
-	
 	#[allow(missing_docs)]
 	DescriptionString
 	{
@@ -113,7 +97,24 @@ pub enum AlternateSettingParseError
 	},
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForEndPoints(TryReserveError),
+	CouldNotAllocateMemoryForEndPoints
+	{
+		cause: TryReserveError,
+		
+		interface_index: u8,
+		
+		alternate_setting_index: u8,
+	},
+	
+	#[allow(missing_docs)]
+	LowSpeedDevicesCanNotHaveMoreThanTwoEndPoints
+	{
+		interface_index: u8,
+		
+		alternate_setting_index: u8,
+		
+		number_of_end_points: usize,
+	},
 }
 
 impl Display for AlternateSettingParseError
@@ -140,7 +141,7 @@ impl error::Error for AlternateSettingParseError
 			
 			CouldNotParseAlternateSettingAdditionalDescriptor { cause, .. } => Some(cause),
 			
-			CouldNotAllocateMemoryForEndPoints(cause) => Some(cause),
+			CouldNotAllocateMemoryForEndPoints { cause, .. } => Some(cause),
 			
 			_ => None,
 		}

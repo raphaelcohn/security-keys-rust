@@ -49,23 +49,8 @@ impl AlternateSetting
 		&self.descriptors
 	}
 	
-	// #[inline(always)]
-	// fn smart_card_interface_additional_descriptor(&self) -> Option<&SmartCardInterfaceAdditionalDescriptor>
-	// {
-	// 	for additional_descriptor in self.descriptors.iter()
-	// 	{
-	// 		use AdditionalDescriptor::*;
-	// 		use InterfaceAdditionalDescriptor::*;
-	// 		if let Known(SmartCard(smart_card_interface_additional_descriptor)) = additional_descriptor
-	// 		{
-	// 			return Some(smart_card_interface_additional_descriptor)
-	// 		}
-	// 	}
-	// 	None
-	// }
-	
 	#[inline(always)]
-	fn parse(string_finder: &StringFinder, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version) -> Result<DeadOrAlive<(InterfaceNumber, AlternateSettingNumber, Self)>, AlternateSettingParseError>
+	fn parse(string_finder: &StringFinder, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<(InterfaceNumber, AlternateSettingNumber, Self)>, AlternateSettingParseError>
 	{
 		use AlternateSettingParseError::*;
 
@@ -92,7 +77,7 @@ impl AlternateSetting
 		let end_point_descriptors = Self::parse_end_point_descriptors(alternate_setting, interface_index, alternate_setting_index)?;
 		let description = string_finder.find_string(alternate_setting.iInterface).map_err(|cause| DescriptionString { cause, interface_index, alternate_setting_index })?;
 		let descriptors = Self::parse_descriptors(alternate_setting, interface_class, string_finder).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
-		let end_points = Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, maximum_supported_usb_version, string_finder)?;
+		let end_points = Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, maximum_supported_usb_version, speed, string_finder)?;
 		Ok
 		(
 			Alive
@@ -118,24 +103,30 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version, string_finder: &StringFinder) -> Result<DeadOrAlive<WrappedIndexMap<EndPointNumber, EndPoint>>, AlternateSettingParseError>
+	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<WrappedIndexMap<EndPointNumber, EndPoint>>, AlternateSettingParseError>
 	{
 		use AlternateSettingParseError::*;
 		
-		let mut end_points = WrappedIndexMap::with_capacity(end_point_descriptors.len()).map_err(CouldNotAllocateMemoryForEndPoints)?;
+		const MaximumNumberOfDirectionalEndPoints: usize = (InclusiveMaximumNumberOfEndPoints / 2) as usize;
 		
-		for end_point_index in 0 .. (end_points.len() as u5)
+		let number_of_end_points = end_point_descriptors.len();
+		let mut end_points = WrappedIndexMap::with_capacity(min(number_of_end_points, MaximumNumberOfDirectionalEndPoints)).map_err(|cause| CouldNotAllocateMemoryForEndPoints { cause, interface_index, alternate_setting_index })?;
+		
+		for end_point_index in 0 .. (number_of_end_points as u8)
 		{
 			let end_point_descriptor = end_point_descriptors.get_unchecked_safe(end_point_index);
-			let parsed = EndPoint::parse(end_point_descriptor, maximum_supported_usb_version, string_finder).map_err(|cause| EndPointParse { cause, interface_index, alternate_setting_index, end_point_index })?;
-			let (end_point_number, end_point) = return_ok_if_dead!(parsed);
-			
-			let outcome = end_points.insert(end_point_number, end_point);
-			if unlikely!(outcome.is_some())
+			return_ok_if_dead!(EndPoint::parse(end_point_descriptor, maximum_supported_usb_version, string_finder, speed, &mut end_points).map_err(|cause| EndPointParse { cause, interface_index, alternate_setting_index, end_point_index })?);
+		}
+		
+		if unlikely!(Speed::is_low_speed(speed))
+		{
+			let number_of_end_points = end_points.len();
+			if unlikely!(number_of_end_points > 2)
 			{
-				return Err(DuplicateEndPointNumber { interface_index, alternate_setting_index, end_point_index, end_point_number })
+				return Err(LowSpeedDevicesCanNotHaveMoreThanTwoEndPoints { interface_index, alternate_setting_index, number_of_end_points })
 			}
 		}
+		end_points.shrink_to_fit();
 		
 		Ok(Alive(end_points))
 	}

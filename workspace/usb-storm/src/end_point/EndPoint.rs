@@ -2,60 +2,35 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// An USB end point.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// Represents an end point.
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct EndPoint
+pub enum EndPoint
 {
-	transfer_type: TransferType,
-
-	maximum_packet_size: u11,
+	#[allow(missing_docs)]
+	Control
+	{
+		common: EndPointCommon,
+		
+		/// Negative Acknowledgment (NAK) Rate; `None` means the endpoint never negatively acknowledges.
+		///
+		/// `Some(negative_acknowledgment_rate)` indicates 1 NAK each `negative_acknowledgment_rate` number of microframes.
+		///
+		/// A microframe is 125 μs.
+		///
+		/// Meaningless for Enhanced SuperSpeed.
+		polling_negative_acknowledgment_rate: Option<NonZeroU8>,
+	},
 	
-	audio_extension: Option<EndPointAudioExtension>,
-
-	descriptors: Vec<Descriptor<EndPointExtraDescriptor>>,
+	#[allow(missing_docs)]
+	Directional(DirectionalEndPoint),
 }
 
 impl EndPoint
 {
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn transfer_type(&self) -> &TransferType
-	{
-		&self.transfer_type
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn maximum_packet_size(&self) -> u11
-	{
-		self.maximum_packet_size
-	}
-	
-	/// Should only be present for Audio devices.
-	#[inline(always)]
-	pub const fn audio_extension(&self) -> Option<EndPointAudioExtension>
-	{
-		self.audio_extension
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub fn descriptors(&self) -> &[Descriptor<EndPointExtraDescriptor>]
-	{
-		&self.descriptors
-	}
-	
-	/// Is a periodic end point?
-	#[inline(always)]
-	pub fn is_a_periodic_end_point(&self) -> bool
-	{
-		self.transfer_type.is_periodic()
-	}
-	
-	#[inline(always)]
-	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version, string_finder: &StringFinder) -> Result<DeadOrAlive<(EndPointNumber, Self)>, EndPointParseError>
+	pub(crate) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version, string_finder: &StringFinder, speed: Option<Speed>, end_points: &mut WrappedIndexMap<EndPointNumber, Self>) -> Result<DeadOrAlive<()>, EndPointParseError>
 	{
 		use EndPointParseError::*;
 		
@@ -78,62 +53,92 @@ impl EndPoint
 			return Err(EndpointAddressHasReservedBits)
 		}
 		
-		const LIBUSB_DT_ENDPOINT_AUDIO_SIZE: u8 = 9;
+		let end_point_number = bEndpointAddress & 0b0000_1111;
 		
-		let audio_extension = if unlikely!(bLength >= LIBUSB_DT_ENDPOINT_AUDIO_SIZE)
+		let mut transfer_type = DirectionalTransferType::parse(end_point_descriptor, maximum_supported_usb_version, speed).map_err(TransferType)?;
+		
+		let common = return_ok_if_dead!(EndPointCommon::parse(end_point_descriptor, string_finder, bLength, &mut transfer_type)?);
+		
+		use EndPoint::*;
+		match transfer_type
 		{
-			Some
-			(
-				EndPointAudioExtension
+			Left(polling_negative_acknowledgment_rate) =>
+			{
+				let end_point = Control
 				{
-					synchronization_feedback_refresh_rate: end_point_descriptor.bRefresh,
-					
-					synchronization_address: end_point_descriptor.bSynchAddress,
+					polling_negative_acknowledgment_rate,
+				
+					common,
+				};
+				let outcome = end_points.insert(end_point_number, end_point);
+				if unlikely!(outcome.is_some())
+				{
+					return Err(ControlEndPointIsDuplicate { end_point_number })
 				}
-			)
-		}
-		else
-		{
-			None
-		};
-		
-		let mut transfer_type = self::TransferType::parse(end_point_descriptor, maximum_supported_usb_version).map_err(TransferType)?;
-		let maximum_packet_size = end_point_descriptor.wMaxPacketSize & 0b0111_1111_1111;
-		let descriptors = Self::parse_descriptors(string_finder, end_point_descriptor, &mut transfer_type, maximum_packet_size).map_err(CouldNotParseEndPointAdditionalDescriptor)?;
-		let descriptors = return_ok_if_dead!(descriptors);
-		Ok
-		(
-			Alive
-			(
-				(
-					bEndpointAddress & 0b0000_1111,
-					
-					Self
-					{
-						transfer_type,
-						
-						maximum_packet_size,
-						
-						audio_extension,
-						
-						descriptors,
-					}
-				)
-			)
-		)
-	}
-	
-	#[inline(always)]
-	fn parse_descriptors<'a>(string_finder: &StringFinder, end_point_descriptor: &libusb_endpoint_descriptor, transfer_type: &'a mut TransferType, maximum_packet_size: u11) -> Result<DeadOrAlive<Vec<Descriptor<EndPointExtraDescriptor>>>, DescriptorParseError<EndPointExtraDescriptorParseError>>
-	{
-		let extra = extra_to_slice(end_point_descriptor.extra, end_point_descriptor.extra_length)?;
-		let descriptor_parser = EndPointExtraDescriptorParser
-		{
-			transfer_type,
+			},
 			
-			maximum_packet_size,
-		};
+			Right((direction, transfer_type)) =>
+			{
+				use Entry::*;
+				use DirectionalEndPoint::*;
+				match end_points.entry(end_point_number)
+				{
+					Vacant(vacant) =>
+					{
+						let _ = vacant.insert
+						(
+							Directional
+							(
+								match direction
+								{
+									Direction::In => In { in_: EndPointCommonAndDirectionalTransferType::new(common, transfer_type) },
+									
+									Direction::Out => Out { out: EndPointCommonAndDirectionalTransferType::new(common, transfer_type) },
+								}
+							),
+						);
+					},
+					
+					Occupied(mut occupied) => match (occupied.get(), direction)
+					{
+						(Directional(In { in_ }), Direction::Out) =>
+						{
+							*occupied.get_mut() = Directional
+							(
+								InAndOut
+								{
+									in_: in_.clone(),
+								
+									out: EndPointCommonAndDirectionalTransferType::new(common, transfer_type),
+								}
+							);
+						}
+						
+						(Directional(Out { out }), Direction::In) =>
+						{
+							*occupied.get_mut() = Directional
+							(
+								InAndOut
+								{
+									in_: EndPointCommonAndDirectionalTransferType::new(common, transfer_type),
+								
+									out: out.clone(),
+								}
+							);
+						}
+						
+						(Directional(In { .. }), Direction::In) => return Err(ControlPointAlreadyIn { end_point_number }),
+						
+						(Directional(Out { .. }), Direction::Out) => return Err(ControlPointAlreadyOut { end_point_number }),
+						
+						(Directional(InAndOut { .. }), _) => return Err(ControlPointAlreadyInAndOut { end_point_number, direction }),
+						
+						(Control { .. }, _) => return Err(ControlEndPointsCanNotAlsoBeDirectional { end_point_number }),
+					}
+				}
+			}
+		}
 		
-		parse_descriptors(string_finder, extra, descriptor_parser)
+		Ok(Alive(()))
 	}
 }

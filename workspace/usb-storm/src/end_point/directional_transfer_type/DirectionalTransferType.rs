@@ -2,32 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// USB end point transfer type.
+/// USB end point directional transfer type.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum TransferType
+pub enum DirectionalTransferType
 {
-	/// Control endpoint.
-	Control
-	{
-		/// Negative Acknowledgment (NAK) Rate; `None` means the endpoint never negatively acknowledges.
-		///
-		/// `Some(negative_acknowledgment_rate)` indicates 1 NAK each `negative_acknowledgment_rate` number of microframes.
-		///
-		/// A microframe is 125 μs.
-		///
-		/// Meaningless for Enhanced SuperSpeed.
-		/// Meaningless if `Direction::In`.
-		polling_negative_acknowledgment_rate: Option<NonZeroU8>,
-	},
-	
-	/// Bulk endpoint.
+	/// Bulk transfer.
 	Bulk
 	{
-		/// Direction.
-		direction: Direction,
-		
 		/// This value is not validated except as non-zero.
 		///
 		/// Negative Acknowledgment (NAK) Rate; `None` means the endpoint never negatively acknowledges.
@@ -38,18 +21,15 @@ pub enum TransferType
 		///
 		/// Meaningless for Enhanced SuperSpeed.
 		/// Meaningless if `Direction::In`.
-		polling_negative_acknowledgment_rate: NonZeroU8,
+		polling_negative_acknowledgment_rate: Option<NonZeroU8>,
 		
 		/// Only present if a SuperSpeed EndPoint Additional Descriptor is present.
 		super_speed: Option<SuperSpeedBulk>,
 	},
 	
-	/// Isochronous endpoint.
+	/// Isochronous transfer.
 	Isochronous
 	{
-		/// Direction.
-		direction: Direction,
-		
 		/// This value is not validated except as non-zero.
 		///
 		/// Value is between 1 to 16 inclusive and is the number of 125 μs units for Enhanced SuperSpeed.
@@ -72,12 +52,9 @@ pub enum TransferType
 		super_speed: Option<SuperSpeedIsochronous>,
 	},
 	
-	/// Interrupt endpoint.
+	/// Interrupt transfer.
 	Interrupt
 	{
-		/// Direction.
-		direction: Direction,
-		
 		/// This value is not validated except as non-zero.
 		///
 		/// Value is between 1 to 16 inclusive and is the number of 125 μs units for Enhanced SuperSpeed if the usage_type is Periodic.
@@ -99,13 +76,13 @@ pub enum TransferType
 	},
 }
 
-impl TransferType
+impl DirectionalTransferType
 {
 	/// Is periodic.
 	#[inline(always)]
 	pub fn is_periodic(&self) -> bool
 	{
-		use TransferType::*;
+		use DirectionalTransferType::*;
 		
 		match self
 		{
@@ -116,16 +93,16 @@ impl TransferType
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version) -> Result<Self, TransferTypeParseError>
+	pub(super) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<Either<Option<NonZeroU8>, (Direction, Self)>, TransferTypeParseError>
 	{
 		use TransferTypeParseError::*;
 		
 		#[inline(always)]
-		fn non_zero_interval(bInterval: u8) -> Result<NonZeroU8, TransferTypeParseError>
+		fn non_zero_interval(bInterval: u8, error: TransferTypeParseError) -> Result<NonZeroU8, TransferTypeParseError>
 		{
 			if bInterval == 0
 			{
-				Err(IntervalIsZero)
+				Err(error)
 			}
 			else
 			{
@@ -135,73 +112,99 @@ impl TransferType
 		
 		let bInterval = end_point_descriptor.bInterval;
 		
-		use TransferType::*;
+		use DirectionalTransferType::*;
 		let bmAttributes = end_point_descriptor.bmAttributes;
 		Ok
 		(
 			match bmAttributes & LIBUSB_TRANSFER_TYPE_MASK
 			{
-				LIBUSB_TRANSFER_TYPE_CONTROL => Control
-				{
-					polling_negative_acknowledgment_rate: NonZeroU8::new(bInterval),
-				},
+				LIBUSB_TRANSFER_TYPE_CONTROL => Left(NonZeroU8::new(bInterval)),
 				
-				LIBUSB_TRANSFER_TYPE_BULK => Bulk
+				LIBUSB_TRANSFER_TYPE_BULK => if unlikely!(Speed::is_low_speed(speed))
 				{
-					direction: Direction::from(end_point_descriptor),
-					
-					polling_negative_acknowledgment_rate: non_zero_interval(bInterval)?,
-					
-					super_speed: None,
-				},
-				
-				LIBUSB_TRANSFER_TYPE_ISOCHRONOUS => Isochronous
+					return Err(LowSpeedDevicesCanNotHaveBulkEndpoints)
+				}
+				else
 				{
-					direction: Direction::from(end_point_descriptor),
-					
-					polling_interval_for_servicing_the_end_point_for_data_transfers: non_zero_interval(bInterval)?,
-					
-					synchronization_type: IschronousTransferSynchronizationType::parse(bmAttributes),
-					
-					usage_type: IschronousTransferUsageType::parse(bmAttributes)?,
-					
-					additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
-					
-					super_speed: None
-				},
-				
-				LIBUSB_TRANSFER_TYPE_INTERRUPT => Interrupt
-				{
-					direction: Direction::from(end_point_descriptor),
-					
-					polling_interval_for_servicing_the_end_point_for_data_transfers: non_zero_interval(bInterval)?,
-				
-					usage_type: if maximum_supported_usb_version.is_3_0_or_greater()
-					{
-						use InterruptTransferUsageType::*;
-						Some
+					Right
+					(
 						(
-							match (bmAttributes & 0b0011_0000) >> 4
+							Direction::from(end_point_descriptor),
+							
+							Bulk
 							{
-								0 => Periodic,
+								polling_negative_acknowledgment_rate: NonZeroU8::new(bInterval),
 								
-								1 => Notification,
-								
-								2 | 3 => return Err(ReservedInterruptUsageType),
-								
-								_ => unreachable!(),
+								super_speed: None,
 							}
 						)
-					}
-					else
-					{
-						None
-					},
-					
-					additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
-					
-					super_speed: None
+					)
 				},
+				
+				LIBUSB_TRANSFER_TYPE_ISOCHRONOUS => if unlikely!(Speed::is_low_speed(speed))
+				{
+					return Err(LowSpeedDevicesCanNotHaveIsochronousEndpoints)
+				}
+				else
+				{
+					Right
+					(
+						(
+							Direction::from(end_point_descriptor),
+							
+							Isochronous
+							{
+								polling_interval_for_servicing_the_end_point_for_data_transfers: non_zero_interval(bInterval, IsochronousIntervalIsZero)?,
+								
+								synchronization_type: IschronousTransferSynchronizationType::parse(bmAttributes),
+								
+								usage_type: IschronousTransferUsageType::parse(bmAttributes)?,
+								
+								additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
+								
+								super_speed: None
+							}
+						)
+					)
+				},
+				
+				LIBUSB_TRANSFER_TYPE_INTERRUPT => Right
+				(
+					(
+						Direction::from(end_point_descriptor),
+						
+						Interrupt
+						{
+							polling_interval_for_servicing_the_end_point_for_data_transfers: non_zero_interval(bInterval, InterruptIntervalIsZero)?,
+						
+							usage_type: if maximum_supported_usb_version.is_3_0_or_greater()
+							{
+								use InterruptTransferUsageType::*;
+								Some
+								(
+									match (bmAttributes & 0b0011_0000) >> 4
+									{
+										0 => Periodic,
+										
+										1 => Notification,
+										
+										2 | 3 => return Err(ReservedInterruptUsageType),
+										
+										_ => unreachable!(),
+									}
+								)
+							}
+							else
+							{
+								None
+							},
+							
+							additional_transaction_opportunities_per_microframe: Self::additional_transaction_opportunities_per_microframe(end_point_descriptor),
+							
+							super_speed: None
+						}
+					)
+				),
 				
 				_ => unreachable!("Bits have been masked"),
 			}

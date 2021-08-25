@@ -146,42 +146,6 @@ impl Device
 		Some(binary_object_store.deref())
 	}
 	
-	// #[inline(always)]
-	// pub(crate) fn active_smart_card_interface_additional_descriptors(&self) -> Result<Vec<&SmartCardInterfaceAdditionalDescriptor>, UsbDeviceError>
-	// {
-	// 	if self.class_and_protocol.is_valid_smart_card_device()
-	// 	{
-	// 		match self.cached_active_configuration()?
-	// 		{
-	// 			None => return Ok(Vec::new()),
-	//
-	// 			Some(active_configuration) => active_configuration.smart_card_interface_additional_descriptors().map_err(UsbDeviceError::Allocation),
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		Ok(Vec::new())
-	// 	}
-	// }
-	//
-	// #[inline(always)]
-	// pub(crate) fn cached_active_configuration(&self) -> Result<Option<&Configuration>, UsbDeviceError>
-	// {
-	// 	if let Some(active_configuration) = self.active_configuration
-	// 	{
-	// 		match self.configurations.get(&active_configuration)
-	// 		{
-	// 			Some(configuration) => Ok(Some(configuration)),
-	//
-	// 			None => Err(UsbDeviceError::ActiveConfigurationNotInConfiguations)
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		Ok(None)
-	// 	}
-	// }
-	
 	/// Parse a libusb device.
 	#[inline(always)]
 	fn parse(libusb_device: NonNull<libusb_device>, buffer: &mut BinaryObjectStoreBuffer, location: Location, device_descriptor: libusb_device_descriptor, vendor_identifier: VendorIdentifier, product_identifier: ProductIdentifier) -> Result<DeadOrAlive<Self>, DeviceParseError>
