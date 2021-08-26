@@ -10,4 +10,12 @@ pub enum ConfigurationExtraDescriptor
 {
 	#[allow(missing_docs)]
 	InterfaceAssociation(InterfaceAssociationConfigurationExtraDescriptor),
+	
+	#[allow(missing_docs)]
+	Unknown
+	{
+		descriptor_type: DescriptorType,
+		
+		bytes: Vec<u8>,
+	},
 }

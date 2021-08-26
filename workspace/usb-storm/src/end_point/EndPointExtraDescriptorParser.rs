@@ -8,6 +8,8 @@ struct EndPointExtraDescriptorParser<'a>
 	transfer_type: &'a mut Either<Option<NonZeroU8>, (Direction, DirectionalTransferType)>,
 	
 	maximum_packet_size: u11,
+	
+	interface_class: InterfaceClass,
 }
 
 impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
@@ -19,17 +21,36 @@ impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
 	#[inline(always)]
 	fn parse_descriptor(&mut self, _string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
+		const LIBUSB_DT_SS_ENDPOINT_COMPANION: u8 = 0x30;
+		const UsbAttachedStoragePipeDescriptorType: u8 = 0x24;
+		
+		match (descriptor_type, self.interface_class)
+		{
+			(LIBUSB_DT_SS_ENDPOINT_COMPANION, _) => self.parse_super_speed_end_point_companion_descriptor(remaining_bytes, bLength),
+			
+			(UsbAttachedStoragePipeDescriptorType, InterfaceClass::MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(MassStorageProtocol::UsbAttachedScsi))) => self.parse_usb_attached_scsi_pipe(remaining_bytes, bLength),
+			
+			_ => Ok(None),
+		}
+	}
+	
+	#[inline(always)]
+	fn unknown(descriptor_type: DescriptorType, bytes: Vec<u8>) -> Self::Descriptor
+	{
+		EndPointExtraDescriptor::Unknown { descriptor_type, bytes }
+	}
+}
+
+impl<'a> EndPointExtraDescriptorParser<'a>
+{
+	#[inline(always)]
+	fn parse_super_speed_end_point_companion_descriptor(&mut self, remaining_bytes: &[u8], bLength: u8) -> Result<Option<DeadOrAlive<(EndPointExtraDescriptor, usize)>>, EndPointExtraDescriptorParseError>
+	{
 		use EndPointExtraDescriptorParseError::*;
 		use DirectionalTransferType::*;
 		
-		const LIBUSB_DT_SS_ENDPOINT_COMPANION: u8 = 0x30;
-		if descriptor_type != LIBUSB_DT_SS_ENDPOINT_COMPANION
-		{
-			return Ok(None)
-		}
-		
-		const BLength: u8 = EndPointExtraDescriptorParser::BLength;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointExtraDescriptorParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		const BLength: u8 = EndPointExtraDescriptorParser::SuperSpeedCompanionBLength;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointExtraDescriptorParseError, BLength>(remaining_bytes, bLength, SuperSpeedCompanionBLengthIsLessThanMinimum, SuperSpeedCompanionBLengthExceedsRemainingBytes)?;
 		
 		let bMaxBurst = descriptor_body.u8(0);
 		let bmAttributes = descriptor_body.u8(1);
@@ -152,11 +173,41 @@ impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
 		
 		Ok(Some(Alive((EndPointExtraDescriptor::SuperSpeedEndPointCompanion, consumed_length))))
 	}
-}
-
-impl<'a> EndPointExtraDescriptorParser<'a>
-{
-	const BLength: u8 = 6;
+	
+	#[inline(always)]
+	fn parse_usb_attached_scsi_pipe(&self, remaining_bytes: &[u8], bLength: u8) -> Result<Option<DeadOrAlive<(EndPointExtraDescriptor, usize)>>, EndPointExtraDescriptorParseError>
+	{
+		use EndPointExtraDescriptorParseError::*;
+		
+		const BLength: u8 = 4;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointExtraDescriptorParseError, BLength>(remaining_bytes, bLength, UsbAttachedScsiPipeBLengthIsLessThanMinimum, UsbAttachedScsiPipeBLengthExceedsRemainingBytes)?;
+		
+		use UsbAttachedScsiPipeIdentifier::*;
+		let pipe = match descriptor_body.u8(0)
+		{
+			0 => Reserved(0),
+			
+			1 => Command,
+			
+			2 => Status,
+			
+			3 => DataIn,
+			
+			4 => DataOut,
+			
+			value @ 5 ..= 0xDF => Reserved(value),
+			
+			value @ 0xE0 ..= 0xEF => VendorSpecific(value),
+			
+			value @ 0xF0 ..= 0xFF => Reserved(value),
+		};
+		
+		//let _reserved_and_is_currently_zero =  descriptor_body.u8(1);
+		
+		Ok(Some(Alive((EndPointExtraDescriptor::UsbAttachedScsiPipe(pipe), descriptor_body_length))))
+	}
+	
+	const SuperSpeedCompanionBLength: u8 = 6;
 	
 	#[inline(always)]
 	const fn maximum_number_of_packets_that_can_burst_at_a_time(bMaxBurst: u8) -> NonZeroU4
@@ -169,7 +220,7 @@ impl<'a> EndPointExtraDescriptorParser<'a>
 	{
 		use EndPointExtraDescriptorParseError::*;
 		
-		let remaining_bytes = remaining_bytes.get_unchecked_range_safe(reduce_b_length_to_descriptor_body_length(Self::BLength) .. );
+		let remaining_bytes = remaining_bytes.get_unchecked_range_safe(reduce_b_length_to_descriptor_body_length(Self::SuperSpeedCompanionBLength) .. );
 		
 		if unlikely!(remaining_bytes.len() < DescriptorHeaderLength)
 		{

@@ -18,14 +18,14 @@ pub enum DescriptorParseError<E: error::Error>
 	/// The length byte `bLength` of a descriptor is longer than the number of bytes remaining to parse.
 	DescriptorLengthExceedsRemainingBytes,
 
-	/// An error specific to to the specific (sic) additional descriptor being parsed
+	/// An error specific to to the specific (sic) extra descriptor being parsed.
 	Specific(E),
 
 	#[allow(missing_docs)]
 	CanNotAllocateUnknownDescriptorBuffer(TryReserveError),
 	
 	#[allow(missing_docs)]
-	CanNotAllocateAdditionalDescriptor(TryReserveError),
+	CanNotAllocateExtraDescriptor(TryReserveError),
 }
 
 impl<E: error::Error> Display for DescriptorParseError<E>
@@ -50,7 +50,7 @@ impl<E: 'static + error::Error> error::Error for DescriptorParseError<E>
 			
 			CanNotAllocateUnknownDescriptorBuffer(cause) => Some(cause),
 			
-			CanNotAllocateAdditionalDescriptor(cause) => Some(cause),
+			CanNotAllocateExtraDescriptor(cause) => Some(cause),
 			
 			_ => None,
 		}

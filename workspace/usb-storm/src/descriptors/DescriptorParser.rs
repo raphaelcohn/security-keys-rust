@@ -17,4 +17,10 @@ pub(crate) trait DescriptorParser
 	///
 	/// `remaining_bytes.len()` will always be `<= 253`.
 	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>;
+	
+	#[inline(always)]
+	fn unknown(descriptor_type: DescriptorType, bytes: Vec<u8>) -> Self::Descriptor
+	{
+		unimplemented!("This parser does not support unknown descriptors {} with {:?}", descriptor_type, bytes)
+	}
 }

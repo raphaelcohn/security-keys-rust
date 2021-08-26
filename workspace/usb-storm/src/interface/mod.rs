@@ -16,7 +16,6 @@ use self::human_interface_device::HumanInterfaceDeviceVariant;
 use self::smart_card::SmartCardInterfaceExtraDescriptor;
 use self::smart_card::SmartCardInterfaceExtraDescriptorParseError;
 use self::unsupported::UnsupportedInterfaceExtraDescriptor;
-use super::descriptors::Descriptor;
 use super::descriptors::DescriptorParseError;
 use super::descriptors::DescriptorParser;
 use super::descriptors::DescriptorType;

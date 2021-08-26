@@ -7,7 +7,6 @@ use self::interface_association::InterfaceAssociationConfigurationExtraDescripto
 use self::interface_association::InterfaceAssociationConfigurationExtraDescriptorParser;
 use super::integers::u3;
 use super::integers::u5;
-use super::descriptors::Descriptor;
 use super::descriptors::DescriptorParseError;
 use super::descriptors::DescriptorParser;
 use super::descriptors::DescriptorType;

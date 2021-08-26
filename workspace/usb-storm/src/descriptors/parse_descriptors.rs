@@ -3,9 +3,8 @@
 
 
 #[inline(always)]
-pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFinder, mut extra: &[u8], mut descriptor_parser: ADP) -> Result<DeadOrAlive<Vec<Descriptor<ADP::Descriptor>>>, DescriptorParseError<ADP::Error>>
+pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFinder, mut extra: &[u8], mut descriptor_parser: ADP) -> Result<DeadOrAlive<Vec<ADP::Descriptor>>, DescriptorParseError<ADP::Error>>
 {
-	use Descriptor::*;
 	use DescriptorParseError::*;
 	
 	let extra_length = extra.len();
@@ -34,31 +33,31 @@ pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFin
 		let remaining_bytes = extra.get_unchecked_range_safe(DescriptorHeaderLength .. );
 		let (descriptor, consumed_length) = match descriptor_parser.parse_descriptor(string_finder, bLength, descriptor_type, remaining_bytes)
 		{
-			Ok(Some(Alive((descriptor, consumed_length)))) => (Known(descriptor), consumed_length),
+			Ok(Some(Alive((descriptor, consumed_length)))) => (descriptor, consumed_length),
 			
 			Ok(Some(Dead)) => return Ok(Dead),
 			
 			Ok(None) =>
 			{
 				let consumed_length = descriptor_length - DescriptorHeaderLength;
+				
 				(
-					Unknown
-					{
+					ADP::unknown
+					(
 						descriptor_type,
-						
-						bytes:
 						{
 							let descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. consumed_length);
 							Vec::new_from(descriptor_bytes).map_err(CanNotAllocateUnknownDescriptorBuffer)?
-						},
-					},
+						}
+					),
+					
 					consumed_length
 				)
 			}
 			
 			Err(error) => return Err(Specific(error)),
 		};
-		descriptors.try_push(descriptor).map_err(CanNotAllocateAdditionalDescriptor)?;
+		descriptors.try_push(descriptor).map_err(CanNotAllocateExtraDescriptor)?;
 		
 		let consumed_length_including_header = DescriptorHeaderLength + consumed_length;
 		if remaining_length == consumed_length_including_header

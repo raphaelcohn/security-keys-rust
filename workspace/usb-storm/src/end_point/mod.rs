@@ -11,7 +11,6 @@ use self::directional_transfer_type::SuperSpeedInterrupt;
 use self::directional_transfer_type::SuperSpeedIsochronous;
 use self::directional_transfer_type::DirectionalTransferType;
 use self::directional_transfer_type::TransferTypeParseError;
-use super::descriptors::Descriptor;
 use super::descriptors::DescriptorParseError;
 use super::descriptors::DescriptorParser;
 use super::descriptors::DescriptorType;
@@ -44,6 +43,7 @@ use crate::string::StringFinder;
 use crate::device::{DeadOrAlive, Speed};
 use crate::device::DeadOrAlive::Alive;
 use std::num::NonZeroU8;
+use crate::class_and_protocol::{InterfaceClass, MassStorageSubClass, MassStorageProtocol};
 
 
 /// Transfer.
@@ -61,3 +61,4 @@ include!("EndPointExtraDescriptorParser.rs");
 include!("EndPointNumber.rs");
 include!("EndPointParseError.rs");
 include!("InclusiveMaximumNumberOfEndPoints.rs");
+include!("UsbAttachedScsiPipeIdentifier.rs");

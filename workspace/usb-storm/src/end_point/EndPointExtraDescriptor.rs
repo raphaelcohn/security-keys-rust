@@ -3,11 +3,22 @@
 
 
 /// End point additional descriptors.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum EndPointExtraDescriptor
 {
 	/// Indicates a super speed end point companion was present.
 	SuperSpeedEndPointCompanion,
+
+	/// USB Attached SCSI (UAS) Protocol (UASP) pipe.
+	UsbAttachedScsiPipe(UsbAttachedScsiPipeIdentifier),
+	
+	#[allow(missing_docs)]
+	Unknown
+	{
+		descriptor_type: DescriptorType,
+		
+		bytes: Vec<u8>,
+	},
 }

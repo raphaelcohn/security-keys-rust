@@ -19,6 +19,14 @@ pub enum InterfaceExtraDescriptor
 	
 	#[allow(missing_docs)]
 	SmartCard(SmartCardInterfaceExtraDescriptor),
+	
+	#[allow(missing_docs)]
+	Unknown
+	{
+		descriptor_type: DescriptorType,
+		
+		bytes: Vec<u8>,
+	},
 }
 
 impl From<AudioControlInterfaceExtraDescriptor> for InterfaceExtraDescriptor

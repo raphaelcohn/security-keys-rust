@@ -14,7 +14,7 @@ pub struct AlternateSetting
 
 	description: Option<LocalizedStrings>,
 	
-	descriptors: Vec<Descriptor<InterfaceExtraDescriptor>>,
+	descriptors: Vec<InterfaceExtraDescriptor>,
 
 	end_points: WrappedIndexMap<EndPointNumber, EndPoint>,
 }
@@ -44,7 +44,7 @@ impl AlternateSetting
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub fn descriptors(&self) -> &[Descriptor<InterfaceExtraDescriptor>]
+	pub fn descriptors(&self) -> &[InterfaceExtraDescriptor]
 	{
 		&self.descriptors
 	}
@@ -77,7 +77,7 @@ impl AlternateSetting
 		let end_point_descriptors = Self::parse_end_point_descriptors(alternate_setting, interface_index, alternate_setting_index)?;
 		let description = string_finder.find_string(alternate_setting.iInterface).map_err(|cause| DescriptionString { cause, interface_index, alternate_setting_index })?;
 		let descriptors = Self::parse_descriptors(alternate_setting, interface_class, string_finder).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
-		let end_points = Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, maximum_supported_usb_version, speed, string_finder)?;
+		let end_points = Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, interface_class, maximum_supported_usb_version, speed, string_finder)?;
 		Ok
 		(
 			Alive
@@ -103,7 +103,7 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<WrappedIndexMap<EndPointNumber, EndPoint>>, AlternateSettingParseError>
+	fn parse_end_points(end_point_descriptors: &[libusb_endpoint_descriptor], interface_index: u8, alternate_setting_index: u8, interface_class: InterfaceClass, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<WrappedIndexMap<EndPointNumber, EndPoint>>, AlternateSettingParseError>
 	{
 		use AlternateSettingParseError::*;
 		
@@ -115,7 +115,7 @@ impl AlternateSetting
 		for end_point_index in 0 .. (number_of_end_points as u8)
 		{
 			let end_point_descriptor = end_point_descriptors.get_unchecked_safe(end_point_index);
-			return_ok_if_dead!(EndPoint::parse(end_point_descriptor, maximum_supported_usb_version, string_finder, speed, &mut end_points).map_err(|cause| EndPointParse { cause, interface_index, alternate_setting_index, end_point_index })?);
+			return_ok_if_dead!(EndPoint::parse(end_point_descriptor, interface_class, maximum_supported_usb_version, string_finder, speed, &mut end_points).map_err(|cause| EndPointParse { cause, interface_index, alternate_setting_index, end_point_index })?);
 		}
 		
 		if unlikely!(Speed::is_low_speed(speed))
@@ -159,40 +159,40 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+	fn parse_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 	{
 		#[inline(always)]
-		fn audio_control(string_finder: &StringFinder, extra: &[u8], protocol: AudioProtocol) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		fn audio_control(string_finder: &StringFinder, extra: &[u8], protocol: AudioProtocol) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, AudioControlInterfaceExtraDescriptorParser(protocol))
 		}
 		
 		#[inline(always)]
-		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
 		}
 		
 		#[inline(always)]
-		fn human_interface_device(string_finder: &StringFinder, extra: &[u8], variant: HumanInterfaceDeviceVariant) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		fn human_interface_device(string_finder: &StringFinder, extra: &[u8], variant: HumanInterfaceDeviceVariant) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, HumanInterfaceDeviceInterfaceExtraDescriptorParser::new(variant))
 		}
 		
 		#[inline(always)]
-		fn smart_card(string_finder: &StringFinder, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		fn smart_card(string_finder: &StringFinder, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, SmartCardInterfaceExtraDescriptorParser::new(smart_card_protocol, bDescriptorType))
 		}
 		
 		#[inline(always)]
-		fn unsupported_smart_card_with_descriptor_at_end_of_end_points(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		fn unsupported_smart_card_with_descriptor_at_end_of_end_points(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			unsupported(string_finder, extra)
 		}
 		
 		#[inline(always)]
-		fn unsupported(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		fn unsupported(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, UnsupportedInterfaceExtraDescriptorParser)
 		}

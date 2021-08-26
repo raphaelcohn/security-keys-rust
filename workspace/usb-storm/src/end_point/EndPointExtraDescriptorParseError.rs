@@ -7,9 +7,9 @@
 #[allow(missing_docs)]
 pub enum EndPointExtraDescriptorParseError
 {
-	BLengthIsLessThanMinimum,
+	SuperSpeedCompanionBLengthIsLessThanMinimum,
 	
-	BLengthExceedsRemainingBytes,
+	SuperSpeedCompanionBLengthExceedsRemainingBytes,
 	
 	ControlEndPointsDoNotSupportPacketBurst,
 	
@@ -42,6 +42,10 @@ pub enum EndPointExtraDescriptorParseError
 	ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum,
 	
 	ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes,
+	
+	UsbAttachedScsiPipeBLengthIsLessThanMinimum,
+	
+	UsbAttachedScsiPipeBLengthExceedsRemainingBytes,
 }
 
 impl Display for EndPointExtraDescriptorParseError

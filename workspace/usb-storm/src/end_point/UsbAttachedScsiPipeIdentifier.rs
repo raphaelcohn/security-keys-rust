@@ -2,18 +2,29 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[allow(missing_docs)]
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+/// USB Attached SCSI (UAS) Protocol (UASP) pipe.
+///
+/// For a normal implementation, there should be 4 endpoints, with one of each of Command, Status, DataIn and DataOut.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum Descriptor<K>
+pub enum UsbAttachedScsiPipeIdentifier
 {
-	Known(K),
+	#[allow(missing_docs)]
+	Reserved(u8),
+
+	#[allow(missing_docs)]
+	Command,
 	
-	Unknown
-	{
-		descriptor_type: DescriptorType,
-		
-		bytes: Vec<u8>,
-	}
+	#[allow(missing_docs)]
+	Status,
+	
+	#[allow(missing_docs)]
+	DataIn,
+	
+	#[allow(missing_docs)]
+	DataOut,
+	
+	#[allow(missing_docs)]
+	VendorSpecific(u8),
 }

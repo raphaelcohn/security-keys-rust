@@ -6,8 +6,6 @@ use crate::collections::VecExt;
 use crate::collections::Bytes;
 use likely::likely;
 use likely::unlikely;
-use serde::Deserialize;
-use serde::Serialize;
 use std::collections::TryReserveError;
 use std::error;
 use std::fmt;
@@ -21,7 +19,6 @@ use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::{Alive, Dead};
 
 
-include!("Descriptor.rs");
 include!("descriptor_index.rs");
 include!("DescriptorHeaderLength.rs");
 include!("DescriptorParseError.rs");

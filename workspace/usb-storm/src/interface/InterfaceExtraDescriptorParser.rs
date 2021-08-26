@@ -27,12 +27,18 @@ impl<Inner: DescriptorParser<Descriptor: Into<InterfaceExtraDescriptor>, Error: 
 			Err(cause) => Err(cause.into())
 		}
 	}
+	
+	#[inline(always)]
+	fn unknown(descriptor_type: DescriptorType, bytes: Vec<u8>) -> Self::Descriptor
+	{
+		InterfaceExtraDescriptor::Unknown { descriptor_type, bytes }
+	}
 }
 
 impl<Inner: DescriptorParser<Descriptor: Into<InterfaceExtraDescriptor>, Error: Into<InterfaceExtraDescriptorParseError>>> InterfaceExtraDescriptorParser<Inner>
 {
 	#[inline(always)]
-	fn parse_descriptors(string_finder: &StringFinder, extra: &[u8], inner: Inner) -> Result<DeadOrAlive<Vec<Descriptor<InterfaceExtraDescriptor>>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+	fn parse_descriptors(string_finder: &StringFinder, extra: &[u8], inner: Inner) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 	{
 		let this = Self
 		{

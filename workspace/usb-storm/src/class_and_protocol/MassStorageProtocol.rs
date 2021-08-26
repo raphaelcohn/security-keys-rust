@@ -28,7 +28,7 @@ pub enum MassStorageProtocol
 	BulkOnly,
 	
 	/// USB Attached SCSI (UAS) Protocol (UASP) (see <https://www.t10.org/drafts.htm#SCSI3_UAS> and look for 'D2095').
-	UAS,
+	UsbAttachedScsi,
 	
 	#[allow(missing_docs)]
 	Unrecognized(u8),

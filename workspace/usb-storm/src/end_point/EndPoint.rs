@@ -30,7 +30,7 @@ pub enum EndPoint
 impl EndPoint
 {
 	#[inline(always)]
-	pub(crate) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, maximum_supported_usb_version: Version, string_finder: &StringFinder, speed: Option<Speed>, end_points: &mut WrappedIndexMap<EndPointNumber, Self>) -> Result<DeadOrAlive<()>, EndPointParseError>
+	pub(crate) fn parse(end_point_descriptor: &libusb_endpoint_descriptor, interface_class: InterfaceClass, maximum_supported_usb_version: Version, string_finder: &StringFinder, speed: Option<Speed>, end_points: &mut WrappedIndexMap<EndPointNumber, Self>) -> Result<DeadOrAlive<()>, EndPointParseError>
 	{
 		use EndPointParseError::*;
 		
@@ -57,7 +57,7 @@ impl EndPoint
 		
 		let mut transfer_type = DirectionalTransferType::parse(end_point_descriptor, maximum_supported_usb_version, speed).map_err(TransferType)?;
 		
-		let common = return_ok_if_dead!(EndPointCommon::parse(end_point_descriptor, string_finder, bLength, &mut transfer_type)?);
+		let common = return_ok_if_dead!(EndPointCommon::parse(end_point_descriptor, interface_class, string_finder, bLength, &mut transfer_type)?);
 		
 		use EndPoint::*;
 		match transfer_type

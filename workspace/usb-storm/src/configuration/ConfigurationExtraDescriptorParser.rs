@@ -33,6 +33,12 @@ impl DescriptorParser for ConfigurationExtraDescriptorParser
 			_ => Ok(None),
 		}
 	}
+	
+	#[inline(always)]
+	fn unknown(descriptor_type: DescriptorType, bytes: Vec<u8>) -> Self::Descriptor
+	{
+		ConfigurationExtraDescriptor::Unknown { descriptor_type, bytes }
+	}
 }
 
 impl ConfigurationExtraDescriptorParser
