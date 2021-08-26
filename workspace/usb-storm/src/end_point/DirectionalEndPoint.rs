@@ -11,6 +11,7 @@ pub enum DirectionalEndPoint
 	#[allow(missing_docs)]
 	In
 	{
+		#[serde(rename = "in")]
 		#[serde(flatten)]
 		in_: EndPointCommonAndDirectionalTransferType,
 	},
@@ -25,6 +26,7 @@ pub enum DirectionalEndPoint
 	#[allow(missing_docs)]
 	InAndOut
 	{
+		#[serde(rename = "in")]
 		in_: EndPointCommonAndDirectionalTransferType,
 		
 		out: EndPointCommonAndDirectionalTransferType,
