@@ -24,7 +24,7 @@ pub enum InterfaceClass
 	StillImaging(UnrecognizedSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass07h>.
-	Printer(UnrecognizedSubClass),
+	Printer(PrinterSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass08h>.
 	MassStorage(MassStorageSubClass),
@@ -233,7 +233,15 @@ impl InterfaceClass
 			
 			(0x06, _, _) => StillImaging(UnrecognizedSubClass { sub_class_code, protocol_code }),
 			
-			(0x07, _, _) => Printer(UnrecognizedSubClass { sub_class_code, protocol_code }),
+			(0x07, 0x00, _) => Printer(PrinterSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
+			(0x07, 0x01, 0x00) => Printer(PrinterSubClass::Known(PrinterProtocol::ReservedUndefined)),
+			(0x07, 0x01, 0x01) => Printer(PrinterSubClass::Known(PrinterProtocol::Unidirectional)),
+			(0x07, 0x01, 0x02) => Printer(PrinterSubClass::Known(PrinterProtocol::Bidirectional)),
+			(0x07, 0x01, 0x03) => Printer(PrinterSubClass::Known(PrinterProtocol::Ieee_1284_4_Bidirectional)),
+			(0x07, 0x01, 0x04) => Printer(PrinterSubClass::Known(PrinterProtocol::InternetPrintingProtocolOverUsb)),
+			(0x07, 0x01, 0x05 ..= 0x0FE) => Printer(PrinterSubClass::Known(PrinterProtocol::Reserved(protocol_code))),
+			(0x07, 0x01, 0xFF) => Printer(PrinterSubClass::Known(PrinterProtocol::VendorSpecific)),
+			(0x07, 0x02 ..= 0xFF, _) => Printer(PrinterSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x08, 0x00, 0x00) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(ControlBulkInterruptTransportWithCommandCompletionInterrupt)),
 			(0x08, 0x00, 0x01) => MassStorage(MassStorageSubClass::ScsiCommandSetNotReported(ControlBulkInterruptTransportWithoutCommandCompletionInterrupt)),

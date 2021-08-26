@@ -43,6 +43,8 @@ include!("MassStorageProtocol.rs");
 include!("MassStorageSubClass.rs");
 include!("MiscellaneousDeviceSubClass.rs");
 include!("MiscellaneousInterfaceSubClass.rs");
+include!("PrinterProtocol.rs");
+include!("PrinterSubClass.rs");
 include!("PublicSwitchedTelephoneNetworkProtocol.rs");
 include!("RemoteNetworkDriverInterfaceSpecificationProtocol.rs");
 include!("SmartCardInterfaceSubClass.rs");

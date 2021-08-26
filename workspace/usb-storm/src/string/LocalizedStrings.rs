@@ -20,3 +20,12 @@ impl Deref for LocalizedStrings
 		&self.0
 	}
 }
+
+impl LocalizedStrings
+{
+	#[inline(always)]
+	pub(crate) fn first_value(&self) -> Option<&str>
+	{
+		self.0.values().next().map(String::as_str)
+	}
+}

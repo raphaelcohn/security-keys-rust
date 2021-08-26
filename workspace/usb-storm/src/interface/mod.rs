@@ -12,6 +12,9 @@ use self::device_firmware_upgrade::DeviceFirmwareUpgradeInterfaceAdditionalDescr
 use self::human_interface_device::HumanInterfaceDeviceInterfaceExtraDescriptor;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceExtraDescriptorParseError;
 use self::human_interface_device::HumanInterfaceDeviceInterfaceExtraDescriptorParser;
+use self::internet_printing_protocol::InternetPrintingProtocolInterfaceExtraDescriptor;
+use self::internet_printing_protocol::InternetPrintingProtocolInterfaceExtraDescriptorParseError;
+use self::internet_printing_protocol::InternetPrintingProtocolInterfaceExtraDescriptorParser;
 use self::human_interface_device::HumanInterfaceDeviceVariant;
 use self::smart_card::SmartCardInterfaceExtraDescriptor;
 use self::smart_card::SmartCardInterfaceExtraDescriptorParseError;
@@ -28,6 +31,8 @@ use super::class_and_protocol::HumanInterfaceDeviceInterfaceBootProtocol;
 use super::class_and_protocol::HumanInterfaceDeviceInterfaceSubClass;
 use super::class_and_protocol::InterfaceClass;
 use super::class_and_protocol::KnownOrUnrecognizedProtocol;
+use super::class_and_protocol::PrinterSubClass;
+use super::class_and_protocol::PrinterProtocol;
 use super::class_and_protocol::SmartCardProtocol;
 use super::class_and_protocol::SmartCardInterfaceSubClass;
 use super::class_and_protocol::UnrecognizedSubClass;
@@ -80,6 +85,10 @@ pub mod device_firmware_upgrade;
 
 /// Human Interface Device (HID).
 pub mod human_interface_device;
+
+
+/// Internet printing protocol.
+pub mod internet_printing_protocol;
 
 
 /// CCID (Chip Card Interface Device).

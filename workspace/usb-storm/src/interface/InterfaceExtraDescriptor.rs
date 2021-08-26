@@ -18,6 +18,9 @@ pub enum InterfaceExtraDescriptor
 	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceExtraDescriptor),
 	
 	#[allow(missing_docs)]
+	InternetPrintingProtocol(InternetPrintingProtocolInterfaceExtraDescriptor),
+	
+	#[allow(missing_docs)]
 	SmartCard(SmartCardInterfaceExtraDescriptor),
 	
 	#[allow(missing_docs)]
@@ -53,6 +56,15 @@ impl From<HumanInterfaceDeviceInterfaceExtraDescriptor> for InterfaceExtraDescri
 	fn from(value: HumanInterfaceDeviceInterfaceExtraDescriptor) -> Self
 	{
 		InterfaceExtraDescriptor::HumanInterfaceDevice(value)
+	}
+}
+
+impl From<InternetPrintingProtocolInterfaceExtraDescriptor> for InterfaceExtraDescriptor
+{
+	#[inline(always)]
+	fn from(value: InternetPrintingProtocolInterfaceExtraDescriptor) -> Self
+	{
+		InterfaceExtraDescriptor::InternetPrintingProtocol(value)
 	}
 }
 

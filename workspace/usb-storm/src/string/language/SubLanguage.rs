@@ -2,6 +2,6 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-trait SubLanguage: AsRef<str> + FromStr + std::fmt::Display + Debug + Copy + Eq + Ord + Hash
+trait SubLanguage: AsRef<str> + FromStr + IntoEnumIterator + std::fmt::Display + Debug + Copy + Eq + Ord + Hash
 {
 }

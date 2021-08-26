@@ -5,7 +5,7 @@
 /// Human Interface Device (HID).
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
-#[derive(AsRefStr, Display, EnumString, EnumDefault)]
+#[derive(AsRefStr, Display, EnumString, EnumDefault, EnumIter)]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum HumanInterfaceDeviceSubLanguage

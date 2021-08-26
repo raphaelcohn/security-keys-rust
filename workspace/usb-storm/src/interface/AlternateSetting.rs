@@ -180,6 +180,12 @@ impl AlternateSetting
 		}
 		
 		#[inline(always)]
+		fn internet_printing_protocol(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		{
+			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, InternetPrintingProtocolInterfaceExtraDescriptorParser)
+		}
+		
+		#[inline(always)]
 		fn smart_card(string_finder: &StringFinder, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, SmartCardInterfaceExtraDescriptorParser::new(smart_card_protocol, bDescriptorType))
@@ -221,6 +227,8 @@ impl AlternateSetting
 			HumanInterfaceDevice(Boot(HumanInterfaceDeviceInterfaceBootProtocol::None)) => human_interface_device(string_finder, extra, BootNone),
 			HumanInterfaceDevice(Boot(Keyboard)) => human_interface_device(string_finder, extra, BootKeyboard),
 			HumanInterfaceDevice(Boot(Mouse)) => human_interface_device(string_finder, extra, BootMouse),
+			
+			Printer(PrinterSubClass::Known(PrinterProtocol::InternetPrintingProtocolOverUsb)) => internet_printing_protocol(string_finder, extra),
 			
 			// Some devices from as far back as 2007 put the Smart Card descriptor at the end of the end points yet claim to be a Smart Card.
 			// The CCID project uses a patch with `#define O2MICRO_OZ776_PATCH` to support them; they are broken in use in multiple ways.

@@ -2,20 +2,26 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Portuguese dialect.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// Basic capability.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Deserialize, Serialize)]
-#[derive(AsRefStr, Display, EnumString, EnumDefault, EnumIter)]
 #[serde(deny_unknown_fields)]
-#[repr(u16)]
-pub enum PortugueseSubLanguage
+#[bitflags]
+#[repr(u8)]
+pub enum BasicCapability
 {
 	#[allow(missing_docs)]
-	Brazil = 0x0400,
+	Print = 1 << 0,
 	
-	#[default]
 	#[allow(missing_docs)]
-	Standard = 0x0800,
+	Scan = 1 << 1,
+	
+	#[allow(missing_docs)]
+	Fax = 1 << 2,
+	
+	#[allow(missing_docs)]
+	VendorSpecific = 1 << 3,
+	
+	#[allow(missing_docs)]
+	AnyHttp11OverUsb = 1 << 5,
 }
-
-sub_language!(PortugueseSubLanguage);

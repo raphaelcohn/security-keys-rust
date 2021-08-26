@@ -2,20 +2,30 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Portuguese dialect.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// Vendor capability descriptor.
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Deserialize, Serialize)]
-#[derive(AsRefStr, Display, EnumString, EnumDefault, EnumIter)]
 #[serde(deny_unknown_fields)]
-#[repr(u16)]
-pub enum PortugueseSubLanguage
+pub struct VendorCapabilityDescriptor
 {
-	#[allow(missing_docs)]
-	Brazil = 0x0400,
+	descriptor_type: DescriptorType,
 	
-	#[default]
-	#[allow(missing_docs)]
-	Standard = 0x0800,
+	bytes: Vec<u8>,
 }
 
-sub_language!(PortugueseSubLanguage);
+impl VendorCapabilityDescriptor
+{
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn descriptor_type(&self) -> DescriptorType
+	{
+		self.descriptor_type
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn bytes(&self) -> &[u8]
+	{
+		&self.bytes
+	}
+}

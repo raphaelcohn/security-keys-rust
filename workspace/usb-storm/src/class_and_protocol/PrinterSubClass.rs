@@ -2,20 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Portuguese dialect.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// Printer sub class.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
-#[derive(AsRefStr, Display, EnumString, EnumDefault, EnumIter)]
 #[serde(deny_unknown_fields)]
-#[repr(u16)]
-pub enum PortugueseSubLanguage
+pub enum PrinterSubClass
 {
 	#[allow(missing_docs)]
-	Brazil = 0x0400,
+	Known(PrinterProtocol),
 	
-	#[default]
 	#[allow(missing_docs)]
-	Standard = 0x0800,
+	Unrecognized(UnrecognizedSubClass)
 }
-
-sub_language!(PortugueseSubLanguage);

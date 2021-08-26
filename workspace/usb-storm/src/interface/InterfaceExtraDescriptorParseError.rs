@@ -15,6 +15,9 @@ pub enum InterfaceExtraDescriptorParseError
 	/// Human Interface Device (HID).
 	HumanInterfaceDevice(HumanInterfaceDeviceInterfaceExtraDescriptorParseError),
 	
+	/// Internet Printing Protocol (IPP)
+	InternetPrintingProtocol(InternetPrintingProtocolInterfaceExtraDescriptorParseError),
+	
 	/// Smart Card (CCID).
 	SmartCard(SmartCardInterfaceExtraDescriptorParseError),
 }
@@ -42,6 +45,8 @@ impl error::Error for InterfaceExtraDescriptorParseError
 			DeviceFirmwareUpgrade(cause) => Some(cause),
 			
 			HumanInterfaceDevice(cause) => Some(cause),
+			
+			InternetPrintingProtocol(cause) => Some(cause),
 			
 			SmartCard(cause) => Some(cause),
 		}
@@ -72,6 +77,15 @@ impl From<HumanInterfaceDeviceInterfaceExtraDescriptorParseError> for InterfaceE
 	fn from(cause: HumanInterfaceDeviceInterfaceExtraDescriptorParseError) -> Self
 	{
 		InterfaceExtraDescriptorParseError::HumanInterfaceDevice(cause)
+	}
+}
+
+impl From<InternetPrintingProtocolInterfaceExtraDescriptorParseError> for InterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: InternetPrintingProtocolInterfaceExtraDescriptorParseError) -> Self
+	{
+		InterfaceExtraDescriptorParseError::InternetPrintingProtocol(cause)
 	}
 }
 

@@ -17,8 +17,10 @@ use std::fmt::Debug;
 use std::fmt::Formatter;
 use std::hash::Hash;
 use std::str::FromStr;
+use strum::IntoEnumIterator;
 use strum_macros::AsRefStr;
 use strum_macros::Display;
+use strum_macros::EnumIter;
 use strum_macros::EnumString;
 
 
