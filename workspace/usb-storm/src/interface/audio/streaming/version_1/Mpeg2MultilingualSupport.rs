@@ -2,15 +2,29 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use std::num::NonZeroU8;
+/// MPEG Internal Dynamic Range Control.
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum Mpeg2MultilingualSupport
+{
+	#[allow(missing_docs)]
+	NotSupported,
+	
+	#[allow(missing_docs)]
+	SupportedAtFs,
+	
+	#[allow(missing_docs)]
+	SupportedAtFsAndHalfFs,
+}
 
-
-include!("NonZeroU4.rs");
-include!("NonZeroU7.rs");
-include!("u1.rs");
-include!("u2.rs");
-include!("u3.rs");
-include!("u4.rs");
-include!("u5.rs");
-include!("u11.rs");
-include!("u24.rs");
+impl Mpeg2MultilingualSupport
+{
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn is_supported(self) -> bool
+	{
+		self != Mpeg2MultilingualSupport::NotSupported
+	}
+	
+}

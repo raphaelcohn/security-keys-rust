@@ -2,15 +2,27 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use std::num::NonZeroU8;
-
-
-include!("NonZeroU4.rs");
-include!("NonZeroU7.rs");
-include!("u1.rs");
-include!("u2.rs");
-include!("u3.rs");
-include!("u4.rs");
-include!("u5.rs");
-include!("u11.rs");
-include!("u24.rs");
+/// Type I audio format.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum Version1TypeIAudioFormat
+{
+	#[allow(missing_docs)]
+	Undefined,
+	
+	#[allow(missing_docs)]
+	PCM,
+	
+	#[allow(missing_docs)]
+	PCM8,
+	
+	#[allow(missing_docs)]
+	IeeeFloat,
+	
+	#[allow(missing_docs)]
+	ALaw,
+	
+	#[allow(missing_docs)]
+	MuLaw,
+}

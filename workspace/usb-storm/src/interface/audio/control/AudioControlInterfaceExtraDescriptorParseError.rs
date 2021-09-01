@@ -7,10 +7,10 @@
 pub enum AudioControlInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
-	HeaderBLengthIsLessThanMinimum,
+	BLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]
-	HeaderBLengthExceedsRemainingBytes,
+	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
 	ParseVersion(VersionParseError),

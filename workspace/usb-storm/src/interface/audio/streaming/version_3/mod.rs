@@ -2,15 +2,17 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use std::num::NonZeroU8;
+use serde::Deserialize;
+use serde::Serialize;
+use std::error;
+use std::fmt;
+use std::fmt::Debug;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use crate::interface::audio::control::entity_identifiers::TerminalEntityIdentifier;
+use crate::descriptors::{verify_remaining_bytes, descriptor_index};
+use crate::collections::Bytes;
 
 
-include!("NonZeroU4.rs");
-include!("NonZeroU7.rs");
-include!("u1.rs");
-include!("u2.rs");
-include!("u3.rs");
-include!("u4.rs");
-include!("u5.rs");
-include!("u11.rs");
-include!("u24.rs");
+include!("Version3AudioStreamingInterfaceExtraDescriptor.rs");
+include!("Version3AudioStreamingInterfaceExtraDescriptorParseError.rs");

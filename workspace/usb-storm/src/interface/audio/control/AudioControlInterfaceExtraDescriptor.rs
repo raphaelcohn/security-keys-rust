@@ -8,7 +8,7 @@
 #[serde(deny_unknown_fields)]
 pub enum AudioControlInterfaceExtraDescriptor
 {
-	/// See Device Class for Audio Release 2.0, Section 4.3.2 Class-Specific AC Interface Descriptor, page 37.
+	/// See Device Class for Audio Release 1.0, Section 4.3.2 Class-Specific AC Interface Descriptor, page 37.
 	Version_1_0
 	{
 		#[allow(missing_docs)]
@@ -178,6 +178,11 @@ impl AudioControlInterfaceExtraDescriptor
 	#[inline(always)]
 	fn parse_descriptor_version_unrecognized(bLength: u8, remaining_bytes: &[u8], protocol: u8) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
 	{
+		use AudioControlInterfaceExtraDescriptorParseError::*;
+		
+		const MinimumBLength: u8 = MinimumStandardUsbDescriptorLength as u8;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		
 		Self::ok_alive
 		(
 			AudioControlInterfaceExtraDescriptor::Unrecognised
@@ -186,10 +191,10 @@ impl AudioControlInterfaceExtraDescriptor
 				
 				bLength,
 				
-				remaining_bytes: Vec::new_from(remaining_bytes).map_err(AudioControlInterfaceExtraDescriptorParseError::CouldNotAllocateMemoryForUnrecognized)?,
+				remaining_bytes: Vec::new_from(descriptor_body).map_err(AudioControlInterfaceExtraDescriptorParseError::CouldNotAllocateMemoryForUnrecognized)?,
 			},
 			
-			remaining_bytes.len(),
+			descriptor_body_length,
 		)
 	}
 	
@@ -212,7 +217,7 @@ impl AudioControlInterfaceExtraDescriptor
 	{
 		use AudioControlInterfaceExtraDescriptorParseError::*;
 		
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, HeaderBLengthIsLessThanMinimum, HeaderBLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		debug_assert!(descriptor_body_length > 0);
 		let bDescriptorSubType = descriptor_body.u8(0);

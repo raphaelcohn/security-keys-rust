@@ -2,15 +2,5 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use std::num::NonZeroU8;
-
-
-include!("NonZeroU4.rs");
-include!("NonZeroU7.rs");
-include!("u1.rs");
-include!("u2.rs");
-include!("u3.rs");
-include!("u4.rs");
-include!("u5.rs");
-include!("u11.rs");
-include!("u24.rs");
+/// `bDescriptorSubType`.
+pub(crate) type DescriptorSubType = u8;

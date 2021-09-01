@@ -47,7 +47,7 @@ impl AudioControlInterfaceExtraDescriptorParser
 	
 	const CS_STRING: u8 = 0x23;
 	
-	const CS_INTERFACE: u8 = 0x24;
+	pub(crate) const CS_INTERFACE: u8 = 0x24;
 	
 	const CS_ENDPOINT: u8 = 0x25;
 	

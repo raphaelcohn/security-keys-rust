@@ -20,9 +20,11 @@ use crate::device::DeadOrAlive::{Alive, Dead};
 
 
 include!("descriptor_index.rs");
+include!("descriptor_index_non_constant.rs");
 include!("DescriptorHeaderLength.rs");
 include!("DescriptorParseError.rs");
 include!("DescriptorParser.rs");
+include!("DescriptorSubType.rs");
 include!("DescriptorType.rs");
 include!("extra_to_slice.rs");
 include!("parse_descriptors.rs");

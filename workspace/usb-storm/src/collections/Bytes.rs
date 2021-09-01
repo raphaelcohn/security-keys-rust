@@ -30,6 +30,8 @@ pub(crate) trait Bytes
 	
 	fn u16(&self, index: usize) -> u16;
 	
+	fn u24(&self, index: usize) -> u24;
+	
 	fn u32(&self, index: usize) -> u32;
 }
 
@@ -69,6 +71,12 @@ impl<'a> Bytes for &'a [u8]
 	fn u16(&self, index: usize) -> u16
 	{
 		u16::from_le_bytes([self.get_unchecked_value_safe(index), self.get_unchecked_value_safe(index + 1)])
+	}
+	
+	#[inline(always)]
+	fn u24(&self, index: usize) -> u24
+	{
+		u32::from_le_bytes([0x00, self.get_unchecked_value_safe(index), self.get_unchecked_value_safe(index + 1), self.get_unchecked_value_safe(index + 2)])
 	}
 	
 	#[inline(always)]

@@ -37,6 +37,7 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use uuid::Uuid;
 use std::fmt::Formatter;
 use serde::ser::SerializeSeq;
+use crate::integers::u24;
 
 
 include!("Bytes.rs");

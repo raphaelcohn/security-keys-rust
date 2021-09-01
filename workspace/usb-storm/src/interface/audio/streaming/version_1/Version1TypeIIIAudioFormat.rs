@@ -1,0 +1,31 @@
+// This file is part of security-keys-rust. It is subject to the license terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT. No part of security-keys-rust, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+// Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
+
+
+/// Type III audio format.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum Version1TypeIIIAudioFormat
+{
+	#[allow(missing_docs)]
+	Undefined,
+	
+	/// IEC 1937 AC-3
+	Iec1937_AC_3,
+	
+	/// IEC 1937 MPEG-1 Layer 1.
+	Iec1937_MPEG_1_Layer_1,
+	
+	/// IEC 1937 MPEG-1 Layer 2, IEC 1937 MPEG-1 Layer 3 or IEC 1937 MPEG-2 NOEXT.
+	Iec1937_MPEG_1_Layer_2,
+	
+	/// IEC 1937 MPEG-1 Layer 2, IEC 1937 MPEG-1 Layer 3 or IEC 1937 MPEG-2 NOEXT.
+	Iec1937_MPEG_2_Extended,
+	
+	/// IEC 1937 MPEG-2 Layer 1 LS.
+	Iec1937_MPEG_2_Layer_1_LS,
+	
+	/// IEC 1937 MPEG-2 Layer 2 LS or IEC 1937 MPEG-2 Layer 3 LS.
+	Iec1937_MPEG_2_Layer_2_LS,
+}

@@ -49,6 +49,7 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use self::version_1_entities::logical_audio_channel_cluster::Version1LogicalAudioChannelSpatialLocation;
 use self::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelSpatialLocation;
 use std::num::NonZeroU8;
+use crate::control_transfers::descriptors::MinimumStandardUsbDescriptorLength;
 
 
 /// Entities.
