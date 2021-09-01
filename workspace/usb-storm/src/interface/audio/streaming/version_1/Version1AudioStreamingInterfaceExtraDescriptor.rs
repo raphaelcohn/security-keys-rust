@@ -56,9 +56,8 @@ impl Version1AudioStreamingInterfaceExtraDescriptor
 		
 		let audio_format = Version1AudioFormat::parse(descriptor_body.u16(descriptor_index::<5>()));
 		
-		let (audio_format_detail, audio_format_detail_consumed_length) = Self::parse_audio_format(audio_format, remaining_bytes.get_unchecked_range_safe(((BLength as usize) - DescriptorHeaderLength) .. ));
+		let (audio_format_detail, audio_format_detail_consumed_length) = Self::parse_audio_format(audio_format, remaining_bytes.get_unchecked_range_safe(((BLength as usize) - DescriptorHeaderLength) .. ))?;
 		
-		let (audio_format_detail, audio_format_detail_consumed_length) = Self::parse_audio_format(audio_format, remaining_bytes)?;
 		Ok
 		(
 			(
@@ -68,7 +67,7 @@ impl Version1AudioStreamingInterfaceExtraDescriptor
 					
 					delay_in_number_of_frames: descriptor_body.u8(descriptor_index::<4>()),
 				
-					audio_format_detail: detail,
+					audio_format_detail,
 				},
 				
 				descriptor_body_length + audio_format_detail_consumed_length,

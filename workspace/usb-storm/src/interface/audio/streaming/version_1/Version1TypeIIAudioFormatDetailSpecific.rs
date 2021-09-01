@@ -194,7 +194,7 @@ impl Version1TypeIIAudioFormatDetailSpecific
 			return Err(FormatSpecificBLengthIsLessThanTenForAc3)
 		}
 		
-		let bmAC3Features = remaining_bytes.u9(9);
+		let bmAC3Features = remaining_bytes.u8(9);
 		
 		Ok
 		(

@@ -5,9 +5,9 @@
 /// Bit stream ID mode.
 ///
 /// When used with AC-3, modes zero to nine inclusive must be set.
-#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
-#[bitflag]
+#[bitflags]
 #[serde(deny_unknown_fields)]
 #[repr(u32)]
 pub enum BitStreamIdMode

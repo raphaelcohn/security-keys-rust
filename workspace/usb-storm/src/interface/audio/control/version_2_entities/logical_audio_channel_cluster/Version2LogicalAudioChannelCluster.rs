@@ -31,9 +31,9 @@ impl Version2LogicalAudioChannelCluster
 	#[inline(always)]
 	fn parse_generic(bytes_index: usize, string_finder: &StringFinder, bytes: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
 	{
-		let number_of_logical_audio_channels = entity_body.u8(bytes_index);
-		let wChannelConfig = entity_body.u32(entity_index_non_constant(bytes_index + 1));
-		let first_logical_channel_name_string_identifier = entity_body.u8(bytes_index + 3);
+		let number_of_logical_audio_channels = bytes.u8(bytes_index);
+		let wChannelConfig = bytes.u32(entity_index_non_constant(bytes_index + 1));
+		let first_logical_channel_name_string_identifier = bytes.u8(bytes_index + 3);
 		
 		Self::parse_inner(string_finder, number_of_logical_audio_channels, wChannelConfig, first_logical_channel_name_string_identifier)
 	}

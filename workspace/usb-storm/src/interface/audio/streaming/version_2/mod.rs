@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use enumflags2::bitflags;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
@@ -25,6 +26,7 @@ use crate::interface::audio::control::logical_audio_channels::LogicalAudioChanne
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
 use swiss_army_knife::get_unchecked::GetUnchecked;
+use crate::interface::audio::control::AudioControlInterfaceExtraDescriptorParser;
 
 
 include!("AudioSubSlotSizeInBytes.rs");

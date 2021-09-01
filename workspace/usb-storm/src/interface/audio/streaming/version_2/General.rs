@@ -3,7 +3,7 @@
 
 
 /// General
-#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct General
@@ -43,7 +43,7 @@ impl General
 	}
 	
 	#[inline(always)]
-	fn parse(bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, GeneralParseError>
+	fn parse(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, GeneralParseError>
 	{
 		use GeneralParseError::*;
 		use GeneralControlsParseError::*;
@@ -52,9 +52,11 @@ impl General
 		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<GeneralParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let bmControls = descriptor_body.u8(descriptor_index::<4>());
+		
 		let general_format_type = descriptor_body.u8(descriptor_index::<5>());
 		let formats_bit_map = descriptor_body.u32(descriptor_index::<6>());
-		let (subsequent_format_type_descriptor_body, subsequent_format_type_descriptor_body_bLength) = Self::parse_subsequent_format_type_descriptor_header(general_format_type, remaining_bytes.get_unchecked_range_safe((bLength as usize)))?;
+		let subsequent_format_type_descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. (bLength as usize));
+		let (subsequent_format_type_descriptor_body, subsequent_format_type_descriptor_body_bLength) = Self::parse_subsequent_format_type_descriptor_header(general_format_type, subsequent_format_type_descriptor_bytes)?;
 		
 		let consumed_length = subsequent_format_type_descriptor_body_bLength as usize;
 		Ok

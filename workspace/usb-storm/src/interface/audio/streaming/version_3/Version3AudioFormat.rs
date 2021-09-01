@@ -3,9 +3,9 @@
 
 
 /// Audio format.
-#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
-#[bitflag]
+#[bitflags]
 #[serde(deny_unknown_fields)]
 #[repr(u64)]
 pub enum Version3AudioFormat

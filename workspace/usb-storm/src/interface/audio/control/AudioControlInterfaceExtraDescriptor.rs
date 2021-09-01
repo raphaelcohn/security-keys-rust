@@ -191,7 +191,7 @@ impl AudioControlInterfaceExtraDescriptor
 				
 				bLength,
 				
-				remaining_bytes: Vec::new_from(descriptor_body).map_err(AudioControlInterfaceExtraDescriptorParseError::CouldNotAllocateMemoryForUnrecognized)?,
+				remaining_bytes: Vec::new_from(descriptor_body).map_err(CouldNotAllocateMemoryForUnrecognized)?,
 			},
 			
 			descriptor_body_length,

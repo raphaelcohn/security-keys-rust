@@ -3,9 +3,9 @@
 
 
 /// Auxillary Protocol
-#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
-#[bitflag]
+#[bitflags]
 #[serde(deny_unknown_fields)]
 #[repr(u16)]
 pub enum AuxillaryProtocol

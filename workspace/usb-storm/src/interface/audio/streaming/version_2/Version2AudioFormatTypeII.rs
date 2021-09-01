@@ -6,7 +6,7 @@
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-#[bitflag]
+#[bitflags]
 #[repr(u32)]
 pub enum Version2AudioFormatTypeII
 {

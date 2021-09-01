@@ -158,7 +158,7 @@ impl Version2AudioFormatDetails
 					}
 				},
 				
-				_ => return Err(UnrecognizedFormatTypeCode { bFormatType  })
+				bFormatType @ _ => return Err(UnrecognizedFormatTypeCode { bFormatType })
 			}
 		)
 	}

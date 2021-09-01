@@ -31,7 +31,7 @@ impl SideBandProtocol
 			
 			1 => PresentationTimestamp,
 			
-			Unrecognized { protocol },
+			_ => Unrecognized { protocol },
 		}
 	}
 }

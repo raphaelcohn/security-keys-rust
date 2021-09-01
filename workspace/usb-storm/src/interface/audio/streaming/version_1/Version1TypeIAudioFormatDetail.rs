@@ -75,18 +75,22 @@ impl Version1TypeIAudioFormatDetail
 						
 						number_of_channels: descriptor_body.u8(descriptor_index::<4>()),
 					
-						subframe_size: match descriptor_body.u8(descriptor_index::<5>())
+						subframe_size:
 						{
-							bSubframeSize @ 0 => return Err(InvalidTypeISubframeSize { bSubframeSize }),
-							
-							bSubframeSize @ 1 ..= 4 => unsafe { transmute(bSubframeSize) },
-							
-							_ => return Err(InvalidTypeISubframeSize { bSubframeSize })
+							let bSubframeSize = descriptor_body.u8(descriptor_index::<5>());
+							match bSubframeSize
+							{
+								0 => return Err(InvalidTypeISubframeSize { bSubframeSize }),
+								
+								1 ..= 4 => unsafe { transmute(bSubframeSize) },
+								
+								_ => return Err(InvalidTypeISubframeSize { bSubframeSize })
+							}
 						},
 					
 						bit_resolution: descriptor_body.u8(descriptor_index::<6>()),
 						
-						sampling_frequency: SamplingFrequency::parse(MinimumBLength as usize, descriptor_body)?,
+						sampling_frequency: SamplingFrequency::parse(MinimumBLength, descriptor_body, bLength)?,
 					}
 				),
 				

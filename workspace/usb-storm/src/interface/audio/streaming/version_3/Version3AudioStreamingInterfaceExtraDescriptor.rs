@@ -26,9 +26,6 @@ impl Version3AudioStreamingInterfaceExtraDescriptor
 	#[inline(always)]
 	pub(super) fn parse_general(bLength: u8, remaining_bytes: &[u8]) -> Result<Self, Version3AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		use GeneralControlsParseError::*;
-		use GeneralParseError::*;
-		
 		Ok(Version3AudioStreamingInterfaceExtraDescriptor::General(General::parse(bLength, remaining_bytes).map_err(Version3AudioStreamingInterfaceExtraDescriptorParseError::GeneralParse)?))
 	}
 	

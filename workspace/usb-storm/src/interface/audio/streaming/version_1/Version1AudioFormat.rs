@@ -23,6 +23,7 @@ impl Version1AudioFormat
 	
 	const TypeIIAC_3: u16 = 0x1002;
 	
+	#[allow(unused_qualifications)]
 	#[inline(always)]
 	fn parse(wFormatTag: u16) -> Self
 	{

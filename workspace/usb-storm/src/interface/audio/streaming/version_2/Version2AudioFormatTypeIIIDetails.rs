@@ -16,7 +16,7 @@ pub struct Version2AudioFormatTypeIIIDetails
 impl Version2AudioFormatTypeIIIDetails
 {
 	#[inline(always)]
-	pub fn extended(&self) -> Option<&Version2AudioFormatExtendedTypeIDetails>
+	pub fn extended(&self) -> Option<&Version2AudioFormatExtendedTypeIIIDetails>
 	{
 		self.extended.as_ref()
 	}
@@ -27,24 +27,22 @@ impl Version2AudioFormatTypeIIIDetails
 		self.bit_resolution
 	}
 	
-	#[inline(alwaus)]
+	#[inline(always)]
 	fn parse_unextended(subsequent_format_type_descriptor_body: &[u8]) -> Result<Self, FormatTypeDescriptorParseError>
 	{
 		Self::parse_common(subsequent_format_type_descriptor_body, None)
 	}
 	
-	#[inline(alwaus)]
+	#[inline(always)]
 	fn parse_extended(subsequent_format_type_descriptor_body: &[u8]) -> Result<Self, FormatTypeDescriptorParseError>
 	{
 		let extended = Version2AudioFormatExtendedTypeIIIDetails::parse(subsequent_format_type_descriptor_body);
 		Self::parse_common(subsequent_format_type_descriptor_body, Some(extended))
 	}
 	
-	#[inline(alwaus)]
+	#[inline(always)]
 	fn parse_common(subsequent_format_type_descriptor_body: &[u8], extended: Option<Version2AudioFormatExtendedTypeIIIDetails>) -> Result<Self, FormatTypeDescriptorParseError>
 	{
-		use AudioSubSlotSizeInBytes::*;
-		
 		let bSubslotSize = subsequent_format_type_descriptor_body.u8(descriptor_index::<4>());
 		if unlikely!(bSubslotSize != 2)
 		{

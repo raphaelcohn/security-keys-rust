@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use enumflags2::bitflag;
+use enumflags2::bitflags;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
@@ -22,7 +22,6 @@ use crate::descriptors::DescriptorHeaderLength;
 use crate::collections::Bytes;
 use crate::collections::WrappedBitFlags;
 use crate::collections::VecExt;
-use crate::collections::DescriptorSubType;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use std::mem::transmute;
 use crate::integers::u24;
@@ -33,6 +32,7 @@ include!("BitStreamIdMode.rs");
 include!("Hertz.rs");
 include!("InternalDynamicRangeControl.rs");
 include!("Mpeg2MultilingualSupport.rs");
+include!("MpegLayer.rs");
 include!("SamplingFrequency.rs");
 include!("SubframeSize.rs");
 include!("Version1AudioFormat.rs");

@@ -114,7 +114,7 @@ impl Version2ExtensionUnitEntity
 				{
 					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 7, CouldNotAllocateMemoryForSources)?,
 					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(8 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?),
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse_entity(8 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?),
 					
 					enable_control: Control::parse_u8(bmControls, 0, EnableControlInvalid)?,
 					

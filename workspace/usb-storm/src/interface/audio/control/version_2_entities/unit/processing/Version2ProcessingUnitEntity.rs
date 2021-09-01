@@ -99,7 +99,7 @@ impl Version2ProcessingUnitEntity
 		}
 		
 		let bmControls = entity_body.u32(entity_index_non_constant(13 + p));
-		let output_logical_audio_channel_cluster = return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(7 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?);
+		let output_logical_audio_channel_cluster = return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse_entity(7 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?);
 		Ok
 		(
 			Alive

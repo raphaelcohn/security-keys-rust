@@ -83,7 +83,7 @@ impl Version1TypeIIIAudioFormatDetail
 						
 						number_of_channels: descriptor_body.u8(descriptor_index::<4>()),
 						
-						sampling_frequency: SamplingFrequency::parse(MinimumBLength as usize, descriptor_body)?,
+						sampling_frequency: SamplingFrequency::parse(MinimumBLength, descriptor_body, bLength)?,
 					}
 				),
 				

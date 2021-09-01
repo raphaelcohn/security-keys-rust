@@ -35,20 +35,20 @@ impl Version2AudioFormatTypeIDetails
 		self.bit_resolution
 	}
 	
-	#[inline(alwaus)]
+	#[inline(always)]
 	fn parse_unextended(subsequent_format_type_descriptor_body: &[u8]) -> Result<Self, FormatTypeDescriptorParseError>
 	{
 		Self::parse_common(subsequent_format_type_descriptor_body, None)
 	}
 	
-	#[inline(alwaus)]
+	#[inline(always)]
 	fn parse_extended(subsequent_format_type_descriptor_body: &[u8]) -> Result<Self, FormatTypeDescriptorParseError>
 	{
 		let extended = Version2AudioFormatExtendedTypeIDetails::parse(subsequent_format_type_descriptor_body);
 		Self::parse_common(subsequent_format_type_descriptor_body, Some(extended))
 	}
 	
-	#[inline(alwaus)]
+	#[inline(always)]
 	fn parse_common(subsequent_format_type_descriptor_body: &[u8], extended: Option<Version2AudioFormatExtendedTypeIDetails>) -> Result<Self, FormatTypeDescriptorParseError>
 	{
 		use AudioSubSlotSizeInBytes::*;

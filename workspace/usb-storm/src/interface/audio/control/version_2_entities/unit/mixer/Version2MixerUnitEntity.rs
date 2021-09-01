@@ -127,7 +127,7 @@ impl Version2MixerUnitEntity
 				{
 					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
 					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(5 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?),
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse_entity(5 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?),
 					
 					controls_bit_map: Vec::new_from(entity_body.bytes(entity_index_non_constant(11 + p), N)).map_err(CouldNotAllocateMemoryForControlsBitMap)?,
 					

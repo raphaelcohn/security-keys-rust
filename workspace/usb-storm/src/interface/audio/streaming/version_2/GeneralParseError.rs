@@ -3,7 +3,7 @@
 
 
 /// Parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum GeneralParseError
 {
 	#[allow(missing_docs)]
@@ -55,6 +55,14 @@ impl From<GeneralControlsParseError> for GeneralParseError
 	fn from(cause: GeneralControlsParseError) -> Self
 	{
 		GeneralParseError::ControlsParse(cause)
+	}
+}
+
+impl From<LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>> for GeneralParseError
+{
+	fn from(cause: LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>) -> Self
+	{
+		GeneralParseError::LogicalAudioChannelClusterParse(cause)
 	}
 }
 

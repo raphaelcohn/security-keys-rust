@@ -31,14 +31,18 @@ impl Version2AudioStreamingInterfaceExtraDescriptor
 	pub(super) const DECODER: u8 = 0x04;
 	
 	#[inline(always)]
-	pub(super) fn parse_general(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_general(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		let (general, consumed_length) = General::parse(bLength, remaining_bytes).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::GeneralParse)?;
+		let dead_or_alive = General::parse(bLength, remaining_bytes, string_finder).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::GeneralParse)?;
+		let (general, consumed_length) = return_ok_if_dead!(dead_or_alive);
 		Ok
 		(
+			Alive
 			(
-				Version2AudioStreamingInterfaceExtraDescriptor::General(general),
-				consumed_length
+				(
+					Version2AudioStreamingInterfaceExtraDescriptor::General(general),
+					consumed_length
+				)
 			)
 		)
 	}

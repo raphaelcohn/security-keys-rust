@@ -42,7 +42,7 @@ impl AudioStreamingInterfaceExtraDescriptor
 		{
 			Version1AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => return Err(UndefinedInterfaceDescriptorSubType),
 			
-			Version1AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version1AudioStreamingInterfaceExtraDescriptor::parse(bLength, remaining_bytes),
+			Version1AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version1AudioStreamingInterfaceExtraDescriptor::parse(bLength, remaining_bytes)?,
 			
 			descriptor_sub_type @ Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_TYPE | descriptor_sub_type @ Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_SPECIFIC => return Err(UnexpectedInterfaceDescriptorSubType { descriptor_sub_type }),
 			
@@ -61,7 +61,7 @@ impl AudioStreamingInterfaceExtraDescriptor
 		{
 			Version2AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => return Err(UndefinedInterfaceDescriptorSubType),
 			
-			Version2AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version2AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, remaining_bytes)?,
+			Version2AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => return_ok_if_dead!(Version2AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, remaining_bytes, string_finder)?),
 			
 			Version2AudioStreamingInterfaceExtraDescriptor::FORMAT_TYPE => Err(Version2AudioStreamingInterfaceExtraDescriptorParseError::FormatTypeIsUnexpected)?,
 			
@@ -78,7 +78,6 @@ impl AudioStreamingInterfaceExtraDescriptor
 	fn parse_descriptor_version_3_0(bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioStreamingInterfaceExtraDescriptorParseError>
 	{
 		use AudioStreamingInterfaceExtraDescriptorParseError::*;
-		use Version3AudioStreamingInterfaceExtraDescriptorParseError::*;
 		
 		let descriptor = match Self::parse_descriptor_sub_type(bLength, remaining_bytes)?
 		{
@@ -111,7 +110,7 @@ impl AudioStreamingInterfaceExtraDescriptor
 						
 						bLength,
 						
-						remaining_bytes: Vec::new_from(descriptor_body).map_err(AudioStreamingInterfaceExtraDescriptorParseError::CouldNotAllocateMemoryForUnrecognized)?,
+						remaining_bytes: Vec::new_from(descriptor_body).map_err(CouldNotAllocateMemoryForUnrecognized)?,
 					},
 					
 					descriptor_body_length,

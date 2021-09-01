@@ -35,6 +35,15 @@ pub enum AudioStreamingInterfaceExtraDescriptorParseError
 	
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForUnrecognized(TryReserveError),
+	
+	#[allow(missing_docs)]
+	Version1Parse(Version1AudioStreamingInterfaceExtraDescriptorParseError),
+	
+	#[allow(missing_docs)]
+	Version2Parse(Version2AudioStreamingInterfaceExtraDescriptorParseError),
+	
+	#[allow(missing_docs)]
+	Version3Parse(Version3AudioStreamingInterfaceExtraDescriptorParseError),
 }
 
 impl Display for AudioStreamingInterfaceExtraDescriptorParseError
@@ -59,5 +68,32 @@ impl error::Error for AudioStreamingInterfaceExtraDescriptorParseError
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<Version1AudioStreamingInterfaceExtraDescriptorParseError> for AudioStreamingInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version1AudioStreamingInterfaceExtraDescriptorParseError) -> Self
+	{
+		AudioStreamingInterfaceExtraDescriptorParseError::Version1Parse(cause)
+	}
+}
+
+impl From<Version2AudioStreamingInterfaceExtraDescriptorParseError> for AudioStreamingInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version2AudioStreamingInterfaceExtraDescriptorParseError) -> Self
+	{
+		AudioStreamingInterfaceExtraDescriptorParseError::Version2Parse(cause)
+	}
+}
+
+impl From<Version3AudioStreamingInterfaceExtraDescriptorParseError> for AudioStreamingInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: Version3AudioStreamingInterfaceExtraDescriptorParseError) -> Self
+	{
+		AudioStreamingInterfaceExtraDescriptorParseError::Version3Parse(cause)
 	}
 }

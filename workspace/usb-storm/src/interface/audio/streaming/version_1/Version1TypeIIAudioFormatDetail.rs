@@ -55,7 +55,7 @@ impl Version1TypeIIAudioFormatDetail
 		const MinimumBLength: u8 = 9;
 		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<Version1AudioStreamingInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, FormatTypeIIBLengthIsLessThanMinimum, FormatTypeIIBLengthExceedsRemainingBytes)?;
 		
-		let (specific, b_length) = Version1TypeIIAudioFormatDetailSpecific::parse(format, remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. ))?;
+		let (specific, consumed_length) = Version1TypeIIAudioFormatDetailSpecific::parse(format, remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. ))?;
 		
 		Ok
 		(
@@ -68,13 +68,13 @@ impl Version1TypeIIAudioFormatDetail
 						
 						maximum_samples_per_frame: descriptor_body.u16(descriptor_index::<6>()),
 						
-						sampling_frequency: SamplingFrequency::parse(MinimumBLength as usize, descriptor_body)?,
+						sampling_frequency: SamplingFrequency::parse(MinimumBLength, descriptor_body, bLength)?,
 					
 						specific,
 					}
 				),
 				
-				descriptor_body_length + b_length,
+				descriptor_body_length + consumed_length,
 			)
 		)
 	}

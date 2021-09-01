@@ -3,7 +3,7 @@
 
 
 /// General
-#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct General
@@ -18,7 +18,7 @@ pub struct General
 	
 	cluster_descriptor_identifier: ClusterDescriptorIdentifier,
 	
-	audio_formats: WrappedBitFlags<AudioFormat>,
+	audio_formats: WrappedBitFlags<Version3AudioFormat>,
 	
 	audio_sub_slot_size_in_bytes: u8,
 	
@@ -66,7 +66,7 @@ impl General
 	///
 	/// Note that there are no Type II formats.
 	#[inline(always)]
-	pub const fn audio_formats(&self) -> WrappedBitFlags
+	pub const fn audio_formats(&self) -> WrappedBitFlags<Version3AudioFormat>
 	{
 		self.audio_formats
 	}

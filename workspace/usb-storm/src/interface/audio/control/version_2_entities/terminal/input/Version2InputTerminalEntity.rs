@@ -153,7 +153,7 @@ impl Version2InputTerminalEntity
 					
 					clock_source: entity_body.optional_non_zero_u8(entity_index::<7>()),
 					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse(8, string_finder, entity_body)?),
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse_entity(8, string_finder, entity_body)?),
 					
 					copy_protect_control: Control::parse_u16(bmControls, 0, CopyProtectControlInvalid)?,
 					

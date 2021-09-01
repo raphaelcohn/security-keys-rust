@@ -3,7 +3,7 @@
 
 
 /// Sampling frequency
-#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum SamplingFrequency
@@ -27,10 +27,11 @@ pub enum SamplingFrequency
 impl SamplingFrequency
 {
 	#[inline(always)]
-	fn parse(MinimumBLength: usize, descriptor_body: &[u8]) -> Result<Self, Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse(MinimumBLength: u8, descriptor_body: &[u8], bLength: u8) -> Result<Self, Version1AudioStreamingInterfaceExtraDescriptorParseError>
 	{
 		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
 		
+		let MinimumBLength = MinimumBLength as usize;
 		const U24Size: usize = 3;
 		
 		let index = MinimumBLength - 1;
@@ -40,16 +41,18 @@ impl SamplingFrequency
 		{
 			None =>
 			{
-				let size = MinimumBLength + (U24Size * 2);
-				if unlikely!(bLength < size)
+				let expected_length = MinimumBLength + (U24Size * 2);
+				if unlikely!((bLength as usize) < expected_length)
 				{
 					return Err(ContinuousSamplingFrequencyBLengthWrong { bLength })
 				}
-				let length = remaining_bytes.len();
-				if unlikely!(length < size)
+				
+				let length = DescriptorHeaderLength + descriptor_body.len();
+				if unlikely!(length < expected_length)
 				{
 					return Err(ContinuousSamplingFrequencyLengthWrong { length })
 				}
+				
 				let lower_bound = descriptor_body.u24(descriptor_index_non_constant(index));
 				let upper_bound = descriptor_body.u24(descriptor_index_non_constant(index + U24Size));
 				if unlikely!(lower_bound > upper_bound)
@@ -73,7 +76,8 @@ impl SamplingFrequency
 				{
 					return Err(DiscreteSamplingFrequencyBLengthWrong { bLength })
 				}
-				let length = remaining_bytes.len();
+				
+				let length = DescriptorHeaderLength + descriptor_body.len();
 				if unlikely!(length < expected_length)
 				{
 					return Err(DiscreteSamplingFrequencyLengthWrong { length })
@@ -83,7 +87,7 @@ impl SamplingFrequency
 				{
 					sampling_frequencies:  Vec::new_populated(count, CouldNotAllocateMemoryForTypeIDiscreteSamplingFrequencies, |sample_index|
 					{
-						Ok(remaining_bytes.u24(descriptor_index_non_constant(index + (sample_index * U24Size))))
+						Ok(descriptor_body.u24(descriptor_index_non_constant(index + (sample_index * U24Size))))
 					})?,
 				}
 			}
