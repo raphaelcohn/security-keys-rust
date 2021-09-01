@@ -33,6 +33,8 @@ pub(crate) trait Bytes
 	fn u24(&self, index: usize) -> u24;
 	
 	fn u32(&self, index: usize) -> u32;
+	
+	fn u64(&self, index: usize) -> u64;
 }
 
 impl<'a> Bytes for &'a [u8]
@@ -70,7 +72,9 @@ impl<'a> Bytes for &'a [u8]
 	#[cfg(target_endian = "big")]
 	fn u16(&self, index: usize) -> u16
 	{
-		u16::from_le_bytes([self.get_unchecked_value_safe(index), self.get_unchecked_value_safe(index + 1)])
+		let pointer = self.as_ptr();
+		let offset = (unsafe { pointer.add(index) }) as *const u16;
+		(unsafe { offset.read_unaligned() }).swap_bytes()
 	}
 	
 	#[inline(always)]
@@ -92,6 +96,26 @@ impl<'a> Bytes for &'a [u8]
 	#[cfg(target_endian = "big")]
 	fn u32(&self, index: usize) -> u32
 	{
-		u32::from_le_bytes([self.get_unchecked_value_safe(index), self.get_unchecked_value_safe(index + 1), self.get_unchecked_value_safe(index + 2), self.get_unchecked_value_safe(index + 3)])
+		let pointer = self.as_ptr();
+		let offset = (unsafe { pointer.add(index) }) as *const u32;
+		(unsafe { offset.read_unaligned() }).swap_bytes()
+	}
+	
+	#[inline(always)]
+	#[cfg(target_endian = "little")]
+	fn u64(&self, index: usize) -> u64
+	{
+		let pointer = self.as_ptr();
+		let offset = (unsafe { pointer.add(index) }) as *const u64;
+		unsafe { offset.read_unaligned() }
+	}
+	
+	#[inline(always)]
+	#[cfg(target_endian = "big")]
+	fn u64(&self, index: usize) -> u64
+	{
+		let pointer = self.as_ptr();
+		let offset = (unsafe { pointer.add(index) }) as *const u64;
+		(unsafe { offset.read_unaligned() }).swap_bytes()
 	}
 }
