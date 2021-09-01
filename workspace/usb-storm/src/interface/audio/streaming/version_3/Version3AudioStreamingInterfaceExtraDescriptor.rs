@@ -8,30 +8,27 @@
 #[serde(deny_unknown_fields)]
 pub enum Version3AudioStreamingInterfaceExtraDescriptor
 {
-	General
-	{
-		terminal_link: Option<TerminalEntityIdentifier>,
-	},
+	#[allow(missing_docs)]
+	General(General),
+	
+	#[allow(missing_docs)]
+	ValidSamplingFrequencyRange(FrequencyRange),
 }
 
 impl Version3AudioStreamingInterfaceExtraDescriptor
 {
 	#[inline(always)]
-	pub(super) fn parse(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), Version3AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_general(bLength: u8, remaining_bytes: &[u8]) -> Result<Self, Version3AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		use Version3AudioStreamingInterfaceExtraDescriptorParseError::*;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<Version3AudioStreamingInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		use GeneralControlsParseError::*;
+		use GeneralParseError::*;
 		
-		Ok
-		(
-			(
-				Version3AudioStreamingInterfaceExtraDescriptor::General
-				{
-					terminal_link: descriptor_body.optional_non_zero_u8(descriptor_index::<3>())
-				},
-				
-				descriptor_body_length,
-			)
-		)
+		Ok(Version3AudioStreamingInterfaceExtraDescriptor::General(General::parse(bLength, remaining_bytes).map_err(Version3AudioStreamingInterfaceExtraDescriptorParseError::GeneralParse)?))
+	}
+	
+	#[inline(always)]
+	pub(super) fn parse_valid_sampling_frequency_range(bLength: u8, remaining_bytes: &[u8]) -> Result<Self, Version3AudioStreamingInterfaceExtraDescriptorParseError>
+	{
+		Ok(Version3AudioStreamingInterfaceExtraDescriptor::ValidSamplingFrequencyRange(FrequencyRange::parse(bLength, remaining_bytes).map_err(Version3AudioStreamingInterfaceExtraDescriptorParseError::ValidSamplingFrequencyRangeParse)?))
 	}
 }

@@ -7,10 +7,10 @@
 pub enum Version3AudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
+	GeneralParse(GeneralParseError),
 	
 	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
+	ValidSamplingFrequencyRangeParse(ValidSamplingFrequencyRangeParseError),
 }
 
 impl Display for Version3AudioStreamingInterfaceExtraDescriptorParseError
@@ -24,4 +24,18 @@ impl Display for Version3AudioStreamingInterfaceExtraDescriptorParseError
 
 impl error::Error for Version3AudioStreamingInterfaceExtraDescriptorParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use Version3AudioStreamingInterfaceExtraDescriptorParseError::*;
+		
+		match self
+		{
+			GeneralParse(cause) => Some(cause),
+			
+			ValidSamplingFrequencyRangeParse(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

@@ -17,7 +17,7 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use crate::class_and_protocol::AudioProtocol;
-use crate::descriptors::{DescriptorParser, DescriptorSubType};
+use crate::descriptors::{DescriptorParser, DescriptorSubType, DescriptorHeaderLength};
 use crate::descriptors::DescriptorType;
 use crate::descriptors::verify_remaining_bytes;
 use crate::string::StringFinder;

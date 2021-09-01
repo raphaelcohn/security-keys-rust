@@ -2,24 +2,34 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::Bytes;
-use std::error;
-use serde::Deserialize;
-use serde::Serialize;
-use std::num::NonZeroU16;
+/// Parse error.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
+pub enum ValidSamplingFrequencyRangeParseError
+{
+	#[allow(missing_docs)]
+	BLengthIsLessThanMinimum,
+	
+	#[allow(missing_docs)]
+	BLengthExceedsRemainingBytes,
+	
+	#[allow(missing_docs)]
+	MinimumGreaterThanMaximum
+	{
+		dMin: u32,
+	
+		dMax: u32,
+	},
+}
 
+impl Display for ValidSamplingFrequencyRangeParseError
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
+	{
+		Debug::fmt(self, f)
+	}
+}
 
-/// Audio control.
-pub mod control;
-
-
-/// Audio MIDI.
-pub mod midi;
-
-
-/// Audio streaming.
-pub mod streaming;
-
-
-include!("Control.file.rs");
-include!("Version3AudioDynamicStringDescriptorIdentifier.rs");
+impl error::Error for ValidSamplingFrequencyRangeParseError
+{
+}

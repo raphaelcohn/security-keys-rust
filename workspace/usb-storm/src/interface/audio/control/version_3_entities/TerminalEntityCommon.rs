@@ -13,7 +13,7 @@ pub struct TerminalEntityCommon
 	
 	controls: TerminalControls,
 	
-	cluster_descriptor_identifier: u16,
+	cluster_descriptor_identifier: ClusterDescriptorIdentifier,
 	
 	extended_terminal_descriptor_identifier: Option<NonZeroU16>,
 	

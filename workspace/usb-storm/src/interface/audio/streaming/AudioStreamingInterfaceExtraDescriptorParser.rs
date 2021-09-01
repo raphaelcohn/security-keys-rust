@@ -25,11 +25,11 @@ impl DescriptorParser for AudioStreamingInterfaceExtraDescriptorParser
 		
 		let outcome = match self.0
 		{
-			Version_1_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_1_0(string_finder, bLength, remaining_bytes)?,
+			Version_1_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_1_0(bLength, remaining_bytes)?,
 			
-			Version_2_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_2_0(string_finder, bLength, remaining_bytes)?,
+			Version_2_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_2_0(bLength, remaining_bytes, string_finder)?,
 			
-			Version_3_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_3_0(string_finder, bLength, remaining_bytes)?,
+			Version_3_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_3_0(bLength, remaining_bytes)?,
 			
 			Unrecognized(protocol) => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_unrecognized(bLength, remaining_bytes, protocol)?,
 		};

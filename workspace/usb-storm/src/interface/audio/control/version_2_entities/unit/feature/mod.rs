@@ -6,7 +6,7 @@ use crate::collections::Bytes;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
 use crate::interface::audio::control::ChannelControlsByChannelNumber;
-use crate::interface::audio::control::Control;
+use crate::interface::audio::Control;
 use crate::interface::audio::control::entities::Entity;
 use crate::interface::audio::control::entities::UnitEntity;
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;

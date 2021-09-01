@@ -5,7 +5,7 @@
 use crate::collections::Bytes;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
-use crate::interface::audio::control::Control;
+use crate::interface::audio::Control;
 use crate::interface::audio::control::entities::Entity;
 use crate::interface::audio::control::entities::TerminalEntity;
 use crate::interface::audio::control::entity_identifiers::ClockEntityIdentifier;

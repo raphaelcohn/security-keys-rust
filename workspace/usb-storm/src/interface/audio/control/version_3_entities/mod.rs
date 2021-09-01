@@ -14,7 +14,8 @@ use std::fmt::Formatter;
 use std::fmt;
 use std::hash::Hash;
 use std::mem::transmute;
-use std::num::{NonZeroU16, NonZeroU8};
+use std::num::NonZeroU16;
+use std::num::NonZeroU8;
 use super::entities::ClockEntity;
 use super::entities::Entities;
 use super::entities::Entity;
@@ -38,6 +39,7 @@ use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;
 
 
+include!("ClusterDescriptorIdentifier.rs");
 include!("TerminalControls.rs");
 include!("TerminalEntityCommon.rs");
 include!("Version3EffectUnitEntity.rs");

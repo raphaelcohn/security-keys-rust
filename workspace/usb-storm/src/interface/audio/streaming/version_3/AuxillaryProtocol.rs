@@ -2,24 +2,14 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::Bytes;
-use std::error;
-use serde::Deserialize;
-use serde::Serialize;
-use std::num::NonZeroU16;
-
-
-/// Audio control.
-pub mod control;
-
-
-/// Audio MIDI.
-pub mod midi;
-
-
-/// Audio streaming.
-pub mod streaming;
-
-
-include!("Control.file.rs");
-include!("Version3AudioDynamicStringDescriptorIdentifier.rs");
+/// Auxillary Protocol
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[bitflag]
+#[serde(deny_unknown_fields)]
+#[repr(u16)]
+pub enum AuxillaryProtocol
+{
+	/// The assigned value is a guess.
+	HDCP = 1 << 0,
+}

@@ -3,8 +3,8 @@
 
 
 /// Parse error.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum AudioStreamingInterfaceExtraDescriptorParseError
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
+pub enum GeneralParseError
 {
 	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
@@ -13,31 +13,10 @@ pub enum AudioStreamingInterfaceExtraDescriptorParseError
 	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	UndefinedInterfaceDescriptorSubType,
-	
-	#[allow(missing_docs)]
-	UnexpectedInterfaceDescriptorSubType
-	{
-		descriptor_sub_type: DescriptorSubType,
-	},
-	
-	#[allow(missing_docs)]
-	UnrecognizedInterfaceDescriptorSubType
-	{
-		descriptor_sub_type: DescriptorSubType
-	},
-	
-	#[allow(missing_docs)]
-	BLengthTooShortToContainDescriptorSubType,
-	
-	#[allow(missing_docs)]
-	TooShortToContainDescriptorSubType,
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUnrecognized(TryReserveError),
+	ControlsParse(GeneralControlsParseError),
 }
 
-impl Display for AudioStreamingInterfaceExtraDescriptorParseError
+impl Display for GeneralParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -46,18 +25,26 @@ impl Display for AudioStreamingInterfaceExtraDescriptorParseError
 	}
 }
 
-impl error::Error for AudioStreamingInterfaceExtraDescriptorParseError
+impl error::Error for GeneralParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use GeneralParseError::*;
 		
 		match self
 		{
-			CouldNotAllocateMemoryForUnrecognized(cause) => Some(cause),
+			GeneralControlsParse(cause) => Some(cause),
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<GeneralControlsParseError> for GeneralParseError
+{
+	fn from(cause: GeneralControlsParseError) -> Self
+	{
+		GeneralParseError::ControlsParse(cause)
 	}
 }
