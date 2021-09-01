@@ -9,6 +9,9 @@ pub enum InterfaceExtraDescriptorParseError
 	/// Audio Control (AC).
 	AudioControl(AudioControlInterfaceExtraDescriptorParseError),
 	
+	/// Audio Streaming (AS).
+	AudioStreaming(AudioStreamingInterfaceExtraDescriptorParseError),
+	
 	/// Device Firmware Upgrade (DFU).
 	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceExtraDescriptorParseError),
 	
@@ -42,6 +45,8 @@ impl error::Error for InterfaceExtraDescriptorParseError
 		{
 			AudioControl(cause) => Some(cause),
 			
+			AudioStreaming(cause) => Some(cause),
+			
 			DeviceFirmwareUpgrade(cause) => Some(cause),
 			
 			HumanInterfaceDevice(cause) => Some(cause),
@@ -59,6 +64,15 @@ impl From<AudioControlInterfaceExtraDescriptorParseError> for InterfaceExtraDesc
 	fn from(cause: AudioControlInterfaceExtraDescriptorParseError) -> Self
 	{
 		InterfaceExtraDescriptorParseError::AudioControl(cause)
+	}
+}
+
+impl From<AudioStreamingInterfaceExtraDescriptorParseError> for InterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: AudioStreamingInterfaceExtraDescriptorParseError) -> Self
+	{
+		InterfaceExtraDescriptorParseError::AudioStreaming(cause)
 	}
 }
 

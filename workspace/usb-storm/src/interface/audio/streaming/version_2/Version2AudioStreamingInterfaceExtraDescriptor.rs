@@ -8,29 +8,63 @@
 #[serde(deny_unknown_fields)]
 pub enum Version2AudioStreamingInterfaceExtraDescriptor
 {
-	General
-	{
-		terminal_link: Option<TerminalEntityIdentifier>,
-	},
+	#[allow(missing_docs)]
+	General(General),
+	
+	#[allow(missing_docs)]
+	Encoder(Encoder),
+	
+	#[allow(missing_docs)]
+	Decoder(Decoder),
 }
 
 impl Version2AudioStreamingInterfaceExtraDescriptor
 {
+	pub(super) const AS_DESCRIPTOR_UNDEFINED: u8 = 0x00;
+	
+	pub(super) const AS_GENERAL: u8 = 0x01;
+	
+	pub(super) const FORMAT_TYPE: u8 = 0x02;
+	
+	pub(super) const ENCODER: u8 = 0x03;
+	
+	pub(super) const DECODER: u8 = 0x04;
+	
 	#[inline(always)]
-	pub(super) fn parse(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_general(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), Version2AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		use Version2AudioStreamingInterfaceExtraDescriptorParseError::*;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<Version2AudioStreamingInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
-		
+		let (general, consumed_length) = General::parse(bLength, remaining_bytes).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::GeneralParse)?;
 		Ok
 		(
 			(
-				Version2AudioStreamingInterfaceExtraDescriptor::General
-				{
-					terminal_link: descriptor_body.optional_non_zero_u8(descriptor_index::<3>())
-				},
-				
-				descriptor_body_length,
+				Version2AudioStreamingInterfaceExtraDescriptor::General(general),
+				consumed_length
+			)
+		)
+	}
+	
+	#[inline(always)]
+	pub(super) fn parse_encoder(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	{
+		let (encoder, consumed_length) = Encoder::parse(bLength, remaining_bytes).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::EncoderParse)?;
+		Ok
+		(
+			(
+				Version2AudioStreamingInterfaceExtraDescriptor::Encoder(encoder),
+				consumed_length
+			)
+		)
+	}
+	
+	#[inline(always)]
+	pub(super) fn parse_decoder(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	{
+		let (decoder, consumed_length) = Decoder::parse(bLength, remaining_bytes).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::DecoderParse)?;
+		Ok
+		(
+			(
+				Version2AudioStreamingInterfaceExtraDescriptor::Decoder(decoder),
+				consumed_length
 			)
 		)
 	}

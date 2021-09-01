@@ -19,6 +19,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use crate::descriptors::descriptor_index_non_constant;
 
 
 include!("Version2LogicalAudioChannelCluster.rs");

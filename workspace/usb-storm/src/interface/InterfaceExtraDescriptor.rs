@@ -12,6 +12,9 @@ pub enum InterfaceExtraDescriptor
 	AudioControl(AudioControlInterfaceExtraDescriptor),
 	
 	#[allow(missing_docs)]
+	AudioStreaming(AudioStreamingInterfaceExtraDescriptor),
+	
+	#[allow(missing_docs)]
 	DeviceFirmwareUpgrade(DeviceFirmwareUpgradeInterfaceExtraDescriptor),
 	
 	#[allow(missing_docs)]
@@ -38,6 +41,15 @@ impl From<AudioControlInterfaceExtraDescriptor> for InterfaceExtraDescriptor
 	fn from(value: AudioControlInterfaceExtraDescriptor) -> Self
 	{
 		InterfaceExtraDescriptor::AudioControl(value)
+	}
+}
+
+impl From<AudioStreamingInterfaceExtraDescriptor> for InterfaceExtraDescriptor
+{
+	#[inline(always)]
+	fn from(value: AudioStreamingInterfaceExtraDescriptor) -> Self
+	{
+		InterfaceExtraDescriptor::AudioStreaming(value)
 	}
 }
 

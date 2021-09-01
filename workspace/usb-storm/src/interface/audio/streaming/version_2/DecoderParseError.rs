@@ -4,19 +4,16 @@
 
 /// Parse error.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
-pub enum GeneralParseError
+pub enum DecoderParseError
 {
 	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]
 	BLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
-	ControlsParse(GeneralControlsParseError),
 }
 
-impl Display for GeneralParseError
+impl Display for DecoderParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -25,26 +22,6 @@ impl Display for GeneralParseError
 	}
 }
 
-impl error::Error for GeneralParseError
+impl error::Error for DecoderParseError
 {
-	#[inline(always)]
-	fn source(&self) -> Option<&(dyn error::Error + 'static)>
-	{
-		use GeneralParseError::*;
-		
-		match self
-		{
-			ControlsParse(cause) => Some(cause),
-			
-			_ => None,
-		}
-	}
-}
-
-impl From<GeneralControlsParseError> for GeneralParseError
-{
-	fn from(cause: GeneralControlsParseError) -> Self
-	{
-		GeneralParseError::ControlsParse(cause)
-	}
 }

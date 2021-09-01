@@ -2,49 +2,36 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
-pub enum GeneralParseError
+/// Side band protocol.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum SideBandProtocol
 {
 	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
+	Undefined,
 	
 	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
+	PresentationTimestamp,
 	
 	#[allow(missing_docs)]
-	ControlsParse(GeneralControlsParseError),
+	Unrecognized { protocol: u8 },
 }
 
-impl Display for GeneralParseError
+impl SideBandProtocol
 {
 	#[inline(always)]
-	fn fmt(&self, f: &mut Formatter) -> fmt::Result
+	fn parse(protocol: u8) -> Self
 	{
-		Debug::fmt(self, f)
-	}
-}
-
-impl error::Error for GeneralParseError
-{
-	#[inline(always)]
-	fn source(&self) -> Option<&(dyn error::Error + 'static)>
-	{
-		use GeneralParseError::*;
+		use SideBandProtocol::*;
 		
-		match self
+		match protocol
 		{
-			ControlsParse(cause) => Some(cause),
+			0 => Undefined,
 			
-			_ => None,
+			1 => PresentationTimestamp,
+			
+			Unrecognized { protocol },
 		}
-	}
-}
-
-impl From<GeneralControlsParseError> for GeneralParseError
-{
-	fn from(cause: GeneralControlsParseError) -> Self
-	{
-		GeneralParseError::ControlsParse(cause)
 	}
 }

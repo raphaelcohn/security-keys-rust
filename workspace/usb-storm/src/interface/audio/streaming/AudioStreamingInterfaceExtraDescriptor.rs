@@ -56,23 +56,18 @@ impl AudioStreamingInterfaceExtraDescriptor
 	{
 		use AudioStreamingInterfaceExtraDescriptorParseError::*;
 		
-		const AS_DESCRIPTOR_UNDEFINED: u8 = 0x00;
-		const AS_GENERAL: u8 = 0x01;
-		const FORMAT_TYPE: u8 = 0x02;
-		const ENCODER: u8 = 0x03;
-		const DECODER: u8 = 0x04;
 		
-		let descriptor = match Self::parse_descriptor_sub_type(bLength, remaining_bytes)?
+		let (descriptor, consumed_length) = match Self::parse_descriptor_sub_type(bLength, remaining_bytes)?
 		{
-			AS_DESCRIPTOR_UNDEFINED => return Err(UndefinedInterfaceDescriptorSubType),
+			Version2AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => return Err(UndefinedInterfaceDescriptorSubType),
 			
-			AS_GENERAL => (),
+			Version2AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version2AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, remaining_bytes)?,
 			
-			FORMAT_TYPE => (),
+			Version2AudioStreamingInterfaceExtraDescriptor::FORMAT_TYPE => Err(Version2AudioStreamingInterfaceExtraDescriptorParseError::FormatTypeIsUnexpected)?,
 			
-			ENCODER => (),
+			Version2AudioStreamingInterfaceExtraDescriptor::ENCODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_encoder(bLength, remaining_bytes)?,
 			
-			DECODER => (),
+			Version2AudioStreamingInterfaceExtraDescriptor::DECODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_decoder(bLength, remaining_bytes)?,
 			
 			descriptor_sub_type @ _ => return Err(UnrecognizedInterfaceDescriptorSubType { descriptor_sub_type })
 		};
@@ -85,17 +80,13 @@ impl AudioStreamingInterfaceExtraDescriptor
 		use AudioStreamingInterfaceExtraDescriptorParseError::*;
 		use Version3AudioStreamingInterfaceExtraDescriptorParseError::*;
 		
-		const AS_DESCRIPTOR_UNDEFINED: u8 = 0x00;
-		const AS_GENERAL: u8 = 0x01;
-		const AS_VALID_FREQ_RANGE: u8 = 0x02;
-		
 		let descriptor = match Self::parse_descriptor_sub_type(bLength, remaining_bytes)?
 		{
-			AS_DESCRIPTOR_UNDEFINED => return Err(UndefinedInterfaceDescriptorSubType),
+			Version3AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => return Err(UndefinedInterfaceDescriptorSubType),
 			
-			AS_GENERAL => Version3AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, remaining_bytes)?,
+			Version3AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version3AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, remaining_bytes)?,
 			
-			AS_VALID_FREQ_RANGE => Version3AudioStreamingInterfaceExtraDescriptor::parse_valid_sampling_frequency_range(bLength, remaining_bytes)?,
+			Version3AudioStreamingInterfaceExtraDescriptor::AS_VALID_FREQ_RANGE => Version3AudioStreamingInterfaceExtraDescriptor::parse_valid_sampling_frequency_range(bLength, remaining_bytes)?,
 			
 			descriptor_sub_type @ _ => return Err(UnrecognizedInterfaceDescriptorSubType { descriptor_sub_type })
 		};

@@ -119,8 +119,6 @@ impl General
 		const BLength: u8 = 23;
 		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<GeneralParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
-		let bAuxProtocols = ;
-		
 		let bmControls = descriptor_body.u32(descriptor_index::<4>());
 		Ok
 		(
@@ -130,9 +128,9 @@ impl General
 				
 				active_alternate_setting_control: Control::parse_u32(bmControls, 0, ActiveAlternateSettingControlInvalid)?,
 				
-				valid_alternate_setting_control: Control::parse_u32(bmControls, 0, ValidAlternateSettingControlInvalid)?,
+				valid_alternate_setting_control: Control::parse_u32(bmControls, 1, ValidAlternateSettingControlInvalid)?,
 				
-				audio_data_format_control: Control::parse_u32(bmControls, 0, AudioDataFormatControlInvalid)?,
+				audio_data_format_control: Control::parse_u32(bmControls, 2, AudioDataFormatControlInvalid)?,
 				
 				audio_formats: WrappedBitFlags::from_bits_truncate(descriptor_body.u64(descriptor_index::<10>())),
 				

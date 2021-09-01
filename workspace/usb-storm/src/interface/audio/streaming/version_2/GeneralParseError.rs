@@ -14,6 +14,11 @@ pub enum GeneralParseError
 	
 	#[allow(missing_docs)]
 	ControlsParse(GeneralControlsParseError),
+	
+	#[allow(missing_docs)]
+	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>),
+	
+	FormatTypeDescriptorParse(FormatTypeDescriptorParseError),
 }
 
 impl Display for GeneralParseError
@@ -36,6 +41,10 @@ impl error::Error for GeneralParseError
 		{
 			ControlsParse(cause) => Some(cause),
 			
+			LogicalAudioChannelClusterParse(cause) => Some(cause),
+			
+			FormatTypeDescriptorParse(cause) => Some(cause),
+			
 			_ => None,
 		}
 	}
@@ -46,5 +55,13 @@ impl From<GeneralControlsParseError> for GeneralParseError
 	fn from(cause: GeneralControlsParseError) -> Self
 	{
 		GeneralParseError::ControlsParse(cause)
+	}
+}
+
+impl From<FormatTypeDescriptorParseError> for GeneralParseError
+{
+	fn from(cause: FormatTypeDescriptorParseError) -> Self
+	{
+		GeneralParseError::FormatTypeDescriptorParse(cause)
 	}
 }

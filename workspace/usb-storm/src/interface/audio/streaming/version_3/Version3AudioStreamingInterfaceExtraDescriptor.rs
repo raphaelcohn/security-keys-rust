@@ -17,6 +17,12 @@ pub enum Version3AudioStreamingInterfaceExtraDescriptor
 
 impl Version3AudioStreamingInterfaceExtraDescriptor
 {
+	pub(super) const AS_DESCRIPTOR_UNDEFINED: u8 = 0x00;
+	
+	pub(super) const AS_GENERAL: u8 = 0x01;
+	
+	pub(super) const AS_VALID_FREQ_RANGE: u8 = 0x02;
+	
 	#[inline(always)]
 	pub(super) fn parse_general(bLength: u8, remaining_bytes: &[u8]) -> Result<Self, Version3AudioStreamingInterfaceExtraDescriptorParseError>
 	{

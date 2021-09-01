@@ -168,6 +168,12 @@ impl AlternateSetting
 		}
 		
 		#[inline(always)]
+		fn audio_streaming(string_finder: &StringFinder, extra: &[u8], protocol: AudioProtocol) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		{
+			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, AudioStreamingInterfaceExtraDescriptorParser(protocol))
+		}
+		
+		#[inline(always)]
 		fn device_upgrade_firmware(string_finder: &StringFinder, extra: &[u8]) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			InterfaceExtraDescriptorParser::parse_descriptors(string_finder, extra, DeviceFirmwareUpgradeInterfaceAdditionalDescriptorParser)
@@ -220,6 +226,7 @@ impl AlternateSetting
 		match interface_class
 		{
 			Audio(AudioSubClass::Control(audio_protocol)) => audio_control(string_finder, extra, audio_protocol),
+			Audio(AudioSubClass::Streaming(audio_protocol)) => audio_streaming(string_finder, extra, audio_protocol),
 			
 			ApplicationSpecific(DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol::Known)) => device_upgrade_firmware(string_finder, extra),
 			

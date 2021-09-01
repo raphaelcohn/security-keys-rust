@@ -17,11 +17,23 @@ pub enum Version2LogicalAudioChannelCluster
 impl Version2LogicalAudioChannelCluster
 {
 	#[inline(always)]
-	pub(super) fn parse(channels_index: usize, string_finder: &StringFinder, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
+	pub(crate) fn parse_descriptor(channels_index: usize, string_finder: &StringFinder, descriptor_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
 	{
-		let number_of_logical_audio_channels = entity_body.u8(entity_index_non_constant(channels_index));
-		let wChannelConfig = entity_body.u32(entity_index_non_constant(channels_index + 1));
-		let first_logical_channel_name_string_identifier = entity_body.u8(entity_index_non_constant(channels_index + 3));
+		Self::parse_generic(descriptor_index_non_constant(channels_index), string_finder, descriptor_body)
+	}
+	
+	#[inline(always)]
+	pub(super) fn parse_entity(channels_index: usize, string_finder: &StringFinder, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
+	{
+		Self::parse_generic(entity_index_non_constant(channels_index), string_finder, entity_body)
+	}
+	
+	#[inline(always)]
+	fn parse_generic(bytes_index: usize, string_finder: &StringFinder, bytes: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
+	{
+		let number_of_logical_audio_channels = entity_body.u8(bytes_index);
+		let wChannelConfig = entity_body.u32(entity_index_non_constant(bytes_index + 1));
+		let first_logical_channel_name_string_identifier = entity_body.u8(bytes_index + 3);
 		
 		Self::parse_inner(string_finder, number_of_logical_audio_channels, wChannelConfig, first_logical_channel_name_string_identifier)
 	}

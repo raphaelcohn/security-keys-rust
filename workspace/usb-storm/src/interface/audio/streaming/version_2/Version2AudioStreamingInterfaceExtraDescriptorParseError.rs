@@ -7,10 +7,16 @@
 pub enum Version2AudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
+	GeneralParse(GeneralParseError),
 	
 	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
+	EncoderParse(EncoderParseError),
+	
+	#[allow(missing_docs)]
+	FormatTypeIsUnexpected,
+	
+	#[allow(missing_docs)]
+	DecoderParse(DecoderParseError),
 }
 
 impl Display for Version2AudioStreamingInterfaceExtraDescriptorParseError
@@ -24,4 +30,20 @@ impl Display for Version2AudioStreamingInterfaceExtraDescriptorParseError
 
 impl error::Error for Version2AudioStreamingInterfaceExtraDescriptorParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use Version2AudioStreamingInterfaceExtraDescriptorParseError::*;
+		
+		match self
+		{
+			GeneralParse(cause) => Some(cause),
+			
+			EncoderParse(cause) => Some(cause),
+			
+			DecoderParse(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

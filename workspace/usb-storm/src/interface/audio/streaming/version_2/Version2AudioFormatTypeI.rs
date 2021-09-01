@@ -2,49 +2,38 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
-pub enum GeneralParseError
+/// Audio format type I.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+#[bitflag]
+#[repr(u32)]
+pub enum Version2AudioFormatTypeI
 {
 	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
+	PCM = 1 << 0,
 	
 	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
+	PCM8 = 1 << 1,
 	
 	#[allow(missing_docs)]
-	ControlsParse(GeneralControlsParseError),
+	IEEE_FLOAT = 1 << 2,
+	
+	#[allow(missing_docs)]
+	ALAW = 1 << 3,
+	
+	#[allow(missing_docs)]
+	MULAW = 1 << 4,
+	
+	#[allow(missing_docs)]
+	RAW_DATA = 1 << 31,
 }
 
-impl Display for GeneralParseError
+impl Version2AudioFormatTypeI
 {
 	#[inline(always)]
-	fn fmt(&self, f: &mut Formatter) -> fmt::Result
+	fn parse(formats_bit_map: u32) -> WrappedBitFlags<Self>
 	{
-		Debug::fmt(self, f)
-	}
-}
-
-impl error::Error for GeneralParseError
-{
-	#[inline(always)]
-	fn source(&self) -> Option<&(dyn error::Error + 'static)>
-	{
-		use GeneralParseError::*;
-		
-		match self
-		{
-			ControlsParse(cause) => Some(cause),
-			
-			_ => None,
-		}
-	}
-}
-
-impl From<GeneralControlsParseError> for GeneralParseError
-{
-	fn from(cause: GeneralControlsParseError) -> Self
-	{
-		GeneralParseError::ControlsParse(cause)
+		WrappedBitFlags::from_bits_truncate(formats_bit_map)
 	}
 }
