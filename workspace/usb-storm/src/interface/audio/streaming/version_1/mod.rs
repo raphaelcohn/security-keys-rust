@@ -2,7 +2,6 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use enumflags2::bitflags;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
@@ -11,6 +10,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use super::MpegCommon;
 use crate::interface::audio::control::AudioControlInterfaceExtraDescriptorParser;
 use crate::interface::audio::control::entity_identifiers::TerminalEntityIdentifier;
 use crate::descriptors::verify_remaining_bytes;
@@ -20,19 +20,15 @@ use crate::descriptors::descriptor_index;
 use crate::descriptors::descriptor_index_non_constant;
 use crate::descriptors::DescriptorHeaderLength;
 use crate::collections::Bytes;
-use crate::collections::WrappedBitFlags;
 use crate::collections::VecExt;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use std::mem::transmute;
 use crate::integers::u24;
 use std::collections::TryReserveError;
+use crate::interface::audio::streaming::Ac3Common;
 
 
-include!("BitStreamIdMode.rs");
 include!("Hertz.rs");
-include!("InternalDynamicRangeControl.rs");
-include!("Mpeg2MultilingualSupport.rs");
-include!("MpegLayer.rs");
 include!("SamplingFrequency.rs");
 include!("SubframeSize.rs");
 include!("Version1AudioFormat.rs");

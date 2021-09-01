@@ -4,7 +4,7 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum EncoderParseError
+pub enum DtsEncoderParseError
 {
 	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
@@ -13,51 +13,13 @@ pub enum EncoderParseError
 	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	BitRateControlInvalid,
-	
-	#[allow(missing_docs)]
-	QualityControlInvalid,
-	
-	#[allow(missing_docs)]
-	VbrControlInvalid,
-	
-	#[allow(missing_docs)]
-	TypeControlInvalid,
-	
-	#[allow(missing_docs)]
-	UnderflowControlInvalid,
-	
-	#[allow(missing_docs)]
-	OverflowControlInvalid,
-	
-	#[allow(missing_docs)]
-	EncoderErrorControlInvalid,
-	
-	#[allow(missing_docs)]
-	ParameterControlInvalid
-	{
-		/// Add one to this to get the control number.
-		///
-		/// Does not exceed 7.
-		index: u3,
-	},
-	
-	#[allow(missing_docs)]
-	InvalidParameterControlDescriptionString
-	{
-		cause: GetLocalizedStringError,
-		
-		/// Add one to this to get the control number.
-		///
-		/// Does not exceed 7.
-		index: u3,
-	},
+	ControlParse(DecoderControlParseError),
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
 }
 
-impl Display for EncoderParseError
+impl Display for DtsEncoderParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -66,20 +28,38 @@ impl Display for EncoderParseError
 	}
 }
 
-impl error::Error for EncoderParseError
+impl error::Error for DtsEncoderParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use EncoderParseError::*;
+		use DtsEncoderParseError::*;
 		
 		match self
 		{
-			InvalidParameterControlDescriptionString { cause, .. } => Some(cause),
+			ControlParse(cause) => Some(cause),
 			
 			InvalidDescriptionString(cause) => Some(cause),
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<DecoderControlParseError> for DtsEncoderParseError
+{
+	#[inline(always)]
+	fn from(cause: DecoderControlParseError) -> Self
+	{
+		DtsEncoderParseError::ControlParse(cause)
+	}
+}
+
+impl From<GetLocalizedStringError> for DtsEncoderParseError
+{
+	#[inline(always)]
+	fn from(cause: GetLocalizedStringError) -> Self
+	{
+		DtsEncoderParseError::InvalidDescriptionString(cause)
 	}
 }

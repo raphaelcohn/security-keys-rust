@@ -117,7 +117,7 @@ impl General
 		use GeneralControlsParseError::*;
 		
 		const BLength: u8 = 23;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<GeneralParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<GeneralParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let bmControls = descriptor_body.u32(descriptor_index::<4>());
 		Ok

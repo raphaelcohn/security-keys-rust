@@ -17,18 +17,21 @@ pub struct Version2AudioFormatTypeIIDetails
 
 impl Version2AudioFormatTypeIIDetails
 {
+	#[allow(missing_docs)]
 	#[inline(always)]
 	pub fn extended(&self) -> Option<&Version2AudioFormatExtendedTypeIIDetails>
 	{
 		self.extended.as_ref()
 	}
 	
+	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn maximum_bit_rate_in_kilobits_per_second(&self) -> u16
 	{
 		self.maximum_bit_rate_in_kilobits_per_second
 	}
 	
+	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn samples_per_frame(&self) -> u16
 	{

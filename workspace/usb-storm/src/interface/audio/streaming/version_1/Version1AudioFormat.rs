@@ -6,12 +6,16 @@
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Version1AudioFormat
 {
+	#[allow(missing_docs)]
 	TypeI(Version1TypeIAudioFormat),
 	
+	#[allow(missing_docs)]
 	TypeII(Version1TypeIIAudioFormat),
 	
+	#[allow(missing_docs)]
 	TypeIII(Version1TypeIIIAudioFormat),
 	
+	#[allow(missing_docs)]
 	Unrecognized(u16),
 }
 

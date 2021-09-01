@@ -12,40 +12,10 @@ pub enum Version1TypeIIAudioFormatDetailSpecific
 	Undefined(Vec<u8>),
 	
 	#[allow(missing_docs)]
-	MPEG
-	{
-		internal_dynamic_range_control: InternalDynamicRangeControl,
-		
-		layer_support: WrappedBitFlags<MpegLayer>,
-		
-		mpeg_1_only: bool,
-		
-		mpeg_1_dual_channel: bool,
-		
-		mpeg_2_second_stereo: bool,
-		
-		mpeg_2_seven_dot_one_channel_augmentation: bool,
-		
-		adaptive_multi_channel_prediction: bool,
-		
-		mpeg_2_multilingual_support: Mpeg2MultilingualSupport,
-	},
+	MPEG(MpegCommon),
 	
 	/// AC-3.
-	AC_3
-	{
-		internal_dynamic_range_control: InternalDynamicRangeControl,
-		
-		bit_stream_id_modes: WrappedBitFlags<BitStreamIdMode>,
-	
-		rf_mode: bool,
-	
-		line_mode: bool,
-	
-		custom0_mode: bool,
-	
-		custom1_mode: bool,
-	},
+	AC_3(Ac3Common),
 }
 
 impl Version1TypeIIAudioFormatDetailSpecific
@@ -143,44 +113,11 @@ impl Version1TypeIIAudioFormatDetailSpecific
 		}
 		
 		let bmMPEGCapabilities = remaining_bytes.u16(5);
+		let bmMPEGFeatures = remaining_bytes.u8(7);
 		
 		Ok
 		(
-			Version1TypeIIAudioFormatDetailSpecific::MPEG
-			{
-				internal_dynamic_range_control:
-				{
-					let bmMPEGFeature = remaining_bytes.u16(7);
-					InternalDynamicRangeControl::from_2_bits((bmMPEGFeature >> 4) as u8)
-				},
-				
-				layer_support: WrappedBitFlags::from_bits_truncate(bmMPEGCapabilities as u8),
-				
-				mpeg_1_only: (bmMPEGCapabilities & 0b1000) != 0,
-				
-				mpeg_1_dual_channel: (bmMPEGCapabilities & 0b0001_0000) != 0,
-				
-				mpeg_2_second_stereo: (bmMPEGCapabilities & 0b0010_0000) != 0,
-				
-				mpeg_2_seven_dot_one_channel_augmentation: (bmMPEGCapabilities & 0b0100_0000) != 0,
-				
-				adaptive_multi_channel_prediction: (bmMPEGCapabilities & 0b1000_0000) != 0,
-				
-				mpeg_2_multilingual_support:
-				{
-					use Mpeg2MultilingualSupport::*;
-					match (bmMPEGCapabilities >> 8) & 0b11
-					{
-						0b00 => NotSupported,
-						
-						0b01 => SupportedAtFs,
-						
-						0b10 => return Err(ReservedMpeg2MultilingualSupport),
-						
-						0b11 => SupportedAtFsAndHalfFs,
-					}
-				},
-			}
+			Version1TypeIIAudioFormatDetailSpecific::MPEG(MpegCommon::parse(bmMPEGCapabilities, bmMPEGFeatures, ReservedMpeg2MultilingualSupport)?)
 		)
 	}
 	
@@ -194,33 +131,9 @@ impl Version1TypeIIAudioFormatDetailSpecific
 			return Err(FormatSpecificBLengthIsLessThanTenForAc3)
 		}
 		
-		let bmAC3Features = remaining_bytes.u8(9);
-		
 		Ok
 		(
-			Version1TypeIIAudioFormatDetailSpecific::AC_3
-			{
-				internal_dynamic_range_control: InternalDynamicRangeControl::from_2_bits(bmAC3Features >> 4),
-				
-				bit_stream_id_modes:
-				{
-					let bmBSID = remaining_bytes.u32(5);
-					const Lower9Modes: u32 = 0b1_1111_1111;
-					if (bmBSID & Lower9Modes) != Lower9Modes
-					{
-						return Err(Ac3MustSupportBitStreamIdModes0To9Inclusive)
-					}
-					WrappedBitFlags::from_bits_unchecked(bmBSID)
-				},
-				
-				rf_mode: (bmAC3Features & 0b0001) != 0,
-				
-				line_mode: (bmAC3Features & 0b0010) != 0,
-				
-				custom0_mode: (bmAC3Features & 0b0100) != 0,
-				
-				custom1_mode: (bmAC3Features & 0b1000) != 0
-			}
+			Version1TypeIIAudioFormatDetailSpecific::AC_3(Ac3Common::parse(remaining_bytes, Ac3MustSupportBitStreamIdModes0To9Inclusive)?),
 		)
 	}
 }

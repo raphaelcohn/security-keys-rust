@@ -48,27 +48,35 @@ impl Version2AudioStreamingInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse_encoder(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_encoder(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		let (encoder, consumed_length) = Encoder::parse(bLength, remaining_bytes).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::EncoderParse)?;
+		let dead_or_alive = Encoder::parse(bLength, remaining_bytes, string_finder).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::EncoderParse)?;
+		let (encoder, consumed_length) = return_ok_if_dead!(dead_or_alive);
 		Ok
 		(
+			Alive
 			(
-				Version2AudioStreamingInterfaceExtraDescriptor::Encoder(encoder),
-				consumed_length
+				(
+					Version2AudioStreamingInterfaceExtraDescriptor::Encoder(encoder),
+					consumed_length
+				)
 			)
 		)
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse_decoder(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_decoder(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		let (decoder, consumed_length) = Decoder::parse(bLength, remaining_bytes).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::DecoderParse)?;
+		let dead_or_alive = Decoder::parse(bLength, remaining_bytes, string_finder).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::DecoderParse)?;
+		let (decoder, consumed_length) = return_ok_if_dead!(dead_or_alive);
 		Ok
 		(
+			Alive
 			(
-				Version2AudioStreamingInterfaceExtraDescriptor::Decoder(decoder),
-				consumed_length
+				(
+					Version2AudioStreamingInterfaceExtraDescriptor::Decoder(decoder),
+					consumed_length
+				)
 			)
 		)
 	}

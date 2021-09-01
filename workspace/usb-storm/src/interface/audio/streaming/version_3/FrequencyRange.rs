@@ -35,7 +35,7 @@ impl FrequencyRange
 		use ValidSamplingFrequencyRangeParseError::*;
 		
 		const BLength: u8 = 11;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<ValidSamplingFrequencyRangeParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<ValidSamplingFrequencyRangeParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let dMin = descriptor_body.u32(3);
 		let dMax = descriptor_body.u32(7);

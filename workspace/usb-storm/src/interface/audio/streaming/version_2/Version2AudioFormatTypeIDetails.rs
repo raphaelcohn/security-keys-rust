@@ -17,18 +17,21 @@ pub struct Version2AudioFormatTypeIDetails
 
 impl Version2AudioFormatTypeIDetails
 {
+	#[allow(missing_docs)]
 	#[inline(always)]
 	pub fn extended(&self) -> Option<&Version2AudioFormatExtendedTypeIDetails>
 	{
 		self.extended.as_ref()
 	}
 	
+	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn audio_sub_slot_size_in_bytes(&self) -> AudioSubSlotSizeInBytes
 	{
 		self.audio_sub_slot_size_in_bytes
 	}
 	
+	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn bit_resolution(&self) -> u8
 	{

@@ -101,7 +101,7 @@ impl General
 		};
 		
 		const MinimumBLength: u8 = 4;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<FormatTypeDescriptorParseError, MinimumBLength>(subsequent_format_type_descriptor_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<FormatTypeDescriptorParseError, MinimumBLength>(subsequent_format_type_descriptor_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		{
 			let descriptor_type = descriptor_body.u8(descriptor_index::<1>());

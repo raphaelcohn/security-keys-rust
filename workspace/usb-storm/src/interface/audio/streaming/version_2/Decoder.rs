@@ -3,33 +3,60 @@
 
 
 /// Decoder.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Decoder
 {
+	identifier: DecoderIdentifier,
+	
+	details: DecoderDetails,
 }
 
 impl Decoder
 {
+	#[allow(missing_docs)]
 	#[inline(always)]
-	fn parse(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), DecoderParseError>
+	pub const fn identifier(&self) -> DecoderIdentifier
+	{
+		self.identifier
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn details(&self) -> &DecoderDetails
+	{
+		&self.details
+	}
+	
+	#[inline(always)]
+	fn parse(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, DecoderParseError>
 	{
 		use DecoderParseError::*;
 		
-		const BLength: u8 = X;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<DecoderParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		const MinimumBLength: u8 = 5;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<DecoderParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		Ok
+		(
+			Alive
 			(
 				(
 					Self
 					{
-					
+						identifier: descriptor_body.u8(descriptor_index::<3>()),
+						
+						details:
+						{
+							let decoder_type = descriptor_body.u8(descriptor_index::<4>());
+							let dead_or_alive = DecoderDetails::parse(bLength, remaining_bytes, decoder_type, string_finder)?;
+							return_ok_if_dead!(dead_or_alive)
+						},
 					},
 					
 					descriptor_body_length
 				)
 			)
+		)
 	}
 }

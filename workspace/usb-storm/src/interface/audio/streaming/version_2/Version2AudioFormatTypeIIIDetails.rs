@@ -15,12 +15,14 @@ pub struct Version2AudioFormatTypeIIIDetails
 
 impl Version2AudioFormatTypeIIIDetails
 {
+	#[allow(missing_docs)]
 	#[inline(always)]
 	pub fn extended(&self) -> Option<&Version2AudioFormatExtendedTypeIIIDetails>
 	{
 		self.extended.as_ref()
 	}
 	
+	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn bit_resolution(&self) -> u8
 	{

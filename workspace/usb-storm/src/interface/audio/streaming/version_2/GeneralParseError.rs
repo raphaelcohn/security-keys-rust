@@ -18,6 +18,7 @@ pub enum GeneralParseError
 	#[allow(missing_docs)]
 	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>),
 	
+	#[allow(missing_docs)]
 	FormatTypeDescriptorParse(FormatTypeDescriptorParseError),
 }
 

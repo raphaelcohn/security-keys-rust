@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use enumflags2::bitflags;
 use likely::unlikely;
 use self::version_1::Version1AudioStreamingInterfaceExtraDescriptor;
 use self::version_1::Version1AudioStreamingInterfaceExtraDescriptorParseError;
@@ -25,7 +26,7 @@ use crate::descriptors::verify_remaining_bytes;
 use crate::string::StringFinder;
 use crate::device::DeadOrAlive;
 use crate::interface::audio::control::AudioControlInterfaceExtraDescriptorParser;
-use crate::collections::VecExt;
+use crate::collections::{VecExt, WrappedBitFlags};
 use crate::collections::Bytes;
 use std::collections::TryReserveError;
 use crate::control_transfers::descriptors::MinimumStandardUsbDescriptorLength;
@@ -44,6 +45,12 @@ pub mod version_2;
 pub mod version_3;
 
 
+include!("Ac3Common.rs");
 include!("AudioStreamingInterfaceExtraDescriptor.rs");
 include!("AudioStreamingInterfaceExtraDescriptorParseError.rs");
 include!("AudioStreamingInterfaceExtraDescriptorParser.rs");
+include!("BitStreamIdMode.rs");
+include!("InternalDynamicRangeControl.rs");
+include!("Mpeg2MultilingualSupport.rs");
+include!("MpegCommon.rs");
+include!("MpegLayer.rs");

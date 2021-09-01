@@ -3,17 +3,20 @@
 
 
 /// Parse error.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Version3AudioStreamingInterfaceExtraDescriptorParseError
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
+pub enum DecoderControlParseError
 {
 	#[allow(missing_docs)]
-	GeneralParse(GeneralParseError),
+	UnderflowControlInvalid,
 	
 	#[allow(missing_docs)]
-	ValidSamplingFrequencyRangeParse(ValidSamplingFrequencyRangeParseError),
+	OverflowControlInvalid,
+	
+	#[allow(missing_docs)]
+	DecoderErrorControlInvalid,
 }
 
-impl Display for Version3AudioStreamingInterfaceExtraDescriptorParseError
+impl Display for DecoderControlParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -22,18 +25,6 @@ impl Display for Version3AudioStreamingInterfaceExtraDescriptorParseError
 	}
 }
 
-impl error::Error for Version3AudioStreamingInterfaceExtraDescriptorParseError
+impl error::Error for DecoderControlParseError
 {
-	#[inline(always)]
-	fn source(&self) -> Option<&(dyn error::Error + 'static)>
-	{
-		use Version3AudioStreamingInterfaceExtraDescriptorParseError::*;
-		
-		match self
-		{
-			GeneralParse(cause) => Some(cause),
-			
-			ValidSamplingFrequencyRangeParse(cause) => Some(cause),
-		}
-	}
 }

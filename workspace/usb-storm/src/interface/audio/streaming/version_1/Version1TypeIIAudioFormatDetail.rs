@@ -35,9 +35,9 @@ impl Version1TypeIIAudioFormatDetail
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn sampling_frequency(&self) -> SamplingFrequency
+	pub const fn sampling_frequency(&self) -> &SamplingFrequency
 	{
-		self.sampling_frequency
+		&self.sampling_frequency
 	}
 	
 	#[allow(missing_docs)]
