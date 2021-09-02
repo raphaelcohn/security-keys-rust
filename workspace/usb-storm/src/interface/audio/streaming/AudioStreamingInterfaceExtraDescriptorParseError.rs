@@ -7,36 +7,6 @@
 pub enum AudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
-	UndefinedInterfaceDescriptorSubType,
-	
-	#[allow(missing_docs)]
-	UnexpectedInterfaceDescriptorSubType
-	{
-		descriptor_sub_type: DescriptorSubType,
-	},
-	
-	#[allow(missing_docs)]
-	UnrecognizedInterfaceDescriptorSubType
-	{
-		descriptor_sub_type: DescriptorSubType
-	},
-	
-	#[allow(missing_docs)]
-	BLengthTooShortToContainDescriptorSubType,
-	
-	#[allow(missing_docs)]
-	TooShortToContainDescriptorSubType,
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUnrecognized(TryReserveError),
-	
-	#[allow(missing_docs)]
 	Version1Parse(Version1AudioStreamingInterfaceExtraDescriptorParseError),
 	
 	#[allow(missing_docs)]
@@ -44,6 +14,9 @@ pub enum AudioStreamingInterfaceExtraDescriptorParseError
 	
 	#[allow(missing_docs)]
 	Version3Parse(Version3AudioStreamingInterfaceExtraDescriptorParseError),
+	
+	#[allow(missing_docs)]
+	UnrecognizedParse(UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError),
 }
 
 impl Display for AudioStreamingInterfaceExtraDescriptorParseError
@@ -64,9 +37,13 @@ impl error::Error for AudioStreamingInterfaceExtraDescriptorParseError
 		
 		match self
 		{
-			CouldNotAllocateMemoryForUnrecognized(cause) => Some(cause),
+			Version1Parse(cause) => Some(cause),
 			
-			_ => None,
+			Version2Parse(cause) => Some(cause),
+			
+			Version3Parse(cause) => Some(cause),
+			
+			UnrecognizedParse(cause) => Some(cause),
 		}
 	}
 }
@@ -95,5 +72,14 @@ impl From<Version3AudioStreamingInterfaceExtraDescriptorParseError> for AudioStr
 	fn from(cause: Version3AudioStreamingInterfaceExtraDescriptorParseError) -> Self
 	{
 		AudioStreamingInterfaceExtraDescriptorParseError::Version3Parse(cause)
+	}
+}
+
+impl From<UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError> for AudioStreamingInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError) -> Self
+	{
+		AudioStreamingInterfaceExtraDescriptorParseError::UnrecognizedParse(cause)
 	}
 }

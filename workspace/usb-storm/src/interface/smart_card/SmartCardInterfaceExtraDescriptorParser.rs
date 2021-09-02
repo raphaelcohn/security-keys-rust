@@ -28,7 +28,7 @@ impl DescriptorParser for SmartCardInterfaceExtraDescriptorParser
 		
 		const MinimumBLength: u8 = SmartCardInterfaceExtraDescriptor::Length;
 		
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<SmartCardInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		Ok
 		(

@@ -4,7 +4,7 @@
 
 pub(crate) trait DescriptorParser
 {
-	type Descriptor;
+	type Descriptor: Debug;
 	
 	type Error: error::Error;
 	

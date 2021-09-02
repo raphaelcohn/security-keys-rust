@@ -50,7 +50,7 @@ impl<'a> EndPointExtraDescriptorParser<'a>
 		use DirectionalTransferType::*;
 		
 		const BLength: u8 = EndPointExtraDescriptorParser::SuperSpeedCompanionBLength;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointExtraDescriptorParseError, BLength>(remaining_bytes, bLength, SuperSpeedCompanionBLengthIsLessThanMinimum, SuperSpeedCompanionBLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, BLength>(remaining_bytes, bLength, SuperSpeedCompanionBLengthIsLessThanMinimum, SuperSpeedCompanionBLengthExceedsRemainingBytes)?;
 		
 		let bMaxBurst = descriptor_body.u8(0);
 		let bmAttributes = descriptor_body.u8(1);
@@ -180,7 +180,7 @@ impl<'a> EndPointExtraDescriptorParser<'a>
 		use EndPointExtraDescriptorParseError::*;
 		
 		const BLength: u8 = 4;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointExtraDescriptorParseError, BLength>(remaining_bytes, bLength, UsbAttachedScsiPipeBLengthIsLessThanMinimum, UsbAttachedScsiPipeBLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, BLength>(remaining_bytes, bLength, UsbAttachedScsiPipeBLengthIsLessThanMinimum, UsbAttachedScsiPipeBLengthExceedsRemainingBytes)?;
 		
 		use UsbAttachedScsiPipeIdentifier::*;
 		let pipe = match descriptor_body.u8(0)
@@ -236,7 +236,7 @@ impl<'a> EndPointExtraDescriptorParser<'a>
 		let bLength = remaining_bytes.u8(0);
 		
 		const CompanionBLength: u8 = 10;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EndPointExtraDescriptorParseError, CompanionBLength>(remaining_bytes, bLength, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, CompanionBLength>(remaining_bytes, bLength, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes)?;
 		debug_assert_eq!(descriptor_body_length, reduce_b_length_to_descriptor_body_length(CompanionBLength));
 		let _wReserved = descriptor_body.u16(descriptor_index::<2>());
 		Ok((descriptor_body.u32(descriptor_index::<4>()), CompanionBLength as usize))

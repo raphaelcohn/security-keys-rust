@@ -20,7 +20,7 @@ impl DescriptorParser for InterfaceAssociationConfigurationExtraDescriptorParser
 		
 		const MinimumBLength: u8 = 8;
 		
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<InterfaceAssociationConfigurationExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let descriptor = match InterfaceAssociationConfigurationExtraDescriptor::parse(descriptor_body, string_finder)?
 		{

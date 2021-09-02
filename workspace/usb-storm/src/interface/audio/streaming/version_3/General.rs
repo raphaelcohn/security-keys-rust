@@ -111,13 +111,13 @@ impl General
 	}
 	
 	#[inline(always)]
-	fn parse(bLength: u8, remaining_bytes: &[u8]) -> Result<Self, GeneralParseError>
+	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8]) -> Result<Self, GeneralParseError>
 	{
 		use GeneralParseError::*;
 		use GeneralControlsParseError::*;
 		
 		const BLength: u8 = 23;
-		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<GeneralParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<_, BLength>(descriptor_body_followed_by_remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let bmControls = descriptor_body.u32(descriptor_index::<4>());
 		Ok

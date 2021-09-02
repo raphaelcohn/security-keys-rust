@@ -181,7 +181,7 @@ impl AudioControlInterfaceExtraDescriptor
 		use AudioControlInterfaceExtraDescriptorParseError::*;
 		
 		const MinimumBLength: u8 = MinimumStandardUsbDescriptorLength as u8;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		Self::ok_alive
 		(
@@ -217,7 +217,7 @@ impl AudioControlInterfaceExtraDescriptor
 	{
 		use AudioControlInterfaceExtraDescriptorParseError::*;
 		
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioControlInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		debug_assert!(descriptor_body_length > 0);
 		let bDescriptorSubType = descriptor_body.u8(0);

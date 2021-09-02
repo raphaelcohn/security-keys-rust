@@ -34,71 +34,74 @@ pub enum AudioStreamingInterfaceExtraDescriptor
 impl AudioStreamingInterfaceExtraDescriptor
 {
 	#[inline(always)]
-	fn parse_descriptor_version_1_0(bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_descriptor_version_1_0(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, Version1AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		use AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use GenericAudioStreamingInterfaceExtraDescriptorParseError::*;
+		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
 		
-		let (descriptor, consumed_length) = match Self::parse_descriptor_sub_type(bLength, remaining_bytes)?
+		let (descriptor, consumed_length) = match Self::parse_descriptor_sub_type(bLength, descriptor_body_followed_by_remaining_bytes, BLengthTooShortToContainDescriptorSubType, TooShortToContainDescriptorSubType)?
 		{
-			Version1AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => return Err(UndefinedInterfaceDescriptorSubType),
+			Version1AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => Err(UndefinedInterfaceDescriptorSubType)?,
 			
-			Version1AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version1AudioStreamingInterfaceExtraDescriptor::parse(bLength, remaining_bytes)?,
+			Version1AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version1AudioStreamingInterfaceExtraDescriptor::parse(bLength, descriptor_body_followed_by_remaining_bytes)?,
 			
-			descriptor_sub_type @ Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_TYPE | descriptor_sub_type @ Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_SPECIFIC => return Err(UnexpectedInterfaceDescriptorSubType { descriptor_sub_type }),
+			Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_TYPE => Err(FormatTypeIsUnexpected)?,
 			
-			descriptor_sub_type @ _ => return Err(UnrecognizedInterfaceDescriptorSubType { descriptor_sub_type })
+			Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_SPECIFIC => Err(FormatSpecificIsUnexpected)?,
+			
+			descriptor_sub_type @ _ => Err(UnrecognizedInterfaceDescriptorSubType { descriptor_sub_type })?,
 		};
 		Ok(Alive((AudioStreamingInterfaceExtraDescriptor::Version_1_0(descriptor), consumed_length)))
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_2_0(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_descriptor_version_2_0(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		use AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use GenericAudioStreamingInterfaceExtraDescriptorParseError::*;
 		
-		let dead_or_alive = match Self::parse_descriptor_sub_type(bLength, remaining_bytes)?
+		let dead_or_alive = match Self::parse_descriptor_sub_type(bLength, descriptor_body_followed_by_remaining_bytes, BLengthTooShortToContainDescriptorSubType, TooShortToContainDescriptorSubType)?
 		{
-			Version2AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => return Err(UndefinedInterfaceDescriptorSubType),
+			Version2AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => Err(UndefinedInterfaceDescriptorSubType)?,
 			
-			Version2AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version2AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, remaining_bytes, string_finder)?,
+			Version2AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version2AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, descriptor_body_followed_by_remaining_bytes, string_finder)?,
 			
 			Version2AudioStreamingInterfaceExtraDescriptor::FORMAT_TYPE => Err(Version2AudioStreamingInterfaceExtraDescriptorParseError::FormatTypeIsUnexpected)?,
 			
-			Version2AudioStreamingInterfaceExtraDescriptor::ENCODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_encoder(bLength, remaining_bytes, string_finder)?,
+			Version2AudioStreamingInterfaceExtraDescriptor::ENCODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_encoder(bLength, descriptor_body_followed_by_remaining_bytes, string_finder)?,
 			
-			Version2AudioStreamingInterfaceExtraDescriptor::DECODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_decoder(bLength, remaining_bytes, string_finder)?,
+			Version2AudioStreamingInterfaceExtraDescriptor::DECODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_decoder(bLength, descriptor_body_followed_by_remaining_bytes, string_finder)?,
 			
-			descriptor_sub_type @ _ => return Err(UnrecognizedInterfaceDescriptorSubType { descriptor_sub_type })
+			descriptor_sub_type @ _ => Err(UnrecognizedInterfaceDescriptorSubType { descriptor_sub_type })?,
 		};
 		let (descriptor, consumed_length) = return_ok_if_dead!(dead_or_alive);
 		Ok(Alive((AudioStreamingInterfaceExtraDescriptor::Version_2_0(descriptor), consumed_length)))
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_3_0(bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_descriptor_version_3_0(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, Version3AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		use AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use GenericAudioStreamingInterfaceExtraDescriptorParseError::*;
 		
-		let descriptor = match Self::parse_descriptor_sub_type(bLength, remaining_bytes)?
+		let descriptor = match Self::parse_descriptor_sub_type(bLength, descriptor_body_followed_by_remaining_bytes, BLengthTooShortToContainDescriptorSubType, TooShortToContainDescriptorSubType)?
 		{
-			Version3AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => return Err(UndefinedInterfaceDescriptorSubType),
+			Version3AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => Err(UndefinedInterfaceDescriptorSubType)?,
 			
-			Version3AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version3AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, remaining_bytes)?,
+			Version3AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version3AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, descriptor_body_followed_by_remaining_bytes)?,
 			
-			Version3AudioStreamingInterfaceExtraDescriptor::AS_VALID_FREQ_RANGE => Version3AudioStreamingInterfaceExtraDescriptor::parse_valid_sampling_frequency_range(bLength, remaining_bytes)?,
+			Version3AudioStreamingInterfaceExtraDescriptor::AS_VALID_FREQ_RANGE => Version3AudioStreamingInterfaceExtraDescriptor::parse_valid_sampling_frequency_range(bLength, descriptor_body_followed_by_remaining_bytes)?,
 			
-			descriptor_sub_type @ _ => return Err(UnrecognizedInterfaceDescriptorSubType { descriptor_sub_type })
+			descriptor_sub_type @ _ => Err(UnrecognizedInterfaceDescriptorSubType { descriptor_sub_type })?
 		};
 		Ok(Alive((AudioStreamingInterfaceExtraDescriptor::Version_3_0(descriptor), (bLength as usize) - DescriptorHeaderLength)))
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_unrecognized(bLength: u8, remaining_bytes: &[u8], protocol: u8) -> Result<DeadOrAlive<(Self, usize)>, AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_descriptor_version_unrecognized(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], protocol: u8) -> Result<DeadOrAlive<(Self, usize)>, UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		use AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError::*;
 		
 		const MinimumBLength: u8 = MinimumStandardUsbDescriptorLength as u8;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<AudioStreamingInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(descriptor_body_followed_by_remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		Ok
 		(
 			Alive
@@ -120,21 +123,19 @@ impl AudioStreamingInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_sub_type(bLength: u8, remaining_bytes: &[u8]) -> Result<u8, AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_descriptor_sub_type<E: error::Error>(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], b_length_too_short_error: E, too_short_error: E) -> Result<u8, E>
 	{
-		use AudioStreamingInterfaceExtraDescriptorParseError::*;
-		
 		const SubDescriptorTypeLength: usize = 1;
 		const MinimumBLength: u8 = (MinimumStandardUsbDescriptorLength + SubDescriptorTypeLength) as u8;
 		if unlikely!(bLength < MinimumBLength)
 		{
-			return Err(BLengthTooShortToContainDescriptorSubType)
+			return Err(b_length_too_short_error)
 		}
-		if unlikely!(remaining_bytes.is_empty())
+		if unlikely!(descriptor_body_followed_by_remaining_bytes.is_empty())
 		{
-			return Err(TooShortToContainDescriptorSubType)
+			return Err(too_short_error)
 		}
 		
-		Ok(remaining_bytes.u8(2))
+		Ok(descriptor_body_followed_by_remaining_bytes.u8(descriptor_index::<2>()))
 	}
 }

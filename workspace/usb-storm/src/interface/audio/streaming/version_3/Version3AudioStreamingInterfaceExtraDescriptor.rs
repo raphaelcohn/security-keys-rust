@@ -24,14 +24,14 @@ impl Version3AudioStreamingInterfaceExtraDescriptor
 	pub(super) const AS_VALID_FREQ_RANGE: u8 = 0x02;
 	
 	#[inline(always)]
-	pub(super) fn parse_general(bLength: u8, remaining_bytes: &[u8]) -> Result<Self, Version3AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_general(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8]) -> Result<Self, Version3AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		Ok(Version3AudioStreamingInterfaceExtraDescriptor::General(General::parse(bLength, remaining_bytes).map_err(Version3AudioStreamingInterfaceExtraDescriptorParseError::GeneralParse)?))
+		Ok(Version3AudioStreamingInterfaceExtraDescriptor::General(General::parse(bLength, descriptor_body_followed_by_remaining_bytes).map_err(Version3AudioStreamingInterfaceExtraDescriptorParseError::GeneralParse)?))
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse_valid_sampling_frequency_range(bLength: u8, remaining_bytes: &[u8]) -> Result<Self, Version3AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_valid_sampling_frequency_range(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8]) -> Result<Self, Version3AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		Ok(Version3AudioStreamingInterfaceExtraDescriptor::ValidSamplingFrequencyRange(FrequencyRange::parse(bLength, remaining_bytes).map_err(Version3AudioStreamingInterfaceExtraDescriptorParseError::ValidSamplingFrequencyRangeParse)?))
+		Ok(Version3AudioStreamingInterfaceExtraDescriptor::ValidSamplingFrequencyRange(FrequencyRange::parse(bLength, descriptor_body_followed_by_remaining_bytes).map_err(Version3AudioStreamingInterfaceExtraDescriptorParseError::ValidSamplingFrequencyRangeParse)?))
 	}
 }

@@ -12,7 +12,9 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use crate::interface::audio::control::entity_identifiers::TerminalEntityIdentifier;
-use crate::descriptors::{verify_remaining_bytes, descriptor_index_non_constant};
+use crate::descriptors::DescriptorHeaderLength;
+use crate::descriptors::verify_remaining_bytes;
+use crate::descriptors::descriptor_index_non_constant;
 use crate::descriptors::DescriptorType;
 use crate::descriptors::DescriptorSubType;
 use crate::descriptors::descriptor_index;
@@ -29,7 +31,7 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use crate::interface::audio::control::AudioControlInterfaceExtraDescriptorParser;
 use arrayvec::ArrayVec;
 use crate::integers::u3;
-use crate::interface::audio::streaming::{MpegCommon, Ac3Common};
+use crate::interface::audio::streaming::{MpegCommon, Ac3Common, GenericAudioStreamingInterfaceExtraDescriptorParseError};
 use std::collections::TryReserveError;
 
 

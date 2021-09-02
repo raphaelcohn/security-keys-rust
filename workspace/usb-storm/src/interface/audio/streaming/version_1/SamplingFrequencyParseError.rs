@@ -4,19 +4,45 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum WmaEncoderParseError
+pub enum SamplingFrequencyParseError
 {
 	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
+	ContinuousSamplingFrequencyBLengthWrong
+	{
+		bLength: u8,
+	},
 	
 	#[allow(missing_docs)]
-	ControlParse(DecoderControlParseError),
+	ContinuousSamplingFrequencyLengthWrong
+	{
+		length: usize,
+	},
 	
 	#[allow(missing_docs)]
-	InvalidDescriptionString(GetLocalizedStringError),
+	ContinuousSamplingFrequencyBoundsNegative
+	{
+		lower_bound: Hertz,
+		
+		upper_bound: Hertz,
+	},
+	
+	#[allow(missing_docs)]
+	DiscreteSamplingFrequencyBLengthWrong
+	{
+		bLength: u8,
+	},
+	
+	#[allow(missing_docs)]
+	DiscreteSamplingFrequencyLengthWrong
+	{
+		length: usize,
+	},
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForDiscreteSamplingFrequencies(TryReserveError),
 }
 
-impl Display for WmaEncoderParseError
+impl Display for SamplingFrequencyParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -25,38 +51,18 @@ impl Display for WmaEncoderParseError
 	}
 }
 
-impl error::Error for WmaEncoderParseError
+impl error::Error for SamplingFrequencyParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use WmaEncoderParseError::*;
+		use SamplingFrequencyParseError::*;
 		
 		match self
 		{
-			ControlParse(cause) => Some(cause),
-			
-			InvalidDescriptionString(cause) => Some(cause),
+			CouldNotAllocateMemoryForDiscreteSamplingFrequencies(cause) => Some(cause),
 			
 			_ => None,
 		}
-	}
-}
-
-impl From<DecoderControlParseError> for WmaEncoderParseError
-{
-	#[inline(always)]
-	fn from(cause: DecoderControlParseError) -> Self
-	{
-		WmaEncoderParseError::ControlParse(cause)
-	}
-}
-
-impl From<GetLocalizedStringError> for WmaEncoderParseError
-{
-	#[inline(always)]
-	fn from(cause: GetLocalizedStringError) -> Self
-	{
-		WmaEncoderParseError::InvalidDescriptionString(cause)
 	}
 }

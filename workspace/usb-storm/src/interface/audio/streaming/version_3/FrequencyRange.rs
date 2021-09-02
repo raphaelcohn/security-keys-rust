@@ -30,12 +30,12 @@ impl FrequencyRange
 	}
 	
 	#[inline(always)]
-	fn parse(bLength: u8, remaining_bytes: &[u8]) -> Result<Self, ValidSamplingFrequencyRangeParseError>
+	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8]) -> Result<Self, ValidSamplingFrequencyRangeParseError>
 	{
 		use ValidSamplingFrequencyRangeParseError::*;
 		
 		const BLength: u8 = 11;
-		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<ValidSamplingFrequencyRangeParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<_, BLength>(descriptor_body_followed_by_remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let dMin = descriptor_body.u32(3);
 		let dMax = descriptor_body.u32(7);

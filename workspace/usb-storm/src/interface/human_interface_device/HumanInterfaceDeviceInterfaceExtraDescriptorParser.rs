@@ -24,7 +24,7 @@ impl DescriptorParser for HumanInterfaceDeviceInterfaceExtraDescriptorParser
 		};
 		
 		const MinimumBLength: u8 = 9;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<HumanInterfaceDeviceInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let number_of_class_descriptors_including_mandatory_report =
 		{

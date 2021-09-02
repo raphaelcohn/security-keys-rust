@@ -23,12 +23,12 @@ impl Version1TypeIIAudioFormatDetailSpecific
 	const BLengthFive: u8 = 5;
 	
 	#[inline(always)]
-	fn parse(format: Version1TypeIIAudioFormat, remaining_bytes: &[u8]) -> Result<(Self, usize), Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse(format: Version1TypeIIAudioFormat, audio_format_specific_descriptor_bytes: &[u8]) -> Result<(Self, usize), FormatTypeIIParseError>
 	{
 		use Version1TypeIIAudioFormat::*;
-		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use FormatTypeIIParseError::*;
 		
-		if unlikely!(remaining_bytes.is_empty())
+		if unlikely!(audio_format_specific_descriptor_bytes.is_empty())
 		{
 			return if unlikely!(format == Undefined)
 			{
@@ -36,37 +36,49 @@ impl Version1TypeIIAudioFormatDetailSpecific
 			}
 			else
 			{
-				Err(NoRemainingBytesForTypeIIFormatSpecificDescriptor)
+				Err(NoRemainingBytesForFormatSpecificDescriptor)
 			}
 		}
 		
-		let bLength = remaining_bytes.u8(0);
-		const MinimumBLength: u8 = 3;
-		let _ = verify_remaining_bytes::<Version1AudioStreamingInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, FormatSpecificBLengthIsLessThanMinimum, FormatSpecificBLengthExceedsRemainingBytes)?;
-		
-		let bDescriptorType = remaining_bytes.u8(1);
-		if unlikely!(bDescriptorType != AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE)
+		let bLength = audio_format_specific_descriptor_bytes.u8(0);
+		if unlikely!((bLength as usize) < DescriptorHeaderLength)
 		{
-			return if unlikely!(format == Undefined)
+			return Err(BLengthIsLessThanDescriptorHeaderLength)
+		}
+		
+		{
+			let bDescriptorType = audio_format_specific_descriptor_bytes.u8(1);
+			if unlikely!(bDescriptorType != AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE)
 			{
-				Ok((Version1TypeIIAudioFormatDetailSpecific::Undefined(Vec::new()), 0))
-			}
-			else
-			{
-				Err(DescriptorTypeIsNotInterface { bDescriptorType })
+				return if unlikely!(format == Undefined)
+				{
+					Ok((Version1TypeIIAudioFormatDetailSpecific::Undefined(Vec::new()), 0))
+				}
+				else
+				{
+					Err(DescriptorTypeIsNotInterface { bDescriptorType })
+				}
 			}
 		}
 		
-		let bDescriptorSubType = remaining_bytes.u8(2);
-		if unlikely!(bDescriptorSubType != Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_SPECIFIC)
+		let (descriptor_body, descriptor_body_length) =
 		{
-			return if unlikely!(format == Undefined)
+			const MinimumBLength: u8 = 3;
+			verify_remaining_bytes::<_, MinimumBLength>(audio_format_specific_descriptor_bytes.get_unchecked_range_safe(DescriptorHeaderLength .. ), bLength, FormatSpecificBLengthIsLessThanMinimum, FormatSpecificBLengthExceedsRemainingBytes)?
+		};
+		
+		{
+			let bDescriptorSubType = descriptor_body.u8(descriptor_index::<2>());
+			if unlikely!(bDescriptorSubType != Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_SPECIFIC)
 			{
-				Ok((Version1TypeIIAudioFormatDetailSpecific::Undefined(Vec::new()), 0))
-			}
-			else
-			{
-				Err(DescriptorSubTypeIsNotFormatSpecific { bDescriptorSubType })
+				return if unlikely!(format == Undefined)
+				{
+					Ok((Version1TypeIIAudioFormatDetailSpecific::Undefined(Vec::new()), 0))
+				}
+				else
+				{
+					Err(DescriptorSubTypeIsNotFormatSpecific { bDescriptorSubType })
+				}
 			}
 		}
 		
@@ -74,18 +86,18 @@ impl Version1TypeIIAudioFormatDetailSpecific
 		{
 			return Err(FormatSpecificBLengthIsLessThanFive)
 		}
-		let wFormatTag = remaining_bytes.u16(3);
+		let wFormatTag = descriptor_body.u16(descriptor_index::<3>());
 		
 		Ok
 		(
 			(
 				match (format, wFormatTag)
 				{
-					(Undefined, Version1AudioFormat::TypeIIUndefined) => Self::parse_undefined(remaining_bytes, bLength),
+					(Undefined, Version1AudioFormat::TypeIIUndefined) => Self::parse_undefined(descriptor_body, descriptor_body_length),
 					
-					(MPEG, Version1AudioFormat::TypeIIMPEG) => Self::parse_mpeg(remaining_bytes, bLength),
+					(MPEG, Version1AudioFormat::TypeIIMPEG) => Self::parse_mpeg(descriptor_body, bLength),
 					
-					(AC_3, Version1AudioFormat::TypeIIAC_3) => Self::parse_ac_3(remaining_bytes, bLength),
+					(AC_3, Version1AudioFormat::TypeIIAC_3) => Self::parse_ac_3(descriptor_body, bLength),
 					
 					_ => return Err(MismatchedFormatTagsInFormatSpecifcDescriptor { format, wFormatTag })
 				}?,
@@ -96,24 +108,25 @@ impl Version1TypeIIAudioFormatDetailSpecific
 	}
 	
 	#[inline(always)]
-	fn parse_undefined(remaining_bytes: &[u8], bLength: u8) -> Result<Self, Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_undefined(descriptor_body: &[u8], descriptor_body_length: usize) -> Result<Self, FormatTypeIIParseError>
 	{
-		let data = Vec::new_from(remaining_bytes.get_unchecked_range_safe((Self::BLengthFive as usize) ..(bLength as usize))).map_err(Version1AudioStreamingInterfaceExtraDescriptorParseError::CouldNotAllocateMemoryForUndefinedTypeIIFormatSpecificData)?;
+		const Start: usize = (Version1TypeIIAudioFormatDetailSpecific::BLengthFive as usize) - DescriptorHeaderLength;
+		let data = Vec::new_from(descriptor_body.get_unchecked_range_safe(Start .. descriptor_body_length)).map_err(FormatTypeIIParseError::CouldNotAllocateMemoryForUndefinedFormatSpecificData)?;
 		Ok(Version1TypeIIAudioFormatDetailSpecific::Undefined(data))
 	}
 	
 	#[inline(always)]
-	fn parse_mpeg(remaining_bytes: &[u8], bLength: u8) -> Result<Self, Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_mpeg(descriptor_body: &[u8], bLength: u8) -> Result<Self, FormatTypeIIParseError>
 	{
-		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use FormatTypeIIParseError::*;
 		
 		if unlikely!(bLength < 9)
 		{
 			return Err(FormatSpecificBLengthIsLessThanNineForMpeg)
 		}
 		
-		let bmMPEGCapabilities = remaining_bytes.u16(5);
-		let bmMPEGFeatures = remaining_bytes.u8(7);
+		let bmMPEGCapabilities = descriptor_body.u16(descriptor_index::<5>());
+		let bmMPEGFeatures = descriptor_body.u8(descriptor_index::<7>());
 		
 		Ok
 		(
@@ -122,9 +135,9 @@ impl Version1TypeIIAudioFormatDetailSpecific
 	}
 	
 	#[inline(always)]
-	fn parse_ac_3(remaining_bytes: &[u8], bLength: u8) -> Result<Self, Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_ac_3(descriptor_body: &[u8], bLength: u8) -> Result<Self, FormatTypeIIParseError>
 	{
-		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use FormatTypeIIParseError::*;
 		
 		if unlikely!(bLength < 10)
 		{
@@ -133,7 +146,7 @@ impl Version1TypeIIAudioFormatDetailSpecific
 		
 		Ok
 		(
-			Version1TypeIIAudioFormatDetailSpecific::AC_3(Ac3Common::parse(remaining_bytes, Ac3MustSupportBitStreamIdModes0To9Inclusive)?),
+			Version1TypeIIAudioFormatDetailSpecific::AC_3(Ac3Common::parse(descriptor_body, Ac3MustSupportBitStreamIdModes0To9Inclusive)?),
 		)
 	}
 }

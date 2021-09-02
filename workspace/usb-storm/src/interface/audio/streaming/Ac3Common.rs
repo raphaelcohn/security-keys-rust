@@ -66,9 +66,9 @@ impl Ac3Common
 	}
 	
 	#[inline(always)]
-	fn parse<E: error::Error>(remaining_bytes: &[u8], error: E) -> Result<Self, E>
+	fn parse<E: error::Error>(descriptor_body: &[u8], error: E) -> Result<Self, E>
 	{
-		let bmAC3Features = remaining_bytes.u8(9);
+		let bmAC3Features = descriptor_body.u8(descriptor_index::<9>());
 		
 		Ok
 		(
@@ -78,7 +78,7 @@ impl Ac3Common
 				
 				bit_stream_id_modes:
 				{
-					let bmBSID = remaining_bytes.u32(5);
+					let bmBSID = descriptor_body.u32(descriptor_index::<5>());
 					const Lower9Modes: u32 = 0b1_1111_1111;
 					if (bmBSID & Lower9Modes) != Lower9Modes
 					{

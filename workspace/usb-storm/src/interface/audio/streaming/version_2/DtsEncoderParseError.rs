@@ -10,9 +10,6 @@ pub enum DtsEncoderParseError
 	BLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
 	ControlParse(DecoderControlParseError),
 	
 	#[allow(missing_docs)]

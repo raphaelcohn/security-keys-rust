@@ -30,12 +30,12 @@ impl Decoder
 	}
 	
 	#[inline(always)]
-	fn parse(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, DecoderParseError>
+	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, DecoderParseError>
 	{
 		use DecoderParseError::*;
 		
 		const MinimumBLength: u8 = 5;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<DecoderParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(descriptor_body_followed_by_remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		Ok
 		(
@@ -49,7 +49,7 @@ impl Decoder
 						details:
 						{
 							let decoder_type = descriptor_body.u8(descriptor_index::<4>());
-							let dead_or_alive = DecoderDetails::parse(bLength, remaining_bytes, decoder_type, string_finder)?;
+							let dead_or_alive = DecoderDetails::parse(bLength, descriptor_body, decoder_type, string_finder)?;
 							return_ok_if_dead!(dead_or_alive)
 						},
 					},

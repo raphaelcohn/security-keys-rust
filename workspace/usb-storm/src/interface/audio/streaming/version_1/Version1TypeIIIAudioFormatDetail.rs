@@ -53,41 +53,40 @@ impl Version1TypeIIIAudioFormatDetail
 	}
 	
 	#[inline(always)]
-	fn parse(format: Version1TypeIIIAudioFormat, bLength: u8, remaining_bytes: &[u8]) -> Result<(Version1AudioFormatDetail, usize), Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse(format: Version1TypeIIIAudioFormat, bLength: u8, descriptor_body: &[u8]) -> Result<Version1AudioFormatDetail, FormatTypeIIIParseError>
 	{
-		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use FormatTypeIIIParseError::*;
 		
 		const MinimumBLength: u8 = 8;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<Version1AudioStreamingInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, FormatTypeIIIBLengthIsLessThanMinimum, FormatTypeIIIBLengthExceedsRemainingBytes)?;
+		if unlikely!(bLength < MinimumBLength)
+		{
+			return Err(BLengthIsLessThanMinimum)
+		}
 		
 		let bSubframeSize = descriptor_body.u8(descriptor_index::<5>());
 		if unlikely!(bSubframeSize != 2)
 		{
-			return Err(InvalidTypeIIISubframeSize { bSubframeSize })
+			return Err(InvalidSubframeSize { bSubframeSize })
 		}
 		
 		let bBitResolution = descriptor_body.u8(descriptor_index::<6>());
 		if unlikely!(bBitResolution != 16)
 		{
-			return Err(InvalidTypeIIIBitResolution { bBitResolution })
+			return Err(InvalidBitResolution { bBitResolution })
 		}
 		
 		Ok
 		(
+			Version1AudioFormatDetail::TypeIII
 			(
-				Version1AudioFormatDetail::TypeIII
-				(
-					Self
-					{
-						format,
-						
-						number_of_channels: descriptor_body.u8(descriptor_index::<4>()),
-						
-						sampling_frequency: SamplingFrequency::parse(MinimumBLength, descriptor_body, bLength)?,
-					}
-				),
-				
-				descriptor_body_length,
+				Self
+				{
+					format,
+					
+					number_of_channels: descriptor_body.u8(descriptor_index::<4>()),
+					
+					sampling_frequency: SamplingFrequency::parse::<MinimumBLength>(descriptor_body, bLength).map_err(SamplingFrequencyParse)?,
+				}
 			)
 		)
 	}

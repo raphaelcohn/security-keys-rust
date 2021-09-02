@@ -2,15 +2,16 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+/// Returns a descriptor body from bytes that omit a descriptor header.
 #[inline(always)]
-pub(crate) fn verify_remaining_bytes<E, const MinimumBLength: u8>(remaining_bytes: &[u8], bLength: u8, b_length_is_less_than_minimum_error: E, b_length_exceeds_remining_bytes_error: E) -> Result<(&[u8], usize), E>
+pub(crate) fn verify_remaining_bytes<E, const MinimumBLength: u8>(remaining_bytes_without_descriptor_header: &[u8], bLength: u8, b_length_is_less_than_minimum_error: E, b_length_exceeds_remining_bytes_error: E) -> Result<(&[u8], usize), E>
 {
 	if unlikely!(bLength < MinimumBLength)
 	{
 		return Err(b_length_is_less_than_minimum_error)
 	}
 	
-	let available_descriptor_body_length = remaining_bytes.len();
+	let available_descriptor_body_length = remaining_bytes_without_descriptor_header.len();
 	let stated_descriptor_body_length = reduce_b_length_to_descriptor_body_length(bLength);
 	if unlikely!(stated_descriptor_body_length > available_descriptor_body_length)
 	{
@@ -18,6 +19,6 @@ pub(crate) fn verify_remaining_bytes<E, const MinimumBLength: u8>(remaining_byte
 	}
 	
 	let descriptor_body_length = stated_descriptor_body_length;
-	let descriptor_body = remaining_bytes.get_unchecked_range_safe(.. descriptor_body_length);
+	let descriptor_body = remaining_bytes_without_descriptor_header.get_unchecked_range_safe(.. descriptor_body_length);
 	Ok((descriptor_body, descriptor_body_length))
 }

@@ -27,21 +27,21 @@ pub enum SamplingFrequency
 impl SamplingFrequency
 {
 	#[inline(always)]
-	fn parse(MinimumBLength: u8, descriptor_body: &[u8], bLength: u8) -> Result<Self, Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse<const MinimumBLength: u8>(descriptor_body: &[u8], bLength: u8) -> Result<Self, SamplingFrequencyParseError>
 	{
-		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use SamplingFrequencyParseError::*;
 		
-		let MinimumBLength = MinimumBLength as usize;
+		let minimum_b_length = MinimumBLength as usize;
 		const U24Size: usize = 3;
 		
-		let index = MinimumBLength - 1;
+		let index = minimum_b_length - 1;
 		
 		use SamplingFrequency::*;
 		let sampling_frequency = match descriptor_body.optional_non_zero_u8(descriptor_index_non_constant(index))
 		{
 			None =>
 			{
-				let expected_length = MinimumBLength + (U24Size * 2);
+				let expected_length = minimum_b_length + (U24Size * 2);
 				if unlikely!((bLength as usize) < expected_length)
 				{
 					return Err(ContinuousSamplingFrequencyBLengthWrong { bLength })
@@ -71,7 +71,8 @@ impl SamplingFrequency
 			Some(count) =>
 			{
 				let count = count.get() as usize;
-				let expected_length = MinimumBLength + (count * U24Size);
+				let expected_length = minimum_b_length + (count * U24Size);
+				
 				if unlikely!((bLength as usize) < expected_length)
 				{
 					return Err(DiscreteSamplingFrequencyBLengthWrong { bLength })
@@ -85,7 +86,7 @@ impl SamplingFrequency
 				
 				Discrete
 				{
-					sampling_frequencies:  Vec::new_populated(count, CouldNotAllocateMemoryForTypeIDiscreteSamplingFrequencies, |sample_index|
+					sampling_frequencies:  Vec::new_populated(count, CouldNotAllocateMemoryForDiscreteSamplingFrequencies, |sample_index|
 					{
 						Ok(descriptor_body.u24(descriptor_index_non_constant(index + (sample_index * U24Size))))
 					})?,

@@ -16,7 +16,14 @@ pub enum DescriptorParseError<E: error::Error>
 	NotEnoughDescriptorBytes,
 
 	/// The length byte `bLength` of a descriptor is longer than the number of bytes remaining to parse.
-	DescriptorLengthExceedsRemainingBytes,
+	DescriptorLengthExceedsRemainingBytes
+	{
+		#[allow(missing_docs)]
+		bLength: u8,
+		
+		#[allow(missing_docs)]
+		remaining_length: usize,
+	},
 
 	/// An error specific to to the specific (sic) extra descriptor being parsed.
 	Specific(E),

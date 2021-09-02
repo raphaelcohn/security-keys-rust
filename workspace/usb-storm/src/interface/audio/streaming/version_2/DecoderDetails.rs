@@ -76,7 +76,7 @@ pub enum DecoderDetails
 impl DecoderDetails
 {
 	#[inline(always)]
-	fn parse(bLength: u8, remaining_bytes: &[u8], decoder_type: u8, string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, DecoderParseError>
+	fn parse(bLength: u8, descriptor_body: &[u8], decoder_type: u8, string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, DecoderParseError>
 	{
 		use DecoderDetails::*;
 		
@@ -86,7 +86,7 @@ impl DecoderDetails
 			(
 				Undefined
 				{
-					data: Self::parse_data(bLength, remaining_bytes)?,
+					data: Self::parse_data(descriptor_body)?,
 				}
 			),
 			
@@ -94,23 +94,23 @@ impl DecoderDetails
 			(
 				Other
 				{
-					data: Self::parse_data(bLength, remaining_bytes)?,
+					data: Self::parse_data(descriptor_body)?,
 				}
 			),
 			
-			0x02 => Self::parse_mpeg(bLength, remaining_bytes, string_finder)?,
+			0x02 => Self::parse_mpeg(bLength, descriptor_body, string_finder)?,
 			
-			0x03 => Self::parse_ac_3(bLength, remaining_bytes, string_finder)?,
+			0x03 => Self::parse_ac_3(bLength, descriptor_body, string_finder)?,
 			
-			0x04 => Self::parse_wma(bLength, remaining_bytes, string_finder)?,
+			0x04 => Self::parse_wma(bLength, descriptor_body, string_finder)?,
 			
-			0x05 => Self::parse_dts(bLength, remaining_bytes, string_finder)?,
+			0x05 => Self::parse_dts(bLength, descriptor_body, string_finder)?,
 			
 			_ => Alive
 			(
 				Unrecognized
 				{
-					data: Self::parse_data(bLength, remaining_bytes)?,
+					data: Self::parse_data(descriptor_body)?,
 				
 					decoder_type,
 				}
@@ -120,21 +120,26 @@ impl DecoderDetails
 	}
 	
 	#[inline(always)]
-	fn parse_data(bLength: u8, remaining_bytes: &[u8]) -> Result<Vec<u8>, DecoderParseError>
+	fn parse_data(descriptor_body: &[u8]) -> Result<Vec<u8>, DecoderParseError>
 	{
-		let data = remaining_bytes.get_unchecked_range_safe(5 .. (bLength as usize));
+		let data = descriptor_body.get_unchecked_range_safe(descriptor_index::<5>() ..);
 		Vec::new_from(data).map_err(DecoderParseError::CouldNotAllocateMemoryForUndefinedOrOtherOrUnrecognizedData)
 	}
 	
 	#[inline(always)]
-	fn parse_mpeg(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, MpegEncoderParseError>
+	fn parse_mpeg(bLength: u8, descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, MpegEncoderParseError>
 	{
 		use MpegEncoderParseError::*;
 		
-		const BLength: u8 = 10;
-		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<MpegEncoderParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		{
+			const BLength: u8 = 10;
+			if unlikely!(bLength < BLength)
+			{
+				return Err(BLengthIsLessThanMinimum)
+			}
+		}
 		
-		let bmMPEGCapabilities = remaining_bytes.u16(5);
+		let bmMPEGCapabilities = descriptor_body.u16(descriptor_index::<5>());
 		Ok
 		(
 			Alive
@@ -143,7 +148,7 @@ impl DecoderDetails
 				{
 					common:
 					{
-						let bmMPEGFeatures = remaining_bytes.u8(7);
+						let bmMPEGFeatures = descriptor_body.u8(descriptor_index::<7>());
 						MpegCommon::parse(bmMPEGCapabilities, bmMPEGFeatures, ReservedMpeg2MultilingualSupport)?
 					},
 					
@@ -158,12 +163,17 @@ impl DecoderDetails
 	}
 	
 	#[inline(always)]
-	fn parse_ac_3(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Ac3EncoderParseError>
+	fn parse_ac_3(bLength: u8, descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Ac3EncoderParseError>
 	{
 		use Ac3EncoderParseError::*;
 		
-		const BLength: u8 = 12;
-		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<Ac3EncoderParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		{
+			const BLength: u8 = 12;
+			if unlikely!(bLength < BLength)
+			{
+				return Err(BLengthIsLessThanMinimum)
+			}
+		}
 		
 		Ok
 		(
@@ -171,7 +181,7 @@ impl DecoderDetails
 			(
 				DecoderDetails::AC_3
 				{
-					common: Ac3Common::parse(remaining_bytes, Ac3MustSupportBitStreamIdModes0To9Inclusive)?,
+					common: Ac3Common::parse(descriptor_body, Ac3MustSupportBitStreamIdModes0To9Inclusive)?,
 					
 					controls: DecoderControls::parse::<10, 0>(descriptor_body)?,
 					
@@ -182,12 +192,17 @@ impl DecoderDetails
 	}
 	
 	#[inline(always)]
-	fn parse_wma(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, WmaEncoderParseError>
+	fn parse_wma(bLength: u8, descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, WmaEncoderParseError>
 	{
 		use WmaEncoderParseError::*;
 		
-		const BLength: u8 = 9;
-		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<WmaEncoderParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		{
+			const BLength: u8 = 9;
+			if unlikely!(bLength < BLength)
+			{
+				return Err(BLengthIsLessThanMinimum)
+			}
+		}
 		
 		let bmWMAProfile = descriptor_body.u16(descriptor_index::<5>());
 		Ok
@@ -209,12 +224,17 @@ impl DecoderDetails
 	}
 	
 	#[inline(always)]
-	fn parse_dts(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, DtsEncoderParseError>
+	fn parse_dts(bLength: u8, descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, DtsEncoderParseError>
 	{
 		use DtsEncoderParseError::*;
 		
-		const BLength: u8 = 8;
-		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<DtsEncoderParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		{
+			const BLength: u8 = 8;
+			if unlikely!(bLength < BLength)
+			{
+				return Err(BLengthIsLessThanMinimum)
+			}
+		}
 		
 		Ok
 		(

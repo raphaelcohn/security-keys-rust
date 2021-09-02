@@ -57,44 +57,43 @@ impl Version1TypeIAudioFormatDetail
 	}
 	
 	#[inline(always)]
-	fn parse(format: Version1TypeIAudioFormat, bLength: u8, remaining_bytes: &[u8]) -> Result<(Version1AudioFormatDetail, usize), Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse(format: Version1TypeIAudioFormat, bLength: u8, descriptor_body: &[u8]) -> Result<Version1AudioFormatDetail, FormatTypeIParseError>
 	{
-		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use FormatTypeIParseError::*;
 		
 		const MinimumBLength: u8 = 8;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<Version1AudioStreamingInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, FormatTypeIBLengthIsLessThanMinimum, FormatTypeIBLengthExceedsRemainingBytes)?;
+		if unlikely!(bLength < MinimumBLength)
+		{
+			return Err(BLengthIsLessThanMinimum)
+		}
 		
 		Ok
 		(
+			Version1AudioFormatDetail::TypeI
 			(
-				Version1AudioFormatDetail::TypeI
-				(
-					Self
-					{
-						format,
-						
-						number_of_channels: descriptor_body.u8(descriptor_index::<4>()),
+				Self
+				{
+					format,
 					
-						subframe_size:
-						{
-							let bSubframeSize = descriptor_body.u8(descriptor_index::<5>());
-							match bSubframeSize
-							{
-								0 => return Err(InvalidTypeISubframeSize { bSubframeSize }),
-								
-								1 ..= 4 => unsafe { transmute(bSubframeSize) },
-								
-								_ => return Err(InvalidTypeISubframeSize { bSubframeSize })
-							}
-						},
-					
-						bit_resolution: descriptor_body.u8(descriptor_index::<6>()),
-						
-						sampling_frequency: SamplingFrequency::parse(MinimumBLength, descriptor_body, bLength)?,
-					}
-				),
+					number_of_channels: descriptor_body.u8(descriptor_index::<4>()),
 				
-				descriptor_body_length,
+					subframe_size:
+					{
+						let bSubframeSize = descriptor_body.u8(descriptor_index::<5>());
+						match bSubframeSize
+						{
+							0 => return Err(InvalidSubframeSize { bSubframeSize }),
+							
+							1 ..= 4 => unsafe { transmute(bSubframeSize) },
+							
+							_ => return Err(InvalidSubframeSize { bSubframeSize })
+						}
+					},
+				
+					bit_resolution: descriptor_body.u8(descriptor_index::<6>()),
+					
+					sampling_frequency: SamplingFrequency::parse::<MinimumBLength>(descriptor_body, bLength).map_err(SamplingFrequencyParse)?,
+				}
 			)
 		)
 	}

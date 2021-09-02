@@ -26,7 +26,7 @@ pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFin
 		let descriptor_length = bLength as usize;
 		if unlikely!(descriptor_length > remaining_length)
 		{
-			return Err(DescriptorLengthExceedsRemainingBytes)
+			return Err(DescriptorLengthExceedsRemainingBytes { bLength, remaining_length })
 		}
 		
 		let descriptor_type = extra.u8(1);

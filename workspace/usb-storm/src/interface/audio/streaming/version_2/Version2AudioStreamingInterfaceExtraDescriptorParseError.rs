@@ -7,13 +7,16 @@
 pub enum Version2AudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
+	GenericParse(GenericAudioStreamingInterfaceExtraDescriptorParseError),
+	
+	#[allow(missing_docs)]
+	FormatTypeIsUnexpected,
+	
+	#[allow(missing_docs)]
 	GeneralParse(GeneralParseError),
 	
 	#[allow(missing_docs)]
 	EncoderParse(EncoderParseError),
-	
-	#[allow(missing_docs)]
-	FormatTypeIsUnexpected,
 	
 	#[allow(missing_docs)]
 	DecoderParse(DecoderParseError),
@@ -37,6 +40,8 @@ impl error::Error for Version2AudioStreamingInterfaceExtraDescriptorParseError
 		
 		match self
 		{
+			GenericParse(cause) => Some(cause),
+			
 			GeneralParse(cause) => Some(cause),
 			
 			EncoderParse(cause) => Some(cause),
@@ -45,5 +50,14 @@ impl error::Error for Version2AudioStreamingInterfaceExtraDescriptorParseError
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<GenericAudioStreamingInterfaceExtraDescriptorParseError> for Version2AudioStreamingInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: GenericAudioStreamingInterfaceExtraDescriptorParseError) -> Self
+	{
+		Version2AudioStreamingInterfaceExtraDescriptorParseError::GenericParse(cause)
 	}
 }

@@ -24,7 +24,7 @@ impl DescriptorParser for InternetPrintingProtocolInterfaceExtraDescriptorParser
 		};
 		
 		const MinimumBLength: u8 = InternetPrintingProtocolInterfaceExtraDescriptorParser::MinimumBLength;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<InternetPrintingProtocolInterfaceExtraDescriptorParseError, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let number_of_capability_descriptors =
 		{

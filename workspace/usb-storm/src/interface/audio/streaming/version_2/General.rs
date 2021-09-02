@@ -43,22 +43,22 @@ impl General
 	}
 	
 	#[inline(always)]
-	fn parse(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, GeneralParseError>
+	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, GeneralParseError>
 	{
 		use GeneralParseError::*;
 		use GeneralControlsParseError::*;
 		
 		const BLength: u8 = 16;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<GeneralParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, BLength>(descriptor_body_followed_by_remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let bmControls = descriptor_body.u8(descriptor_index::<4>());
 		
 		let general_format_type = descriptor_body.u8(descriptor_index::<5>());
 		let formats_bit_map = descriptor_body.u32(descriptor_index::<6>());
-		let subsequent_format_type_descriptor_bytes = remaining_bytes.get_unchecked_range_safe(.. (bLength as usize));
-		let (subsequent_format_type_descriptor_body, subsequent_format_type_descriptor_body_bLength) = Self::parse_subsequent_format_type_descriptor_header(general_format_type, subsequent_format_type_descriptor_bytes)?;
+		let subsequent_format_type_descriptor_bytes = descriptor_body_followed_by_remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. );
+		let (subsequent_format_type_descriptor_body, subsequent_format_type_descriptor_bLength) = Self::parse_subsequent_format_type_descriptor_header(general_format_type, subsequent_format_type_descriptor_bytes)?;
 		
-		let consumed_length = subsequent_format_type_descriptor_body_bLength as usize;
+		let consumed_length = subsequent_format_type_descriptor_bLength as usize;
 		Ok
 		(
 			Alive
@@ -78,7 +78,7 @@ impl General
 							return_ok_if_dead!(dead_or_alive)
 						},
 					
-						audio_format: Version2AudioFormatDetails::parse(general_format_type, formats_bit_map, subsequent_format_type_descriptor_body, subsequent_format_type_descriptor_body_bLength)?,
+						audio_format: Version2AudioFormatDetails::parse(general_format_type, formats_bit_map, subsequent_format_type_descriptor_body, subsequent_format_type_descriptor_bLength)?,
 					},
 					
 					descriptor_body_length + consumed_length
@@ -100,8 +100,13 @@ impl General
 			subsequent_format_type_descriptor_bytes.u8(0)
 		};
 		
+		if unlikely!((bLength as usize) < DescriptorHeaderLength)
+		{
+			return Err(BLengthIsLessThanDescriptorHeaderLength)
+		}
+		
 		const MinimumBLength: u8 = 4;
-		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<FormatTypeDescriptorParseError, MinimumBLength>(subsequent_format_type_descriptor_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, _descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(subsequent_format_type_descriptor_bytes.get_unchecked_range_safe(DescriptorHeaderLength .. ), bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		{
 			let descriptor_type = descriptor_body.u8(descriptor_index::<1>());

@@ -47,16 +47,18 @@ impl Version1AudioStreamingInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(bLength: u8, remaining_bytes: &[u8]) -> Result<(Self, usize), Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8]) -> Result<(Self, usize), Version1AudioStreamingInterfaceExtraDescriptorParseError>
 	{
 		const BLength: u8 = 7;
 		
 		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<Version1AudioStreamingInterfaceExtraDescriptorParseError, BLength>(remaining_bytes, bLength, GeneralBLengthIsLessThanMinimum, GeneralBLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, BLength>(descriptor_body_followed_by_remaining_bytes, bLength, GeneralBLengthIsLessThanMinimum, GeneralBLengthExceedsRemainingBytes)?;
 		
 		let audio_format = Version1AudioFormat::parse(descriptor_body.u16(descriptor_index::<5>()));
 		
-		let (audio_format_detail, audio_format_detail_consumed_length) = Self::parse_audio_format(audio_format, remaining_bytes.get_unchecked_range_safe(((BLength as usize) - DescriptorHeaderLength) .. ))?;
+		let audio_format_descriptor_followed_by_remaining_bytes = descriptor_body_followed_by_remaining_bytes.get_unchecked_range_safe(descriptor_body_length .. );
+		
+		let (audio_format_detail, audio_format_detail_consumed_length) = Self::parse_format_type_descriptor(audio_format, audio_format_descriptor_followed_by_remaining_bytes)?;
 		
 		Ok
 		(
@@ -76,38 +78,56 @@ impl Version1AudioStreamingInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_audio_format(audio_format: Version1AudioFormat, remaining_bytes: &[u8]) -> Result<(Version1AudioFormatDetail, usize), Version1AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_format_type_descriptor(audio_format: Version1AudioFormat, audio_format_descriptor_followed_by_remaining_bytes: &[u8]) -> Result<(Version1AudioFormatDetail, usize), FormatTypeParseError>
 	{
-		use Version1AudioStreamingInterfaceExtraDescriptorParseError::*;
+		use FormatTypeParseError::*;
 		
-		let bLength = remaining_bytes.u8(0);
-		let _ = verify_remaining_bytes::<Version1AudioStreamingInterfaceExtraDescriptorParseError, 4>(remaining_bytes, bLength, FormatTypeBLengthIsLessThanMinimum, FormatTypeBLengthExceedsRemainingBytes)?;
-		
-		let bDescriptorType = remaining_bytes.u8(1);
-		if unlikely!(bDescriptorType != AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE)
+		let bLength =
 		{
-			return Err(DescriptorTypeIsNotInterface { bDescriptorType })
+			if unlikely!(audio_format_descriptor_followed_by_remaining_bytes.is_empty())
+			{
+				return Err(NoFormatTypeDescriptorBytes)
+			}
+			audio_format_descriptor_followed_by_remaining_bytes.u8(0)
+		};
+		if unlikely!((bLength as usize) < DescriptorHeaderLength)
+		{
+			return Err(BLengthIsLessThanDescriptorHeaderLength)
 		}
 		
-		let bDescriptorSubType = remaining_bytes.u8(2);
-		if unlikely!(bDescriptorSubType != Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_TYPE)
 		{
-			return Err(DescriptorSubTypeIsNotFormatType { bDescriptorSubType })
+			let bDescriptorType = audio_format_descriptor_followed_by_remaining_bytes.u8(1);
+			if unlikely!(bDescriptorType != AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE)
+			{
+				return Err(DescriptorTypeIsNotInterface { bDescriptorType })
+			}
+		}
+		
+		const MinimumBLength: u8 = 4;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(audio_format_descriptor_followed_by_remaining_bytes.get_unchecked_range_safe(DescriptorHeaderLength .. ), bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		
+		{
+			let bDescriptorSubType = descriptor_body.u8(descriptor_index::<2>());
+			if unlikely!(bDescriptorSubType != Version1AudioStreamingInterfaceExtraDescriptor::FORMAT_TYPE)
+			{
+				return Err(DescriptorSubTypeIsNotFormatType { bDescriptorSubType })
+			}
 		}
 		
 		use Version1AudioFormat::*;
-		let bFormatType = remaining_bytes.u8(3);
-		match (bFormatType, audio_format)
+		let bFormatType = descriptor_body.u8(descriptor_index::<3>());
+		let (outcome, consumed_length) = match (bFormatType, audio_format)
 		{
-			(0x00, _) => Err(UndefinedFormatType { audio_format }),
+			(0x00, _) => return Err(UndefinedFormatTypeCode { audio_format }),
 			
-			(0x01, TypeI(format)) => Version1TypeIAudioFormatDetail::parse(format, bLength, remaining_bytes),
+			(0x01, TypeI(format)) => (Version1TypeIAudioFormatDetail::parse(format, bLength, descriptor_body)?, 0),
 			
-			(0x02, TypeII(format)) => Version1TypeIIAudioFormatDetail::parse(format, bLength, remaining_bytes),
+			(0x02, TypeII(format)) => Version1TypeIIAudioFormatDetail::parse(format, bLength, descriptor_body, descriptor_body_length, audio_format_descriptor_followed_by_remaining_bytes)?,
 			
-			(0x03, TypeIII(format)) => Version1TypeIIIAudioFormatDetail::parse(format, bLength, remaining_bytes),
+			(0x03, TypeIII(format)) => (Version1TypeIIIAudioFormatDetail::parse(format, bLength, descriptor_body)?, 0),
 			
-			(_, _) => Err(UnrecognizedFormatType { audio_format, bFormatType })
-		}
+			(_, _) => return Err(UnrecognizedFormatTypeCode { audio_format, bFormatType })
+		};
+		Ok((outcome, (bLength as usize) + consumed_length))
 	}
 }

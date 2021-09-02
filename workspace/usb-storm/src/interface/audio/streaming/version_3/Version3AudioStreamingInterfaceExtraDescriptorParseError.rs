@@ -7,6 +7,9 @@
 pub enum Version3AudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
+	GenericParse(GenericAudioStreamingInterfaceExtraDescriptorParseError),
+	
+	#[allow(missing_docs)]
 	GeneralParse(GeneralParseError),
 	
 	#[allow(missing_docs)]
@@ -31,9 +34,20 @@ impl error::Error for Version3AudioStreamingInterfaceExtraDescriptorParseError
 		
 		match self
 		{
+			GenericParse(cause) => Some(cause),
+			
 			GeneralParse(cause) => Some(cause),
 			
 			ValidSamplingFrequencyRangeParse(cause) => Some(cause),
 		}
+	}
+}
+
+impl From<GenericAudioStreamingInterfaceExtraDescriptorParseError> for Version3AudioStreamingInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: GenericAudioStreamingInterfaceExtraDescriptorParseError) -> Self
+	{
+		Version3AudioStreamingInterfaceExtraDescriptorParseError::GenericParse(cause)
 	}
 }

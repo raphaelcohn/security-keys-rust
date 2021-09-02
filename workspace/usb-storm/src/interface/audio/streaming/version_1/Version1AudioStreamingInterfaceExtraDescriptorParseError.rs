@@ -7,154 +7,22 @@
 pub enum Version1AudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
+	GenericParse(GenericAudioStreamingInterfaceExtraDescriptorParseError),
+	
+	#[allow(missing_docs)]
+	FormatTypeIsUnexpected,
+	
+	#[allow(missing_docs)]
+	FormatSpecificIsUnexpected,
+	
+	#[allow(missing_docs)]
 	GeneralBLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]
 	GeneralBLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	FormatTypeBLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
-	FormatTypeBLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
-	FormatTypeIBLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
-	FormatTypeIBLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
-	FormatTypeIIBLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
-	FormatTypeIIBLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
-	FormatTypeIIIBLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
-	FormatTypeIIIBLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
-	FormatSpecificBLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
-	FormatSpecificBLengthExceedsRemainingBytes,
-	
-	#[allow(missing_docs)]
-	DescriptorTypeIsNotInterface
-	{
-		bDescriptorType: DescriptorType,
-	},
-	
-	#[allow(missing_docs)]
-	DescriptorSubTypeIsNotFormatType
-	{
-		bDescriptorSubType: DescriptorSubType,
-	},
-	
-	#[allow(missing_docs)]
-	DescriptorSubTypeIsNotFormatSpecific
-	{
-		bDescriptorSubType: DescriptorSubType,
-	},
-	
-	#[allow(missing_docs)]
-	UndefinedFormatType
-	{
-		audio_format: Version1AudioFormat,
-	},
-	
-	#[allow(missing_docs)]
-	UnrecognizedFormatType
-	{
-		audio_format: Version1AudioFormat,
-		
-		bFormatType: u8,
-	},
-	
-	#[allow(missing_docs)]
-	InvalidTypeISubframeSize
-	{
-		bSubframeSize: u8,
-	},
-	
-	#[allow(missing_docs)]
-	ContinuousSamplingFrequencyBLengthWrong
-	{
-		bLength: u8,
-	},
-	
-	#[allow(missing_docs)]
-	ContinuousSamplingFrequencyLengthWrong
-	{
-		length: usize,
-	},
-	
-	#[allow(missing_docs)]
-	ContinuousSamplingFrequencyBoundsNegative
-	{
-		lower_bound: Hertz,
-		
-		upper_bound: Hertz,
-	},
-	
-	#[allow(missing_docs)]
-	DiscreteSamplingFrequencyBLengthWrong
-	{
-		bLength: u8,
-	},
-	
-	#[allow(missing_docs)]
-	DiscreteSamplingFrequencyLengthWrong
-	{
-		length: usize,
-	},
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForTypeIDiscreteSamplingFrequencies(TryReserveError),
-	
-	#[allow(missing_docs)]
-	InvalidTypeIIISubframeSize
-	{
-		bSubframeSize: u8,
-	},
-	
-	#[allow(missing_docs)]
-	InvalidTypeIIIBitResolution
-	{
-		bBitResolution: u8,
-	},
-	
-	#[allow(missing_docs)]
-	NoRemainingBytesForTypeIIFormatSpecificDescriptor,
-	
-	#[allow(missing_docs)]
-	FormatSpecificBLengthIsLessThanFive,
-	
-	#[allow(missing_docs)]
-	MismatchedFormatTagsInFormatSpecifcDescriptor
-	{
-		format: Version1TypeIIAudioFormat,
-		
-		wFormatTag: u16,
-	},
-	
-	#[allow(missing_docs)]
-	FormatSpecificBLengthIsLessThanNineForMpeg,
-	
-	#[allow(missing_docs)]
-	FormatSpecificBLengthIsLessThanTenForAc3,
-	
-	#[allow(missing_docs)]
-	ReservedMpeg2MultilingualSupport,
-	
-	#[allow(missing_docs)]
-	Ac3MustSupportBitStreamIdModes0To9Inclusive,
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUndefinedTypeIIFormatSpecificData(TryReserveError),
+	FormatTypeParse(FormatTypeParseError),
 }
 
 impl Display for Version1AudioStreamingInterfaceExtraDescriptorParseError
@@ -175,11 +43,29 @@ impl error::Error for Version1AudioStreamingInterfaceExtraDescriptorParseError
 		
 		match self
 		{
-			CouldNotAllocateMemoryForTypeIDiscreteSamplingFrequencies(cause) => Some(cause),
+			GenericParse(cause) => Some(cause),
 			
-			CouldNotAllocateMemoryForUndefinedTypeIIFormatSpecificData(cause) => Some(cause),
+			FormatTypeParse(cause) => Some(cause),
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<GenericAudioStreamingInterfaceExtraDescriptorParseError> for Version1AudioStreamingInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: GenericAudioStreamingInterfaceExtraDescriptorParseError) -> Self
+	{
+		Version1AudioStreamingInterfaceExtraDescriptorParseError::GenericParse(cause)
+	}
+}
+
+impl From<FormatTypeParseError> for Version1AudioStreamingInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: FormatTypeParseError) -> Self
+	{
+		Version1AudioStreamingInterfaceExtraDescriptorParseError::FormatTypeParse(cause)
 	}
 }

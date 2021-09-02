@@ -113,12 +113,12 @@ impl Encoder
 	}
 	
 	#[inline(always)]
-	fn parse(bLength: u8, remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, EncoderParseError>
+	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, EncoderParseError>
 	{
 		use EncoderParseError::*;
 		
 		const BLength: u8 = 21;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<EncoderParseError, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, BLength>(descriptor_body_followed_by_remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
 		let bmControls = descriptor_body.u32(descriptor_index::<8>());
 		

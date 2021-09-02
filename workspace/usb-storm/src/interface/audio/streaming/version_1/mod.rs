@@ -25,11 +25,16 @@ use swiss_army_knife::get_unchecked::GetUnchecked;
 use std::mem::transmute;
 use crate::integers::u24;
 use std::collections::TryReserveError;
-use crate::interface::audio::streaming::Ac3Common;
+use crate::interface::audio::streaming::{Ac3Common, GenericAudioStreamingInterfaceExtraDescriptorParseError};
 
 
 include!("Hertz.rs");
+include!("FormatTypeIIIParseError.rs");
+include!("FormatTypeIIParseError.rs");
+include!("FormatTypeIParseError.rs");
+include!("FormatTypeParseError.rs");
 include!("SamplingFrequency.rs");
+include!("SamplingFrequencyParseError.rs");
 include!("SubframeSize.rs");
 include!("Version1AudioFormat.rs");
 include!("Version1AudioFormatDetail.rs");

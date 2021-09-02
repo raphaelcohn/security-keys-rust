@@ -16,6 +16,9 @@ pub enum FormatTypeDescriptorParseError
 	NoFormatTypeDescriptor,
 	
 	#[allow(missing_docs)]
+	BLengthIsLessThanDescriptorHeaderLength,
+	
+	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]

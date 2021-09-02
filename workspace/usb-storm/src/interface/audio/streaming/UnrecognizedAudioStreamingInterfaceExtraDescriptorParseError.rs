@@ -4,19 +4,19 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum WmaEncoderParseError
+pub enum UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
 	BLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]
-	ControlParse(DecoderControlParseError),
+	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	InvalidDescriptionString(GetLocalizedStringError),
+	CouldNotAllocateMemoryForUnrecognized(TryReserveError),
 }
 
-impl Display for WmaEncoderParseError
+impl Display for UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -25,38 +25,18 @@ impl Display for WmaEncoderParseError
 	}
 }
 
-impl error::Error for WmaEncoderParseError
+impl error::Error for UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use WmaEncoderParseError::*;
+		use UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError::*;
 		
 		match self
 		{
-			ControlParse(cause) => Some(cause),
-			
-			InvalidDescriptionString(cause) => Some(cause),
+			CouldNotAllocateMemoryForUnrecognized(cause) => Some(cause),
 			
 			_ => None,
 		}
-	}
-}
-
-impl From<DecoderControlParseError> for WmaEncoderParseError
-{
-	#[inline(always)]
-	fn from(cause: DecoderControlParseError) -> Self
-	{
-		WmaEncoderParseError::ControlParse(cause)
-	}
-}
-
-impl From<GetLocalizedStringError> for WmaEncoderParseError
-{
-	#[inline(always)]
-	fn from(cause: GetLocalizedStringError) -> Self
-	{
-		WmaEncoderParseError::InvalidDescriptionString(cause)
 	}
 }
