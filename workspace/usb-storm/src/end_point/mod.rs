@@ -32,21 +32,34 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use crate::version::Version;
-use crate::collections::{Bytes, WrappedIndexMap};
+use crate::collections::Bytes;
+use crate::collections::WrappedIndexMap;
 use crate::descriptors::descriptor_index;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 use swiss_army_knife::non_zero::new_non_zero_u32;
-use crate::integers::{u2, NonZeroU4};
+use crate::integers::u2;
+use crate::integers::NonZeroU4;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use crate::descriptors::{reduce_b_length_to_descriptor_body_length, DescriptorHeaderLength};
+use crate::descriptors::reduce_b_length_to_descriptor_body_length;
+use crate::descriptors::DescriptorHeaderLength;
 use crate::string::StringFinder;
-use crate::device::{DeadOrAlive, Speed};
+use crate::device::DeadOrAlive;
+use crate::device::Speed;
 use crate::device::DeadOrAlive::Alive;
 use std::num::NonZeroU8;
-use crate::class_and_protocol::{InterfaceClass, MassStorageSubClass, MassStorageProtocol};
+use crate::class_and_protocol::AudioSubClass;
+use crate::class_and_protocol::MassStorageProtocol;
+use crate::class_and_protocol::MassStorageSubClass;
+use crate::class_and_protocol::InterfaceClass;
+use crate::end_point::audio::AudioStreamingIsochronousEndPoint;
+use crate::end_point::audio::AudioStreamingIsochronousEndPointParseError;
 
 
-/// Transfer.
+/// Audio.
+pub mod audio;
+
+
+/// Directional transfers.
 pub mod directional_transfer_type;
 
 
@@ -61,4 +74,8 @@ include!("EndPointExtraDescriptorParser.rs");
 include!("EndPointNumber.rs");
 include!("EndPointParseError.rs");
 include!("InclusiveMaximumNumberOfEndPoints.rs");
+include!("SuperSpeedEndPointCompanionDescriptorParser.rs");
+include!("SuperSpeedEndPointCompanionDescriptorParseError.rs");
+include!("SuperSpeedPlusIsochronousEndPointCompanionDescriptorParseError.rs");
 include!("UsbAttachedScsiPipeIdentifier.rs");
+include!("UsbAttachedScsiPipeParseError.rs");

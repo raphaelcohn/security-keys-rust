@@ -87,9 +87,12 @@ impl EndPointCommon
 		let extra = extra_to_slice(end_point_descriptor.extra, end_point_descriptor.extra_length)?;
 		let descriptor_parser = EndPointExtraDescriptorParser
 		{
-			transfer_type,
-			
-			maximum_packet_size,
+			super_speed_end_point_companion_descriptor_parser: SuperSpeedEndPointCompanionDescriptorParser
+			{
+				transfer_type,
+				
+				maximum_packet_size,
+			},
 			
 			interface_class,
 		};

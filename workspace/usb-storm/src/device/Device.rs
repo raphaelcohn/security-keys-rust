@@ -32,9 +32,9 @@ pub struct Device
 	
 	active_configuration_number: Option<ConfigurationNumber>,
 	
-	configurations: WrappedIndexMap<ConfigurationNumber, Configuration>,
-	
 	binary_object_store: Option<BinaryObjectStore>,
+	
+	configurations: WrappedIndexMap<ConfigurationNumber, Configuration>,
 }
 
 impl Device
@@ -121,6 +121,14 @@ impl Device
 		self.serial_number.as_ref()
 	}
 	
+	/// Device capabilities.
+	#[inline(always)]
+	pub fn binary_object_store(&self) -> Option<&[DeviceCapability]>
+	{
+		let binary_object_store = self.binary_object_store.as_ref()?;
+		Some(binary_object_store.deref())
+	}
+	
 	/// Can be empty, unlike other collections for interfaces and alternate settings.
 	///
 	/// `.iter().enumerate()` does not produce indices suitable for use with `libusb_get_config_descriptor()`.
@@ -136,14 +144,6 @@ impl Device
 	pub fn active_configuration_number(&self) -> Option<ConfigurationNumber>
 	{
 		self.active_configuration_number
-	}
-	
-	/// Device capabilities.
-	#[inline(always)]
-	pub fn binary_object_store(&self) -> Option<&[DeviceCapability]>
-	{
-		let binary_object_store = self.binary_object_store.as_ref()?;
-		Some(binary_object_store.deref())
 	}
 	
 	/// Parse a libusb device.

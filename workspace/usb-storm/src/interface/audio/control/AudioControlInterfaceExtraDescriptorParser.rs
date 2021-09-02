@@ -39,18 +39,5 @@ impl DescriptorParser for AudioControlInterfaceExtraDescriptorParser
 
 impl AudioControlInterfaceExtraDescriptorParser
 {
-	const CS_UNDEFINED: u8 = 0x20;
-	
-	const CS_DEVICE: u8 = 0x21;
-	
-	const CS_CONFIGURATION: u8 = 0x22;
-	
-	const CS_STRING: u8 = 0x23;
-	
 	pub(crate) const CS_INTERFACE: u8 = 0x24;
-	
-	const CS_ENDPOINT: u8 = 0x25;
-	
-	/// Only defined for version 3.0.
-	const CS_CLUSTER: u8 = 0x26;
 }

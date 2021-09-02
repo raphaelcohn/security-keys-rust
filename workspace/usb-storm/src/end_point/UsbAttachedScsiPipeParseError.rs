@@ -2,26 +2,26 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// End point additional descriptors.
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub enum EndPointExtraDescriptor
+/// Parse error.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum UsbAttachedScsiPipeParseError
 {
-	/// Indicates a super speed end point companion was present.
-	SuperSpeedEndPointCompanion,
-
-	/// USB Attached SCSI (UAS) Protocol (UASP) pipe.
-	UsbAttachedScsiPipe(UsbAttachedScsiPipeIdentifier),
-	
-	/// Audio streaming.
-	AudioStreaming(AudioStreamingIsochronousEndPoint),
+	#[allow(missing_docs)]
+	BLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]
-	Unknown
+	BLengthExceedsRemainingBytes,
+}
+
+impl Display for UsbAttachedScsiPipeParseError
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		descriptor_type: DescriptorType,
-		
-		bytes: Vec<u8>,
-	},
+		Debug::fmt(self, f)
+	}
+}
+
+impl error::Error for UsbAttachedScsiPipeParseError
+{
 }

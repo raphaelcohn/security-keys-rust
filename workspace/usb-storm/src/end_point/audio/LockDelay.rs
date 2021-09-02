@@ -2,26 +2,38 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// End point additional descriptors.
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+/// "Indicates the time it takes this endpoint to reliably lock its internal clock recovery circuitry".
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub enum EndPointExtraDescriptor
+pub enum LockDelay
 {
-	/// Indicates a super speed end point companion was present.
-	SuperSpeedEndPointCompanion,
-
-	/// USB Attached SCSI (UAS) Protocol (UASP) pipe.
-	UsbAttachedScsiPipe(UsbAttachedScsiPipeIdentifier),
-	
-	/// Audio streaming.
-	AudioStreaming(AudioStreamingIsochronousEndPoint),
+	#[allow(missing_docs)]
+	Undefined(u16),
 	
 	#[allow(missing_docs)]
-	Unknown
+	Milliseconds(u16),
+
+	#[allow(missing_docs)]
+	DecodedPcmSamples(u16),
+}
+
+impl LockDelay
+{
+	#[inline(always)]
+	fn parse<E: error::Error>(unit: u8, delay: u16, error: E) -> Result<Self, E>
 	{
-		descriptor_type: DescriptorType,
+		use LockDelay::*;
 		
-		bytes: Vec<u8>,
-	},
+		let ok = match unit
+		{
+			0 => Undefined(delay),
+			
+			1 => Milliseconds(delay),
+			
+			2 => DecodedPcmSamples(delay),
+			
+			_ => return Err(error)
+		};
+		Ok(ok)
+	}
 }

@@ -5,9 +5,7 @@
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
 struct EndPointExtraDescriptorParser<'a>
 {
-	transfer_type: &'a mut Either<Option<NonZeroU8>, (Direction, DirectionalTransferType)>,
-	
-	maximum_packet_size: u11,
+	super_speed_end_point_companion_descriptor_parser: SuperSpeedEndPointCompanionDescriptorParser<'a>,
 	
 	interface_class: InterfaceClass,
 }
@@ -23,222 +21,24 @@ impl<'a> DescriptorParser for EndPointExtraDescriptorParser<'a>
 	{
 		const LIBUSB_DT_SS_ENDPOINT_COMPANION: u8 = 0x30;
 		const UsbAttachedStoragePipeDescriptorType: u8 = 0x24;
+		const CS_ENDPOINT: u8 = 0x25;
 		
-		match (descriptor_type, self.interface_class)
+		let outcome = match (descriptor_type, self.interface_class)
 		{
-			(LIBUSB_DT_SS_ENDPOINT_COMPANION, _) => self.parse_super_speed_end_point_companion_descriptor(remaining_bytes, bLength),
+			(LIBUSB_DT_SS_ENDPOINT_COMPANION, _) => self.super_speed_end_point_companion_descriptor_parser.parse(remaining_bytes, bLength)?,
 			
-			(UsbAttachedStoragePipeDescriptorType, InterfaceClass::MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(MassStorageProtocol::UsbAttachedScsi))) => self.parse_usb_attached_scsi_pipe(remaining_bytes, bLength),
+			(UsbAttachedStoragePipeDescriptorType, InterfaceClass::MassStorage(MassStorageSubClass::ScsiTransparentCommandSet(MassStorageProtocol::UsbAttachedScsi))) => UsbAttachedScsiPipeIdentifier::parse(remaining_bytes, bLength)?,
 			
-			_ => Ok(None),
-		}
+			(CS_ENDPOINT, InterfaceClass::Audio(AudioSubClass::Streaming(audio_protocol))) => AudioStreamingIsochronousEndPoint::parse(bLength, remaining_bytes, audio_protocol)?,
+			
+			_ => None,
+		};
+		Ok(outcome)
 	}
 	
 	#[inline(always)]
 	fn unknown(descriptor_type: DescriptorType, bytes: Vec<u8>) -> Self::Descriptor
 	{
 		EndPointExtraDescriptor::Unknown { descriptor_type, bytes }
-	}
-}
-
-impl<'a> EndPointExtraDescriptorParser<'a>
-{
-	#[inline(always)]
-	fn parse_super_speed_end_point_companion_descriptor(&mut self, remaining_bytes: &[u8], bLength: u8) -> Result<Option<DeadOrAlive<(EndPointExtraDescriptor, usize)>>, EndPointExtraDescriptorParseError>
-	{
-		use EndPointExtraDescriptorParseError::*;
-		use DirectionalTransferType::*;
-		
-		const BLength: u8 = EndPointExtraDescriptorParser::SuperSpeedCompanionBLength;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, BLength>(remaining_bytes, bLength, SuperSpeedCompanionBLengthIsLessThanMinimum, SuperSpeedCompanionBLengthExceedsRemainingBytes)?;
-		
-		let bMaxBurst = descriptor_body.u8(0);
-		let bmAttributes = descriptor_body.u8(1);
-		let wBytesInterval = descriptor_body.u16(2);
-		
-		match bMaxBurst
-		{
-			 0 ..= 15 => match self.transfer_type
-			{
-				Left(..) => if unlikely!(bMaxBurst != 0)
-				{
-					return Err(ControlEndPointsDoNotSupportPacketBurst)
-				},
-				
-				_ => (),
-			},
-			
-			_ => return Err(InvalidMaximumBurst { bMaxBurst })
-		};
-		
-		let consumed_length = match self.transfer_type
-		{
-			Left(..) => descriptor_body_length,
-			
-			Right((_, Interrupt { ref mut super_speed, .. })) =>
-			{
-				*super_speed = Some
-				(
-					SuperSpeedInterrupt
-					{
-						maximum_number_of_packets_that_can_burst_at_a_time: Self::maximum_number_of_packets_that_can_burst_at_a_time(bMaxBurst),
-						
-						total_number_of_bytes_transfered_every_service_interval: wBytesInterval,
-					}
-				);
-				descriptor_body_length
-			}
-			
-			Right((_, Bulk { ref mut super_speed, .. })) =>
-			{
-				*super_speed = Some
-				(
-					SuperSpeedBulk
-					{
-						maximum_number_of_packets_that_can_burst_at_a_time: Self::maximum_number_of_packets_that_can_burst_at_a_time(bMaxBurst),
-						
-						maximum_streams: match bmAttributes & 0b0001_1111
-						{
-							0 => None,
-							
-							maximum_streams @ 1 ..= 16 => Some(BulkMaximumStreamsExponent(new_non_zero_u8(maximum_streams))),
-							
-							maximum_streams @ _ => return Err(InvalidMaximumStreams { maximum_streams }),
-						}
-					}
-				);
-				descriptor_body_length
-			}
-			
-			Right((_, Isochronous { ref mut super_speed, .. })) =>
-			{
-				let bMaxBurst_plus_one = (bMaxBurst + 1) as u32;
-				
-				// If this field is set to one then a SuperSpeedPlus Isochronous Endpoint Companion descriptor shall immediately follow this descriptor.
-				let has_ssp_iso_companion = (bmAttributes & 0b1000_0000) != 0;
-				let (consumed_length, super_speed_isochronous) = if has_ssp_iso_companion
-				{
-					if unlikely!(wBytesInterval != 1)
-					{
-						return Err(BytesIntervalMustBeOneIfAnIsochronousEndPointHasASuperSpeedPlusIsochronousEndPointCompanionIndicated)
-					}
-					
-					let (dwBytesPerInterval, consumed_length) = Self::parse_super_speed_plus_isochronous_end_point_companion_descriptor(remaining_bytes)?;
-					
-					(
-						consumed_length,
-						SuperSpeedIsochronous
-						{
-							maximum_number_of_packets_that_can_burst_at_a_time: new_non_zero_u32(dwBytesPerInterval / bMaxBurst_plus_one / (self.maximum_packet_size as u32)),
-							
-							total_number_of_bytes_transfered_every_service_interval: dwBytesPerInterval,
-						}
-					)
-				}
-				else
-				{
-					let mult_plus_1 = match bmAttributes & 0b11
-					{
-						0 => 1,
-						
-						mult @  1 ..= 2 => if unlikely!(bMaxBurst == 0)
-						{
-							return Err(MultIsNotZeroWhenMaximumBurstIsZero { mult })
-						}
-						else
-						{
-							(mult + 1) as u32
-						},
-						
-						3 => return Err(MultCanNotBeThree),
-						
-						_ => unreachable!(),
-					};
-					
-					(
-						0,
-						SuperSpeedIsochronous
-						{
-							maximum_number_of_packets_that_can_burst_at_a_time: new_non_zero_u32(mult_plus_1 * bMaxBurst_plus_one),
-							
-							total_number_of_bytes_transfered_every_service_interval: wBytesInterval as u32,
-						}
-					)
-				};
-				
-				*super_speed = Some(super_speed_isochronous);
-				descriptor_body_length + consumed_length
-			}
-		};
-		
-		Ok(Some(Alive((EndPointExtraDescriptor::SuperSpeedEndPointCompanion, consumed_length))))
-	}
-	
-	#[inline(always)]
-	fn parse_usb_attached_scsi_pipe(&self, remaining_bytes: &[u8], bLength: u8) -> Result<Option<DeadOrAlive<(EndPointExtraDescriptor, usize)>>, EndPointExtraDescriptorParseError>
-	{
-		use EndPointExtraDescriptorParseError::*;
-		
-		const BLength: u8 = 4;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, BLength>(remaining_bytes, bLength, UsbAttachedScsiPipeBLengthIsLessThanMinimum, UsbAttachedScsiPipeBLengthExceedsRemainingBytes)?;
-		
-		use UsbAttachedScsiPipeIdentifier::*;
-		let pipe = match descriptor_body.u8(0)
-		{
-			0 => Reserved(0),
-			
-			1 => Command,
-			
-			2 => Status,
-			
-			3 => DataIn,
-			
-			4 => DataOut,
-			
-			value @ 5 ..= 0xDF => Reserved(value),
-			
-			value @ 0xE0 ..= 0xEF => VendorSpecific(value),
-			
-			value @ 0xF0 ..= 0xFF => Reserved(value),
-		};
-		
-		//let _reserved_and_is_currently_zero =  descriptor_body.u8(1);
-		
-		Ok(Some(Alive((EndPointExtraDescriptor::UsbAttachedScsiPipe(pipe), descriptor_body_length))))
-	}
-	
-	const SuperSpeedCompanionBLength: u8 = 6;
-	
-	#[inline(always)]
-	const fn maximum_number_of_packets_that_can_burst_at_a_time(bMaxBurst: u8) -> NonZeroU4
-	{
-		new_non_zero_u8(bMaxBurst + 1)
-	}
-	
-	#[inline(always)]
-	fn parse_super_speed_plus_isochronous_end_point_companion_descriptor(remaining_bytes: &[u8]) -> Result<(u32, usize), EndPointExtraDescriptorParseError>
-	{
-		use EndPointExtraDescriptorParseError::*;
-		
-		let remaining_bytes = remaining_bytes.get_unchecked_range_safe(reduce_b_length_to_descriptor_body_length(Self::SuperSpeedCompanionBLength) .. );
-		
-		if unlikely!(remaining_bytes.len() < DescriptorHeaderLength)
-		{
-			return Err(ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorMissing)
-		}
-		
-		let bDescriptorType = remaining_bytes.u8(1);
-		if unlikely!(bDescriptorType != 49)
-		{
-			return Err(ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorTypeWrong { bDescriptorType })
-		}
-		
-		let bLength = remaining_bytes.u8(0);
-		
-		const CompanionBLength: u8 = 10;
-		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, CompanionBLength>(remaining_bytes, bLength, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthIsLessThanMinimum, ImmediatelyFollowingSuperSpeedPlusIsochronousEndPointCompanionDescriptorBLengthExceedsRemainingBytes)?;
-		debug_assert_eq!(descriptor_body_length, reduce_b_length_to_descriptor_body_length(CompanionBLength));
-		let _wReserved = descriptor_body.u16(descriptor_index::<2>());
-		Ok((descriptor_body.u32(descriptor_index::<4>()), CompanionBLength as usize))
 	}
 }

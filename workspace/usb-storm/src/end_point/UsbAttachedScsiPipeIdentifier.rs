@@ -28,3 +28,39 @@ pub enum UsbAttachedScsiPipeIdentifier
 	#[allow(missing_docs)]
 	VendorSpecific(u8),
 }
+
+impl UsbAttachedScsiPipeIdentifier
+{
+	#[inline(always)]
+	fn parse(remaining_bytes: &[u8], bLength: u8) -> Result<Option<DeadOrAlive<(EndPointExtraDescriptor, usize)>>, UsbAttachedScsiPipeParseError>
+	{
+		use UsbAttachedScsiPipeParseError::*;
+		
+		const BLength: u8 = 4;
+		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, BLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
+		
+		use UsbAttachedScsiPipeIdentifier::*;
+		let pipe = match descriptor_body.u8(0)
+		{
+			0 => Reserved(0),
+			
+			1 => Command,
+			
+			2 => Status,
+			
+			3 => DataIn,
+			
+			4 => DataOut,
+			
+			value @ 5 ..= 0xDF => Reserved(value),
+			
+			value @ 0xE0 ..= 0xEF => VendorSpecific(value),
+			
+			value @ 0xF0 ..= 0xFF => Reserved(value),
+		};
+		
+		//let _reserved_and_is_currently_zero =  descriptor_body.u8(1);
+		
+		Ok(Some(Alive((EndPointExtraDescriptor::UsbAttachedScsiPipe(pipe), descriptor_body_length))))
+	}
+}
