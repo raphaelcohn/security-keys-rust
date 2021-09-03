@@ -10,7 +10,7 @@ use super::super::entity_index_non_constant;
 use super::super::logical_audio_channels::LogicalAudioChannelCluster;
 use super::super::logical_audio_channels::LogicalAudioChannelClusterParseError;
 use super::super::logical_audio_channels::LogicalAudioChannelSpatialLocation;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use enumflags2::bitflags;
 use serde::Deserialize;
 use serde::Serialize;

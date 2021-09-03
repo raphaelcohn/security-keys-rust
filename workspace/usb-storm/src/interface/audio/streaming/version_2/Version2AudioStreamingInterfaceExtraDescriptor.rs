@@ -31,9 +31,9 @@ impl Version2AudioStreamingInterfaceExtraDescriptor
 	pub(super) const DECODER: u8 = 0x04;
 	
 	#[inline(always)]
-	pub(super) fn parse_general(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_general(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		let dead_or_alive = General::parse(bLength, descriptor_body_followed_by_remaining_bytes, string_finder).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::GeneralParse)?;
+		let dead_or_alive = General::parse(bLength, descriptor_body_followed_by_remaining_bytes, device_connection).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::GeneralParse)?;
 		let (general, consumed_length) = return_ok_if_dead!(dead_or_alive);
 		Ok
 		(
@@ -48,9 +48,9 @@ impl Version2AudioStreamingInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse_encoder(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_encoder(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		let dead_or_alive = Encoder::parse(bLength, descriptor_body_followed_by_remaining_bytes, string_finder).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::EncoderParse)?;
+		let dead_or_alive = Encoder::parse(bLength, descriptor_body_followed_by_remaining_bytes, device_connection).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::EncoderParse)?;
 		let (encoder, consumed_length) = return_ok_if_dead!(dead_or_alive);
 		Ok
 		(
@@ -65,9 +65,9 @@ impl Version2AudioStreamingInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse_decoder(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	pub(super) fn parse_decoder(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
 	{
-		let dead_or_alive = Decoder::parse(bLength, descriptor_body_followed_by_remaining_bytes, string_finder).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::DecoderParse)?;
+		let dead_or_alive = Decoder::parse(bLength, descriptor_body_followed_by_remaining_bytes, device_connection).map_err(Version2AudioStreamingInterfaceExtraDescriptorParseError::DecoderParse)?;
 		let (decoder, consumed_length) = return_ok_if_dead!(dead_or_alive);
 		Ok
 		(

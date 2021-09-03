@@ -29,7 +29,7 @@ impl Entity for Version3InputTerminalEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], _string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], _device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
 		use Version3EntityDescriptorParseError::*;
 		

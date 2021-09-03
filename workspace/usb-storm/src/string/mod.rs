@@ -2,53 +2,52 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::{VecExt, WrappedHashSet, WithCapacity, Bytes};
-use self::language::Language;
-use self::language::LanguageIdentifier;
-use super::control_transfers::descriptors::get_string_device_descriptor_language;
-use super::control_transfers::descriptors::get_string_device_descriptor_languages;
-use super::control_transfers::descriptors::GetStandardUsbDescriptorError;
-use super::device::DeadOrAlive;
-use super::device::DeviceHandle;
+use crate::collections::{Bytes, WithCapacity, TryClone};
+use crate::collections::{VecExt, WrappedHashSet};
+use crate::control_transfers::descriptors::{get_string_device_descriptor_language, GetDescriptorError, StandardUsbDescriptorError};
+use crate::control_transfers::descriptors::get_string_device_descriptor_languages;
+use crate::device::DeadOrAlive::Alive;
+use crate::device::DeadOrAlive::Dead;
+use crate::device::DeadOrAlive;
+use crate::string::language::LanguageIdentifier;
 use likely::likely;
 use likely::unlikely;
+use self::language::Language;
 use serde::Deserialize;
 use serde::Serialize;
+use std::char::DecodeUtf16Error;
+use std::char::decode_utf16;
 use std::collections::BTreeMap;
 use std::collections::TryReserveError;
-use std::char::decode_utf16;
-use std::char::DecodeUtf16Error;
 use std::error;
-use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use std::fmt;
 use std::mem::MaybeUninit;
 use std::num::NonZeroU8;
 use std::ops::Deref;
 use std::slice::from_raw_parts;
-use swiss_army_knife::get_unchecked::GetUnchecked;
-use swiss_army_knife::non_zero::new_non_zero_u8;
-use crate::device::DeadOrAlive::Alive;
-use crate::device::DeadOrAlive::Dead;
-use crate::control_transfers::ControlTransferRequestType;
-use crate::control_transfers::control_transfer_in;
-use crate::control_transfers::ControlTransferRecipient;
-use crate::control_transfers::descriptors::GetDescriptorError;
-use crate::control_transfers::descriptors::MaximumStandardUsbDescriptorLength;
-use crate::control_transfers::descriptors::StandardUsbDescriptorError;
-use crate::descriptors::DescriptorHeaderLength;
 use std::string::FromUtf8Error;
+use super::control_transfers::descriptors::GetStandardUsbDescriptorError;
+use swiss_army_knife::get_unchecked::GetUnchecked;
+use std::ptr::NonNull;
+use libusb1_sys::libusb_device_handle;
+use crate::control_transfers::{control_transfer_in, ControlTransferRequestType, ControlTransferRecipient};
+use crate::descriptors::DescriptorHeaderLength;
 
 
 /// USB language.
 pub mod language;
 
 
+include!("encode_utf8_raw.rs");
+include!("find_web_usb_url_control_transfer.rs");
+include!("get_languages.rs");
+include!("get_localized_string.rs");
 include!("GetLanguagesError.rs");
 include!("GetLocalizedStringError.rs");
 include!("GetWebUrlError.rs");
-include!("StringFinder.rs");
 include!("LocalizedStrings.rs");
 include!("WebUrl.rs");
 include!("WebUrlScheme.rs");

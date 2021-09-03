@@ -38,7 +38,7 @@ impl EntityDescriptors for Version2EntityDescriptors
 	type Error = Version2EntityDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_entity_body(&mut self, bLength: u8, bDescriptorSubtype: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
+	fn parse_entity_body(&mut self, bLength: u8, bDescriptorSubtype: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
 	{
 		// These constants differ in value between versions 1, 2 and 3 of the Audio specifications!
 		const INPUT_TERMINAL: u8 = 0x02;
@@ -56,65 +56,65 @@ impl EntityDescriptors for Version2EntityDescriptors
 		
 		let dead_or_alive = match bDescriptorSubtype
 		{
-			INPUT_TERMINAL => parse_entity_descriptor::<_, 17>(bLength, entity_identifier, entity_body, string_finder, &mut self.input_terminal)?,
+			INPUT_TERMINAL => parse_entity_descriptor::<_, 17>(bLength, entity_identifier, entity_body, device_connection, &mut self.input_terminal)?,
 			
-			OUTPUT_TERMINAL => parse_entity_descriptor::<_, 12>(bLength, entity_identifier, entity_body, string_finder, &mut self.output_terminal)?,
+			OUTPUT_TERMINAL => parse_entity_descriptor::<_, 12>(bLength, entity_identifier, entity_body, device_connection, &mut self.output_terminal)?,
 			
 			MIXER_UNIT =>
 			{
 				const MinimumBLength: u8 = Version2EntityDescriptors::MixerUnitMinimumBLength;
-				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, string_finder, &mut self.mixer_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, device_connection, &mut self.mixer_unit)?
 			}
 			
 			SELECTOR_UNIT =>
 			{
 				const MinimumBLength: u8 = Version2EntityDescriptors::SelectorUnitMinimumBLength;
-				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, string_finder, &mut self.selector_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, device_connection, &mut self.selector_unit)?
 			}
 			
 			FEATURE_UNIT =>
 			{
 				const MinimumBLength: u8 = Version2EntityDescriptors::FeatureUnitMinimumBLength;
-				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, string_finder, &mut self.feature_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, device_connection, &mut self.feature_unit)?
 			}
 			
 			EFFECT_UNIT =>
 			{
 				const MinimumBLength: u8 = Version2EntityDescriptors::EffectUnitMinimumBLength;
-				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, string_finder, &mut self.effect_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, device_connection, &mut self.effect_unit)?
 			}
 			
 			PROCESSING_UNIT =>
 			{
 				const MinimumBLength: u8 = Version2EntityDescriptors::ProcessingUnitMinimumBLength;
-				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, string_finder, &mut self.processing_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, device_connection, &mut self.processing_unit)?
 			}
 			
 			EXTENSION_UNIT =>
 			{
 				const MinimumBLength: u8 = Version2EntityDescriptors::ExtensionUnitMinimumBLength;
-				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, string_finder, &mut self.extension_unit)?
+				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, device_connection, &mut self.extension_unit)?
 			}
 			
 			CLOCK_SOURCE =>
 			{
-				parse_entity_descriptor::<_, 8>(bLength, entity_identifier, entity_body, string_finder, &mut self.source_clock)?
+				parse_entity_descriptor::<_, 8>(bLength, entity_identifier, entity_body, device_connection, &mut self.source_clock)?
 			}
 			
 			CLOCK_SELECTOR =>
 			{
 				const MinimumBLength: u8 = 7;
-				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, string_finder, &mut self.selector_clock)?
+				parse_entity_descriptor::<_, MinimumBLength>(bLength, entity_identifier, entity_body, device_connection, &mut self.selector_clock)?
 			}
 			
 			CLOCK_MULTIPLIER =>
 			{
-				parse_entity_descriptor::<_, 7>(bLength, entity_identifier, entity_body, string_finder, &mut self.multiplier_clock)?
+				parse_entity_descriptor::<_, 7>(bLength, entity_identifier, entity_body, device_connection, &mut self.multiplier_clock)?
 			}
 			
 			SAMPLE_RATE_CONVERTER =>
 			{
-				parse_entity_descriptor::<_, 8>(bLength, entity_identifier, entity_body, string_finder, &mut self.sampling_rate_converter_unit)?
+				parse_entity_descriptor::<_, 8>(bLength, entity_identifier, entity_body, device_connection, &mut self.sampling_rate_converter_unit)?
 			}
 			
 			_ => return Ok(Alive(false))

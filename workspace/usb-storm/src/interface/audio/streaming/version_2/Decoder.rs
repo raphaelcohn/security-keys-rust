@@ -30,7 +30,7 @@ impl Decoder
 	}
 	
 	#[inline(always)]
-	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, DecoderParseError>
+	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<(Self, usize)>, DecoderParseError>
 	{
 		use DecoderParseError::*;
 		
@@ -49,7 +49,7 @@ impl Decoder
 						details:
 						{
 							let decoder_type = descriptor_body.u8(descriptor_index::<4>());
-							let dead_or_alive = DecoderDetails::parse(bLength, descriptor_body, decoder_type, string_finder)?;
+							let dead_or_alive = DecoderDetails::parse(bLength, descriptor_body, decoder_type, device_connection)?;
 							return_ok_if_dead!(dead_or_alive)
 						},
 					},

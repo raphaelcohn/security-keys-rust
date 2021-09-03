@@ -21,8 +21,23 @@ impl Deref for LocalizedStrings
 	}
 }
 
+impl TryClone for LocalizedStrings
+{
+	#[inline(always)]
+	fn try_clone(&self) -> Result<Self, TryReserveError>
+	{
+		Ok(self.clone())
+	}
+}
+
 impl LocalizedStrings
 {
+	#[inline(always)]
+	pub(crate) fn new(localized_strings: BTreeMap<Language, String>) -> Self
+	{
+		Self(localized_strings)
+	}
+	
 	#[inline(always)]
 	pub(crate) fn first_value(&self) -> Option<&str>
 	{

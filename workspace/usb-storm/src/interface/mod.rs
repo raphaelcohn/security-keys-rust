@@ -48,7 +48,7 @@ use super::interface::smart_card::SmartCardInterfaceExtraDescriptorParser;
 use super::interface::unsupported::UnsupportedInterfaceExtraDescriptorParser;
 use super::string::GetLocalizedStringError;
 use super::string::LocalizedStrings;
-use super::string::StringFinder;
+use super::device::DeviceConnection;
 use libusb1_sys::libusb_endpoint_descriptor;
 use libusb1_sys::libusb_interface;
 use libusb1_sys::libusb_interface_descriptor;

@@ -43,7 +43,7 @@ impl General
 	}
 	
 	#[inline(always)]
-	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, GeneralParseError>
+	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<(Self, usize)>, GeneralParseError>
 	{
 		use GeneralParseError::*;
 		use GeneralControlsParseError::*;
@@ -74,7 +74,7 @@ impl General
 						
 						logical_audio_channel_cluster:
 						{
-							let dead_or_alive = Version2LogicalAudioChannelCluster::parse_descriptor(10, string_finder, descriptor_body)?;
+							let dead_or_alive = Version2LogicalAudioChannelCluster::parse_descriptor(10, device_connection, descriptor_body)?;
 							return_ok_if_dead!(dead_or_alive)
 						},
 					

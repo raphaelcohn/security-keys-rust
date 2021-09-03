@@ -8,7 +8,7 @@ use crate::interface::audio::control::{EntityDescriptorParseError, entity_index_
 use crate::interface::audio::control::EntityDescriptors;
 use crate::interface::audio::control::entities::Entities;
 use crate::interface::audio::control::parse_entity_descriptor;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use self::terminal::input::Version1InputTerminalEntity;
 use self::terminal::input::Version1InputTerminalEntityParseError;
 use self::terminal::output::Version1OutputTerminalEntity;

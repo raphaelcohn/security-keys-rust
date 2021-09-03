@@ -12,7 +12,7 @@ impl DescriptorParser for InterfaceAssociationConfigurationExtraDescriptorParser
 	type Error = InterfaceAssociationConfigurationExtraDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
+	fn parse_descriptor(&mut self, device_connection: &DeviceConnection, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		debug_assert_eq!(descriptor_type, ConfigurationExtraDescriptorParser::INTERFACE_ASSOCIATION);
 		
@@ -22,7 +22,7 @@ impl DescriptorParser for InterfaceAssociationConfigurationExtraDescriptorParser
 		
 		let (descriptor_body, descriptor_body_length) = verify_remaining_bytes::<_, MinimumBLength>(remaining_bytes, bLength, BLengthIsLessThanMinimum, BLengthExceedsRemainingBytes)?;
 		
-		let descriptor = match InterfaceAssociationConfigurationExtraDescriptor::parse(descriptor_body, string_finder)?
+		let descriptor = match InterfaceAssociationConfigurationExtraDescriptor::parse(descriptor_body, device_connection)?
 		{
 			Dead => return Ok(Some(Dead)),
 			

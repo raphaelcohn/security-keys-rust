@@ -19,7 +19,7 @@ use crate::descriptors::DescriptorParser;
 use crate::descriptors::verify_remaining_bytes;
 use crate::descriptors::descriptor_index;
 use crate::string::GetLocalizedStringError;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use crate::string::LocalizedStrings;
 use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;

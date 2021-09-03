@@ -45,9 +45,9 @@ impl Entity for Version2InputTerminalEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		Ok(Self::parse_inner(entity_body, string_finder)?)
+		Ok(Self::parse_inner(entity_body, device_connection)?)
 	}
 }
 
@@ -135,7 +135,7 @@ impl Version2InputTerminalEntity
 	}
 	
 	#[inline(always)]
-	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version2InputTerminalEntityParseError>
+	fn parse_inner(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Version2InputTerminalEntityParseError>
 	{
 		use Version2InputTerminalEntityParseError::*;
 		
@@ -153,7 +153,7 @@ impl Version2InputTerminalEntity
 					
 					clock_source: entity_body.optional_non_zero_u8(entity_index::<7>()),
 					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse_entity(8, string_finder, entity_body)?),
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse_entity(8, device_connection, entity_body)?),
 					
 					copy_protect_control: Control::parse_u16(bmControls, 0, CopyProtectControlInvalid)?,
 					
@@ -169,7 +169,7 @@ impl Version2InputTerminalEntity
 					
 					description:
 					{
-						let description = string_finder.find_string(entity_body.u8(entity_index::<16>())).map_err(InvalidDescriptionString)?;
+						let description = device_connection.find_string(entity_body.u8(entity_index::<16>())).map_err(InvalidDescriptionString)?;
 						return_ok_if_dead!(description)
 					},
 				}

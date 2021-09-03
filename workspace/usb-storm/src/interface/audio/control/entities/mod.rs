@@ -10,7 +10,7 @@ use super::entity_identifiers::UnitEntityIdentifier;
 use crate::collections::VecExt;
 use crate::collections::WrappedHashMap;
 use crate::device::DeadOrAlive;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

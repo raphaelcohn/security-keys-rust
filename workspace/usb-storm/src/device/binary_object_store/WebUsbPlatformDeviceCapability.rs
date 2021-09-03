@@ -16,7 +16,7 @@ pub struct WebUsbPlatformDeviceCapability
 impl WebUsbPlatformDeviceCapability
 {
 	#[inline(always)]
-	fn parse(value_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, WebUsbPlatformDeviceCapabilityParseError>
+	fn parse(value_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, WebUsbPlatformDeviceCapabilityParseError>
 	{
 		if unlikely!(value_bytes.len() < 4)
 		{
@@ -35,7 +35,7 @@ impl WebUsbPlatformDeviceCapability
 					{
 						let vendor_code = value_bytes.u8(1);
 						let url_descriptor_index = value_bytes.u8(2);
-						let landing_page_url = string_finder.find_web_usb_url(vendor_code, url_descriptor_index)?;
+						let landing_page_url = device_connection.find_web_usb_url(vendor_code, url_descriptor_index)?;
 						return_ok_if_dead!(landing_page_url)
 					},
 				}

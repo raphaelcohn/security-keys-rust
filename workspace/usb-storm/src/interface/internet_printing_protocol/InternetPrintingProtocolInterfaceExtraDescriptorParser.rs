@@ -12,7 +12,7 @@ impl DescriptorParser for InternetPrintingProtocolInterfaceExtraDescriptorParser
 	type Error = InternetPrintingProtocolInterfaceExtraDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
+	fn parse_descriptor(&mut self, device_connection: &DeviceConnection, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		use InternetPrintingProtocolInterfaceExtraDescriptorParseError::*;
 		
@@ -83,14 +83,14 @@ impl DescriptorParser for InternetPrintingProtocolInterfaceExtraDescriptorParser
 								}
 							},
 							
-							versions_supported: match string_finder.find_string(descriptor_body.u8(descriptor_index::<8>())).map_err(InvalidVersionsSupportedString)?
+							versions_supported: match device_connection.find_string(descriptor_body.u8(descriptor_index::<8>())).map_err(InvalidVersionsSupportedString)?
 							{
 								Alive(value) => value,
 								
 								Dead => return Ok(Some(Dead))
 							},
 							
-							printer_uuid: match string_finder.find_string(descriptor_body.u8(descriptor_index::<9>())).map_err(InvalidPrinterUuidString)?
+							printer_uuid: match device_connection.find_string(descriptor_body.u8(descriptor_index::<9>())).map_err(InvalidPrinterUuidString)?
 							{
 								Alive(value) => value,
 								

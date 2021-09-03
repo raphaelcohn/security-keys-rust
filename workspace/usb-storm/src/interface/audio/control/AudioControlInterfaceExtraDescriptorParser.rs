@@ -12,7 +12,7 @@ impl DescriptorParser for AudioControlInterfaceExtraDescriptorParser
 	type Error = AudioControlInterfaceExtraDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
+	fn parse_descriptor(&mut self, device_connection: &DeviceConnection, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		match descriptor_type
 		{
@@ -25,11 +25,11 @@ impl DescriptorParser for AudioControlInterfaceExtraDescriptorParser
 		
 		let outcome = match self.0
 		{
-			Version_1_0 => AudioControlInterfaceExtraDescriptor::parse_descriptor_version_1_0(string_finder, bLength, remaining_bytes)?,
+			Version_1_0 => AudioControlInterfaceExtraDescriptor::parse_descriptor_version_1_0(device_connection, bLength, remaining_bytes)?,
 			
-			Version_2_0 => AudioControlInterfaceExtraDescriptor::parse_descriptor_version_2_0(string_finder, bLength, remaining_bytes)?,
+			Version_2_0 => AudioControlInterfaceExtraDescriptor::parse_descriptor_version_2_0(device_connection, bLength, remaining_bytes)?,
 			
-			Version_3_0 => AudioControlInterfaceExtraDescriptor::parse_descriptor_version_3_0(string_finder, bLength, remaining_bytes)?,
+			Version_3_0 => AudioControlInterfaceExtraDescriptor::parse_descriptor_version_3_0(device_connection, bLength, remaining_bytes)?,
 			
 			Unrecognized(protocol) => AudioControlInterfaceExtraDescriptor::parse_descriptor_version_unrecognized(bLength, remaining_bytes, protocol)?,
 		};

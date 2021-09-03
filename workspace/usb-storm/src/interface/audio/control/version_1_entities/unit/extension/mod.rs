@@ -15,7 +15,7 @@ use crate::interface::audio::control::version_1_entities::{Version1EntityDescrip
 use crate::interface::audio::control::{DescriptorEntityMinimumLength, parse_p, entity_index, entity_index_non_constant};
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

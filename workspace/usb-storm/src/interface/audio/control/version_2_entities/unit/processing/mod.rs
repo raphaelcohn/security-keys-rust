@@ -30,7 +30,7 @@ use crate::interface::audio::Control;
 use crate::interface::audio::control::DolbyProLogicModeConversionError;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

@@ -12,14 +12,14 @@ impl DescriptorParser for ConfigurationExtraDescriptorParser
 	type Error = ConfigurationExtraDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
+	fn parse_descriptor(&mut self, device_connection: &DeviceConnection, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		use ConfigurationExtraDescriptor::*;
 		use ConfigurationExtraDescriptorParseError::*;
 		
 		match descriptor_type
 		{
-			Self::INTERFACE_ASSOCIATION => match InterfaceAssociationConfigurationExtraDescriptorParser.parse_descriptor(string_finder, bLength, Self::INTERFACE_ASSOCIATION, remaining_bytes)
+			Self::INTERFACE_ASSOCIATION => match InterfaceAssociationConfigurationExtraDescriptorParser.parse_descriptor(device_connection, bLength, Self::INTERFACE_ASSOCIATION, remaining_bytes)
 			{
 				Ok(None) => Ok(None),
 				

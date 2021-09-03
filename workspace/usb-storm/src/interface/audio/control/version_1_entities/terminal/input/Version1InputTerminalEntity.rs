@@ -30,9 +30,9 @@ impl Entity for Version1InputTerminalEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		Ok(Self::parse_inner(entity_body, string_finder)?)
+		Ok(Self::parse_inner(entity_body, device_connection)?)
 	}
 }
 
@@ -71,13 +71,13 @@ impl Version1InputTerminalEntity
 	}
 	
 	#[inline(always)]
-	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version1InputTerminalEntityParseError>
+	fn parse_inner(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Version1InputTerminalEntityParseError>
 	{
 		use Version1InputTerminalEntityParseError::*;
 		
 		let input_terminal_type = InputTerminalType::parse(entity_body.u16(entity_index::<4>()), TerminalTypeIsOutputOnly)?;
 		let associated_output_terminal = entity_body.optional_non_zero_u8(entity_index::<6>());
-		let description = return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index::<11>())).map_err(InvalidDescriptionString)?);
+		let description = return_ok_if_dead!(device_connection.find_string(entity_body.u8(entity_index::<11>())).map_err(InvalidDescriptionString)?);
 		
 		Ok
 		(
@@ -89,7 +89,7 @@ impl Version1InputTerminalEntity
 					
 					associated_output_terminal,
 					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7, string_finder, entity_body)?),
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7, device_connection, entity_body)?),
 					
 					description,
 				}

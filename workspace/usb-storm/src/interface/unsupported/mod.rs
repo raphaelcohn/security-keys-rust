@@ -5,7 +5,7 @@
 use super::super::descriptors::DescriptorParser;
 use super::super::descriptors::DescriptorType;
 use std::convert::Infallible;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use crate::device::DeadOrAlive;
 
 

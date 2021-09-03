@@ -17,38 +17,38 @@ pub enum Version2LogicalAudioChannelCluster
 impl Version2LogicalAudioChannelCluster
 {
 	#[inline(always)]
-	pub(crate) fn parse_descriptor(channels_index: usize, string_finder: &StringFinder, descriptor_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
+	pub(crate) fn parse_descriptor(channels_index: usize, device_connection: &DeviceConnection, descriptor_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
 	{
-		Self::parse_generic(descriptor_index_non_constant(channels_index), string_finder, descriptor_body)
+		Self::parse_generic(descriptor_index_non_constant(channels_index), device_connection, descriptor_body)
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse_entity(channels_index: usize, string_finder: &StringFinder, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
+	pub(super) fn parse_entity(channels_index: usize, device_connection: &DeviceConnection, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
 	{
-		Self::parse_generic(entity_index_non_constant(channels_index), string_finder, entity_body)
+		Self::parse_generic(entity_index_non_constant(channels_index), device_connection, entity_body)
 	}
 	
 	#[inline(always)]
-	fn parse_generic(bytes_index: usize, string_finder: &StringFinder, bytes: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
+	fn parse_generic(bytes_index: usize, device_connection: &DeviceConnection, bytes: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
 	{
 		let number_of_logical_audio_channels = bytes.u8(bytes_index);
 		let wChannelConfig = bytes.u32(entity_index_non_constant(bytes_index + 1));
 		let first_logical_channel_name_string_identifier = bytes.u8(bytes_index + 3);
 		
-		Self::parse_inner(string_finder, number_of_logical_audio_channels, wChannelConfig, first_logical_channel_name_string_identifier)
+		Self::parse_inner(device_connection, number_of_logical_audio_channels, wChannelConfig, first_logical_channel_name_string_identifier)
 	}
 	
 	const RawDataBit: u32 = 1 << 31;
 	
 	#[inline(always)]
-	fn parse_inner(string_finder: &StringFinder, number_of_logical_audio_channels: u8, wChannelConfig: u32, first_logical_channel_name_string_identifier: u8) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
+	fn parse_inner(device_connection: &DeviceConnection, number_of_logical_audio_channels: u8, wChannelConfig: u32, first_logical_channel_name_string_identifier: u8) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Version2LogicalAudioChannelClusterParseError>>
 	{
 		if unlikely!(wChannelConfig & Self::RawDataBit != 0)
 		{
 			return Self::parse_raw_data(number_of_logical_audio_channels, wChannelConfig, first_logical_channel_name_string_identifier).map_err(LogicalAudioChannelClusterParseError::Specific)
 		}
 		
-		let cluster = LogicalAudioChannelCluster::parse_inner(string_finder, number_of_logical_audio_channels, wChannelConfig, first_logical_channel_name_string_identifier)?;
+		let cluster = LogicalAudioChannelCluster::parse_inner(device_connection, number_of_logical_audio_channels, wChannelConfig, first_logical_channel_name_string_identifier)?;
 		let cluster = return_ok_if_dead!(cluster);
 		Ok(Alive(Version2LogicalAudioChannelCluster::Cluster(cluster)))
 	}

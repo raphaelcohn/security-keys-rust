@@ -14,7 +14,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::slice::from_raw_parts;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::{Alive, Dead};
 

@@ -20,7 +20,7 @@ use super::interface::InterfaceParseError;
 use super::interface::MaximumNumberOfInterfaces;
 use super::string::GetLocalizedStringError;
 use super::string::LocalizedStrings;
-use super::string::StringFinder;
+use super::device::DeviceConnection;
 use super::version::Version;
 use libusb1_sys::constants::LIBUSB_DT_CONFIG;
 use libusb1_sys::constants::LIBUSB_ERROR_ACCESS;

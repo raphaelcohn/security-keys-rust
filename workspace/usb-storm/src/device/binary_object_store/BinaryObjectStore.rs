@@ -23,11 +23,11 @@ impl Deref for BinaryObjectStore
 impl BinaryObjectStore
 {
 	#[inline(always)]
-	pub(super) fn parse(device_handle: &DeviceHandle, buffer: &mut BinaryObjectStoreBuffer, string_finder: &StringFinder) -> Result<DeadOrAlive<Option<Self>>, BinaryObjectStoreParseError>
+	pub(super) fn parse(device_connection: &DeviceConnection, reusable_buffer: &mut ReusableBuffer) -> Result<DeadOrAlive<Option<Self>>, BinaryObjectStoreParseError>
 	{
 		use BinaryObjectStoreParseError::*;
 		
-		let (remaining_bytes, _bLength) = return_ok_if_dead_or_alive_none!(get_binary_object_store_device_descriptor(device_handle.as_non_null(), buffer.as_maybe_uninit_slice())?);
+		let (remaining_bytes, _bLength) = return_ok_if_dead_or_alive_none!(get_binary_object_store_device_descriptor(device_connection.device_handle_non_null(), reusable_buffer.as_maybe_uninit_slice())?);
 		
 		const MinimumRemainingSize: usize = 3;
 		let remaining_length = remaining_bytes.len();
@@ -44,7 +44,7 @@ impl BinaryObjectStore
 		let mut device_capabilities = Vec::new_with_capacity(bNumDeviceCaps).map_err(CouldNotAllocateMemoryForDeviceCapabilities)?;
 		while !device_capabilities_bytes.is_empty()
 		{
-			let (length, device_capability) = return_ok_if_dead!(DeviceCapability::parse(device_capabilities_bytes, string_finder).map_err(CouldNotParseDeviceCapability)?);
+			let (length, device_capability) = return_ok_if_dead!(DeviceCapability::parse(device_capabilities_bytes, device_connection).map_err(CouldNotParseDeviceCapability)?);
 			device_capabilities.push_unchecked(device_capability);
 			device_capabilities_bytes = device_capabilities_bytes.get_unchecked_range_safe(length .. );
 		}

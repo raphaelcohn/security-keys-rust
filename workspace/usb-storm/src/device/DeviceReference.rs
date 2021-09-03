@@ -11,7 +11,7 @@ impl DeviceReference
 {
 	/// Parse.
 	#[inline(always)]
-	pub fn parse(&self, buffer: &mut BinaryObjectStoreBuffer) -> Result<DeadOrAlive<Device>, DevicesParseError>
+	pub fn parse(&self, reusable_buffer: &mut ReusableBuffer) -> Result<DeadOrAlive<Device>, DevicesParseError>
 	{
 		use DevicesParseError::*;
 		
@@ -21,6 +21,6 @@ impl DeviceReference
 		let product_identifier = device_descriptor.idProduct;
 		let location = Location::from_libusb_device(libusb_device).map_err(|()| UnassignedAddress { vendor_identifier, product_identifier })?;
 		
-		Device::parse(libusb_device, buffer, location.clone(), device_descriptor, vendor_identifier, product_identifier).map_err(|cause| DeviceParse { cause, vendor_identifier, product_identifier, location })
+		Device::parse(libusb_device, reusable_buffer, location.clone(), device_descriptor, vendor_identifier, product_identifier).map_err(|cause| DeviceParse { cause, vendor_identifier, product_identifier, location })
 	}
 }

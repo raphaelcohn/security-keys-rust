@@ -31,7 +31,7 @@ impl Entity for Version2MultiplierClockEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
 		use Version2MultiplierClockEntityParseError::*;
 		
@@ -49,7 +49,7 @@ impl Entity for Version2MultiplierClockEntity
 					
 					denominator: Control::parse_u8(bmControls, 1, DenominatorControlInvalid)?,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index::<7>())).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(device_connection.find_string(entity_body.u8(entity_index::<7>())).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

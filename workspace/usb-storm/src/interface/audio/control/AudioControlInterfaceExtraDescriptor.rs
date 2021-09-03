@@ -67,7 +67,7 @@ pub enum AudioControlInterfaceExtraDescriptor
 impl AudioControlInterfaceExtraDescriptor
 {
 	#[inline(always)]
-	fn parse_descriptor_version_1_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
+	fn parse_descriptor_version_1_0(device_connection: &DeviceConnection, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
 	{
 		use AudioControlInterfaceExtraDescriptorParseError::*;
 		
@@ -101,7 +101,7 @@ impl AudioControlInterfaceExtraDescriptor
 			{
 				entity_descriptors:
 				{
-					let entity_descriptors = Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?;
+					let entity_descriptors = Self::parse_entities(device_connection, remaining_bytes, descriptor_body_length, total_length_excluding_header)?;
 					return_ok_if_dead!(entity_descriptors)
 				},
 				
@@ -115,7 +115,7 @@ impl AudioControlInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_2_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
+	fn parse_descriptor_version_2_0(device_connection: &DeviceConnection, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
 	{
 		const MinimumBLength: u8 = 9;
 		let (descriptor_body, descriptor_body_length, audio_device_class_specification_release) = Self::parse_descriptor_header_and_version::<MinimumBLength>(bLength, remaining_bytes)?;
@@ -133,7 +133,7 @@ impl AudioControlInterfaceExtraDescriptor
 			{
 				entity_descriptors:
 				{
-					let entity_descriptors = Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?;
+					let entity_descriptors = Self::parse_entities(device_connection, remaining_bytes, descriptor_body_length, total_length_excluding_header)?;
 					return_ok_if_dead!(entity_descriptors)
 				},
 				
@@ -149,7 +149,7 @@ impl AudioControlInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_3_0(string_finder: &StringFinder, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
+	fn parse_descriptor_version_3_0(device_connection: &DeviceConnection, bLength: u8, remaining_bytes: &[u8]) -> Result<DeadOrAlive<(Self, usize)>, AudioControlInterfaceExtraDescriptorParseError>
 	{
 		const MinimumBLength: u8 = 10;
 		let (descriptor_body, descriptor_body_length) = Self::parse_descriptor_header::<MinimumBLength>(bLength, remaining_bytes)?;
@@ -168,7 +168,7 @@ impl AudioControlInterfaceExtraDescriptor
 				
 				latency_control,
 			
-				entity_descriptors: return_ok_if_dead!(Self::parse_entities(string_finder, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
+				entity_descriptors: return_ok_if_dead!(Self::parse_entities(device_connection, remaining_bytes, descriptor_body_length, total_length_excluding_header)?),
 			},
 			
 			total_length_excluding_header,
@@ -294,7 +294,7 @@ impl AudioControlInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_entities<ED: EntityDescriptors<Error=E>, E: error::Error>(string_finder: &StringFinder, remaining_bytes: &[u8], descriptor_body_length: usize, total_length_excluding_header: usize) -> Result<DeadOrAlive<ED>, EntityDescriptorParseError<E>>
+	fn parse_entities<ED: EntityDescriptors<Error=E>, E: error::Error>(device_connection: &DeviceConnection, remaining_bytes: &[u8], descriptor_body_length: usize, total_length_excluding_header: usize) -> Result<DeadOrAlive<ED>, EntityDescriptorParseError<E>>
 	{
 		use EntityDescriptorParseError::*;
 		
@@ -338,7 +338,7 @@ impl AudioControlInterfaceExtraDescriptor
 			
 			let bDescriptorSubtype = entity_descriptors_bytes.u8(2);
 			
-			match entity_descriptors.parse_entity_body(bLength, bDescriptorSubtype, entity_identifier, entity_descriptors_bytes.get_unchecked_range_safe(DescriptorEntityMinimumLength .. bLengthUsize), string_finder)?
+			match entity_descriptors.parse_entity_body(bLength, bDescriptorSubtype, entity_identifier, entity_descriptors_bytes.get_unchecked_range_safe(DescriptorEntityMinimumLength .. bLengthUsize), device_connection)?
 			{
 				Alive(true) => (),
 				

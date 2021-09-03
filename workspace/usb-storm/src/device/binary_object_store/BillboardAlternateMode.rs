@@ -48,21 +48,21 @@ impl BillboardAlternateMode
 	}
 	
 	#[inline(always)]
-	fn parse_alternate_modes(alternate_modes_bytes: &[u8], number_of_alternate_modes: usize, configuration_result: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Vec<Self>>, BillboardDeviceCapabilityParseError>
+	fn parse_alternate_modes(alternate_modes_bytes: &[u8], number_of_alternate_modes: usize, configuration_result: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Vec<Self>>, BillboardDeviceCapabilityParseError>
 	{
 		use BillboardDeviceCapabilityParseError::*;
 		
 		let mut alternate_modes = Vec::new_with_capacity(number_of_alternate_modes).map_err(CouldNotAllocateMemoryForModes)?;
 		for index in 0 ..number_of_alternate_modes
 		{
-			alternate_modes.push_unchecked(return_ok_if_dead!(Self::parse(index, alternate_modes_bytes, configuration_result, string_finder)?));
+			alternate_modes.push_unchecked(return_ok_if_dead!(Self::parse(index, alternate_modes_bytes, configuration_result, device_connection)?));
 		}
 		
 		Ok(Alive(alternate_modes))
 	}
 	
 	#[inline(always)]
-	fn parse(index: usize, alternate_modes_bytes: &[u8], configuration_result: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, BillboardDeviceCapabilityParseError>
+	fn parse(index: usize, alternate_modes_bytes: &[u8], configuration_result: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, BillboardDeviceCapabilityParseError>
 	{
 		Ok
 		(
@@ -78,7 +78,7 @@ impl BillboardAlternateMode
 					
 					description:
 					{
-						let description = string_finder.find_string(alternate_modes_bytes.u8(2)).map_err(|cause| BillboardDeviceCapabilityParseError::InvalidAlternateModeDescription { cause, index })?;
+						let description = device_connection.find_string(alternate_modes_bytes.u8(2)).map_err(|cause| BillboardDeviceCapabilityParseError::InvalidAlternateModeDescription { cause, index })?;
 						return_ok_if_dead!(description)
 					},
 				}

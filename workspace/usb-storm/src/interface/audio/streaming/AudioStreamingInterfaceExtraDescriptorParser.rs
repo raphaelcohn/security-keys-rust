@@ -12,7 +12,7 @@ impl DescriptorParser for AudioStreamingInterfaceExtraDescriptorParser
 	type Error = AudioStreamingInterfaceExtraDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
+	fn parse_descriptor(&mut self, device_connection: &DeviceConnection, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
 		match descriptor_type
 		{
@@ -27,7 +27,7 @@ impl DescriptorParser for AudioStreamingInterfaceExtraDescriptorParser
 		{
 			Version_1_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_1_0(bLength, remaining_bytes)?,
 			
-			Version_2_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_2_0(bLength, remaining_bytes, string_finder)?,
+			Version_2_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_2_0(bLength, remaining_bytes, device_connection)?,
 			
 			Version_3_0 => AudioStreamingInterfaceExtraDescriptor::parse_descriptor_version_3_0(bLength, remaining_bytes)?,
 			

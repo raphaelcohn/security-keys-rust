@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::VecExt;
+use crate::collections::{VecExt, WrappedHashMap};
 use crate::collections::Bytes;
 use crate::descriptors::descriptor_index;
 use crate::version::Version;
@@ -24,15 +24,25 @@ use swiss_army_knife::non_zero::new_non_zero_u8;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use std::collections::TryReserveError;
 use std::num::NonZeroU8;
-use crate::string::StringFinder;
+use crate::device::{DeviceConnection, ReusableBuffer};
 use crate::device::DeadOrAlive;
+use crate::device::DeviceHandle;
 use crate::device::DeadOrAlive::Alive;
+use crate::interface::InterfaceNumber;
+use crate::control_transfers::descriptors::GetDescriptorError;
+use crate::control_transfers::descriptors::get_human_interface_device_report_interface_descriptor;
+use std::ops::Deref;
+use std::rc::Rc;
+
+
+/// Report.
+pub mod report;
 
 
 include!("HumanInterfaceDeviceCountryCode.rs");
 include!("HumanInterfaceDeviceInterfaceExtraDescriptor.rs");
 include!("HumanInterfaceDeviceInterfaceExtraDescriptorParseError.rs");
 include!("HumanInterfaceDeviceInterfaceExtraDescriptorParser.rs");
-include!("HumanInterfaceDeviceVariant.rs");
 include!("HumanInterfaceDeviceOptionalDescriptor.rs");
 include!("HumanInterfaceDeviceOptionalDescriptorType.rs");
+include!("HumanInterfaceDeviceVariant.rs");

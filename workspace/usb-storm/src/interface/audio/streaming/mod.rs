@@ -23,7 +23,7 @@ use crate::descriptors::DescriptorParser;
 use crate::descriptors::DescriptorHeaderLength;
 use crate::descriptors::DescriptorType;
 use crate::descriptors::verify_remaining_bytes;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use crate::device::DeadOrAlive;
 use crate::interface::audio::control::AudioControlInterfaceExtraDescriptorParser;
 use crate::collections::VecExt;

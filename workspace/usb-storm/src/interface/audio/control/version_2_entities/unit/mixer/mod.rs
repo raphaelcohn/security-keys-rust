@@ -19,7 +19,7 @@ use crate::interface::audio::control::version_2_entities::Version2EntityDescript
 use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::{Version2LogicalAudioChannelCluster, Version2LogicalAudioChannelClusterParseError};
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::TryReserveError;

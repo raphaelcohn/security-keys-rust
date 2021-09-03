@@ -29,7 +29,7 @@ impl Entity for Version2EffectUnitEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
 		use Version2EffectUnitEntityParseError::*;
 		
@@ -72,7 +72,7 @@ impl Entity for Version2EffectUnitEntity
 					
 					controls_by_channel_number,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(device_connection.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

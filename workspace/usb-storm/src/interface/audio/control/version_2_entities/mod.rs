@@ -13,7 +13,7 @@ use crate::interface::audio::control::EntityDescriptors;
 use crate::interface::audio::control::entities::Entities;
 use crate::interface::audio::control::entity_index_non_constant;
 use crate::interface::audio::control::parse_entity_descriptor;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use likely::unlikely;
 use self::clock::multiplier::Version2MultiplierClockEntity;
 use self::clock::multiplier::Version2MultiplierClockEntityParseError;

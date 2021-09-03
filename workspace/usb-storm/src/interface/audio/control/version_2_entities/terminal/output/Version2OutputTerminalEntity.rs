@@ -43,7 +43,7 @@ impl Entity for Version2OutputTerminalEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
 		use Version2OutputTerminalEntityParseError::*;
 		
@@ -75,7 +75,7 @@ impl Entity for Version2OutputTerminalEntity
 					
 					description:
 					{
-						let description = string_finder.find_string(entity_body.u8(entity_index::<11>())).map_err(InvalidDescriptionString)?;
+						let description = device_connection.find_string(entity_body.u8(entity_index::<11>())).map_err(InvalidDescriptionString)?;
 						return_ok_if_dead!(description)
 					},
 				}

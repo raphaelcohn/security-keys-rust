@@ -32,9 +32,9 @@ impl Entity for Version1ProcessingUnitEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		Ok(Self::parse_inner(entity_body, string_finder)?)
+		Ok(Self::parse_inner(entity_body, device_connection)?)
 	}
 }
 
@@ -80,7 +80,7 @@ impl Version1ProcessingUnitEntity
 	}
 	
 	#[inline(always)]
-	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version1ProcessingUnitEntityParseError>
+	fn parse_inner(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Version1ProcessingUnitEntityParseError>
 	{
 		use Version1ProcessingUnitEntityParseError::*;
 		
@@ -114,7 +114,7 @@ impl Version1ProcessingUnitEntity
 		let bmControls = entity_body.bytes(Self::ProcessTypeSize + sources_size + Self::OutputClusterSize + Self::ControlSizeSize, controls_bytes_size.get());
 		let enable = (bmControls.get_unchecked_value_safe(0) & 0b1) != 0b0;
 		
-		let output_logical_audio_channel_cluster = return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7 + p, string_finder, entity_body)?);
+		let output_logical_audio_channel_cluster = return_ok_if_dead!(Version1LogicalAudioChannelCluster::parse(7 + p, device_connection, entity_body)?);
 		Ok
 		(
 			Alive
@@ -129,7 +129,7 @@ impl Version1ProcessingUnitEntity
 					
 					output_logical_audio_channel_cluster,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(device_connection.find_string(entity_body.u8(entity_body.len() - 1)).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

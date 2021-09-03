@@ -2,36 +2,47 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A reusable buffer.
-#[derive(Debug)]
-pub struct BinaryObjectStoreBuffer(Vec<MaybeUninit<u8>>);
-
-impl BinaryObjectStoreBuffer
+/// Parse error.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
+pub enum GlobalItemParseError
 {
-	/// Create a new instance.
-	#[inline(always)]
-	pub fn new() -> Result<Self, TryReserveError>
+	#[allow(missing_docs)]
+	UsagePageTooBig
 	{
-		const MaximumSize: usize = u16::MAX as usize;
-		
-		let buffer = if cfg!(debug_assertions)
-		{
-			Vec::new_populated(MaximumSize, |cause| cause, |_|
-			{
-				Ok(MaybeUninit::zeroed())
-			})
-		}
-		else
-		{
-			Vec::new_buffer(MaximumSize)
-		}?;
-		
-		Ok(Self(buffer))
-	}
+		data: u32
+	},
 	
+	#[allow(missing_docs)]
+	ReportIdentifierZeroIsReserved,
+	
+	#[allow(missing_docs)]
+	CouldNotPushStack(TryReserveError),
+	
+	#[allow(missing_docs)]
+	TooManyStackPops,
+}
+
+impl Display for GlobalItemParseError
+{
 	#[inline(always)]
-	fn as_maybe_uninit_slice(&mut self) -> &mut [MaybeUninit<u8>]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		self.0.as_mut_slice()
+		Debug::fmt(self, f)
+	}
+}
+
+impl error::Error for GlobalItemParseError
+{
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use GlobalItemParseError::*;
+		
+		match self
+		{
+			CouldNotPushStack(cause) => Some(cause),
+			
+			_ => None,
+		}
 	}
 }

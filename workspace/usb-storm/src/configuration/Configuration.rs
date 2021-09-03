@@ -64,16 +64,16 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(configuration_descriptor: ConfigurationDescriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<(ConfigurationNumber, Self)>, ConfigurationParseError>
+	pub(super) fn parse(configuration_descriptor: ConfigurationDescriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, device_connection: &DeviceConnection) -> Result<DeadOrAlive<(ConfigurationNumber, Self)>, ConfigurationParseError>
 	{
 		use ConfigurationParseError::*;
 		
 		let configuration_number = Self::parse_configuration_number_only(&configuration_descriptor)?;
 		
 		let (supports_remote_wake_up, is_self_powered_or_self_powered_and_bus_powered) = Self::parse_attributes(&configuration_descriptor)?;
-		let description = string_finder.find_string(configuration_descriptor.iConfiguration).map_err(DescriptionString)?;
-		let descriptors = Self::parse_descriptors(string_finder, &configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?;
-		let interfaces = Self::parse_interfaces(&configuration_descriptor, string_finder, maximum_supported_usb_version, speed)?;
+		let description = device_connection.find_string(configuration_descriptor.iConfiguration).map_err(DescriptionString)?;
+		let descriptors = Self::parse_descriptors(device_connection, &configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?;
+		let interfaces = Self::parse_interfaces(&configuration_descriptor, device_connection, maximum_supported_usb_version, speed)?;
 		Ok
 		(
 			Alive
@@ -183,16 +183,16 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_descriptors(string_finder: &StringFinder, configuration_descriptor: &libusb_config_descriptor) -> Result<DeadOrAlive<Vec<ConfigurationExtraDescriptor>>, DescriptorParseError<ConfigurationExtraDescriptorParseError>>
+	fn parse_descriptors(device_connection: &DeviceConnection, configuration_descriptor: &libusb_config_descriptor) -> Result<DeadOrAlive<Vec<ConfigurationExtraDescriptor>>, DescriptorParseError<ConfigurationExtraDescriptorParseError>>
 	{
 		let extra = extra_to_slice(configuration_descriptor.extra, configuration_descriptor.extra_length)?;
 		
 		let descriptor_parser = ConfigurationExtraDescriptorParser;
-		parse_descriptors(string_finder, extra, descriptor_parser)
+		parse_descriptors(device_connection, extra, descriptor_parser)
 	}
 	
 	#[inline(always)]
-	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, string_finder: &StringFinder, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<WrappedIndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
+	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, device_connection: &DeviceConnection, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<WrappedIndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
 	{
 		use ConfigurationParseError::*;
 		
@@ -203,7 +203,7 @@ impl Configuration
 		for interface_index in 0 .. number_of_interfaces.get()
 		{
 			let libusb_interface = libusb_interfaces.get_unchecked_safe(interface_index);
-			let (interface_number, interface) = return_ok_if_dead!(Interface::parse(libusb_interface, string_finder, interface_index, maximum_supported_usb_version, speed).map_err(|cause| CouldNotParseInterface { cause, interface_index })?);
+			let (interface_number, interface) = return_ok_if_dead!(Interface::parse(libusb_interface, device_connection, interface_index, maximum_supported_usb_version, speed).map_err(|cause| CouldNotParseInterface { cause, interface_index })?);
 			
 			let outcome = interfaces.insert(interface_number, interface);
 			if unlikely!(outcome.is_some())

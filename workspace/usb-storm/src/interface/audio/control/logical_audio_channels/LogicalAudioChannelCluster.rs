@@ -30,7 +30,7 @@ impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL
 	}
 	
 	#[inline(always)]
-	pub(crate) fn parse_inner<E: error::Error>(string_finder: &StringFinder, number_of_logical_audio_channels: u8, channel_configuration: LACSL::Numeric, first_logical_channel_name_string_identifier: u8) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<E>>
+	pub(crate) fn parse_inner<E: error::Error>(device_connection: &DeviceConnection, number_of_logical_audio_channels: u8, channel_configuration: LACSL::Numeric, first_logical_channel_name_string_identifier: u8) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<E>>
 	{
 		use LogicalAudioChannelClusterParseError::*;
 		use LogicalAudioChannel::*;
@@ -76,7 +76,7 @@ impl<LACSL: LogicalAudioChannelSpatialLocation> LogicalAudioChannelCluster<LACSL
 			{
 				let channel_index = spatial_logical_audio_channels_count + spatial_logical_audio_channels_count;
 				let string_descriptor_index = new_non_zero_u8(first_logical_channel_name_string_identifier + index);
-				let channel_name = return_ok_if_dead!(string_finder.find_string_non_zero(string_descriptor_index).map_err(|cause| ChannelNameString { cause, channel_index })?);
+				let channel_name = return_ok_if_dead!(device_connection.find_string_non_zero(string_descriptor_index).map_err(|cause| ChannelNameString { cause, channel_index })?);
 				let inserted = logical_audio_channels.insert(Named { channel_index, name: Some(channel_name) });
 				debug_assert!(inserted);
 			}

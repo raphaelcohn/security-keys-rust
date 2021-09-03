@@ -14,9 +14,9 @@ impl<Inner: DescriptorParser<Descriptor: Into<InterfaceExtraDescriptor>, Error: 
 	type Error = InterfaceExtraDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_descriptor(&mut self, string_finder: &StringFinder, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
+	fn parse_descriptor(&mut self, device_connection: &DeviceConnection, bLength: u8, descriptor_type: DescriptorType, remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>
 	{
-		match self.inner.parse_descriptor(string_finder, bLength, descriptor_type, remaining_bytes)
+		match self.inner.parse_descriptor(device_connection, bLength, descriptor_type, remaining_bytes)
 		{
 			Ok(Some(Alive((descriptor, consumed_length)))) => Ok(Some(Alive((descriptor.into(), consumed_length)))),
 			
@@ -38,12 +38,12 @@ impl<Inner: DescriptorParser<Descriptor: Into<InterfaceExtraDescriptor>, Error: 
 impl<Inner: DescriptorParser<Descriptor: Into<InterfaceExtraDescriptor>, Error: Into<InterfaceExtraDescriptorParseError>>> InterfaceExtraDescriptorParser<Inner>
 {
 	#[inline(always)]
-	fn parse_descriptors(string_finder: &StringFinder, extra: &[u8], inner: Inner) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+	fn parse_descriptors(device_connection: &DeviceConnection, extra: &[u8], inner: Inner) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 	{
 		let this = Self
 		{
 			inner
 		};
-		parse_descriptors(string_finder, extra, this)
+		parse_descriptors(device_connection, extra, this)
 	}
 }

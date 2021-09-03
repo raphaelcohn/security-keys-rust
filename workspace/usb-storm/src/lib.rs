@@ -36,6 +36,7 @@
 #![feature(slice_ptr_len)]
 #![feature(trusted_len)]
 #![feature(try_reserve)]
+#![feature(get_mut_unchecked)]
 
 
 //! usb-storm is a library for enumerating USB devices and parsing USB descriptors.

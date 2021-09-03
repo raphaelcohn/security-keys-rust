@@ -5,7 +5,6 @@
 use super::DeadOrAlive;
 use super::DeadOrAlive::Alive;
 use super::DeadOrAlive::Dead;
-use super::DeviceHandle;
 use crate::collections::Bytes;
 use crate::collections::VecExt;
 use crate::descriptors::DescriptorHeaderLength;
@@ -26,7 +25,6 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use std::mem::MaybeUninit;
 use std::mem::size_of;
 use std::mem::transmute;
 use swiss_army_knife::get_unchecked::GetUnchecked;
@@ -44,7 +42,8 @@ use crate::class_and_protocol::FunctionClassParseError;
 use crate::string::WebUrl;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
+use crate::device::ReusableBuffer;
 use crate::string::GetWebUrlError;
 
 
@@ -57,7 +56,6 @@ include!("BillboardDeviceCapabilityParseError.rs");
 include!("BillboardDeviceContainerFailedBecause.rs");
 include!("BillboardVconnPowerInWatts.rs");
 include!("BinaryObjectStore.rs");
-include!("BinaryObjectStoreBuffer.rs");
 include!("BinaryObjectStoreParseError.rs");
 include!("BitRate.rs");
 include!("capability_descriptor_index.rs");

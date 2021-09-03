@@ -17,7 +17,7 @@ use crate::interface::audio::control::parse_p;
 use crate::interface::audio::control::version_2_entities::Version2EntityDescriptorParseError;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

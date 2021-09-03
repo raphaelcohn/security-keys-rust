@@ -55,7 +55,7 @@ impl AudioStreamingInterfaceExtraDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse_descriptor_version_2_0(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
+	fn parse_descriptor_version_2_0(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<(Self, usize)>, Version2AudioStreamingInterfaceExtraDescriptorParseError>
 	{
 		use GenericAudioStreamingInterfaceExtraDescriptorParseError::*;
 		
@@ -63,13 +63,13 @@ impl AudioStreamingInterfaceExtraDescriptor
 		{
 			Version2AudioStreamingInterfaceExtraDescriptor::AS_DESCRIPTOR_UNDEFINED => Err(UndefinedInterfaceDescriptorSubType)?,
 			
-			Version2AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version2AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, descriptor_body_followed_by_remaining_bytes, string_finder)?,
+			Version2AudioStreamingInterfaceExtraDescriptor::AS_GENERAL => Version2AudioStreamingInterfaceExtraDescriptor::parse_general(bLength, descriptor_body_followed_by_remaining_bytes, device_connection)?,
 			
 			Version2AudioStreamingInterfaceExtraDescriptor::FORMAT_TYPE => Err(Version2AudioStreamingInterfaceExtraDescriptorParseError::FormatTypeIsUnexpected)?,
 			
-			Version2AudioStreamingInterfaceExtraDescriptor::ENCODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_encoder(bLength, descriptor_body_followed_by_remaining_bytes, string_finder)?,
+			Version2AudioStreamingInterfaceExtraDescriptor::ENCODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_encoder(bLength, descriptor_body_followed_by_remaining_bytes, device_connection)?,
 			
-			Version2AudioStreamingInterfaceExtraDescriptor::DECODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_decoder(bLength, descriptor_body_followed_by_remaining_bytes, string_finder)?,
+			Version2AudioStreamingInterfaceExtraDescriptor::DECODER => Version2AudioStreamingInterfaceExtraDescriptor::parse_decoder(bLength, descriptor_body_followed_by_remaining_bytes, device_connection)?,
 			
 			descriptor_sub_type @ _ => Err(UnrecognizedInterfaceDescriptorSubType { descriptor_sub_type })?,
 		};

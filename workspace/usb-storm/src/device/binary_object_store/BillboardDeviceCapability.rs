@@ -68,7 +68,7 @@ impl BillboardDeviceCapability
 	const MinimumBLength: usize = 44;
 	
 	#[inline(always)]
-	fn parse(device_capability_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, BillboardDeviceCapabilityParseError>
+	fn parse(device_capability_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, BillboardDeviceCapabilityParseError>
 	{
 		use BillboardDeviceCapabilityParseError::*;
 		
@@ -89,7 +89,7 @@ impl BillboardDeviceCapability
 		}
 		
 		let configuration_result = device_capability_bytes.bytes(capability_descriptor_index::<8>(), 32);
-		let alternate_modes = return_ok_if_dead!(BillboardAlternateMode::parse_alternate_modes(device_capability_bytes.get_unchecked_range_safe(MinimumSize .. ), number_of_alternate_modes, configuration_result, string_finder)?);
+		let alternate_modes = return_ok_if_dead!(BillboardAlternateMode::parse_alternate_modes(device_capability_bytes.get_unchecked_range_safe(MinimumSize .. ), number_of_alternate_modes, configuration_result, device_connection)?);
 		
 		let version = device_capability_bytes.version(capability_descriptor_index::<40>()).map_err(VersionParse)?;
 		
@@ -99,7 +99,7 @@ impl BillboardDeviceCapability
 			(
 				Self
 				{
-					url: return_ok_if_dead!(string_finder.find_string(device_capability_bytes.u8(capability_descriptor_index::<4>())).map_err(InvalidAdditionalInformationUrl)?),
+					url: return_ok_if_dead!(device_connection.find_string(device_capability_bytes.u8(capability_descriptor_index::<4>())).map_err(InvalidAdditionalInformationUrl)?),
 					
 					version,
 					

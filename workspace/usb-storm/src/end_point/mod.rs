@@ -42,7 +42,7 @@ use crate::integers::NonZeroU4;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use crate::descriptors::reduce_b_length_to_descriptor_body_length;
 use crate::descriptors::DescriptorHeaderLength;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use crate::device::DeadOrAlive;
 use crate::device::Speed;
 use crate::device::DeadOrAlive::Alive;

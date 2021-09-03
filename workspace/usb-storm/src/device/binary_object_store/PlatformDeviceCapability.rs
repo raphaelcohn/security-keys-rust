@@ -23,7 +23,7 @@ pub enum PlatformDeviceCapability
 impl PlatformDeviceCapability
 {
 	#[inline(always)]
-	fn parse(device_capability_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, PlatformDeviceCapabilityParseError>
+	fn parse(device_capability_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, PlatformDeviceCapabilityParseError>
 	{
 		use PlatformDeviceCapabilityParseError::*;
 		
@@ -51,7 +51,7 @@ impl PlatformDeviceCapability
 			(
 				match key
 				{
-					WebUsbUuid => WebUsb(return_ok_if_dead!(WebUsbPlatformDeviceCapability::parse(value_bytes, string_finder)?)),
+					WebUsbUuid => WebUsb(return_ok_if_dead!(WebUsbPlatformDeviceCapability::parse(value_bytes, device_connection)?)),
 					
 					_ => Other
 					{

@@ -28,7 +28,7 @@ use crate::interface::audio::control::version_1_entities::logical_audio_channel_
 use crate::interface::audio::control::version_1_entities::logical_audio_channel_cluster::Version1LogicalAudioChannelSpatialLocation;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

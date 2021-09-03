@@ -37,9 +37,9 @@ impl Entity for Version2MixerUnitEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
-		Ok(Self::parse_inner(entity_body, string_finder)?)
+		Ok(Self::parse_inner(entity_body, device_connection)?)
 	}
 }
 
@@ -99,7 +99,7 @@ impl Version2MixerUnitEntity
 	}
 	
 	#[inline(always)]
-	fn parse_inner(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Version2MixerUnitEntityParseError>
+	fn parse_inner(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Version2MixerUnitEntityParseError>
 	{
 		use Version2MixerUnitEntityParseError::*;
 		
@@ -127,7 +127,7 @@ impl Version2MixerUnitEntity
 				{
 					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
 					
-					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse_entity(5 + p, string_finder, entity_body).map_err(LogicalAudioChannelClusterParse)?),
+					output_logical_audio_channel_cluster: return_ok_if_dead!(Version2LogicalAudioChannelCluster::parse_entity(5 + p, device_connection, entity_body).map_err(LogicalAudioChannelClusterParse)?),
 					
 					controls_bit_map: Vec::new_from(entity_body.bytes(entity_index_non_constant(11 + p), N)).map_err(CouldNotAllocateMemoryForControlsBitMap)?,
 					
@@ -137,7 +137,7 @@ impl Version2MixerUnitEntity
 					
 					overflow_control: Control::parse_u8(bmControls, 2, OverflowControlInvalid)?,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(12 + p + N))).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(device_connection.find_string(entity_body.u8(entity_index_non_constant(12 + p + N))).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

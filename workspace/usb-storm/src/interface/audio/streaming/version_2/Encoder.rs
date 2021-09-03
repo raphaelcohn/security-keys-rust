@@ -113,7 +113,7 @@ impl Encoder
 	}
 	
 	#[inline(always)]
-	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<(Self, usize)>, EncoderParseError>
+	fn parse(bLength: u8, descriptor_body_followed_by_remaining_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<(Self, usize)>, EncoderParseError>
 	{
 		use EncoderParseError::*;
 		
@@ -172,13 +172,13 @@ impl Encoder
 							for index in 0 .. (Self::NumberOfParameterControls as u8)
 							{
 								let parameter_control = Control::parse_u32(bmControls, (7 + index) as u32, ParameterControlInvalid { index })?;
-								let parameter_description = return_ok_if_dead!(string_finder.find_string(descriptor_body.u8(descriptor_index_non_constant((12 + index) as usize))).map_err(|cause| InvalidParameterControlDescriptionString { cause, index })?);
+								let parameter_description = return_ok_if_dead!(device_connection.find_string(descriptor_body.u8(descriptor_index_non_constant((12 + index) as usize))).map_err(|cause| InvalidParameterControlDescriptionString { cause, index })?);
 								unsafe { parameter_controls.push_unchecked((parameter_control, parameter_description)); }
 							}
 							parameter_controls
 						},
 						
-						description: return_ok_if_dead!(string_finder.find_string(descriptor_body.u8(descriptor_index::<20>())).map_err(InvalidDescriptionString)?)
+						description: return_ok_if_dead!(device_connection.find_string(descriptor_body.u8(descriptor_index::<20>())).map_err(InvalidDescriptionString)?)
 					},
 					
 					descriptor_body_length

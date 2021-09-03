@@ -584,7 +584,7 @@ impl Language
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(language_identifier: LanguageIdentifier) -> Self
+	pub(crate) fn parse(language_identifier: LanguageIdentifier) -> Self
 	{
 		const PRIMARY_LANGUAGE_MASK: u16 = 0x03FF;
 		const SUB_LANGUAGE_MASK: u16 = 0xFC00;

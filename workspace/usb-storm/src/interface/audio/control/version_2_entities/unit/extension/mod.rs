@@ -13,7 +13,7 @@ use std::fmt;
 use std::mem::transmute;
 use crate::interface::audio::control::logical_audio_channels::{InputLogicalAudioChannelClusters, LogicalAudioChannelClusterParseError};
 use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::{Version2LogicalAudioChannelCluster, Version2LogicalAudioChannelClusterParseError};
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use crate::string::LocalizedStrings;
 use crate::string::GetLocalizedStringError;
 use crate::interface::audio::control::entities::Entity;

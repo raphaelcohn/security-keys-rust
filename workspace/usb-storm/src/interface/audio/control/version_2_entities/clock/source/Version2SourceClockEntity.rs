@@ -35,7 +35,7 @@ impl Entity for Version2SourceClockEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
 		use Version2SourceClockEntityParseError::*;
 		
@@ -60,7 +60,7 @@ impl Entity for Version2SourceClockEntity
 					
 					description:
 					{
-						let description = string_finder.find_string(entity_body.u8(entity_index::<7>())).map_err(InvalidDescriptionString)?;
+						let description = device_connection.find_string(entity_body.u8(entity_index::<7>())).map_err(InvalidDescriptionString)?;
 						return_ok_if_dead!(description)
 					},
 				}

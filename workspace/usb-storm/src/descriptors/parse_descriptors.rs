@@ -3,7 +3,7 @@
 
 
 #[inline(always)]
-pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFinder, mut extra: &[u8], mut descriptor_parser: ADP) -> Result<DeadOrAlive<Vec<ADP::Descriptor>>, DescriptorParseError<ADP::Error>>
+pub(super) fn parse_descriptors<ADP: DescriptorParser>(device_connection: &DeviceConnection, mut extra: &[u8], mut descriptor_parser: ADP) -> Result<DeadOrAlive<Vec<ADP::Descriptor>>, DescriptorParseError<ADP::Error>>
 {
 	use DescriptorParseError::*;
 	
@@ -31,7 +31,7 @@ pub(super) fn parse_descriptors<ADP: DescriptorParser>(string_finder: &StringFin
 		
 		let descriptor_type = extra.u8(1);
 		let remaining_bytes = extra.get_unchecked_range_safe(DescriptorHeaderLength .. );
-		let (descriptor, consumed_length) = match descriptor_parser.parse_descriptor(string_finder, bLength, descriptor_type, remaining_bytes)
+		let (descriptor, consumed_length) = match descriptor_parser.parse_descriptor(device_connection, bLength, descriptor_type, remaining_bytes)
 		{
 			Ok(Some(Alive((descriptor, consumed_length)))) => (descriptor, consumed_length),
 			

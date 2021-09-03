@@ -30,7 +30,7 @@ impl WebUrl
 	}
 	
 	#[inline(always)]
-	fn parse(descriptor_bytes: &[u8], vendor_code: u8, url_descriptor_index: NonZeroU8) -> Result<Self, GetWebUrlError>
+	pub(crate) fn parse(descriptor_bytes: &[u8], vendor_code: u8, url_descriptor_index: NonZeroU8) -> Result<Self, GetWebUrlError>
 	{
 		use GetWebUrlError::*;
 		

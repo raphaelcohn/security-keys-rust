@@ -19,17 +19,17 @@ impl Interface
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(libusb_interface: &libusb_interface, string_finder: &StringFinder, interface_index: u8, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<(InterfaceNumber, Self)>, InterfaceParseError>
+	pub(super) fn parse(libusb_interface: &libusb_interface, device_connection: &DeviceConnection, interface_index: u8, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<(InterfaceNumber, Self)>, InterfaceParseError>
 	{
 		let (number_of_alternate_settings, alternate_settings_slice) = Self::parse_alternate_settings_slice(libusb_interface, interface_index)?;
 		
 		let mut alternate_settings = WrappedIndexMap::with_capacity(number_of_alternate_settings).map_err(InterfaceParseError::CouldNotAllocateMemoryForAlternateSettings)?;
 		
-		let interface_number = return_ok_if_dead!(Self::parse_alternate_setting(alternate_settings_slice, string_finder, interface_index, 0, &mut alternate_settings, maximum_supported_usb_version, speed)?);
+		let interface_number = return_ok_if_dead!(Self::parse_alternate_setting(alternate_settings_slice, device_connection, interface_index, 0, &mut alternate_settings, maximum_supported_usb_version, speed)?);
 		
 		for alternate_setting_index in 1 .. number_of_alternate_settings.get()
 		{
-			let parsed_interface_number = return_ok_if_dead!(Self::parse_alternate_setting(alternate_settings_slice, string_finder, interface_index, alternate_setting_index, &mut alternate_settings, maximum_supported_usb_version, speed)?);
+			let parsed_interface_number = return_ok_if_dead!(Self::parse_alternate_setting(alternate_settings_slice, device_connection, interface_index, alternate_setting_index, &mut alternate_settings, maximum_supported_usb_version, speed)?);
 			if unlikely!(interface_number != parsed_interface_number)
 			{
 				return Err(InterfaceParseError::AlternateSettingHasDifferentIndexNumber { interface_index, interface_number, parsed_interface_number, alternate_setting_index: new_non_zero_u8(alternate_setting_index) })
@@ -40,10 +40,10 @@ impl Interface
 	}
 	
 	#[inline(always)]
-	fn parse_alternate_setting(alternate_settings_slice: &[libusb_interface_descriptor], string_finder: &StringFinder, interface_index: u8, alternate_setting_index: u8, alternate_settings: &mut WrappedIndexMap<AlternateSettingNumber, AlternateSetting>, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<InterfaceNumber>, AlternateSettingParseError>
+	fn parse_alternate_setting(alternate_settings_slice: &[libusb_interface_descriptor], device_connection: &DeviceConnection, interface_index: u8, alternate_setting_index: u8, alternate_settings: &mut WrappedIndexMap<AlternateSettingNumber, AlternateSetting>, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<InterfaceNumber>, AlternateSettingParseError>
 	{
 		let alternate_setting = alternate_settings_slice.get_unchecked_safe(alternate_setting_index);
-		let (interface_number, alternate_setting_number, alternate_setting) = return_ok_if_dead!(AlternateSetting::parse(string_finder, alternate_setting, interface_index, alternate_setting_index, maximum_supported_usb_version, speed)?);
+		let (interface_number, alternate_setting_number, alternate_setting) = return_ok_if_dead!(AlternateSetting::parse(device_connection, alternate_setting, interface_index, alternate_setting_index, maximum_supported_usb_version, speed)?);
 		
 		let outcome = alternate_settings.insert(alternate_setting_number, alternate_setting);
 		if unlikely!(outcome.is_some())

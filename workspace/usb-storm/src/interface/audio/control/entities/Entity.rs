@@ -15,5 +15,5 @@ pub trait Entity: Debug + Clone + Eq + Ord + Hash
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier;
 	
 	#[doc(hidden)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>;
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>;
 }

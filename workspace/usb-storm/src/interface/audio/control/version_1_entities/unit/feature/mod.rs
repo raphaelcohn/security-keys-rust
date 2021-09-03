@@ -16,7 +16,7 @@ use crate::interface::audio::control::version_1_entities::{Version1EntityDescrip
 use crate::interface::audio::control::version_1_entities::Version1EntityDescriptorParseError;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use enumflags2::bitflags;
 use likely::unlikely;
 use serde::Deserialize;

@@ -34,7 +34,7 @@ use super::parse_entity_descriptor;
 use super::terminal_types::InputTerminalType;
 use super::terminal_types::OutputTerminalType;
 use std::ops::Deref;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;
 

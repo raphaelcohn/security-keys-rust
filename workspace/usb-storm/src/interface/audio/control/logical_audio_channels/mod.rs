@@ -11,7 +11,7 @@ use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::entity_index_non_constant;
 use likely::unlikely;

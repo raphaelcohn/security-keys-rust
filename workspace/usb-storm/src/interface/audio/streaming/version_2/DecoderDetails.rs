@@ -76,7 +76,7 @@ pub enum DecoderDetails
 impl DecoderDetails
 {
 	#[inline(always)]
-	fn parse(bLength: u8, descriptor_body: &[u8], decoder_type: u8, string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, DecoderParseError>
+	fn parse(bLength: u8, descriptor_body: &[u8], decoder_type: u8, device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, DecoderParseError>
 	{
 		use DecoderDetails::*;
 		
@@ -98,13 +98,13 @@ impl DecoderDetails
 				}
 			),
 			
-			0x02 => Self::parse_mpeg(bLength, descriptor_body, string_finder)?,
+			0x02 => Self::parse_mpeg(bLength, descriptor_body, device_connection)?,
 			
-			0x03 => Self::parse_ac_3(bLength, descriptor_body, string_finder)?,
+			0x03 => Self::parse_ac_3(bLength, descriptor_body, device_connection)?,
 			
-			0x04 => Self::parse_wma(bLength, descriptor_body, string_finder)?,
+			0x04 => Self::parse_wma(bLength, descriptor_body, device_connection)?,
 			
-			0x05 => Self::parse_dts(bLength, descriptor_body, string_finder)?,
+			0x05 => Self::parse_dts(bLength, descriptor_body, device_connection)?,
 			
 			_ => Alive
 			(
@@ -127,7 +127,7 @@ impl DecoderDetails
 	}
 	
 	#[inline(always)]
-	fn parse_mpeg(bLength: u8, descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, MpegEncoderParseError>
+	fn parse_mpeg(bLength: u8, descriptor_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, MpegEncoderParseError>
 	{
 		use MpegEncoderParseError::*;
 		
@@ -156,14 +156,14 @@ impl DecoderDetails
 					
 					controls: DecoderControls::parse::<8, 0>(descriptor_body)?,
 					
-					description: return_ok_if_dead!(Self::parse_description::<MpegEncoderParseError, _, 9>(descriptor_body, string_finder, InvalidDescriptionString)?)
+					description: return_ok_if_dead!(Self::parse_description::<MpegEncoderParseError, _, 9>(descriptor_body, device_connection, InvalidDescriptionString)?)
 				}
 			)
 		)
 	}
 	
 	#[inline(always)]
-	fn parse_ac_3(bLength: u8, descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Ac3EncoderParseError>
+	fn parse_ac_3(bLength: u8, descriptor_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Ac3EncoderParseError>
 	{
 		use Ac3EncoderParseError::*;
 		
@@ -185,14 +185,14 @@ impl DecoderDetails
 					
 					controls: DecoderControls::parse::<10, 0>(descriptor_body)?,
 					
-					description: return_ok_if_dead!(Self::parse_description::<Ac3EncoderParseError, _, 11>(descriptor_body, string_finder, InvalidDescriptionString)?)
+					description: return_ok_if_dead!(Self::parse_description::<Ac3EncoderParseError, _, 11>(descriptor_body, device_connection, InvalidDescriptionString)?)
 				}
 			)
 		)
 	}
 	
 	#[inline(always)]
-	fn parse_wma(bLength: u8, descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, WmaEncoderParseError>
+	fn parse_wma(bLength: u8, descriptor_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, WmaEncoderParseError>
 	{
 		use WmaEncoderParseError::*;
 		
@@ -217,14 +217,14 @@ impl DecoderDetails
 					
 					controls: DecoderControls::parse::<7, 0>(descriptor_body)?,
 					
-					description: return_ok_if_dead!(Self::parse_description::<WmaEncoderParseError, _, 8>(descriptor_body, string_finder, InvalidDescriptionString)?)
+					description: return_ok_if_dead!(Self::parse_description::<WmaEncoderParseError, _, 8>(descriptor_body, device_connection, InvalidDescriptionString)?)
 				}
 			)
 		)
 	}
 	
 	#[inline(always)]
-	fn parse_dts(bLength: u8, descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, DtsEncoderParseError>
+	fn parse_dts(bLength: u8, descriptor_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, DtsEncoderParseError>
 	{
 		use DtsEncoderParseError::*;
 		
@@ -246,15 +246,15 @@ impl DecoderDetails
 					
 					controls: DecoderControls::parse::<6, 1>(descriptor_body)?,
 					
-					description: return_ok_if_dead!(Self::parse_description::<DtsEncoderParseError, _, 7>(descriptor_body, string_finder, InvalidDescriptionString)?)
+					description: return_ok_if_dead!(Self::parse_description::<DtsEncoderParseError, _, 7>(descriptor_body, device_connection, InvalidDescriptionString)?)
 				}
 			)
 		)
 	}
 	
 	#[inline(always)]
-	fn parse_description<E: error::Error, Error: FnOnce(GetLocalizedStringError) -> E, const Index: usize>(descriptor_body: &[u8], string_finder: &StringFinder, error: Error) -> Result<DeadOrAlive<Option<LocalizedStrings>>, E>
+	fn parse_description<E: error::Error, Error: FnOnce(GetLocalizedStringError) -> E, const Index: usize>(descriptor_body: &[u8], device_connection: &DeviceConnection, error: Error) -> Result<DeadOrAlive<Option<LocalizedStrings>>, E>
 	{
-		string_finder.find_string(descriptor_body.u8(descriptor_index::<Index>())).map_err(error)
+		device_connection.find_string(descriptor_body.u8(descriptor_index::<Index>())).map_err(error)
 	}
 }

@@ -41,6 +41,7 @@ use crate::integers::u24;
 
 
 include!("Bytes.rs");
+include!("TryClone.rs");
 include!("WithCapacity.rs");
 include!("WrappedBitFlags.rs");
 include!("WrappedHashMap.rs");

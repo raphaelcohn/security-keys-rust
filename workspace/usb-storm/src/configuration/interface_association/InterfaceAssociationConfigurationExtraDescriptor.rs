@@ -39,7 +39,7 @@ impl InterfaceAssociationConfigurationExtraDescriptor
 	}
 	
 	#[inline(always)]
-	fn parse(descriptor_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, InterfaceAssociationConfigurationExtraDescriptorParseError>
+	fn parse(descriptor_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, InterfaceAssociationConfigurationExtraDescriptorParseError>
 	{
 		use InterfaceAssociationConfigurationExtraDescriptorParseError::*;
 		
@@ -62,7 +62,7 @@ impl InterfaceAssociationConfigurationExtraDescriptor
 					
 					description:
 					{
-						let description = string_finder.find_string(descriptor_body.u8(descriptor_index::<7>())).map_err(InvalidDescriptionString)?;
+						let description = device_connection.find_string(descriptor_body.u8(descriptor_index::<7>())).map_err(InvalidDescriptionString)?;
 						return_ok_if_dead!(description)
 					},
 				}

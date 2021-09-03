@@ -26,7 +26,7 @@ impl 	Entity for Version1SelectorUnitEntity
 	}
 	
 	#[inline(always)]
-	fn parse(entity_body: &[u8], string_finder: &StringFinder) -> Result<DeadOrAlive<Self>, Self::ParseError>
+	fn parse(entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<Self>, Self::ParseError>
 	{
 		use Version1SelectorUnitEntityParseError::*;
 		
@@ -45,7 +45,7 @@ impl 	Entity for Version1SelectorUnitEntity
 				{
 					input_logical_audio_channel_clusters: InputLogicalAudioChannelClusters::parse(p, entity_body, 5, CouldNotAllocateMemoryForSources)?,
 					
-					description: return_ok_if_dead!(string_finder.find_string(entity_body.u8(entity_index_non_constant(5 + p))).map_err(InvalidDescriptionString)?),
+					description: return_ok_if_dead!(device_connection.find_string(entity_body.u8(entity_index_non_constant(5 + p))).map_err(InvalidDescriptionString)?),
 				}
 			)
 		)

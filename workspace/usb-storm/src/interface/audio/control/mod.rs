@@ -18,7 +18,7 @@ use crate::device::DeadOrAlive::Dead;
 use crate::device::DeadOrAlive;
 use crate::interface::InterfaceNumber;
 use crate::interface::MaximumNumberOfInterfaces;
-use crate::string::StringFinder;
+use crate::device::DeviceConnection;
 use crate::version::Version;
 use crate::version::VersionParseError;
 use likely::unlikely;

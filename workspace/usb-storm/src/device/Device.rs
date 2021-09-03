@@ -148,16 +148,16 @@ impl Device
 	
 	/// Parse a libusb device.
 	#[inline(always)]
-	fn parse(libusb_device: NonNull<libusb_device>, buffer: &mut BinaryObjectStoreBuffer, location: Location, device_descriptor: libusb_device_descriptor, vendor_identifier: VendorIdentifier, product_identifier: ProductIdentifier) -> Result<DeadOrAlive<Self>, DeviceParseError>
+	fn parse(libusb_device: NonNull<libusb_device>, reusable_buffer: &mut ReusableBuffer, location: Location, device_descriptor: libusb_device_descriptor, vendor_identifier: VendorIdentifier, product_identifier: ProductIdentifier) -> Result<DeadOrAlive<Self>, DeviceParseError>
 	{
 		use DeviceParseError::*;
 		
 		let device_handle = return_ok_if_dead!(DeviceHandle::open(libusb_device)?);
-		let string_finder = return_ok_if_dead!(StringFinder::new(&device_handle).map_err(GetLanguages)?);
-		let binary_object_store = return_ok_if_dead!(BinaryObjectStore::parse(&device_handle, buffer, &string_finder)?);
+		let device_connection = return_ok_if_dead!(DeviceConnection::new(&device_handle).map_err(GetLanguages)?);
+		let binary_object_store = return_ok_if_dead!(BinaryObjectStore::parse(&device_connection, reusable_buffer)?);
 		let speed = get_device_speed(libusb_device);
 		let maximum_supported_usb_version = Version::parse(device_descriptor.bcdUSB).map_err(MaximumSupportedUsbVersion)?;
-		let configurations = return_ok_if_dead!(Self::get_configurations(libusb_device, &device_descriptor, maximum_supported_usb_version, speed, &string_finder)?);
+		let configurations = return_ok_if_dead!(Self::get_configurations(libusb_device, &device_descriptor, maximum_supported_usb_version, speed, &device_connection)?);
 		
 		Ok
 		(
@@ -169,14 +169,14 @@ impl Device
 					(
 						vendor_identifier,
 						
-						return_ok_if_dead!(string_finder.find_string(device_descriptor.iManufacturer).map_err(ManufacturerString)?),
+						return_ok_if_dead!(device_connection.find_string(device_descriptor.iManufacturer).map_err(ManufacturerString)?),
 					),
 					
 					product: Product::new
 					(
 						product_identifier,
 						
-						return_ok_if_dead!(string_finder.find_string(device_descriptor.iProduct).map_err(ProductNameString)?),
+						return_ok_if_dead!(device_connection.find_string(device_descriptor.iProduct).map_err(ProductNameString)?),
 					),
 					
 					location,
@@ -187,7 +187,7 @@ impl Device
 					
 					control_end_point_zero_maximum_packet_size_exponent: device_descriptor.bMaxPacketSize0,
 					
-					serial_number: return_ok_if_dead!(string_finder.find_string(device_descriptor.iSerialNumber).map_err(SerialNumberString)?),
+					serial_number: return_ok_if_dead!(device_connection.find_string(device_descriptor.iSerialNumber).map_err(SerialNumberString)?),
 				
 					maximum_supported_usb_version,
 					
@@ -199,7 +199,7 @@ impl Device
 					
 					configurations,
 					
-					languages: string_finder.into_languages().map_err(CouldNotAllocateMemoryForLanguages)?,
+					languages: device_connection.into_languages().map_err(CouldNotAllocateMemoryForLanguages)?,
 				
 					binary_object_store,
 				}
@@ -208,7 +208,7 @@ impl Device
 	}
 	
 	#[inline(always)]
-	fn get_configurations(libusb_device: NonNull<libusb_device>, device_descriptor: &libusb_device_descriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, string_finder: &StringFinder) -> Result<DeadOrAlive<WrappedIndexMap<ConfigurationNumber, Configuration>>, DeviceParseError>
+	fn get_configurations(libusb_device: NonNull<libusb_device>, device_descriptor: &libusb_device_descriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, device_connection: &DeviceConnection) -> Result<DeadOrAlive<WrappedIndexMap<ConfigurationNumber, Configuration>>, DeviceParseError>
 	{
 		use DeviceParseError::*;
 		
@@ -229,7 +229,7 @@ impl Device
 				
 				Alive(Some(configuration_descriptor)) =>
 				{
-					let (configuration_number, configuration) = return_ok_if_dead!(Configuration::parse(configuration_descriptor, maximum_supported_usb_version, speed, string_finder).map_err(|cause| ParseConfigurationDescriptor { cause, configuration_index })?);
+					let (configuration_number, configuration) = return_ok_if_dead!(Configuration::parse(configuration_descriptor, maximum_supported_usb_version, speed, device_connection).map_err(|cause| ParseConfigurationDescriptor { cause, configuration_index })?);
 					
 					let outcome = configurations.insert(configuration_number, configuration);
 					if unlikely!(outcome.is_some())
