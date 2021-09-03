@@ -43,6 +43,7 @@
 
 use clap as _;
 use ron as _;
+use serde_json as _;
 use serde_lexpr as _;
 use serde_yaml as _;
 

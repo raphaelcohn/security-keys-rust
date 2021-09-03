@@ -6,16 +6,19 @@
 pub(super) enum SerializingError
 {
 	#[allow(missing_docs)]
-	Simple(SimpleSerializerError),
+	JavaScriptObjectNotation(serde_json::Error),
 	
 	#[allow(missing_docs)]
-	YetAnotherMarkupLanguage(serde_yaml::Error),
+	LispSExpression(serde_lexpr::Error),
 	
 	#[allow(missing_docs)]
 	RustyObjectNotation(ron::Error),
 	
 	#[allow(missing_docs)]
-	LispSExpression(serde_lexpr::Error),
+	Simple(SimpleSerializerError),
+	
+	#[allow(missing_docs)]
+	YetAnotherMarkupLanguage(serde_yaml::Error),
 }
 
 impl Display for SerializingError
@@ -36,14 +39,43 @@ impl error::Error for SerializingError
 		
 		match self
 		{
-			Simple(cause) => Some(cause),
+			JavaScriptObjectNotation(cause) => Some(cause),
 			
-			YetAnotherMarkupLanguage(cause) => Some(cause),
+			LispSExpression(cause) => Some(cause),
 			
 			RustyObjectNotation(cause) => Some(cause),
 			
-			LispSExpression(cause) => Some(cause),
+			Simple(cause) => Some(cause),
+			
+			YetAnotherMarkupLanguage(cause) => Some(cause),
 		}
+	}
+}
+
+impl From<serde_json::Error> for SerializingError
+{
+	#[inline(always)]
+	fn from(cause: serde_json::Error) -> Self
+	{
+		SerializingError::JavaScriptObjectNotation(cause)
+	}
+}
+
+impl From<serde_lexpr::Error> for SerializingError
+{
+	#[inline(always)]
+	fn from(cause: serde_lexpr::Error) -> Self
+	{
+		SerializingError::LispSExpression(cause)
+	}
+}
+
+impl From<ron::Error> for SerializingError
+{
+	#[inline(always)]
+	fn from(cause: ron::Error) -> Self
+	{
+		SerializingError::RustyObjectNotation(cause)
 	}
 }
 
@@ -62,23 +94,5 @@ impl From<serde_yaml::Error> for SerializingError
 	fn from(cause: serde_yaml::Error) -> Self
 	{
 		SerializingError::YetAnotherMarkupLanguage(cause)
-	}
-}
-
-impl From<ron::Error> for SerializingError
-{
-	#[inline(always)]
-	fn from(cause: ron::Error) -> Self
-	{
-		SerializingError::RustyObjectNotation(cause)
-	}
-}
-
-impl From<serde_lexpr::Error> for SerializingError
-{
-	#[inline(always)]
-	fn from(cause: serde_lexpr::Error) -> Self
-	{
-		SerializingError::LispSExpression(cause)
 	}
 }

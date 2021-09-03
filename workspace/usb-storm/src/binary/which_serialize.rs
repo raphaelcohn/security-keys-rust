@@ -5,21 +5,29 @@
 #[inline(always)]
 fn which_serialize(format: &str, devices: Vec<Device>, writer: impl Write + 'static) -> Result<(), SerializingError>
 {
-	if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueSimple)
+	if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueJson)
+	{
+		serialize(devices, writer, JsonSerializer::new)?
+	}
+	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueJsonPretty)
+	{
+		serialize(devices, writer, JsonSerializer::pretty)?
+	}
+	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueLispSExpression)
+	{
+		lisp_s_expression_writer(writer, &devices)?
+	}
+	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueRon)
+	{
+		serialize(devices, writer, new_ron_serializer)?
+	}
+	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueSimple)
 	{
 		serialize(devices, writer, SimpleSerializer::new)?
 	}
 	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueYaml)
 	{
 		serialize(devices, writer, YamlSerializer::new)?
-	}
-	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueRon)
-	{
-		serialize(devices, writer, new_ron_serializer)?
-	}
-	else if format.eq_ignore_ascii_case(CommandLineParser::FormatArgumentValueLispSExpression)
-	{
-		lisp_s_expression_writer(writer, &devices)?
 	}
 	else
 	{

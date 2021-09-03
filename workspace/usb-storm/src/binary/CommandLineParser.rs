@@ -8,13 +8,17 @@ impl<'a> CommandLineParser<'a>
 {
 	const FormatArgumentName: &'static str = "format";
 	
-	pub(super) const FormatArgumentValueSimple: &'static str = "simple";
+	pub(super) const FormatArgumentValueJson: &'static str = "JSON";
 	
-	pub(super) const FormatArgumentValueYaml: &'static str = "YAML";
+	pub(super) const FormatArgumentValueJsonPretty: &'static str = "JSON-pretty";
+	
+	pub(super) const FormatArgumentValueLispSExpression: &'static str = "Lisp-S-Expression";
 	
 	pub(super) const FormatArgumentValueRon: &'static str = "RON";
 	
-	pub(super) const FormatArgumentValueLispSExpression: &'static str = "lisp-s-expression";
+	pub(super) const FormatArgumentValueSimple: &'static str = "Simple";
+	
+	pub(super) const FormatArgumentValueYaml: &'static str = "YAML";
 	
 	const FormatArgumentDefault: &'static str = Self::FormatArgumentValueYaml;
 	
@@ -22,7 +26,7 @@ impl<'a> CommandLineParser<'a>
 	
 	pub(super) fn parse() -> Self
 	{
-		let app = App::new("rust-security-keys")
+		let app = App::new("usb-storm")
 			.name(crate_name!())
 			.version(crate_version!())
 			.author(crate_authors!("\n"))
@@ -39,10 +43,12 @@ impl<'a> CommandLineParser<'a>
 					.case_insensitive(true)
 					.multiple(false)
 					.default_value(Self::FormatArgumentDefault)
-					.possible_value(Self::FormatArgumentValueSimple)
-					.possible_value(Self::FormatArgumentValueYaml)
+					.possible_value(Self::FormatArgumentValueJson)
+					.possible_value(Self::FormatArgumentValueJsonPretty)
 					.possible_value(Self::FormatArgumentValueRon)
+					.possible_value(Self::FormatArgumentValueSimple)
 					.possible_value(Self::FormatArgumentValueLispSExpression)
+					.possible_value(Self::FormatArgumentValueYaml)
 			)
 			.arg
 			(

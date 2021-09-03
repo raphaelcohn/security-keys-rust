@@ -37,6 +37,7 @@ uuid = { version = "^0.8.2", features = ["serde", "v1", "v3", "v4", "v5"] }
 # Binary
 clap = "^2.33.3"
 ron = "^0.6.4"
+serde_json = "^1.0.59"
 serde_yaml = "^0.8.17"
 serde-lexpr = "^0.1.2"
 
