@@ -10,6 +10,12 @@ pub struct GlobalItems
 {
 	usage_page: Option<UsagePage>,
 	
+	report_size: Option<u32>,
+	
+	report_identifier: Option<NonZeroU32>,
+	
+	report_count: Option<u32>,
+	
 	logical_minimum_extent: Option<u32>,
 	
 	logical_maximum_extent: Option<u32>,
@@ -21,12 +27,6 @@ pub struct GlobalItems
 	unit_exponent: Option<u32>,
 
 	unit: Option<u32>,
-
-	report_size: Option<u32>,
-	
-	report_identifier: Option<NonZeroU32>,
-	
-	report_count: Option<u32>,
 	
 	reserved0: Option<u32>,
 	
@@ -37,6 +37,97 @@ pub struct GlobalItems
 
 impl GlobalItems
 {
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn usage_page(&self) -> Option<UsagePage>
+	{
+		self.usage_page
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn report_size(&self) -> Option<u32>
+	{
+		self.report_size
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn report_identifier(&self) -> Option<NonZeroU32>
+	{
+		self.report_identifier
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn report_count(&self) -> Option<u32>
+	{
+		self.report_count
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn logical_minimum_extent(&self) -> Option<u32>
+	{
+		self.logical_minimum_extent
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn logical_maximum_extent(&self) -> Option<u32>
+	{
+		self.logical_maximum_extent
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn physical_minimum_extent(&self) -> Option<u32>
+	{
+		self.physical_minimum_extent
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn physical_maximum_extent(&self) -> Option<u32>
+	{
+		self.physical_maximum_extent
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn unit_exponent(&self) -> Option<u32>
+	{
+		self.unit_exponent
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn unit(&self) -> Option<u32>
+	{
+		self.unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn reserved0(&self) -> Option<u32>
+	{
+		self.reserved0
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn reserved1(&self) -> Option<u32>
+	{
+		self.reserved1
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn reserved2(&self) -> Option<u32>
+	{
+		self.reserved2
+	}
+	
 	#[inline(always)]
 	fn parse_usage_page(&mut self, data: u32) -> Result<(), GlobalItemParseError>
 	{

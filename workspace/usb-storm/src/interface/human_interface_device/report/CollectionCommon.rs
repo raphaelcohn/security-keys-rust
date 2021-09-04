@@ -8,8 +8,10 @@
 #[serde(deny_unknown_fields)]
 pub struct CollectionCommon
 {
+	#[serde(flatten)]
 	globals: Rc<GlobalItems>,
 	
+	#[serde(flatten)]
 	locals: LocalItems,
 	
 	reports: Vec<Report>,

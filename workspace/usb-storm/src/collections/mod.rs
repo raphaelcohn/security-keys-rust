@@ -31,6 +31,7 @@ use std::num::NonZeroU8;
 use std::num::NonZeroU16;
 use std::ops::Deref;
 use std::ops::DerefMut;
+use std::ops::RangeInclusive;
 use std::ptr::write;
 use swiss_army_knife::get_unchecked::AsUsizeIndex;
 use swiss_army_knife::get_unchecked::GetUnchecked;

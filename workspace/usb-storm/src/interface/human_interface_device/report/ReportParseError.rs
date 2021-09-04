@@ -34,7 +34,7 @@ pub enum ReportParseError
 	GlobalItemParse(GlobalItemParseError),
 	
 	#[allow(missing_docs)]
-	LocalItemParse(ParsedLocalItemParseError),
+	LocalItemParse(LocalItemParseError),
 	
 	#[allow(missing_docs)]
 	ClosedTooManyOpenLocalSets,
@@ -96,10 +96,10 @@ impl From<GlobalItemParseError> for ReportParseError
 	}
 }
 
-impl From<ParsedLocalItemParseError> for ReportParseError
+impl From<LocalItemParseError> for ReportParseError
 {
 	#[inline(always)]
-	fn from(cause: ParsedLocalItemParseError) -> Self
+	fn from(cause: LocalItemParseError) -> Self
 	{
 		ReportParseError::LocalItemParse(cause)
 	}

@@ -8,6 +8,7 @@
 #[serde(deny_unknown_fields)]
 pub struct MainItemCommonExtended
 {
+	#[serde(flatten)]
 	common: MainItemCommon,
 	
 	volatile: bool,

@@ -7,7 +7,7 @@ struct ItemStateTable
 {
 	globals: Rc<GlobalItems>,
 	
-	locals: Stack<ParsedLocalItems>,
+	locals: Stack<ParsingLocalItems>,
 }
 
 impl TryClone for ItemStateTable

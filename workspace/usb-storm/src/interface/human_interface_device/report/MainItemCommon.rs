@@ -8,8 +8,10 @@
 #[serde(deny_unknown_fields)]
 pub struct MainItemCommon
 {
+	#[serde(flatten)]
 	globals: Rc<GlobalItems>,
 	
+	#[serde(flatten)]
 	locals: LocalItems,
 	
 	constant_rather_than_data: bool,

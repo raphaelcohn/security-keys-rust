@@ -37,6 +37,14 @@ impl<TC: TryClone> TryClone for Option<TC>
 		}
 	}
 }
+impl<TC: TryClone> TryClone for RangeInclusive<TC>
+{
+	#[inline(always)]
+	fn try_clone(&self) -> Result<Self, TryReserveError>
+	{
+		Ok(self.start().try_clone()? ..= self.end().try_clone()?)
+	}
+}
 
 impl TryClone for u32
 {

@@ -4,7 +4,7 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ParsedLocalItemParseError
+pub enum LocalItemParseError
 {
 	#[allow(missing_docs)]
 	CouldNotPushUsageItem(TryReserveError),
@@ -76,7 +76,7 @@ pub enum ParsedLocalItemParseError
 	CouldNotPushSet(TryReserveError),
 }
 
-impl Display for ParsedLocalItemParseError
+impl Display for LocalItemParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -85,12 +85,12 @@ impl Display for ParsedLocalItemParseError
 	}
 }
 
-impl error::Error for ParsedLocalItemParseError
+impl error::Error for LocalItemParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use ParsedLocalItemParseError::*;
+		use LocalItemParseError::*;
 		
 		match self
 		{

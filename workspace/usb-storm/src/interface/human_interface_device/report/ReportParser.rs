@@ -29,7 +29,7 @@ impl<'a> ReportParser<'a>
 					{
 						globals: Rc::try_new(GlobalItems::default()).map_err(ReportParseError::CouldNotAllocateGlobals)?,
 						
-						locals: Stack::new(ParsedLocalItems::default())?,
+						locals: Stack::new(ParsingLocalItems::default())?,
 					};
 					Stack::new(item_state_table)?
 				},
@@ -99,8 +99,6 @@ impl<'a> ReportParser<'a>
 	#[inline(always)]
 	fn parse_short_item(&mut self, short_item_type: ShortItemType, item_tag: u8, data: u32, was_32_bits_wide: bool) -> Result<DeadOrAlive<()>, ReportParseError>
 	{
-		eprintln!("locals stack {:?}", self.locals_stack());
-		
 		use ReportParseError::*;
 		use ShortItemType::*;
 		
@@ -411,7 +409,7 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn locals(&mut self) -> &mut ParsedLocalItems
+	fn locals(&mut self) -> &mut ParsingLocalItems
 	{
 		self.locals_stack().current()
 	}
@@ -423,7 +421,7 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn locals_stack(&mut self) -> &mut Stack<ParsedLocalItems>
+	fn locals_stack(&mut self) -> &mut Stack<ParsingLocalItems>
 	{
 		&mut self.current_item_state_table().locals
 	}

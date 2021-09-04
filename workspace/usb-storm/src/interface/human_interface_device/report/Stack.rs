@@ -79,7 +79,7 @@ impl<V: Default> Stack<V>
 	}
 }
 
-impl Stack<ParsedLocalItems>
+impl Stack<ParsingLocalItems>
 {
 	#[inline(always)]
 	fn try_clone(&self) -> Result<Self, TryReserveError>
