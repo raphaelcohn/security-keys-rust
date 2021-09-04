@@ -3,4 +3,4 @@
 
 
 /// A port number.
-pub type PortNumber = u8;
+pub type PortNumber = NonZeroU8;

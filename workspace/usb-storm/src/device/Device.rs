@@ -24,6 +24,8 @@ pub struct Device
 	
 	device_class: DeviceClass,
 	
+	hub_descriptor: Option<HubDescriptor>,
+	
 	manufacturer_device_version: Version,
 	
 	serial_number: Option<LocalizedStrings>,
@@ -100,6 +102,13 @@ impl Device
 	pub fn device_class(&self) -> DeviceClass
 	{
 		self.device_class
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn hub_descriptor(&self) -> Option<&HubDescriptor>
+	{
+		self.hub_descriptor.as_ref()
 	}
 	
 	/// Can contain a maximum of 126 languages (this is an internal limit in USB's design).
@@ -180,6 +189,8 @@ impl Device
 			return_ok_if_dead!(dead_or_alive)
 		};
 		
+		let device_class = DeviceClass::parse(&device_descriptor);
+		
 		Ok
 		(
 			Alive
@@ -214,7 +225,13 @@ impl Device
 					
 					manufacturer_device_version: Version::parse(device_descriptor.bcdDevice).map_err(FirmwareVersion)?,
 					
-					device_class: DeviceClass::parse(&device_descriptor),
+					device_class,
+					
+					hub_descriptor:
+					{
+						let dead_or_alive = HubDescriptor::get_and_parse(&device_connection, device_class, maximum_supported_usb_version)?;
+						return_ok_if_dead!(dead_or_alive)
+					},
 					
 					active_configuration_number: return_ok_if_dead!(Self::get_active_configuration_number(libusb_device, &configurations)?),
 					

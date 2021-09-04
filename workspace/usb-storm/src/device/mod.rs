@@ -89,6 +89,7 @@ use crate::string::find_web_usb_url_control_transfer;
 use crate::string::WebUrl;
 use crate::string::get_languages;
 use crate::string::get_localized_string;
+use crate::device::hub::{HubDescriptor, HubDescriptorParseError};
 
 
 include!("return_ok_if_dead.rs");
@@ -97,6 +98,10 @@ include!("return_ok_if_dead_or_alive_none.rs");
 
 /// Binary Object Store (BOS).
 pub mod binary_object_store;
+
+
+/// Hub descriptors.
+pub mod hub;
 
 
 /// Bus and address.

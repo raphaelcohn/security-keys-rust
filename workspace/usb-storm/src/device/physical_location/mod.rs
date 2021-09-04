@@ -11,10 +11,13 @@ use likely::likely;
 use serde::Deserialize;
 use serde::Serialize;
 use std::ptr::NonNull;
+use std::num::NonZeroU8;
+use swiss_army_knife::non_zero::new_non_zero_u8;
+use std::mem::transmute;
 
 
 include!("get_port_number.rs");
 include!("get_port_numbers.rs");
 include!("PhysicalLocation.rs");
-include!("MaximumDevicePortNumbers.rs");
+include!("MaximumPortNumbers.rs");
 include!("PortNumber.rs");

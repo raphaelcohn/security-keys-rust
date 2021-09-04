@@ -2,8 +2,24 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[inline(always)]
-fn get_class_device_descriptor(device_handle: NonNull<libusb_device_handle>, descriptor_type: u8, descriptor_index: u8, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
+/// A hub descriptor trait.
+pub trait HubDescriptorTrait
 {
-	get_device_descriptor(device_handle, ControlTransferRequestType::Class, descriptor_type, descriptor_index, index, buffer)
+	#[allow(missing_docs)]
+	type PS: PortSetting;
+	
+	#[allow(missing_docs)]
+	fn logical_power_switching_mode(&self) -> LogicalPowerSwitchingMode;
+	
+	#[allow(missing_docs)]
+	fn is_part_of_a_compound_device(&self) -> bool;
+	
+	#[allow(missing_docs)]
+	fn overcurrent_protection_mode(&self) -> OvercurrentProtectionMode;
+	
+	/// Maximum value is 510.
+	fn time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port(&self) -> u16;
+	
+	#[allow(missing_docs)]
+	fn ports_settings(&self) -> &PortsSetting<Self::PS>;
 }

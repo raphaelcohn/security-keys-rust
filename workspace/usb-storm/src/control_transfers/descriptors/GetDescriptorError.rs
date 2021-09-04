@@ -53,7 +53,7 @@ impl GetDescriptorError
 			
 			Err(BufferOverflow) => Err(ControlRequestBufferOverflow),
 			
-			Err(NotSupported { .. }) =>Ok(Alive(None)),
+			Err(NotSupported { .. }) => Ok(Alive(None)),
 			
 			Err(OutOfMemory) => Err(ControlRequestOutOfMemory),
 			

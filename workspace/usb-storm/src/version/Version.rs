@@ -61,6 +61,18 @@ impl Version
 	}
 	
 	#[inline(always)]
+	pub(crate) const fn is_2(&self) -> bool
+	{
+		self.major == 2
+	}
+	
+	#[inline(always)]
+	pub(crate) const fn is_3(&self) -> bool
+	{
+		self.major == 3
+	}
+	
+	#[inline(always)]
 	pub(crate) const fn is_0x0110_or_greater(&self) -> bool
 	{
 		self.major >= 1 && self.minor >= 1

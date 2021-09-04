@@ -74,6 +74,9 @@ pub enum DeviceParseError
 	
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForLanguages(TryReserveError),
+	
+	#[allow(missing_docs)]
+	HubDescriptorParse(HubDescriptorParseError),
 }
 
 impl Display for DeviceParseError
@@ -122,6 +125,8 @@ impl error::Error for DeviceParseError
 			
 			CouldNotAllocateMemoryForConfigurations(cause) => Some(cause),
 			
+			HubDescriptorParse(cause) => Some(cause),
+			
 			_ => None,
 		}
 	}
@@ -142,5 +147,14 @@ impl From<BinaryObjectStoreParseError> for DeviceParseError
 	fn from(cause: BinaryObjectStoreParseError) -> DeviceParseError
 	{
 		DeviceParseError::GetBinaryObjectStore(cause)
+	}
+}
+
+impl From<HubDescriptorParseError> for DeviceParseError
+{
+	#[inline(always)]
+	fn from(cause: HubDescriptorParseError) -> DeviceParseError
+	{
+		DeviceParseError::HubDescriptorParse(cause)
 	}
 }

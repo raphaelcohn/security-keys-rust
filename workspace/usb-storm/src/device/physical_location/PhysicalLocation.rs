@@ -10,7 +10,7 @@ pub struct PhysicalLocation
 {
 	port_number: PortNumber,
 	
-	port_numbers: ArrayVec<PortNumber, MaximumDevicePortNumbers>,
+	port_numbers: ArrayVec<PortNumber, MaximumPortNumbers>,
 }
 
 impl PhysicalLocation
@@ -28,14 +28,14 @@ impl PhysicalLocation
 	
 	/// Bus number.
 	#[inline(always)]
-	pub const fn port_number(&self) -> u8
+	pub const fn port_number(&self) -> PortNumber
 	{
 		self.port_number
 	}
 	
 	/// Address address.
 	#[inline(always)]
-	pub const fn port_numbers(&self) -> &ArrayVec<PortNumber, MaximumDevicePortNumbers>
+	pub const fn port_numbers(&self) -> &ArrayVec<PortNumber, MaximumPortNumbers>
 	{
 		&self.port_numbers
 	}

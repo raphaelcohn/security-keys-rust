@@ -3,10 +3,10 @@
 
 
 #[inline(always)]
-fn get_port_numbers(libusb_device: NonNull<libusb_device>) -> ArrayVec<PortNumber, MaximumDevicePortNumbers>
+fn get_port_numbers(libusb_device: NonNull<libusb_device>) -> ArrayVec<PortNumber, MaximumPortNumbers>
 {
-	let mut port_numbers  = ArrayVec::new_const();
-	let result = unsafe { libusb_get_port_numbers(libusb_device.as_ptr(), port_numbers.as_mut_ptr(), MaximumDevicePortNumbers as _) };
+	let mut port_numbers: ArrayVec<u8, MaximumPortNumbers>  = ArrayVec::new_const();
+	let result = unsafe { libusb_get_port_numbers(libusb_device.as_ptr(), port_numbers.as_mut_ptr(), MaximumPortNumbers as _) };
 	if likely!(result >= 0)
 	{
 		let count = result as usize;
@@ -20,5 +20,5 @@ fn get_port_numbers(libusb_device: NonNull<libusb_device>) -> ArrayVec<PortNumbe
 	{
 		unreachable!("Undocumented error code from libusb_get_port_numbers(), {}", result)
 	}
-	port_numbers
+	unsafe { transmute(port_numbers) }
 }

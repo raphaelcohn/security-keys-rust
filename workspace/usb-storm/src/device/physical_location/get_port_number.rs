@@ -5,5 +5,5 @@
 #[inline(always)]
 fn get_port_number(libusb_device: NonNull<libusb_device>) -> PortNumber
 {
-	unsafe { libusb_get_port_number(libusb_device.as_ptr()) }
+	new_non_zero_u8(unsafe { libusb_get_port_number(libusb_device.as_ptr()) })
 }

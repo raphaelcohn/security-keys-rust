@@ -2,8 +2,5 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[inline(always)]
-fn get_class_device_descriptor(device_handle: NonNull<libusb_device_handle>, descriptor_type: u8, descriptor_index: u8, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
-{
-	get_device_descriptor(device_handle, ControlTransferRequestType::Class, descriptor_type, descriptor_index, index, buffer)
-}
+/// The maximum number of ports an USB device can have.
+pub const MaximumPortNumbers: usize = 7;

@@ -2,5 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// The maximum number of ports an USB device can have.
-pub const MaximumDevicePortNumbers: usize = 7;
+/// A port setting.
+pub trait PortSetting: Debug + Copy + Eq + Ord + Hash
+{
+	#[allow(missing_docs)]
+	fn device_is_removable(&self) -> bool;
+}

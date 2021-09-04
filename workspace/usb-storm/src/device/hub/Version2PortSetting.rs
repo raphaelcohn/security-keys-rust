@@ -2,8 +2,32 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[inline(always)]
-fn get_class_device_descriptor(device_handle: NonNull<libusb_device_handle>, descriptor_type: u8, descriptor_index: u8, index: u16, buffer: &mut [MaybeUninit<u8>]) -> Result<DeadOrAlive<Option<&[u8]>>, GetDescriptorError>
+/// Port setting.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct Version2PortSetting
 {
-	get_device_descriptor(device_handle, ControlTransferRequestType::Class, descriptor_type, descriptor_index, index, buffer)
+	device_is_removable: bool,
+	
+	usb_1_0_power_control: bool,
+}
+
+impl PortSetting for Version2PortSetting
+{
+	#[inline(always)]
+	fn device_is_removable(&self) -> bool
+	{
+		self.device_is_removable
+	}
+}
+
+impl Version2PortSetting
+{
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn usb_1_0_power_control(&self) -> bool
+	{
+		self.usb_1_0_power_control
+	}
 }
