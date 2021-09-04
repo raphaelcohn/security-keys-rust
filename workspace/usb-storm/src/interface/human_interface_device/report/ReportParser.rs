@@ -25,12 +25,11 @@ impl<'a> ReportParser<'a>
 				
 				item_state_table_stack:
 				{
-					let globals = Self::new_globals()?;
 					let item_state_table = ItemStateTable
 					{
-						globals,
+						globals: Rc::try_new(GlobalItems::default()).map_err(ReportParseError::CouldNotAllocateGlobals)?,
 						
-						locals: Default::default()
+						locals: Stack::new(ParsedLocalItems::default())?,
 					};
 					Stack::new(item_state_table)?
 				},
@@ -87,7 +86,7 @@ impl<'a> ReportParser<'a>
 			descriptor_bytes = descriptor_bytes.get_unchecked_range_safe(exclusive_end_of_data_index .. );
 		}
 		
-		let common = take(&mut self.collection_stack).consume()?.common;
+		let common = self.collection_stack.consume()?.common;
 		Ok(Alive(common))
 	}
 	
@@ -100,6 +99,8 @@ impl<'a> ReportParser<'a>
 	#[inline(always)]
 	fn parse_short_item(&mut self, short_item_type: ShortItemType, item_tag: u8, data: u32, was_32_bits_wide: bool) -> Result<DeadOrAlive<()>, ReportParseError>
 	{
+		eprintln!("locals stack {:?}", self.locals_stack());
+		
 		use ReportParseError::*;
 		use ShortItemType::*;
 		
@@ -341,11 +342,13 @@ impl<'a> ReportParser<'a>
 	#[inline(always)]
 	fn finish_globals_and_locals(&mut self) -> Result<(Rc<GlobalItems>, LocalItems), ReportParseError>
 	{
+		let globals = self.globals_inner().clone();
+		let items = self.locals_stack().consume_and_replace()?;
 		Ok
 		(
 			(
-				self.globals_inner().clone(),
-				take(self.locals_stack()).consume()?.finish()?
+				globals,
+				items.finish()?
 			)
 		)
 	}
@@ -405,12 +408,6 @@ impl<'a> ReportParser<'a>
 		}
 		
 		Ok(get_mut_checked(this))
-	}
-	
-	#[inline(always)]
-	fn new_globals() -> Result<Rc<GlobalItems>, ReportParseError>
-	{
-		Rc::try_new(Default::default()).map_err(ReportParseError::CouldNotAllocateGlobals)
 	}
 	
 	#[inline(always)]
