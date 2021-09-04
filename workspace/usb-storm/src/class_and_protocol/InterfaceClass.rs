@@ -29,6 +29,9 @@ pub enum InterfaceClass
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass08h>.
 	MassStorage(MassStorageSubClass),
 	
+	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass09h>.
+	Hub(HubSubClass),
+	
 	/// Communications Device Class (CDC) Data.
 	///
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass0Ah>.
@@ -345,7 +348,11 @@ impl InterfaceClass
 			(0x08, 0xFF, 0x63 ..= 0xFE) => MassStorage(MassStorageSubClass::VendorSpecific(MassStorageProtocol::Unrecognized(protocol_code))),
 			(0x08, 0xFF, 0xFF) => MassStorage(MassStorageSubClass::VendorSpecific(MassStorageProtocol::VendorSpecific)),
 			
-			(0x09, _, _) => ShouldBeDeviceOnly { class_code, sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
+			(0x09, 0x00, 0x00) => Hub(HubSubClass::TransactionTranslator(HubTransactionTranslatorProtocol::No)),
+			(0x09, 0x00, 0x01) => Hub(HubSubClass::TransactionTranslator(HubTransactionTranslatorProtocol::Single)),
+			(0x09, 0x00, 0x02) => Hub(HubSubClass::TransactionTranslator(HubTransactionTranslatorProtocol::Multiple)),
+			(0x09, 0x00, 0x03) => Hub(HubSubClass::TransactionTranslator(HubTransactionTranslatorProtocol::Unrecognized { protocol_code })),
+			(0x09, _, _) => Hub(HubSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x0A, 0x00, 0x00) => CommunicationsDeviceClassData(NoSpecificProtocolRequired),
 			(0x0A, 0x00, 0x01) => CommunicationsDeviceClassData(NetworkTransferBlock),

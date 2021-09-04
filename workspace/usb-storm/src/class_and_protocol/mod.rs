@@ -33,6 +33,8 @@ include!("DiagnosticSubClass.rs");
 include!("DebugDiagnosticProtocol.rs");
 include!("FunctionClass.rs");
 include!("FunctionClassParseError.rs");
+include!("HubSubClass.rs");
+include!("HubTransactionTranslatorProtocol.rs");
 include!("HumanInterfaceDeviceInterfaceBootProtocol.rs");
 include!("HumanInterfaceDeviceInterfaceSubClass.rs");
 include!("InterfaceClass.rs");

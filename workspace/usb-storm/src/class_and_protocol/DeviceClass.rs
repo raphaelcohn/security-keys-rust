@@ -15,7 +15,7 @@ pub enum DeviceClass
 	CommunicationsDeviceClassControl(UnrecognizedSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass09h>.
-	Hub,
+	Hub(HubSubClass),
 	
 	/// See <https://www.usb.org/defined-class-codes#anchor_BaseClass11h>.
 	Billboard(KnownOrUnrecognizedSubClassAndProtocol),
@@ -90,7 +90,11 @@ impl DeviceClass
 			
 			(0x05 ..= 0x08, _, _) => ShouldBeInterfaceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
-			(0x09, _, _) => Hub,
+			(0x09, 0x00, 0x00) => Hub(HubSubClass::TransactionTranslator(HubTransactionTranslatorProtocol::No)),
+			(0x09, 0x00, 0x01) => Hub(HubSubClass::TransactionTranslator(HubTransactionTranslatorProtocol::Single)),
+			(0x09, 0x00, 0x02) => Hub(HubSubClass::TransactionTranslator(HubTransactionTranslatorProtocol::Multiple)),
+			(0x09, 0x00, 0x03) => Hub(HubSubClass::TransactionTranslator(HubTransactionTranslatorProtocol::Unrecognized { protocol_code })),
+			(0x09, _, _) => Hub(HubSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 			
 			(0x0A ..= 0x0B, _, _) => ShouldBeInterfaceOnly { class_code, unrecognized_sub_class: UnrecognizedSubClass { sub_class_code, protocol_code } },
 			
