@@ -40,3 +40,12 @@ impl MainItem for CollectionCommon
 		&self.locals
 	}
 }
+
+impl CollectionCommon
+{
+	#[inline(always)]
+	fn push_report(&mut self, item: Report) -> Result<(), ReportParseError>
+	{
+		self.reports.try_push(item).map_err(ReportParseError::OutOfMemoryPushingMainItem)
+	}
+}

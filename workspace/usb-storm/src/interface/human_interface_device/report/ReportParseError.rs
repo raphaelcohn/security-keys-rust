@@ -25,7 +25,7 @@ pub enum ReportParseError
 	OutOfMemoryPushingMainItem(TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateCurrentGlobals(TryReserveError),
+	CouldNotAllocateGlobals(AllocError),
 	
 	#[allow(missing_docs)]
 	OutOfStackMemory(TryReserveError),
@@ -74,7 +74,7 @@ impl error::Error for ReportParseError
 			
 			OutOfMemoryPushingMainItem(cause) => Some(cause),
 			
-			CouldNotAllocateCurrentGlobals(cause) => Some(cause),
+			CouldNotAllocateGlobals(cause) => Some(cause),
 			
 			OutOfStackMemory(cause) => Some(cause),
 			

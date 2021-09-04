@@ -24,7 +24,7 @@ impl TryClone for LongItem
 			{
 				tag: self.tag,
 			
-				data: data.try_clone()?,
+				data: self.data.try_clone()?,
 			}
 		)
 	}
@@ -41,7 +41,7 @@ impl LongItem
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn data(&self) -> &[u8]
+	pub fn data(&self) -> &[u8]
 	{
 		&self.data
 	}

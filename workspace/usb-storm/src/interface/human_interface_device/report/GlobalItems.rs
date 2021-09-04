@@ -6,7 +6,7 @@
 #[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-struct GlobalItems
+pub struct GlobalItems
 {
 	usage_page: Option<UsagePage>,
 	
@@ -37,7 +37,7 @@ struct GlobalItems
 
 impl GlobalItems
 {
-	#[inline(alwaus)]
+	#[inline(always)]
 	fn parse_usage_page(&mut self, data: u32) -> Result<(), GlobalItemParseError>
 	{
 		if unlikely!(data > (u16::MAX as u32))

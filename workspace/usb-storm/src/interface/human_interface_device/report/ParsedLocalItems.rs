@@ -18,7 +18,7 @@ struct ParsedLocalItems
 	
 	strings: Vec<Option<LocalizedStrings>>,
 	
-	pending_minimum_string: Option<u32>,
+	have_minimum_string: Option<u32>,
 	
 	reserveds: Vec<ReservedLocalItem>,
 	
@@ -46,7 +46,7 @@ impl TryClone for ParsedLocalItems
 				
 				strings: self.strings.try_clone()?,
 				
-				pending_minimum_string: self.pending_minimum_string,
+				have_minimum_string: self.have_minimum_string,
 				
 				reserveds: self.reserveds.try_clone()?,
 				
@@ -73,7 +73,7 @@ impl ParsedLocalItems
 		{
 			return Err(DesignatorMinimumNotFollowedByDesignatorMaximum)
 		}
-		if unlikely!(self.pending_minimum_string.is_some())
+		if unlikely!(self.have_minimum_string.is_some())
 		{
 			return Err(StringMinimumNotFollowedByStringMaximum)
 		}
@@ -135,7 +135,7 @@ impl ParsedLocalItems
 					return Err(UsageMinimumMustBeLessThanMaximum)
 				}
 				
-				if unlikely!(was_32_bits_wide != minimum_was_32_bits_wide)
+				if unlikely!(minimum_was_32_bits_wide != maximum_was_32_bits_wide)
 				{
 					return Err(UsageMinimumAndMaximumMustBeTheSameWidth)
 				}
@@ -158,7 +158,7 @@ impl ParsedLocalItems
 	#[inline(always)]
 	fn parse_designator_minimum(&mut self, minimum_data: u32) -> Result<(), ParsedLocalItemParseError>
 	{
-		if unlikely!(self.pending_designator_usage.is_some())
+		if unlikely!(self.have_minimum_designator.is_some())
 		{
 			return Err(ParsedLocalItemParseError::DesignatorMinimumCanNotBeFollowedByDesignatorMinimum)
 		}
@@ -174,7 +174,7 @@ impl ParsedLocalItems
 		{
 			None => return Err(DesignatorMaximumMustBePreceededByDesignatorMinimum),
 			
-			Some((minimum_data, minimum_was_32_bits_wide)) =>
+			Some(minimum_data) =>
 			{
 				if unlikely!(minimum_data > maximum_data)
 				{
@@ -205,11 +205,11 @@ impl ParsedLocalItems
 	#[inline(always)]
 	fn parse_string_minimum(&mut self, minimum_data: u32) -> Result<(), ParsedLocalItemParseError>
 	{
-		if unlikely!(self.pending_designator_usage.is_some())
+		if unlikely!(self.have_minimum_string.is_some())
 		{
 			return Err(ParsedLocalItemParseError::StringMinimumCanNotBeFollowedByStringMinimum)
 		}
-		self.pending_minimum_string = Some(minimum_data);
+		self.have_minimum_string = Some(minimum_data);
 		Ok(())
 	}
 	
@@ -217,11 +217,11 @@ impl ParsedLocalItems
 	fn parse_string_maximum(&mut self, maximum_data: u32, device_connection: &DeviceConnection) -> Result<DeadOrAlive<()>, ParsedLocalItemParseError>
 	{
 		use ParsedLocalItemParseError::*;
-		match self.pending_minimum_string.take()
+		match self.have_minimum_string.take()
 		{
 			None => return Err(StringMaximumMustBePreceededByStringMinimum),
 			
-			Some((minimum_data, minimum_was_32_bits_wide)) =>
+			Some(minimum_data) =>
 			{
 				if unlikely!(minimum_data > maximum_data)
 				{
@@ -267,11 +267,5 @@ impl ParsedLocalItems
 		}
 		let string_descriptor_index = data as u8;
 		device_connection.find_string(string_descriptor_index).map_err(ParsedLocalItemParseError::CouldNotFindString)
-	}
-	
-	#[inline(always)]
-	fn push(&mut self, report_local_item: ParsedLocalItem) -> Result<(), ParsedLocalItemParseError>
-	{
-		self.0.try_push(report_local_item).map_err(ParsedLocalItemParseError::CouldNotPushLongItem)
 	}
 }

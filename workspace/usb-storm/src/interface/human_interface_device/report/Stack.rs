@@ -2,38 +2,17 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-struct Stack<V: Default>(Vec<V>);
+#[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+struct Stack<V>(Vec<V>);
 
-impl Stack<ParsedLocalItems>
+impl<V> Stack<V>
 {
 	#[inline(always)]
-	fn try_clone(&self) -> Result<Self, TryReserveError>
-	{
-		Ok
-		(
-			Self
-			(
-				self.0.try_clone()?
-			)
-		)
-	}
-}
-
-impl<V: Default> Stack<V>
-{
-	#[inline(always)]
-	fn new() -> Result<Self, ReportParseError>
+	fn new(value: V) -> Result<Self, ReportParseError>
 	{
 		let mut this = Self(Vec::new());
-		this.push()?;
+		this.push_value(value)?;
 		Ok(this)
-	}
-	
-	#[inline(always)]
-	fn push(&mut self) -> Result<(), ReportParseError>
-	{
-		self.push_value(V::default())
 	}
 	
 	#[inline(always)]
@@ -55,9 +34,9 @@ impl<V: Default> Stack<V>
 	}
 	
 	#[inline(always)]
-	fn consume(self) -> Result<V, ReportParseError>
+	fn consume(mut self) -> Result<V, ReportParseError>
 	{
-		let length = self.len();
+		let length = self.0.len();
 		debug_assert_ne!(length, 0);
 		
 		if unlikely!(length != 1)
@@ -65,5 +44,29 @@ impl<V: Default> Stack<V>
 			return Err(ReportParseError::OpenNestedStructures)
 		}
 		Ok(self.pop().unwrap())
+	}
+}
+
+impl<V: Default> Stack<V>
+{
+	#[inline(always)]
+	fn push(&mut self) -> Result<(), ReportParseError>
+	{
+		self.push_value(V::default())
+	}
+}
+
+impl Stack<ParsedLocalItems>
+{
+	#[inline(always)]
+	fn try_clone(&self) -> Result<Self, TryReserveError>
+	{
+		Ok
+		(
+			Self
+			(
+				self.0.try_clone()?
+			)
+		)
 	}
 }

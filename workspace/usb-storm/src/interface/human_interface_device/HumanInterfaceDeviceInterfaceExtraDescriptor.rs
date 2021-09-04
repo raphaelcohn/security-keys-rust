@@ -14,7 +14,7 @@ pub struct HumanInterfaceDeviceInterfaceExtraDescriptor
 	
 	country_code: Option<HumanInterfaceDeviceCountryCode>,
 	
-	report_descriptor_length: u16,
+	report: CollectionCommon,
 	
 	optional_descriptors: Vec<HumanInterfaceDeviceOptionalDescriptor>,
 }
@@ -44,11 +44,11 @@ impl HumanInterfaceDeviceInterfaceExtraDescriptor
 		self.country_code
 	}
 	
-	/// Length of the report descriptor.
+	/// The root of the report.
 	#[inline(always)]
-	pub const fn report_descriptor_length(&self) -> u16
+	pub fn report(&self) -> &CollectionCommon
 	{
-		self.report_descriptor_length
+		&self.report
 	}
 	
 	/// Optional descriptors in this struct.

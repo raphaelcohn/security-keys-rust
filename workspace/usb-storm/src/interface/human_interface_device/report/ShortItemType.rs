@@ -6,9 +6,12 @@
 #[repr(u8)]
 enum ShortItemType
 {
+	#[allow(dead_code)]
 	Main = 0b00,
 	
+	#[allow(dead_code)]
 	Global = 0b01,
 	
+	#[allow(dead_code)]
 	Local = 0b10,
 }

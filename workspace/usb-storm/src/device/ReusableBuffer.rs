@@ -34,4 +34,10 @@ impl ReusableBuffer
 	{
 		self.0.as_mut_slice()
 	}
+	
+	#[inline(always)]
+	pub(crate) fn as_maybe_uninit_slice_of_length(&mut self, length: u16) -> &mut [MaybeUninit<u8>]
+	{
+		self.0.as_mut_slice().get_unchecked_range_mut_safe(.. (length as usize))
+	}
 }

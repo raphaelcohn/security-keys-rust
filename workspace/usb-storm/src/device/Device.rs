@@ -152,12 +152,33 @@ impl Device
 	{
 		use DeviceParseError::*;
 		
-		let device_handle = return_ok_if_dead!(DeviceHandle::open(libusb_device)?);
-		let device_connection = return_ok_if_dead!(DeviceConnection::new(&device_handle).map_err(GetLanguages)?);
-		let binary_object_store = return_ok_if_dead!(BinaryObjectStore::parse(&device_connection, reusable_buffer)?);
+		let device_handle =
+		{
+			let dead_or_alive = DeviceHandle::open(libusb_device)?;
+			return_ok_if_dead!(dead_or_alive)
+		};
+		
+		let device_connection =
+		{
+			let dead_or_alive = DeviceConnection::new(&device_handle).map_err(GetLanguages)?;
+			return_ok_if_dead!(dead_or_alive)
+		};
+		
+		let binary_object_store =
+		{
+			let dead_or_alive = BinaryObjectStore::parse(&device_connection, reusable_buffer)?;
+			return_ok_if_dead!(dead_or_alive)
+		};
+		
 		let speed = get_device_speed(libusb_device);
+		
 		let maximum_supported_usb_version = Version::parse(device_descriptor.bcdUSB).map_err(MaximumSupportedUsbVersion)?;
-		let configurations = return_ok_if_dead!(Self::get_configurations(libusb_device, &device_descriptor, maximum_supported_usb_version, speed, &device_connection)?);
+		
+		let configurations =
+		{
+			let dead_or_alive = Self::get_configurations(libusb_device, &device_descriptor, maximum_supported_usb_version, speed, &device_connection, reusable_buffer)?;
+			return_ok_if_dead!(dead_or_alive)
+		};
 		
 		Ok
 		(
@@ -197,18 +218,18 @@ impl Device
 					
 					active_configuration_number: return_ok_if_dead!(Self::get_active_configuration_number(libusb_device, &configurations)?),
 					
+					binary_object_store,
+					
 					configurations,
 					
 					languages: device_connection.into_languages().map_err(CouldNotAllocateMemoryForLanguages)?,
-				
-					binary_object_store,
 				}
 			)
 		)
 	}
 	
 	#[inline(always)]
-	fn get_configurations(libusb_device: NonNull<libusb_device>, device_descriptor: &libusb_device_descriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, device_connection: &DeviceConnection) -> Result<DeadOrAlive<WrappedIndexMap<ConfigurationNumber, Configuration>>, DeviceParseError>
+	fn get_configurations(libusb_device: NonNull<libusb_device>, device_descriptor: &libusb_device_descriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, device_connection: &DeviceConnection, reusable_buffer: &mut ReusableBuffer) -> Result<DeadOrAlive<WrappedIndexMap<ConfigurationNumber, Configuration>>, DeviceParseError>
 	{
 		use DeviceParseError::*;
 		
@@ -229,7 +250,11 @@ impl Device
 				
 				Alive(Some(configuration_descriptor)) =>
 				{
-					let (configuration_number, configuration) = return_ok_if_dead!(Configuration::parse(configuration_descriptor, maximum_supported_usb_version, speed, device_connection).map_err(|cause| ParseConfigurationDescriptor { cause, configuration_index })?);
+					let (configuration_number, configuration) =
+					{
+						let dead_or_alive = Configuration::parse(configuration_descriptor, maximum_supported_usb_version, speed, device_connection, reusable_buffer).map_err(|cause| ParseConfigurationDescriptor { cause, configuration_index })?;
+						return_ok_if_dead!(dead_or_alive)
+					};
 					
 					let outcome = configurations.insert(configuration_number, configuration);
 					if unlikely!(outcome.is_some())

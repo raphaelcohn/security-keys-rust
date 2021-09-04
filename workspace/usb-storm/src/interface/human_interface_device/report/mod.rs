@@ -9,7 +9,6 @@ use crate::control_transfers::descriptors::get_human_interface_device_report_int
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
 use crate::device::DeviceConnection;
-use crate::device::DeviceHandle;
 use crate::device::ReusableBuffer;
 use crate::interface::InterfaceNumber;
 use crate::string::GetLocalizedStringError;
@@ -23,16 +22,14 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::take;
+use std::mem::{take, MaybeUninit};
 use std::mem::transmute;
 use std::num::NonZeroU32;
-use std::num::NonZeroU8;
 use std::ops::Deref;
-use std::ptr::read;
 use std::rc::Rc;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u32;
-use swiss_army_knife::non_zero::new_non_zero_u8;
+use std::alloc::AllocError;
 
 
 include!("CollectionCommon.rs");
@@ -60,5 +57,5 @@ include!("ReservedMainItemTag.rs");
 include!("ShortItemType.rs");
 include!("Stack.rs");
 include!("Usage.rs");
-include!("UsagePage.rs");
+include!("UsageIdentifier.rs");
 include!("UsagePage.rs");

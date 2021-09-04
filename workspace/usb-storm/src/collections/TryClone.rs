@@ -3,7 +3,7 @@
 
 
 /// Tries to clone a collection.
-pub trait TryClone
+pub trait TryClone: Sized
 {
 	/// Tries to clone a collection.
 	fn try_clone(&self) -> Result<Self, TryReserveError>;
@@ -38,7 +38,16 @@ impl<TC: TryClone> TryClone for Option<TC>
 	}
 }
 
-impl<C: Copy> TryClone for C
+impl TryClone for u32
+{
+	#[inline(always)]
+	fn try_clone(&self) -> Result<Self, TryReserveError>
+	{
+		Ok(*self)
+	}
+}
+
+impl TryClone for u8
 {
 	#[inline(always)]
 	fn try_clone(&self) -> Result<Self, TryReserveError>

@@ -13,6 +13,15 @@ pub struct Usage
 	usage_identifier: UsageIdentifier,
 }
 
+impl TryClone for Usage
+{
+	#[inline(always)]
+	fn try_clone(&self) -> Result<Self, TryReserveError>
+	{
+		Ok(*self)
+	}
+}
+
 impl Usage
 {
 	#[allow(missing_docs)]
@@ -24,7 +33,7 @@ impl Usage
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn usage_identifier(&self) -> Option<UsageIdentifier>
+	pub const fn usage_identifier(&self) -> UsageIdentifier
 	{
 		self.usage_identifier
 	}

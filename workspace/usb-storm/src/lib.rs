@@ -31,6 +31,7 @@
 #![feature(macro_attributes_in_derive_output)]
 #![feature(maybe_uninit_slice)]
 #![feature(maybe_uninit_uninit_array)]
+#![feature(new_uninit)]
 #![feature(once_cell)]
 #![feature(slice_ptr_get)]
 #![feature(slice_ptr_len)]

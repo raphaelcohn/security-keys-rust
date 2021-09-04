@@ -3,6 +3,7 @@
 
 
 #[doc(hidden)]
+#[derive(Debug)]
 pub struct DeviceConnection<'a>
 {
 	device_handle: &'a DeviceHandle,

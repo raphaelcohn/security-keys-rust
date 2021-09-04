@@ -23,8 +23,6 @@ pub struct MainItemCommon
 	no_preferred_state: bool,
 
 	has_null_state: bool,
-	
-	volatile: bool,
 
 	buffered_bytes_rather_than_bit_field: bool,
 }

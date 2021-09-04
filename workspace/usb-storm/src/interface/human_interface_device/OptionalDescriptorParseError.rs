@@ -4,25 +4,25 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum GlobalItemParseError
+pub enum OptionalDescriptorParseError
 {
 	#[allow(missing_docs)]
-	UsagePageTooBig
+	IncorrectNumberOfOptionalDescriptors,
+	
+	#[allow(missing_docs)]
+	ExcessBytesAfterOptionalDescriptors,
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateSpaceForOptionalDescriptors(TryReserveError),
+	
+	#[allow(missing_docs)]
+	InvalidOptionalDescriptor
 	{
-		data: u32
+		bDescriptorType: u8,
 	},
-	
-	#[allow(missing_docs)]
-	ReportIdentifierZeroIsReserved,
-	
-	#[allow(missing_docs)]
-	CouldNotPushStack(TryReserveError),
-	
-	#[allow(missing_docs)]
-	TooManyStackPops,
 }
 
-impl Display for GlobalItemParseError
+impl Display for OptionalDescriptorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -31,16 +31,16 @@ impl Display for GlobalItemParseError
 	}
 }
 
-impl error::Error for GlobalItemParseError
+impl error::Error for OptionalDescriptorParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use GlobalItemParseError::*;
+		use OptionalDescriptorParseError::*;
 		
 		match self
 		{
-			CouldNotPushStack(cause) => Some(cause),
+			CouldNotAllocateSpaceForOptionalDescriptors(cause) => Some(cause),
 			
 			_ => None,
 		}

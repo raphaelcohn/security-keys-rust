@@ -64,7 +64,7 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(configuration_descriptor: ConfigurationDescriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, device_connection: &DeviceConnection) -> Result<DeadOrAlive<(ConfigurationNumber, Self)>, ConfigurationParseError>
+	pub(super) fn parse(configuration_descriptor: ConfigurationDescriptor, maximum_supported_usb_version: Version, speed: Option<Speed>, device_connection: &DeviceConnection, reusable_buffer: &mut ReusableBuffer) -> Result<DeadOrAlive<(ConfigurationNumber, Self)>, ConfigurationParseError>
 	{
 		use ConfigurationParseError::*;
 		
@@ -73,7 +73,7 @@ impl Configuration
 		let (supports_remote_wake_up, is_self_powered_or_self_powered_and_bus_powered) = Self::parse_attributes(&configuration_descriptor)?;
 		let description = device_connection.find_string(configuration_descriptor.iConfiguration).map_err(DescriptionString)?;
 		let descriptors = Self::parse_descriptors(device_connection, &configuration_descriptor).map_err(CouldNotParseConfigurationAdditionalDescriptor)?;
-		let interfaces = Self::parse_interfaces(&configuration_descriptor, device_connection, maximum_supported_usb_version, speed)?;
+		let interfaces = Self::parse_interfaces(&configuration_descriptor, device_connection, reusable_buffer, maximum_supported_usb_version, speed)?;
 		Ok
 		(
 			Alive
@@ -192,7 +192,7 @@ impl Configuration
 	}
 	
 	#[inline(always)]
-	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, device_connection: &DeviceConnection, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<WrappedIndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
+	fn parse_interfaces(configuration_descriptor: &libusb_config_descriptor, device_connection: &DeviceConnection, reusable_buffer: &mut ReusableBuffer, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<WrappedIndexMap<InterfaceNumber, Interface>>, ConfigurationParseError>
 	{
 		use ConfigurationParseError::*;
 		
@@ -203,7 +203,11 @@ impl Configuration
 		for interface_index in 0 .. number_of_interfaces.get()
 		{
 			let libusb_interface = libusb_interfaces.get_unchecked_safe(interface_index);
-			let (interface_number, interface) = return_ok_if_dead!(Interface::parse(libusb_interface, device_connection, interface_index, maximum_supported_usb_version, speed).map_err(|cause| CouldNotParseInterface { cause, interface_index })?);
+			let (interface_number, interface) =
+			{
+				let dead_or_alive = Interface::parse(libusb_interface, device_connection, reusable_buffer, interface_index, maximum_supported_usb_version, speed).map_err(|cause| CouldNotParseInterface { cause, interface_index })?;
+				return_ok_if_dead!(dead_or_alive)
+			};
 			
 			let outcome = interfaces.insert(interface_number, interface);
 			if unlikely!(outcome.is_some())

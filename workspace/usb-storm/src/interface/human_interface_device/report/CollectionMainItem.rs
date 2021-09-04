@@ -90,6 +90,6 @@ impl CollectionMainItem
 	#[inline(always)]
 	fn push_report(&mut self, item: Report) -> Result<(), ReportParseError>
 	{
-		self.0.try_push(item).map_err(ReportParseError::OutOfMemoryPushingMainItem)
+		self.common.push_report(item)
 	}
 }

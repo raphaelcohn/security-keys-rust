@@ -15,13 +15,22 @@ pub struct ReservedLocalItem
 	was_32_bits_wide: bool,
 }
 
+impl TryClone for ReservedLocalItem
+{
+	#[inline(always)]
+	fn try_clone(&self) -> Result<Self, TryReserveError>
+	{
+		Ok(*self)
+	}
+}
+
 impl ReservedLocalItem
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn tag(&self) -> ReservedLocalItemTag
 	{
-		self.number
+		self.tag
 	}
 	
 	#[allow(missing_docs)]

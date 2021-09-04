@@ -27,20 +27,11 @@ pub enum HumanInterfaceDeviceInterfaceExtraDescriptorParseError
 	/// Unrecognised report descriptor type.
 	UnrecognisedReportDescriptorType(DescriptorType),
 	
-	#[allow(missing_docs)]
-	IncorrectNumberOfOptionalDescriptors,
+	/// Report parse error.
+	ReportParse(ReportParseError),
 	
-	#[allow(missing_docs)]
-	ExcessBytesAfterOptionalDescriptors,
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateSpaceForOptionalDescriptors(TryReserveError),
-	
-	#[allow(missing_docs)]
-	InvalidOptionalDescriptor
-	{
-		bDescriptorType: u8,
-	},
+	/// Optional descriptor parse error.
+	OptionalDescriptorParse(OptionalDescriptorParseError),
 }
 
 impl Display for HumanInterfaceDeviceInterfaceExtraDescriptorParseError
@@ -63,9 +54,27 @@ impl error::Error for HumanInterfaceDeviceInterfaceExtraDescriptorParseError
 		{
 			Version(cause) => Some(cause),
 			
-			CouldNotAllocateSpaceForOptionalDescriptors(cause) => Some(cause),
+			OptionalDescriptorParse(cause) => Some(cause),
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<ReportParseError> for HumanInterfaceDeviceInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: ReportParseError) -> Self
+	{
+		HumanInterfaceDeviceInterfaceExtraDescriptorParseError::ReportParse(cause)
+	}
+}
+
+impl From<OptionalDescriptorParseError> for HumanInterfaceDeviceInterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: OptionalDescriptorParseError) -> Self
+	{
+		HumanInterfaceDeviceInterfaceExtraDescriptorParseError::OptionalDescriptorParse(cause)
 	}
 }

@@ -3,7 +3,7 @@
 
 
 /// Parse error.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParsedLocalItemParseError
 {
 	#[allow(missing_docs)]

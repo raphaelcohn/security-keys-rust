@@ -50,40 +50,44 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse(device_connection: &DeviceConnection, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<(InterfaceNumber, AlternateSettingNumber, Self)>, AlternateSettingParseError>
+	fn parse(device_connection: &DeviceConnection, reusable_buffer: &mut ReusableBuffer, alternate_setting: &libusb_interface_descriptor, interface_index: u8, alternate_setting_index: u8, maximum_supported_usb_version: Version, speed: Option<Speed>) -> Result<DeadOrAlive<(InterfaceNumber, AlternateSettingNumber, Self)>, AlternateSettingParseError>
 	{
 		use AlternateSettingParseError::*;
-
-		const LIBUSB_DT_INTERFACE_SIZE: u8 = 9;
-		let bLength = alternate_setting.bLength;
-		if unlikely!(bLength < LIBUSB_DT_INTERFACE_SIZE)
+		
 		{
-			return Err(WrongLength { interface_index, alternate_setting_index, bLength })
+			const LIBUSB_DT_INTERFACE_SIZE: u8 = 9;
+			let bLength = alternate_setting.bLength;
+			if unlikely!(bLength < LIBUSB_DT_INTERFACE_SIZE)
+			{
+				return Err(WrongLength { interface_index, alternate_setting_index, bLength })
+			}
 		}
 		
-		let bDescriptorType = alternate_setting.bDescriptorType;
-		if unlikely!(bDescriptorType != LIBUSB_DT_INTERFACE)
 		{
-			return Err(WrongDescriptorType { interface_index, alternate_setting_index, bDescriptorType })
+			let bDescriptorType = alternate_setting.bDescriptorType;
+			if unlikely!(bDescriptorType != LIBUSB_DT_INTERFACE)
+			{
+				return Err(WrongDescriptorType { interface_index, alternate_setting_index, bDescriptorType })
+			}
 		}
 		
-		let bInterfaceNumber = alternate_setting.bInterfaceNumber;
-		if unlikely!(bInterfaceNumber >= MaximumNumberOfInterfaces)
+		let interface_number =
 		{
-			return Err(InterfaceNumberTooLarge { interface_index, alternate_setting_index, bInterfaceNumber })
-		}
+			let bInterfaceNumber = alternate_setting.bInterfaceNumber;
+			if unlikely!(bInterfaceNumber >= MaximumNumberOfInterfaces)
+			{
+				return Err(InterfaceNumberTooLarge { interface_index, alternate_setting_index, bInterfaceNumber })
+			}
+			bInterfaceNumber
+		};
 		
 		let interface_class = InterfaceClass::parse(alternate_setting);
-		let end_point_descriptors = Self::parse_end_point_descriptors(alternate_setting, interface_index, alternate_setting_index)?;
-		let description = device_connection.find_string(alternate_setting.iInterface).map_err(|cause| DescriptionString { cause, interface_index, alternate_setting_index })?;
-		let descriptors = Self::parse_descriptors(alternate_setting, interface_class, device_connection).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
-		let end_points = Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, interface_class, maximum_supported_usb_version, speed, device_connection)?;
 		Ok
 		(
 			Alive
 			(
 				(
-					bInterfaceNumber,
+					interface_number,
 					
 					alternate_setting.bAlternateSetting,
 					
@@ -91,11 +95,24 @@ impl AlternateSetting
 					{
 						interface_class,
 						
-						description: return_ok_if_dead!(description),
+						description:
+						{
+							let description = device_connection.find_string(alternate_setting.iInterface).map_err(|cause| DescriptionString { cause, interface_index, alternate_setting_index })?;
+							return_ok_if_dead!(description)
+						},
 						
-						descriptors: return_ok_if_dead!(descriptors),
+						descriptors:
+						{
+							let descriptors = Self::parse_descriptors(alternate_setting, interface_class, device_connection, reusable_buffer, interface_number).map_err(|cause| CouldNotParseAlternateSettingAdditionalDescriptor { cause, interface_index, alternate_setting_index })?;
+							return_ok_if_dead!(descriptors)
+						},
 						
-						end_points: return_ok_if_dead!(end_points),
+						end_points:
+						{
+							let end_point_descriptors = Self::parse_end_point_descriptors(alternate_setting, interface_index, alternate_setting_index)?;
+							let end_points = Self::parse_end_points(end_point_descriptors, interface_index, alternate_setting_index, interface_class, maximum_supported_usb_version, speed, device_connection)?;
+							return_ok_if_dead!(end_points)
+						},
 					}
 				)
 			)
@@ -159,7 +176,7 @@ impl AlternateSetting
 	}
 	
 	#[inline(always)]
-	fn parse_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, device_connection: &DeviceConnection) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+	fn parse_descriptors(alternate_setting: &libusb_interface_descriptor, interface_class: InterfaceClass, device_connection: &DeviceConnection, reusable_buffer: &mut ReusableBuffer, interface_number: InterfaceNumber) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 	{
 		#[inline(always)]
 		fn audio_control(device_connection: &DeviceConnection, extra: &[u8], protocol: AudioProtocol) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
@@ -180,9 +197,9 @@ impl AlternateSetting
 		}
 		
 		#[inline(always)]
-		fn human_interface_device(device_connection: &DeviceConnection, extra: &[u8], variant: HumanInterfaceDeviceVariant) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		fn human_interface_device(variant: HumanInterfaceDeviceVariant, device_connection: &DeviceConnection, reusable_buffer: &mut ReusableBuffer, extra: &[u8], interface_number: InterfaceNumber) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
-			InterfaceExtraDescriptorParser::parse_descriptors(device_connection, extra, HumanInterfaceDeviceInterfaceExtraDescriptorParser::new(variant))
+			InterfaceExtraDescriptorParser::parse_descriptors(device_connection, extra, HumanInterfaceDeviceInterfaceExtraDescriptorParser::new(reusable_buffer, interface_number, variant))
 		}
 		
 		#[inline(always)]
@@ -230,10 +247,10 @@ impl AlternateSetting
 			
 			ApplicationSpecific(DeviceFirmwareUpgrade(KnownOrUnrecognizedProtocol::Known)) => device_upgrade_firmware(device_connection, extra),
 			
-			HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: None }) => human_interface_device(device_connection, extra, NotBoot),
-			HumanInterfaceDevice(Boot(HumanInterfaceDeviceInterfaceBootProtocol::None)) => human_interface_device(device_connection, extra, BootNone),
-			HumanInterfaceDevice(Boot(Keyboard)) => human_interface_device(device_connection, extra, BootKeyboard),
-			HumanInterfaceDevice(Boot(Mouse)) => human_interface_device(device_connection, extra, BootMouse),
+			HumanInterfaceDevice(HumanInterfaceDeviceInterfaceSubClass::None { unknown_protocol: None }) => human_interface_device(NotBoot, device_connection, reusable_buffer, extra, interface_number),
+			HumanInterfaceDevice(Boot(HumanInterfaceDeviceInterfaceBootProtocol::None)) => human_interface_device(BootNone, device_connection, reusable_buffer, extra, interface_number),
+			HumanInterfaceDevice(Boot(Keyboard)) => human_interface_device(BootKeyboard, device_connection, reusable_buffer, extra, interface_number),
+			HumanInterfaceDevice(Boot(Mouse)) => human_interface_device(BootMouse, device_connection, reusable_buffer, extra, interface_number),
 			
 			Printer(PrinterSubClass::Known(PrinterProtocol::InternetPrintingProtocolOverUsb)) => internet_printing_protocol(device_connection, extra),
 			

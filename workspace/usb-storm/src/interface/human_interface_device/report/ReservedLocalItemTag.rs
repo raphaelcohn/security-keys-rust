@@ -9,13 +9,18 @@
 #[repr(u8)]
 pub enum ReservedLocalItemTag
 {
+	/// 0.
 	#[serde(rename = "0")] _0 = 0b0110,
 	
+	/// 1.
 	#[serde(rename = "1")] _1 = 0b1011,
 	
+	/// 2.
 	#[serde(rename = "2")] _2 = 0b1100,
 	
+	/// 3.
 	#[serde(rename = "3")] _3 = 0b1101,
 	
+	/// 4.
 	#[serde(rename = "4")] _4 = 0b1110,
 }

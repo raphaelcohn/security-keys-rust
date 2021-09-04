@@ -3,7 +3,7 @@
 
 
 #[derive(Debug)]
-struct ReportParser<'a>
+pub(super) struct ReportParser<'a>
 {
 	device_connection: &'a DeviceConnection<'a>,
 
@@ -15,27 +15,36 @@ struct ReportParser<'a>
 impl<'a> ReportParser<'a>
 {
 	#[inline(always)]
-	fn new(device_connection: &'a DeviceConnection) -> Result<Self, ReportParseError>
+	pub(super) fn new(device_connection: &'a DeviceConnection) -> Result<Self, ReportParseError>
 	{
-		let current_globals = Self::new_globals()?;
 		Ok
 		(
 			Self
 			{
 				device_connection,
 				
-				item_state_table_stack: Stack::new()?,
+				item_state_table_stack:
+				{
+					let globals = Self::new_globals()?;
+					let item_state_table = ItemStateTable
+					{
+						globals,
+						
+						locals: Default::default()
+					};
+					Stack::new(item_state_table)?
+				},
 				
-				collection_stack: Stack::new()?,
+				collection_stack: Stack::new(CollectionMainItem::default())?,
 			}
 		)
 	}
 	
 	#[inline(always)]
-	fn get_and_parse(self, reusable_buffer: &mut ReusableBuffer, interface_number: InterfaceNumber, report_total_length: u16) -> Result<DeadOrAlive<CollectionCommon>, ReportParseError>
+	pub(super) fn get_and_parse(mut self, reusable_buffer: &mut ReusableBuffer, interface_number: InterfaceNumber, report_total_length: u16) -> Result<DeadOrAlive<CollectionCommon>, ReportParseError>
 	{
 		let dead_or_alive = self.get_report_descriptor_bytes(reusable_buffer, interface_number, report_total_length)?;
-		let mut descriptor_bytes: &[u8] = return_ok_if_dead!(dead_or_alive);
+		let descriptor_bytes: &[u8] = return_ok_if_dead!(dead_or_alive);
 		self.parse_items(descriptor_bytes)
 	}
 	
@@ -44,7 +53,6 @@ impl<'a> ReportParser<'a>
 	{
 		use ReportParseError::*;
 		
-		let mut index = 0;
 		while !descriptor_bytes.is_empty()
 		{
 			let length = descriptor_bytes.len();
@@ -61,7 +69,7 @@ impl<'a> ReportParser<'a>
 				let bLongItemTag = descriptor_bytes.u8(2);
 				
 				let (exclusive_end_of_data_index, data) = Self::get_item_data(descriptor_bytes, 3, bDataSize)?;
-				self.parse_long_item(bTag, data)?;
+				self.parse_long_item(bLongItemTag, data)?;
 				exclusive_end_of_data_index
 			}
 			else
@@ -79,13 +87,13 @@ impl<'a> ReportParser<'a>
 			descriptor_bytes = descriptor_bytes.get_unchecked_range_safe(exclusive_end_of_data_index .. );
 		}
 		
-		let common = self.collection_stack.consume()?.common;
+		let common = take(&mut self.collection_stack).consume()?.common;
 		Ok(Alive(common))
 	}
 	
 	#[inline(always)]
 	fn parse_long_item(&mut self, item_tag: u8, data: &[u8]) -> Result<(), ReportParseError>
-	{;
+	{
 		Ok(self.locals().parse_long_item(item_tag, data)?)
 	}
 	
@@ -151,7 +159,7 @@ impl<'a> ReportParser<'a>
 									0x100 ..= 0xFFFF_FFFF => Reserved(data),
 								}
 							)
-						);
+						)?;
 						
 						return Ok(Alive(()))
 					}
@@ -188,8 +196,8 @@ impl<'a> ReportParser<'a>
 					
 					0b1000 => self.globals()?.parse_report_identifier(data)?,
 					0b1001 => self.globals()?.parse_report_count(data)?,
-					0b1010 => self.push_item_state_table(),
-					0b1011 => self.pop_item_state_table(),
+					0b1010 => self.push_item_state_table()?,
+					0b1011 => self.pop_item_state_table()?,
 					
 					0b1100 => self.globals()?.parse_reserved0(data)?,
 					0b1101 => self.globals()?.parse_reserved1(data)?,
@@ -214,25 +222,30 @@ impl<'a> ReportParser<'a>
 					0b0100 => self.locals().parse_designator_minimum(data)?,
 					0b0101 => self.locals().parse_designator_maximum(data)?,
 					0b0110 => self.locals().parse_reserved(data, was_32_bits_wide, _0)?,
-					0b0111 => return Ok(self.locals().parse_string(data, self.device_connection)?),
+					0b0111 =>
+					{
+						let device_connection = self.device_connection;
+						return Ok(self.locals().parse_string(data, device_connection)?)
+					},
 					
 					0b1000 => self.locals().parse_string_minimum(data)?,
-					0b1001 => return Ok(self.locals().parse_string_maximum(data, self.device_connection)?),
-					0b1010 => match data
+					0b1001 =>
+					{
+						let device_connection = self.device_connection;
+						return Ok(self.locals().parse_string_maximum(data, device_connection)?)
+					},
+					0b1010 => return match data
 					{
 						0 => match self.locals_stack().pop()
 						{
 							None => Err(ClosedTooManyOpenLocalSets),
 							
-							Some(local_set) =>
-							{
-								self.locals().push_set(local_set)?
-							}
+							Some(local_set) => Ok(Alive(self.locals().push_set(local_set)?)),
 						}
 						
-						1 => self.locals_stack().push(),
+						1 => Ok(Alive(self.locals_stack().push()?)),
 						
-						_ => return Err(InvalidLocalDelimiter { data }),
+						_ => Err(InvalidLocalDelimiter { data }),
 					},
 					0b1011 => self.locals().parse_reserved(data, was_32_bits_wide, _1)?,
 					
@@ -298,19 +311,19 @@ impl<'a> ReportParser<'a>
 	fn get_exclusive_end_of_data_index(descriptor_bytes: &[u8], inclusive_start_of_data_index: u8, size: u8) -> Result<usize, ReportParseError>
 	{
 		let exclusive_end_of_data_index = (inclusive_start_of_data_index + size) as usize;
-		if unlikely!(exclusive_end_of_data_index > length)
+		if unlikely!(exclusive_end_of_data_index > descriptor_bytes.len())
 		{
-			Err(ReportParseError::ItemHasDataSizeExceedingRemainingBytes { size })
+			return Err(ReportParseError::ItemHasDataSizeExceedingRemainingBytes { size })
 		}
 		Ok(exclusive_end_of_data_index)
 	}
 	
 	#[inline(always)]
-	fn get_report_descriptor_bytes(&self, reusable_buffer: &mut ReusableBuffer, interface_number: InterfaceNumber, report_total_length: u16) -> Result<DeadOrAlive<&[u8]>, ReportParseError>
+	fn get_report_descriptor_bytes<'b>(&self, reusable_buffer: &'b mut ReusableBuffer, interface_number: InterfaceNumber, report_total_length: u16) -> Result<DeadOrAlive<&'b [u8]>, ReportParseError>
 	{
 		use ReportParseError::*;
 		
-		let dead_or_alive = get_human_interface_device_report_interface_descriptor(self.device_connection.device_handle_non_null(), interface_number, reusable_buffer.as_maybe_uninit_slice()).map_err(GetDescriptor)?;
+		let dead_or_alive = get_human_interface_device_report_interface_descriptor(self.device_connection.device_handle_non_null(), interface_number, reusable_buffer.as_maybe_uninit_slice_of_length(report_total_length)).map_err(GetDescriptor)?;
 		match return_ok_if_dead!(dead_or_alive)
 		{
 			None => Err(UnsupportedEvenThisIsAHumanInterfaceDevice),
@@ -332,7 +345,7 @@ impl<'a> ReportParser<'a>
 		(
 			(
 				self.globals_inner().clone(),
-				take(self.locals()).consume()?.finish()?
+				take(self.locals_stack()).consume()?.finish()?
 			)
 		)
 	}
@@ -340,22 +353,64 @@ impl<'a> ReportParser<'a>
 	#[inline(always)]
 	fn globals(&mut self) -> Result<&mut GlobalItems, ReportParseError>
 	{
-		match Rc::get_mut(self.globals_inner())
+		Self::make_mut(self.globals_inner())
+	}
+	
+	// Memory-allocation failure handling version of Rc::make_mut() which uses a less efficient path if there is one strong reference and multiple weak references; this is because it it not possible to access the necessary internal functionality.
+	#[inline(always)]
+	fn make_mut(this: &mut Rc<GlobalItems>) -> Result<&mut GlobalItems, ReportParseError>
+	{
+		#[inline(always)]
+		fn new_rc() -> Result<Rc<MaybeUninit<GlobalItems>>, ReportParseError>
 		{
-			None =>
-			{
-				self.current_item_state_table().globals = Self::new_globals()?;
-				Ok(unsafe { Rc::get_mut_unchecked(self.globals_inner()) })
-			}
-			
-			Some(globals) => Ok(globals),
+			Rc::try_new_uninit().map_err(ReportParseError::CouldNotAllocateGlobals)
 		}
+		
+		#[inline(always)]
+		fn get_mut_checked<Contents>(rc: &mut Rc<Contents>) -> &mut Contents
+		{
+			unsafe { Rc::get_mut_unchecked(rc) }
+		}
+		
+		// Creates a new Rc with a separate memory allocation and clones its contents.
+		// Then assigns this new rc to the original's memory pointer.
+		#[inline(always)]
+		fn clone_rc_and_its_contents(this: &mut Rc<GlobalItems>) -> Result<(), ReportParseError>
+		{
+			let mut rc = new_rc()?;
+			let data = get_mut_checked(&mut rc);
+			{
+				let data_mut_pointer = data.as_mut_ptr();
+				let clone = this.deref().deref().clone();
+				unsafe { data_mut_pointer.write(clone) };
+			}
+			*this = unsafe { rc.assume_init() };
+			Ok(())
+		}
+		
+		// More than one strong reference.
+		if Rc::strong_count(this) != 1
+		{
+			clone_rc_and_its_contents(this)?
+		}
+		// One strong reference and more than one weak reference.
+		else if Rc::weak_count(this) > 0
+		{
+			// We can not access the necessary Rc functionality as it is private, so we fallback to a clone of the contents; the original make_mut() code uses a more efficient copy of the contents and disassociated the weak references.
+			clone_rc_and_its_contents(this)?
+		}
+		// Unique, no need to do anything.
+		else
+		{
+		}
+		
+		Ok(get_mut_checked(this))
 	}
 	
 	#[inline(always)]
 	fn new_globals() -> Result<Rc<GlobalItems>, ReportParseError>
 	{
-		Rc::try_new(Default::default()).map_err(ReportParseError::CouldNotAllocateCurrentGlobals)
+		Rc::try_new(Default::default()).map_err(ReportParseError::CouldNotAllocateGlobals)
 	}
 	
 	#[inline(always)]
@@ -380,7 +435,7 @@ impl<'a> ReportParser<'a>
 	fn push_item_state_table(&mut self) -> Result<(), ReportParseError>
 	{
 		let cloned_item_state_table = self.current_item_state_table().try_clone().map_err(|cause| ReportParseError::GlobalItemParse(GlobalItemParseError::CouldNotPushStack(cause)))?;
-		self.item_state_table_stack.push_value(cloned_item_state_table);
+		self.item_state_table_stack.push_value(cloned_item_state_table)?;
 		Ok(())
 	}
 	
