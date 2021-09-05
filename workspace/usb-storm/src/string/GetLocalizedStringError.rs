@@ -4,9 +4,11 @@
 
 /// A serious error when getting a string.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum GetLocalizedStringError
 {
+	#[allow(missing_docs)]
 	StringIndexNonZeroButDeviceDoesNotSupportLanguages
 	{
 		string_descriptor_index: NonZeroU8,
@@ -17,11 +19,14 @@ pub enum GetLocalizedStringError
 	/// Either way, it's a broken device.
 	StringIndexNonZeroButDeviceDoesNotSupportGettingString
 	{
+		#[allow(missing_docs)]
 		string_descriptor_index: NonZeroU8,
 		
+		#[allow(missing_docs)]
 		language: Language,
 	},
 	
+	#[allow(missing_docs)]
 	GetStandardUsbDescriptor
 	{
 		cause: GetStandardUsbDescriptorError,
@@ -31,6 +36,7 @@ pub enum GetLocalizedStringError
 		language: Language,
 	},
 	
+	#[allow(missing_docs)]
 	NotACorrectUtf16LittleEndianSize
 	{
 		string_descriptor_index: NonZeroU8,
@@ -38,18 +44,20 @@ pub enum GetLocalizedStringError
 		language: Language,
 	},
 	
+	#[allow(missing_docs)]
 	CouldNotAllocateString
 	{
-		cause: TryReserveError,
+		#[serde(with = "TryReserveErrorRemote")] cause: TryReserveError,
 		
 		string_descriptor_index: NonZeroU8,
 		
 		language: Language,
 	},
-
+	
+	#[allow(missing_docs)]
 	InvalidUtf16LittleEndianSequence
 	{
-		cause: DecodeUtf16Error,
+		#[serde(with = "DecodeUtf16ErrorRemote")] cause: DecodeUtf16Error,
 		
 		string_descriptor_index: NonZeroU8,
 		

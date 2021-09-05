@@ -7,9 +7,9 @@
 #[allow(missing_docs)]
 pub enum LoadDriverError
 {
-	CouldNotAllocateMemoryForOurDriverName(TryReserveError),
+	CouldNotAllocateMemoryForOurDriverName(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
-	CouldNotAllocateMemoryForUsbDetails(TryReserveError),
+	CouldNotAllocateMemoryForUsbDetails(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	ExecutableFolderPathDoesNotExist
 	{

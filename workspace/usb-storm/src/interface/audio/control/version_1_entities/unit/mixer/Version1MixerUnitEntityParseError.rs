@@ -4,19 +4,21 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version1MixerUnitEntityParseError
 {
 	#[allow(missing_docs)]
 	BLengthTooShort,
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForControls(TryReserveError),
+	CouldNotAllocateMemoryForControls(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Infallible>),
+	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<InfallibleError>),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForSources(TryReserveError),
+	CouldNotAllocateMemoryForSources(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
@@ -53,10 +55,10 @@ impl error::Error for Version1MixerUnitEntityParseError
 	}
 }
 
-impl From<LogicalAudioChannelClusterParseError<Infallible>> for Version1MixerUnitEntityParseError
+impl From<LogicalAudioChannelClusterParseError<InfallibleError>> for Version1MixerUnitEntityParseError
 {
 	#[inline(always)]
-	fn from(cause: LogicalAudioChannelClusterParseError<Infallible>) -> Self
+	fn from(cause: LogicalAudioChannelClusterParseError<InfallibleError>) -> Self
 	{
 		Version1MixerUnitEntityParseError::LogicalAudioChannelClusterParse(cause)
 	}

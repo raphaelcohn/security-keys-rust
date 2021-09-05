@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version1ProcessingUnitEntityParseError
 {
 	#[allow(missing_docs)]
@@ -22,10 +24,10 @@ pub enum Version1ProcessingUnitEntityParseError
 	ProcessTypeParse(Version1ProcessTypeParseError),
 	
 	#[allow(missing_docs)]
-	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Infallible>),
+	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<InfallibleError>),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForSources(TryReserveError),
+	CouldNotAllocateMemoryForSources(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
@@ -71,10 +73,10 @@ impl From<Version1ProcessTypeParseError> for Version1ProcessingUnitEntityParseEr
 	}
 }
 
-impl From<LogicalAudioChannelClusterParseError<Infallible>> for Version1ProcessingUnitEntityParseError
+impl From<LogicalAudioChannelClusterParseError<InfallibleError>> for Version1ProcessingUnitEntityParseError
 {
 	#[inline(always)]
-	fn from(cause: LogicalAudioChannelClusterParseError<Infallible>) -> Self
+	fn from(cause: LogicalAudioChannelClusterParseError<InfallibleError>) -> Self
 	{
 		Version1ProcessingUnitEntityParseError::LogicalAudioChannelClusterParse(cause)
 	}

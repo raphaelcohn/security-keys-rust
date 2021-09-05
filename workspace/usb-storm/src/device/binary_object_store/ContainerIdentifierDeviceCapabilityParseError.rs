@@ -4,11 +4,13 @@
 
 /// A parse error.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
 pub enum ContainerIdentifierDeviceCapabilityParseError
 {
+	#[allow(missing_docs)]
 	TooShort,
 	
+	#[allow(missing_docs)]
 	HasReservedByteSet,
 }
 

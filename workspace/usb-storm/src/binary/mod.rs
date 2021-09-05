@@ -25,21 +25,20 @@ use std::fmt::Formatter;
 use std::io;
 use std::io::Write;
 use std::path::Path;
-use usb_storm::device::Device;
-use usb_storm::device::Devices;
-use usb_storm::device::DevicesParseError;
 use usb_storm::device::ListDevicesError;
+use usb_storm::device::ReusableBuffer;
+use usb_storm::devices::Devices;
+use usb_storm::devices::DevicesParseError;
+use usb_storm::devices::GoodAndBadDevices;
 use usb_storm::simple_serializer::SimpleSerializer;
 use usb_storm::simple_serializer::SimpleSerializerError;
 use usb_storm::context::Context;
 use usb_storm::context::ContextInitializationError;
-use usb_storm::device::ReusableBuffer;
 
 
 include!("CommandLineParser.rs");
-include!("new_ron_serializer.rs");
+include!("GoodAndBadDevicesExt.rs");
 include!("ProgramError.rs");
-include!("serialize.rs");
 include!("SerializingError.rs");
-include!("which_serialize.rs");
+include!("new_ron_serializer.rs");
 include!("write.rs");

@@ -4,10 +4,12 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version2ProcessingUnitEntityParseError
 {
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForSources(TryReserveError),
+	CouldNotAllocateMemoryForSources(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	ProcessTypeParse(Version2ProcessTypeParseError),

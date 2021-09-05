@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum AudioControlInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
@@ -36,10 +38,10 @@ pub enum AudioControlInterfaceExtraDescriptorParseError
 	ParseVersion3Entity(EntityDescriptorParseError<Version3EntityDescriptorParseError>),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUnrecognized(TryReserveError),
+	CouldNotAllocateMemoryForUnrecognized(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForInterfaceNumbers(TryReserveError),
+	CouldNotAllocateMemoryForInterfaceNumbers(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	Version1InterfaceNumberTooBig

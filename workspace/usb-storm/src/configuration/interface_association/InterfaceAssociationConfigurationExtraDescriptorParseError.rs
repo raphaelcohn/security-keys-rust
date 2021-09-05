@@ -4,6 +4,8 @@
 
 /// Interface Association descriptor (IAD) parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum InterfaceAssociationConfigurationExtraDescriptorParseError
 {
 	#[allow(missing_docs)]

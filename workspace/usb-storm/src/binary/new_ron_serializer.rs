@@ -2,7 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-pub(super) fn new_ron_serializer<W: Write>(writer: W) -> RonSerializer<W>
+#[inline(always)]
+fn new_ron_serializer<W: Write>(writer: W) -> RonSerializer<W>
 {
 	const IncludeStructNames: bool = false;
 	let config = Some(PrettyConfig::new().with_decimal_floats(true).with_extensions(Extensions::all()));

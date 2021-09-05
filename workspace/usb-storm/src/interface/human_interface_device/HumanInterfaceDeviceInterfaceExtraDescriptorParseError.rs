@@ -4,6 +4,8 @@
 
 /// Human Interface Device (HID) descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum HumanInterfaceDeviceInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]

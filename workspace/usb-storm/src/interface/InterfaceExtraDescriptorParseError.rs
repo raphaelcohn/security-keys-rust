@@ -4,6 +4,8 @@
 
 /// Descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum InterfaceExtraDescriptorParseError
 {
 	/// Audio Control (AC).
@@ -112,10 +114,10 @@ impl From<SmartCardInterfaceExtraDescriptorParseError> for InterfaceExtraDescrip
 	}
 }
 
-impl From<Infallible> for InterfaceExtraDescriptorParseError
+impl From<InfallibleError> for InterfaceExtraDescriptorParseError
 {
 	#[inline(always)]
-	fn from(_cause: Infallible) -> Self
+	fn from(_cause: InfallibleError) -> Self
 	{
 		unreachable!("UnsupportedInterfaceAdditionalDescriptorParser can not construct Infallible")
 	}

@@ -19,13 +19,13 @@ use crate::string::LocalizedStrings;
 use crate::device::DeviceConnection;
 use serde::Deserialize;
 use serde::Serialize;
-use std::convert::Infallible;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
 use std::mem::transmute;
+use crate::serde::InfallibleError;
 
 
 include!("Version1InputTerminalEntity.rs");

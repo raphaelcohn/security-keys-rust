@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum SamplingFrequencyParseError
 {
 	#[allow(missing_docs)]
@@ -39,7 +41,7 @@ pub enum SamplingFrequencyParseError
 	},
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForDiscreteSamplingFrequencies(TryReserveError),
+	CouldNotAllocateMemoryForDiscreteSamplingFrequencies(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for SamplingFrequencyParseError

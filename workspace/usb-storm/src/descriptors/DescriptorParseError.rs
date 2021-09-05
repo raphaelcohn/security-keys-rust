@@ -4,6 +4,8 @@
 
 /// Descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum DescriptorParseError<E: error::Error>
 {
 	/// libusb returned null for extra; should not be possible, but trusting third party C libraries is the way to madness.
@@ -29,10 +31,10 @@ pub enum DescriptorParseError<E: error::Error>
 	Specific(E),
 
 	#[allow(missing_docs)]
-	CanNotAllocateUnknownDescriptorBuffer(TryReserveError),
+	CanNotAllocateUnknownDescriptorBuffer(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	CanNotAllocateExtraDescriptor(TryReserveError),
+	CanNotAllocateExtraDescriptor(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl<E: error::Error> Display for DescriptorParseError<E>

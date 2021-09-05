@@ -5,6 +5,8 @@
 /// An libusb backend errored whilst getting a configuration descriptor.
 #[allow(missing_docs)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum GetConfigurationDescriptorBackendError
 {
 	/// Failed to allocate heap memory.

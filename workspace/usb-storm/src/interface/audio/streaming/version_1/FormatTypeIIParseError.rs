@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum FormatTypeIIParseError
 {
 	#[allow(missing_docs)]
@@ -60,7 +62,7 @@ pub enum FormatTypeIIParseError
 	Ac3MustSupportBitStreamIdModes0To9Inclusive,
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUndefinedFormatSpecificData(TryReserveError),
+	CouldNotAllocateMemoryForUndefinedFormatSpecificData(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for FormatTypeIIParseError

@@ -4,6 +4,8 @@
 
 /// USB binary coded decimal parse errors.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum VersionParseError
 {
 	#[allow(missing_docs)]

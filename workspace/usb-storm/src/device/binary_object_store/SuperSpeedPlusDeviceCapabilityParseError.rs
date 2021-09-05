@@ -4,28 +4,38 @@
 
 /// A parse error.
 #[derive(Clone, PartialEq, Eq, Debug)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum SuperSpeedPlusDeviceCapabilityParseError
 {
+	#[allow(missing_docs)]
 	TooShort,
 	
+	#[allow(missing_docs)]
 	HasReservedByteSet,
 	
+	#[allow(missing_docs)]
 	HasReservedAttributesBitsSet,
 	
+	#[allow(missing_docs)]
 	TheNumberOfSublinksIsNotPaired,
 	
+	#[allow(missing_docs)]
 	HasReservedFunctionalitySupportBitsSet,
 	
+	#[allow(missing_docs)]
 	HasReservedWordSet,
 	
+	#[allow(missing_docs)]
 	NotEnoughBytesForSublinkSpeedAttributes,
 	
+	#[allow(missing_docs)]
 	SublinkSpeedAttributeHasReservedBits
 	{
 		sublink_speed_attribute_index: u4,
 	},
-
+	
+	#[allow(missing_docs)]
 	SublinkSpeedAttributeHasReservedLinkProtocol
 	{
 		sublink_speed_attribute_index: u4,
@@ -34,44 +44,56 @@ pub enum SuperSpeedPlusDeviceCapabilityParseError
 		sublink_protocol: u2,
 	},
 	
+	#[allow(missing_docs)]
 	DuplicateSublinkTypeForSublinkSpeedAttribute
 	{
 		sublink_speed_attribute_index: u4,
 	},
 	
+	#[allow(missing_docs)]
 	UnbalancedNumbersOfReceiveAndTransmitSublinkSpeedAttributes,
 	
+	#[allow(missing_docs)]
 	MissingReceiveSublinkSpeedAttribute
 	{
 		sublink_speed_attribute_identifier: SublinkSpeedAttributeIdentifier,
 	},
 	
+	#[allow(missing_docs)]
 	MissingTransmitSublinkSpeedAttribute
 	{
 		sublink_speed_attribute_identifier: SublinkSpeedAttributeIdentifier,
 	},
 	
+	#[allow(missing_docs)]
 	ReceiveAndTransmitSublinkSpeedAttributesAreNotSymmetric,
 	
+	#[allow(missing_docs)]
 	ReceiveAndTransmitSublinkSpeedAttributesHaveDifferentSymmetry,
 	
+	#[allow(missing_docs)]
 	DuplicateSublinkSpeedAttribute
 	{
 		sublink_speed_attribute_identifier: SublinkSpeedAttributeIdentifier,
 	},
 	
+	#[allow(missing_docs)]
 	SublinkSpeedAttributesDoesNotContainMinimumLaneSpeed
 	{
 		minimum_lane_speed_sublink_speed_attribute_identifier: SublinkSpeedAttributeIdentifier
 	},
 	
-	CouldNotAllocateMemoryForSublinkSpeedAttributeIdentifiers(TryReserveError),
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForSublinkSpeedAttributeIdentifiers(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
-	CouldNotAllocateMemoryForReceives(TryReserveError),
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForReceives(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
-	CouldNotAllocateMemoryForTransmits(TryReserveError),
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForTransmits(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
-	CouldNotAllocateMemoryForSublinkSpeedAttributes(TryReserveError),
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForSublinkSpeedAttributes(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for SuperSpeedPlusDeviceCapabilityParseError

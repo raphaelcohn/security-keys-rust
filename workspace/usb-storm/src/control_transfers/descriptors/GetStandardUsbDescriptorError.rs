@@ -4,6 +4,8 @@
 
 /// An error when getting a descriptor.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum GetStandardUsbDescriptorError
 {
 	#[allow(missing_docs)]

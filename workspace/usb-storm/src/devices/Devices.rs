@@ -103,21 +103,50 @@ impl Devices
 		}
 	}
 	
-	/// Parse the list, removing any devices which are dead.
+	/// Parse, returning:-
+	///
+	/// * Alive, successfully parsed devices.
+	/// * Dead devices (devices that probably ceased to exist during parsing).
+	/// * Failed devices (devices that could not be parsed).
 	#[inline(always)]
-	pub fn parse(&self, reusable_buffer: &mut ReusableBuffer) -> Result<Vec<Device>, DevicesParseError>
+	pub fn parse(&self, reusable_buffer: &mut ReusableBuffer) -> Result<(GoodAndBadDevices, Vec<DeadOrFailedToParseDeviceDetails>), DevicesParseError>
 	{
+		use DevicesParseError::*;
 		let device_references = self.deref();
 		
-		let mut devices = Vec::new_with_capacity(device_references.len()).map_err(DevicesParseError::CouldNotAllocateMemoryForDevices)?;
+		let mut good = Vec::new_with_capacity(device_references.len()).map_err(CouldNotAllocateMemoryForDevices)?;
+		let mut dead = Vec::new();
+		let mut bad = Vec::new();
 		for device_reference in device_references
 		{
-			if let Alive(device) = device_reference.parse(reusable_buffer)?
+			match device_reference.parse(reusable_buffer)
 			{
-				devices.push_unchecked(device);
+				Ok(Left(alive_device)) => good.push_unchecked(alive_device),
+				
+				Ok(Right(dead_device)) =>
+				{
+					dead.try_push(dead_device).map_err(CouldNotAllocateMemoryToPushDeadDevice)?;
+				}
+				
+				Err(failed_device) =>
+				{
+					bad.try_push(failed_device).map_err(CouldNotAllocateMemoryToPushDeviceReferenceParseError)?;
+				}
 			}
 		}
-		devices.shrink_to_fit();
-		Ok(devices)
+		good.shrink_to_fit();
+		Ok
+		(
+			(
+				GoodAndBadDevices
+				{
+					good,
+				
+					bad,
+				},
+				
+				dead
+			)
+		)
 	}
 }

@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version2HubDescriptorParseError
 {
 	#[allow(missing_docs)]
@@ -13,13 +15,22 @@ pub enum Version2HubDescriptorParseError
 	HubDescriptorTooShort,
 	
 	#[allow(missing_docs)]
-	TooFewVariableBytes,
+	TooFewVariableBytes
+	{
+		number_of_downstream_ports: usize,
+		
+		length: usize,
+		
+		number_of_bytes_required_for_number_of_downstream_ports: usize,
+	},
+	
+	/// Whilst USB permits 255 children, we cap it to 254 to use NonZeroU8 for a port number.
+	///
+	/// Linux caps this value as 31 (`USB_MAXCHILDREN`).
+	MoreThan254Ports,
 	
 	#[allow(missing_docs)]
-	WhilstUsb2PermitsAValueOf255HereWeUseANonZeroU8ForPortNumber,
-	
-	#[allow(missing_docs)]
-	CouldNotAllocatePortsSettings(TryReserveError),
+	CouldNotAllocatePortsSettings(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for Version2HubDescriptorParseError

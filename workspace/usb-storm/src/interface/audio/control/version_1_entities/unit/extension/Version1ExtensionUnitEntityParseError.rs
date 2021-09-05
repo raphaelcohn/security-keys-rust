@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version1ExtensionUnitEntityParseError
 {
 	#[allow(missing_docs)]
@@ -16,10 +18,10 @@ pub enum Version1ExtensionUnitEntityParseError
 	BLengthTooShort,
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForControls(TryReserveError),
+	CouldNotAllocateMemoryForControls(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForSources(TryReserveError),
+	CouldNotAllocateMemoryForSources(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),

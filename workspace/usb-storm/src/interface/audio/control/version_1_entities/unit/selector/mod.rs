@@ -13,6 +13,7 @@ use crate::interface::audio::control::logical_audio_channels::InputLogicalAudioC
 use crate::interface::audio::control::{parse_p, DescriptorEntityMinimumLength, entity_index_non_constant};
 use crate::interface::audio::control::version_1_entities::Version1EntityDescriptors;
 use crate::interface::audio::control::version_1_entities::Version1EntityDescriptorParseError;
+use crate::serde::TryReserveErrorRemote;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::device::DeviceConnection;

@@ -4,10 +4,12 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum LocalItemParseError
 {
 	#[allow(missing_docs)]
-	CouldNotPushUsageItem(TryReserveError),
+	CouldNotPushUsageItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	UsageMinimumCanNotBeFollowedByUsageMinimum,
@@ -25,7 +27,7 @@ pub enum LocalItemParseError
 	UsageMinimumAndMaximumMustBeTheSameWidth,
 	
 	#[allow(missing_docs)]
-	CouldNotPushDesignatorItem(TryReserveError),
+	CouldNotPushDesignatorItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	DesignatorMinimumCanNotBeFollowedByDesignatorMinimum,
@@ -40,7 +42,7 @@ pub enum LocalItemParseError
 	DesignatorMinimumNotFollowedByDesignatorMaximum,
 	
 	#[allow(missing_docs)]
-	CouldNotPushStringItem(TryReserveError),
+	CouldNotPushStringItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	StringMinimumCanNotBeFollowedByStringMinimum,
@@ -64,16 +66,16 @@ pub enum LocalItemParseError
 	CouldNotFindString(GetLocalizedStringError),
 	
 	#[allow(missing_docs)]
-	CouldNotPushReservedItem(TryReserveError),
+	CouldNotPushReservedItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForLongItemData(TryReserveError),
+	CouldNotAllocateMemoryForLongItemData(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotPushLongItem(TryReserveError),
+	CouldNotPushLongItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotPushSet(TryReserveError),
+	CouldNotPushSet(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for LocalItemParseError

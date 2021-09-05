@@ -18,6 +18,7 @@ use crate::interface::audio::control::version_2_entities::parse_controls_by_chan
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::device::DeviceConnection;
+use crate::serde::TryReserveErrorRemote;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::TryReserveError;

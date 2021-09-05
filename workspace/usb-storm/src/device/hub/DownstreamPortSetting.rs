@@ -2,13 +2,9 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[inline(always)]
-pub(super) fn serialize<'a, W: Write, F: FnOnce(W) -> S, S, E>(devices: Vec<Device>, writer: W, constructor: F) -> Result<(), E>
-where &'a mut S: 'static + Serializer<Ok=(), Error=E>,
+/// A downstream port setting.
+pub trait DownstreamPortSetting: Debug + Copy + Eq + Ord + Hash
 {
-	let mut serializer = constructor(writer);
-	let reference = &mut serializer;
-	let borrow_checker_hack = unsafe { &mut * (reference as *mut S) };
-	devices.serialize(borrow_checker_hack)?;
-	Ok(())
+	#[allow(missing_docs)]
+	fn device_is_removable(&self) -> bool;
 }

@@ -12,8 +12,8 @@ use crate::device::DeviceConnection;
 use enumflags2::bitflags;
 use serde::Deserialize;
 use serde::Serialize;
-use std::convert::Infallible;
 use std::fmt::Debug;
+use crate::serde::InfallibleError;
 
 
 include!("Version1LogicalAudioChannelCluster.rs");

@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum GlobalItemParseError
 {
 	#[allow(missing_docs)]
@@ -16,7 +18,7 @@ pub enum GlobalItemParseError
 	ReportIdentifierZeroIsReserved,
 	
 	#[allow(missing_docs)]
-	CouldNotPushStack(TryReserveError),
+	CouldNotPushStack(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	TooManyStackPops,

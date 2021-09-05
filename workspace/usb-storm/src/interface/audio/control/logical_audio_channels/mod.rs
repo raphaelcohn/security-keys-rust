@@ -14,6 +14,7 @@ use crate::string::LocalizedStrings;
 use crate::device::DeviceConnection;
 use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::entity_index_non_constant;
+use crate::serde::TryReserveErrorRemote;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;

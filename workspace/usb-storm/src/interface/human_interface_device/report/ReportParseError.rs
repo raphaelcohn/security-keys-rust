@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum ReportParseError
 {
 	#[allow(missing_docs)]
@@ -22,13 +24,13 @@ pub enum ReportParseError
 	},
 	
 	#[allow(missing_docs)]
-	OutOfMemoryPushingMainItem(TryReserveError),
+	OutOfMemoryPushingMainItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateGlobals(AllocError),
+	CouldNotAllocateGlobals(#[serde(with = "AllocErrorRemote")] AllocError),
 	
 	#[allow(missing_docs)]
-	OutOfStackMemory(TryReserveError),
+	OutOfStackMemory(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	GlobalItemParse(GlobalItemParseError),

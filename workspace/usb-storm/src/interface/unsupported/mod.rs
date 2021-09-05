@@ -4,9 +4,9 @@
 
 use super::super::descriptors::DescriptorParser;
 use super::super::descriptors::DescriptorType;
-use std::convert::Infallible;
 use crate::device::DeviceConnection;
 use crate::device::DeadOrAlive;
+use crate::serde::InfallibleError;
 
 
 include!("UnsupportedInterfaceExtraDescriptor.rs");

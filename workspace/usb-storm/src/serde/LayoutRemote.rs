@@ -2,9 +2,29 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A port setting.
-pub trait PortSetting: Debug + Copy + Eq + Ord + Hash
+#[derive(Deserialize, Serialize)]
+#[serde(remote = "Layout")]
+struct LayoutRemote
 {
-	#[allow(missing_docs)]
-	fn device_is_removable(&self) -> bool;
+	#[serde(getter = "Layout::size")] size_: usize,
+	
+	#[serde(getter = "LayoutRemote::align")] align_: NonZeroUsize,
+}
+
+impl LayoutRemote
+{
+	#[inline(always)]
+	fn align(original: &Layout) -> NonZeroUsize
+	{
+		new_non_zero_usize(original.align())
+	}
+}
+
+impl From<LayoutRemote> for Layout
+{
+	#[inline(always)]
+	fn from(remote: LayoutRemote) -> Self
+	{
+		unsafe{ transmute(remote) }
+	}
 }

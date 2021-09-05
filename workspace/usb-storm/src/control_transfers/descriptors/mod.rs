@@ -18,6 +18,8 @@ use libusb1_sys::constants::LIBUSB_DT_REPORT;
 use libusb1_sys::constants::LIBUSB_DT_STRING;
 use libusb1_sys::constants::LIBUSB_DT_HUB;
 use likely::unlikely;
+use serde::Deserialize;
+use serde::Serialize;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;

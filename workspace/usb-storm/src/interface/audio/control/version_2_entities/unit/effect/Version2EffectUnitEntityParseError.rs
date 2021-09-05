@@ -4,10 +4,12 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version2EffectUnitEntityParseError
 {
 	#[allow(missing_docs)]
-	UndefinedEffectTypeParse(Version2EffectTypeParseError<Infallible>),
+	UndefinedEffectTypeParse(Version2EffectTypeParseError<InfallibleError>),
 	
 	#[allow(missing_docs)]
 	ParametricEqualizerSectionEffectTypeParse(Version2EffectTypeParseError<ParametricEqualizerSectionControlsParseError>),
@@ -22,7 +24,7 @@ pub enum Version2EffectUnitEntityParseError
 	DynamicRangeCompressorEffectTypeParse(Version2EffectTypeParseError<DynamicRangeCompressorControlsParseError>),
 	
 	#[allow(missing_docs)]
-	UnrecognizedEffectTypeParse(Version2EffectTypeParseError<Infallible>),
+	UnrecognizedEffectTypeParse(Version2EffectTypeParseError<InfallibleError>),
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),

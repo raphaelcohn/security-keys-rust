@@ -4,13 +4,15 @@
 
 /// Device descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum DeviceParseError
 {
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForConfigurations(TryReserveError),
+	CouldNotAllocateMemoryForConfigurations(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	UnassignedAddressForParent,
+	ParentLocation(LocationError),
 	
 	#[allow(missing_docs)]
 	DeviceHandleOpen(DeviceHandleOpenError),
@@ -73,7 +75,7 @@ pub enum DeviceParseError
 	},
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForLanguages(TryReserveError),
+	CouldNotAllocateMemoryForLanguages(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	HubDescriptorParse(HubDescriptorParseError),
@@ -124,6 +126,8 @@ impl error::Error for DeviceParseError
 			CouldNotAllocateMemoryForLanguages(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForConfigurations(cause) => Some(cause),
+			
+			ParentLocation(cause) => Some(cause),
 			
 			HubDescriptorParse(cause) => Some(cause),
 			

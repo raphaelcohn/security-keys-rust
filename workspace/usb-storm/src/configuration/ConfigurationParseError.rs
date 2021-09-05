@@ -4,6 +4,8 @@
 
 /// Configuration descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum ConfigurationParseError
 {
 	#[allow(missing_docs)]
@@ -71,7 +73,7 @@ pub enum ConfigurationParseError
 	CouldNotParseConfigurationAdditionalDescriptor(DescriptorParseError<ConfigurationExtraDescriptorParseError>),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForInterfaces(TryReserveError),
+	CouldNotAllocateMemoryForInterfaces(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for ConfigurationParseError

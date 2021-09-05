@@ -3,7 +3,12 @@
 
 
 #[inline(always)]
-fn get_port_number(libusb_device: NonNull<libusb_device>) -> PortNumber
+fn get_port_number(libusb_device: NonNull<libusb_device>) -> Result<PortNumber, LocationError>
 {
-	new_non_zero_u8(unsafe { libusb_get_port_number(libusb_device.as_ptr()) })
+	let port_number = unsafe { libusb_get_port_number(libusb_device.as_ptr()) };
+	if unlikely!(port_number == 0)
+	{
+		return Err(LocationError::PortNumberIsZero)
+	}
+	Ok(new_non_zero_u8(port_number))
 }

@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version1DolbyProLogicProcessTypeParseError
 {
 	#[allow(missing_docs)]
@@ -13,7 +15,7 @@ pub enum Version1DolbyProLogicProcessTypeParseError
 	MustHaveOnlyOneInputPin,
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForModes(TryReserveError),
+	CouldNotAllocateMemoryForModes(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	CanNotHaveThisModeAsASpatialChannelOutputIsAbsent

@@ -8,7 +8,7 @@ pub type Version1LogicalAudioChannelCluster = LogicalAudioChannelCluster<Version
 impl Version1LogicalAudioChannelCluster
 {
 	#[inline(always)]
-	pub(super) fn parse(channels_index: usize, device_connection: &DeviceConnection, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<Infallible>>
+	pub(super) fn parse(channels_index: usize, device_connection: &DeviceConnection, entity_body: &[u8]) -> Result<DeadOrAlive<Self>, LogicalAudioChannelClusterParseError<InfallibleError>>
 	{
 		let number_of_logical_audio_channels = entity_body.u8(entity_index_non_constant(channels_index));
 		let wChannelConfig = entity_body.u16(entity_index_non_constant(channels_index + 1));

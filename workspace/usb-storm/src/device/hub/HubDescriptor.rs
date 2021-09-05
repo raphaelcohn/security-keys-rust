@@ -53,5 +53,5 @@ impl HubDescriptor
 		};
 		Ok(Alive(outcome))
 	}
-	
 }
+

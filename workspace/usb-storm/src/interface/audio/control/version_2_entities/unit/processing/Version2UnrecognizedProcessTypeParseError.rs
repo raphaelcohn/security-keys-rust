@@ -4,10 +4,12 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version2UnrecognizedProcessTypeParseError
 {
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForData(TryReserveError),
+	CouldNotAllocateMemoryForData(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for Version2UnrecognizedProcessTypeParseError

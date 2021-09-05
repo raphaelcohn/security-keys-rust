@@ -9,7 +9,7 @@ impl DescriptorParser for UnsupportedInterfaceExtraDescriptorParser
 {
 	type Descriptor = UnsupportedInterfaceExtraDescriptor;
 	
-	type Error = Infallible;
+	type Error = InfallibleError;
 	
 	#[inline(always)]
 	fn parse_descriptor(&mut self, _device_connection: &DeviceConnection, _bLength: u8, _descriptor_type: DescriptorType, _remaining_bytes: &[u8]) -> Result<Option<DeadOrAlive<(Self::Descriptor, usize)>>, Self::Error>

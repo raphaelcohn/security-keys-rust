@@ -106,7 +106,7 @@ pub enum Version2AudioChannelEffectControls
 impl Version2AudioChannelEffectControls
 {
 	#[inline(always)]
-	fn parse_undefined(controls: u32) -> Result<Self, Infallible>
+	fn parse_undefined(controls: u32) -> Result<Self, InfallibleError>
 	{
 		Ok
 		(
@@ -232,7 +232,7 @@ impl Version2AudioChannelEffectControls
 	}
 	
 	#[inline(always)]
-	fn parse_unrecognized(controls: u32, effect_type_code: NonZeroU16) -> Result<Self, Infallible>
+	fn parse_unrecognized(controls: u32, effect_type_code: NonZeroU16) -> Result<Self, InfallibleError>
 	{
 		Ok
 		(

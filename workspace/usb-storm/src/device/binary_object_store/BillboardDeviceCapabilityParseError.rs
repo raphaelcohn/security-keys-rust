@@ -4,6 +4,8 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum BillboardDeviceCapabilityParseError
 {
 	#[allow(missing_docs)]
@@ -33,7 +35,7 @@ pub enum BillboardDeviceCapabilityParseError
 	VersionParse(VersionParseError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForModes(TryReserveError),
+	CouldNotAllocateMemoryForModes(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	InvalidAlternateModeDescription

@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum OptionalDescriptorParseError
 {
 	#[allow(missing_docs)]
@@ -13,7 +15,7 @@ pub enum OptionalDescriptorParseError
 	ExcessBytesAfterOptionalDescriptors,
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateSpaceForOptionalDescriptors(TryReserveError),
+	CouldNotAllocateSpaceForOptionalDescriptors(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	InvalidOptionalDescriptor

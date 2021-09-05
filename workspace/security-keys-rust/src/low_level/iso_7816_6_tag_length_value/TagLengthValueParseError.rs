@@ -20,7 +20,7 @@ pub(crate) enum TagLengthValueParseError
 		length: u16,
 	},
 	
-	OutOfMemory(TryReserveError),
+	OutOfMemory(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for TagLengthValueParseError

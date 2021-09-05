@@ -2,6 +2,21 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use crate::class_and_protocol::AudioProtocol;
+use crate::collections::Bytes;
+use crate::collections::VecExt;
+use crate::collections::WrappedBitFlags;
+use crate::control_transfers::descriptors::MinimumStandardUsbDescriptorLength;
+use crate::descriptors::DescriptorHeaderLength;
+use crate::descriptors::DescriptorParser;
+use crate::descriptors::DescriptorType;
+use crate::descriptors::verify_remaining_bytes;
+use crate::descriptors::{DescriptorSubType, descriptor_index};
+use crate::device::DeadOrAlive::Alive;
+use crate::device::DeadOrAlive;
+use crate::device::DeviceConnection;
+use crate::interface::audio::control::AudioControlInterfaceExtraDescriptorParser;
+use crate::serde::TryReserveErrorRemote;
 use enumflags2::bitflags;
 use likely::unlikely;
 use self::version_1::Version1AudioStreamingInterfaceExtraDescriptor;
@@ -12,26 +27,12 @@ use self::version_3::Version3AudioStreamingInterfaceExtraDescriptor;
 use self::version_3::Version3AudioStreamingInterfaceExtraDescriptorParseError;
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::TryReserveError;
 use std::error;
-use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use crate::class_and_protocol::AudioProtocol;
-use crate::descriptors::{DescriptorSubType, descriptor_index};
-use crate::descriptors::DescriptorParser;
-use crate::descriptors::DescriptorHeaderLength;
-use crate::descriptors::DescriptorType;
-use crate::descriptors::verify_remaining_bytes;
-use crate::device::DeviceConnection;
-use crate::device::DeadOrAlive;
-use crate::interface::audio::control::AudioControlInterfaceExtraDescriptorParser;
-use crate::collections::VecExt;
-use crate::collections::WrappedBitFlags;
-use crate::collections::Bytes;
-use std::collections::TryReserveError;
-use crate::control_transfers::descriptors::MinimumStandardUsbDescriptorLength;
-use crate::device::DeadOrAlive::Alive;
+use std::fmt;
 
 
 /// Version 1.

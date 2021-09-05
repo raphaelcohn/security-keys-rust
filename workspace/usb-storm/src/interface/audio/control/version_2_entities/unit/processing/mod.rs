@@ -28,6 +28,7 @@ use crate::interface::audio::control::version_2_entities::logical_audio_channel_
 use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelSpatialLocation;
 use crate::interface::audio::Control;
 use crate::interface::audio::control::DolbyProLogicModeConversionError;
+use crate::serde::TryReserveErrorRemote;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::device::DeviceConnection;

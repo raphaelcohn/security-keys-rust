@@ -15,13 +15,13 @@ use crate::interface::audio::control::entity_identifiers::UnitOrTerminalEntityId
 use crate::interface::audio::control::entity_index;
 use crate::interface::audio::control::version_2_entities::Version2EntityDescriptorParseError;
 use crate::interface::audio::control::version_2_entities::parse_controls_by_channel_number;
+use crate::serde::{TryReserveErrorRemote, InfallibleError};
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::device::DeviceConnection;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::TryReserveError;
-use std::convert::Infallible;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;

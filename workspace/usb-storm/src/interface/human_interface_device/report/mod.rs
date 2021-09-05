@@ -2,7 +2,8 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::{Bytes, TryClone};
+use crate::collections::Bytes;
+use crate::collections::TryClone;
 use crate::collections::VecExt;
 use crate::control_transfers::descriptors::GetDescriptorError;
 use crate::control_transfers::descriptors::get_human_interface_device_report_interface_descriptor;
@@ -11,18 +12,24 @@ use crate::device::DeadOrAlive;
 use crate::device::DeviceConnection;
 use crate::device::ReusableBuffer;
 use crate::interface::InterfaceNumber;
+use crate::serde::AllocErrorRemote;
+use crate::serde::TryReserveErrorRemote;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
+use std::alloc::AllocError;
+use std::cmp::Ordering;
+use std::cmp::min;
 use std::collections::TryReserveError;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::{MaybeUninit, take};
+use std::mem::MaybeUninit;
+use std::mem::take;
 use std::mem::transmute;
 use std::num::NonZeroU32;
 use std::ops::Deref;
@@ -31,8 +38,6 @@ use std::ptr::read;
 use std::rc::Rc;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u32;
-use std::alloc::AllocError;
-use std::cmp::{Ordering, min};
 
 
 include!("CollectionCommon.rs");

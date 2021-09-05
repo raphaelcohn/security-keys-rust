@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum LogicalAudioChannelClusterParseError<E: error::Error>
 {
 	#[allow(missing_docs)]
@@ -21,7 +23,7 @@ pub enum LogicalAudioChannelClusterParseError<E: error::Error>
 	Specific(E),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForLogicalAudioChannels(TryReserveError),
+	CouldNotAllocateMemoryForLogicalAudioChannels(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl<E: error::Error> Display for LogicalAudioChannelClusterParseError<E>

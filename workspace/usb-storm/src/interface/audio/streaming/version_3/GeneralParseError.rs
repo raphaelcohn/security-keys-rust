@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum GeneralParseError
 {
 	#[allow(missing_docs)]

@@ -17,6 +17,7 @@ use crate::interface::audio::control::parse_p;
 use crate::interface::audio::control::version_2_entities::Version2EntityDescriptorParseError;
 use crate::interface::audio::control::version_2_entities::Version2EntityDescriptors;
 use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::{Version2LogicalAudioChannelCluster, Version2LogicalAudioChannelClusterParseError};
+use crate::serde::TryReserveErrorRemote;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::device::DeviceConnection;

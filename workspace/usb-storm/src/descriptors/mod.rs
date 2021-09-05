@@ -2,21 +2,25 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::VecExt;
 use crate::collections::Bytes;
+use crate::collections::VecExt;
+use crate::device::DeadOrAlive::Alive;
+use crate::device::DeadOrAlive::Dead;
+use crate::device::DeadOrAlive;
+use crate::device::DeviceConnection;
+use crate::serde::TryReserveErrorRemote;
 use likely::likely;
 use likely::unlikely;
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::TryReserveError;
 use std::error;
-use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use std::fmt;
 use std::slice::from_raw_parts;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use crate::device::DeviceConnection;
-use crate::device::DeadOrAlive;
-use crate::device::DeadOrAlive::{Alive, Dead};
 
 
 include!("descriptor_index.rs");

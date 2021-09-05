@@ -5,6 +5,7 @@
 use crate::collections::{Bytes, VecExt};
 use crate::control_transfers::descriptors::{get_version_2_hub_device_descriptor, GetStandardUsbDescriptorError};
 use crate::control_transfers::descriptors::get_version_3_hub_device_descriptor;
+use crate::serde::TryReserveErrorRemote;
 use super::DeadOrAlive;
 use super::DeviceConnection;
 use likely::unlikely;
@@ -30,18 +31,18 @@ use crate::version::Version;
 use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
+include!("DownstreamPortSetting.rs");
+include!("DownstreamPorts.rs");
 include!("HubDescriptor.rs");
 include!("HubDescriptorParseError.rs");
 include!("HubDescriptorTrait.rs");
 include!("LogicalPowerSwitchingMode.rs");
 include!("OvercurrentProtectionMode.rs");
 include!("PacketHeaderDecodeLatency.rs");
-include!("PortSetting.rs");
-include!("PortsSetting.rs");
 include!("TransactionTranslatorThinkTime.rs");
+include!("Version2DownstreamPortSetting.rs");
 include!("Version2HubDescriptor.rs");
 include!("Version2HubDescriptorParseError.rs");
-include!("Version2PortSetting.rs");
+include!("Version3DownstreamPortSetting.rs");
 include!("Version3HubDescriptor.rs");
 include!("Version3HubDescriptorParseError.rs");
-include!("Version3PortSetting.rs");

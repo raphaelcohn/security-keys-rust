@@ -14,6 +14,7 @@ use crate::interface::audio::control::entity_identifiers::UnitOrTerminalEntityId
 use crate::interface::audio::control::entity_index;
 use crate::interface::audio::control::version_1_entities::{Version1EntityDescriptors, parse_control_size};
 use crate::interface::audio::control::version_1_entities::Version1EntityDescriptorParseError;
+use crate::serde::TryReserveErrorRemote;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use crate::device::DeviceConnection;

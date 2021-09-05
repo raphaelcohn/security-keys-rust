@@ -4,6 +4,8 @@
 
 /// Descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum ConfigurationExtraDescriptorParseError
 {
 	/// Interface Association.

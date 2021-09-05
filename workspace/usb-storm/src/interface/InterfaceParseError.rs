@@ -4,6 +4,8 @@
 
 /// Interface descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum InterfaceParseError
 {
 	/// Bug in libusb.
@@ -52,7 +54,7 @@ pub enum InterfaceParseError
 	},
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForAlternateSettings(TryReserveError),
+	CouldNotAllocateMemoryForAlternateSettings(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for InterfaceParseError

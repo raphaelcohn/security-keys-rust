@@ -157,9 +157,11 @@ impl Device
 	
 	/// Parse a libusb device.
 	#[inline(always)]
-	fn parse(libusb_device: NonNull<libusb_device>, reusable_buffer: &mut ReusableBuffer, location: Location, device_descriptor: libusb_device_descriptor, vendor_identifier: VendorIdentifier, product_identifier: ProductIdentifier) -> Result<DeadOrAlive<Self>, DeviceParseError>
+	fn parse(libusb_device: NonNull<libusb_device>, reusable_buffer: &mut ReusableBuffer, details: DeadOrFailedToParseDeviceDetails, device_descriptor: libusb_device_descriptor) -> Result<DeadOrAlive<Self>, DeviceParseError>
 	{
 		use DeviceParseError::*;
+		
+		let DeadOrFailedToParseDeviceDetails { location, vendor_identifier, product_identifier } = details;
 		
 		let device_handle =
 		{
@@ -213,7 +215,7 @@ impl Device
 					
 					location,
 					
-					parent: Location::parent_from_libusb_device(libusb_device).map_err(|()| UnassignedAddressForParent)?,
+					parent: Location::parent_from_libusb_device(libusb_device).map_err(ParentLocation)?,
 				
 					speed,
 					

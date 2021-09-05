@@ -2,23 +2,25 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::WrappedBitFlags;
+use crate::class_and_protocol::AudioProtocol;
 use crate::collections::Bytes;
-use crate::collections::WrappedHashSet;
 use crate::collections::VecExt;
-use crate::descriptors::DescriptorParser;
+use crate::collections::WithCapacity;
+use crate::collections::WrappedBitFlags;
+use crate::collections::WrappedHashSet;
+use crate::collections::WrappedIndexSet;
+use crate::control_transfers::descriptors::MinimumStandardUsbDescriptorLength;
 use crate::descriptors::DescriptorHeaderLength;
+use crate::descriptors::DescriptorParser;
 use crate::descriptors::DescriptorType;
 use crate::descriptors::verify_remaining_bytes;
-use crate::class_and_protocol::AudioProtocol;
-use crate::collections::WithCapacity;
-use crate::collections::WrappedIndexSet;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive::Dead;
 use crate::device::DeadOrAlive;
+use crate::device::DeviceConnection;
 use crate::interface::InterfaceNumber;
 use crate::interface::MaximumNumberOfInterfaces;
-use crate::device::DeviceConnection;
+use crate::serde::TryReserveErrorRemote;
 use crate::version::Version;
 use crate::version::VersionParseError;
 use likely::unlikely;
@@ -30,11 +32,12 @@ use self::logical_audio_channels::LogicalAudioChannelNumber;
 use self::logical_audio_channels::LogicalAudioChannelSpatialLocation;
 use self::version_1_entities::Version1EntityDescriptorParseError;
 use self::version_1_entities::Version1EntityDescriptors;
+use self::version_1_entities::logical_audio_channel_cluster::Version1LogicalAudioChannelSpatialLocation;
 use self::version_2_entities::Version2EntityDescriptorParseError;
 use self::version_2_entities::Version2EntityDescriptors;
+use self::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelSpatialLocation;
 use self::version_3_entities::Version3EntityDescriptorParseError;
 use self::version_3_entities::Version3EntityDescriptors;
-use super::Control;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::TryReserveError;
@@ -46,11 +49,9 @@ use std::fmt::Formatter;
 use std::fmt;
 use std::hash::Hash;
 use std::mem::size_of;
-use swiss_army_knife::get_unchecked::GetUnchecked;
-use self::version_1_entities::logical_audio_channel_cluster::Version1LogicalAudioChannelSpatialLocation;
-use self::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelSpatialLocation;
 use std::num::NonZeroU8;
-use crate::control_transfers::descriptors::MinimumStandardUsbDescriptorLength;
+use super::Control;
+use swiss_army_knife::get_unchecked::GetUnchecked;
 
 
 /// Entities.

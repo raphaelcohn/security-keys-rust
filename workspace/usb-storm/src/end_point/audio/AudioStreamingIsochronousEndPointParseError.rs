@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum AudioStreamingIsochronousEndPointParseError
 {
 	#[allow(missing_docs)]
@@ -31,7 +33,7 @@ pub enum AudioStreamingIsochronousEndPointParseError
 	Version3Parse(Version3AudioStreamingIsochronousEndPointParseError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUndefined(TryReserveError),
+	CouldNotAllocateMemoryForUndefined(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for AudioStreamingIsochronousEndPointParseError

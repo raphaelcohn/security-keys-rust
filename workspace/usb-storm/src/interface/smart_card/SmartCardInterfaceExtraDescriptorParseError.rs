@@ -4,6 +4,8 @@
 
 /// Smart Card descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum SmartCardInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]

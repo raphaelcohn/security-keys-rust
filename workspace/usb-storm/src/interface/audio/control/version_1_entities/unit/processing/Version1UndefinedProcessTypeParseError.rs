@@ -4,13 +4,15 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version1UndefinedProcessTypeParseError
 {
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForControls(TryReserveError),
+	CouldNotAllocateMemoryForControls(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForData(TryReserveError),
+	CouldNotAllocateMemoryForData(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for Version1UndefinedProcessTypeParseError

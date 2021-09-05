@@ -4,13 +4,15 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version2FeatureUnitEntityParseError
 {
 	#[allow(missing_docs)]
 	ControlsLengthNotAMultipleOfFour,
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForControls(TryReserveError),
+	CouldNotAllocateMemoryForControls(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	ChannelControlInvalid

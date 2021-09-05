@@ -4,9 +4,10 @@
 
 /// A parse error.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
 pub enum Usb2ExtensionDeviceCapabilityParseError
 {
+	#[allow(missing_docs)]
 	TooShort,
 }
 

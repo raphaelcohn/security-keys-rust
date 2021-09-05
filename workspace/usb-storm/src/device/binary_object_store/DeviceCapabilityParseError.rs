@@ -4,60 +4,81 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum DeviceCapabilityParseError
 {
+	#[allow(missing_docs)]
 	DescriptorTooShort
 	{
 		remaining_length: usize,
 	},
 	
+	#[allow(missing_docs)]
 	DescriptorTypeWasInvalid
 	{
 		bDescriptorType: u8,
 	},
 	
+	#[allow(missing_docs)]
 	BLengthTooShort
 	{
 		bLength: u8,
 	},
 	
+	#[allow(missing_docs)]
 	BLengthTooLong
 	{
 		bLength: u8,
 	},
 	
-	ParseWirelessUsbDeviceCapability(TryReserveError),
+	#[allow(missing_docs)]
+	ParseWirelessUsbDeviceCapability(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
+	#[allow(missing_docs)]
 	ParseUsb2ExtensionDeviceCapability(Usb2ExtensionDeviceCapabilityParseError),
 	
+	#[allow(missing_docs)]
 	ParseSuperSpeedDeviceCapability(SuperSpeedDeviceCapabilityParseError),
 	
+	#[allow(missing_docs)]
 	ParseContainerIdentifierDeviceCapability(ContainerIdentifierDeviceCapabilityParseError),
 	
+	#[allow(missing_docs)]
 	ParsePlatformDeviceCapability(PlatformDeviceCapabilityParseError),
 	
-	ParsePowerDeliveryDeviceCapability(TryReserveError),
+	#[allow(missing_docs)]
+	ParsePowerDeliveryDeviceCapability(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
-	ParseBatteryInformationDeviceCapability(TryReserveError),
+	#[allow(missing_docs)]
+	ParseBatteryInformationDeviceCapability(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
-	PowerDeliveryConsumerPortDeviceCapability(TryReserveError),
+	#[allow(missing_docs)]
+	PowerDeliveryConsumerPortDeviceCapability(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
-	PowerDeliveryProducerPortDeviceCapability(TryReserveError),
+	#[allow(missing_docs)]
+	PowerDeliveryProducerPortDeviceCapability(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
+	#[allow(missing_docs)]
 	ParseSuperSpeedPlusDeviceCapability(SuperSpeedPlusDeviceCapabilityParseError),
 	
-	ParseWirelessUsbExtendedDeviceCapability(TryReserveError),
+	#[allow(missing_docs)]
+	ParseWirelessUsbExtendedDeviceCapability(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
+	#[allow(missing_docs)]
 	ParseBillboardDeviceCapability(BillboardDeviceCapabilityParseError),
 	
-	ParseAuthenticationDeviceCapability(TryReserveError),
+	#[allow(missing_docs)]
+	ParseAuthenticationDeviceCapability(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
+	#[allow(missing_docs)]
 	ParseBillboardAlternateModeDeviceCapability(BillboardAlternateModeDeviceCapabilityParseError),
 	
+	#[allow(missing_docs)]
 	ParseConfigurationSummaryDeviceCapability(ConfigurationSummaryDeviceCapabilityParseError),
 	
-	ParseReservedDeviceCapability(TryReserveError),
+	#[allow(missing_docs)]
+	ParseReservedDeviceCapability(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for DeviceCapabilityParseError

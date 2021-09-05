@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
@@ -13,7 +15,7 @@ pub enum UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError
 	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUnrecognized(TryReserveError),
+	CouldNotAllocateMemoryForUnrecognized(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for UnrecognizedAudioStreamingInterfaceExtraDescriptorParseError

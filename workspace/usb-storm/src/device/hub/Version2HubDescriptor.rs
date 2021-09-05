@@ -22,12 +22,12 @@ pub struct Version2HubDescriptor
 	
 	maximum_current_requirement_in_milliamps: u8,
 	
-	ports_settings: PortsSetting<Version2PortSetting>,
+	downstream_ports: DownstreamPorts<Version2DownstreamPortSetting>,
 }
 
 impl HubDescriptorTrait for Version2HubDescriptor
 {
-	type PS = Version2PortSetting;
+	type DPS = Version2DownstreamPortSetting;
 	
 	#[inline(always)]
 	fn logical_power_switching_mode(&self) -> LogicalPowerSwitchingMode
@@ -47,7 +47,6 @@ impl HubDescriptorTrait for Version2HubDescriptor
 		self.overcurrent_protection_mode
 	}
 	
-	/// Maximum value is 510.
 	#[inline(always)]
 	fn time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port(&self) -> u16
 	{
@@ -55,9 +54,9 @@ impl HubDescriptorTrait for Version2HubDescriptor
 	}
 	
 	#[inline(always)]
-	fn ports_settings(&self) -> &PortsSetting<Self::PS>
+	fn downstream_ports(&self) -> &DownstreamPorts<Self::DPS>
 	{
-		&self.ports_settings
+		&self.downstream_ports
 	}
 }
 
@@ -129,10 +128,97 @@ impl Version2HubDescriptor
 						
 						maximum_current_requirement_in_milliamps: descriptor_body.u8(descriptor_index::<6>()),
 						
-						ports_settings: PortsSetting::version_2_parse(descriptor_body)?,
+						downstream_ports: Self::downstream_ports_parse(descriptor_body)?,
 					}
 				)
 			)
 		)
+	}
+	
+	#[inline(always)]
+	fn downstream_ports_parse(descriptor_body: &[u8]) -> Result<DownstreamPorts<Version2DownstreamPortSetting>, Version2HubDescriptorParseError>
+	{
+		use Version2HubDescriptorParseError::*;
+		
+		let number_of_downstream_ports =
+		{
+			let bNbrPorts = descriptor_body.u8(descriptor_index::<2>());
+			if unlikely!(bNbrPorts == 255)
+			{
+				return Err(MoreThan254Ports)
+			}
+			bNbrPorts as usize
+		};
+		
+		let mut port_settings = Vec::new_with_capacity(number_of_downstream_ports).map_err(CouldNotAllocatePortsSettings)?;
+		
+		let remaining_bytes_of_descriptor = descriptor_body.get_unchecked_range_safe(Version2HubDescriptor::MinimumBLength .. );
+		
+		let length = remaining_bytes_of_descriptor.len();
+		if length == 0
+		{
+			for _ in 0 .. number_of_downstream_ports
+			{
+				port_settings.push_unchecked
+				(
+					Version2DownstreamPortSetting
+					{
+						device_is_removable: true,
+						
+						usb_1_0_power_control: true,
+					}
+				)
+			}
+			return Ok(DownstreamPorts(port_settings))
+		}
+		
+		let number_of_bytes_required_for_number_of_downstream_ports = Self::number_of_downstream_ports_to_number_of_bytes(number_of_downstream_ports);
+		
+		let number_of_device_removable_bytes = number_of_bytes_required_for_number_of_downstream_ports;
+		let number_of_power_control_bytes = number_of_bytes_required_for_number_of_downstream_ports;
+		
+		let total_number_of_bytes = number_of_device_removable_bytes + number_of_power_control_bytes;
+		if unlikely!(length < total_number_of_bytes)
+		{
+			eprintln!("descriptor_body original len {}", descriptor_body.len());
+			eprintln!("length {}", length);
+			eprintln!("number_of_downstream_ports {}", number_of_downstream_ports);
+			eprintln!("remaining_bytes_of_descriptor {:?}", remaining_bytes_of_descriptor);
+			return Err(TooFewVariableBytes { number_of_downstream_ports, length, number_of_bytes_required_for_number_of_downstream_ports })
+		}
+		
+		for port_number in 1 ..= number_of_downstream_ports
+		{
+			port_settings.push_unchecked
+			(
+				Version2DownstreamPortSetting
+				{
+					device_is_removable: Self::extract_bit(remaining_bytes_of_descriptor, port_number, 0, 0) == 0,
+					
+					usb_1_0_power_control: Self::extract_bit(remaining_bytes_of_descriptor, port_number, 1, number_of_bytes_required_for_number_of_downstream_ports) != 0,
+				}
+			)
+		}
+		Ok(DownstreamPorts(port_settings))
+	}
+	
+	const BitsPerByte: usize = 8;
+	
+	#[inline(always)]
+	fn extract_bit(remaining_bytes_of_descriptor: &[u8], number: usize, correction: usize, offset: usize) -> u8
+	{
+		let bit_index = (number - correction) * Self::BitsPerByte;
+		let byte_index = bit_index / Self::BitsPerByte;
+		let relative_bit_index = (bit_index % Self::BitsPerByte) as u8;
+		let device_is_removable_byte = remaining_bytes_of_descriptor.u8(offset + byte_index);
+		device_is_removable_byte & (1 << relative_bit_index)
+	}
+	
+	#[inline(always)]
+	const fn number_of_downstream_ports_to_number_of_bytes(number_of_downstream_ports: usize) -> usize
+	{
+		const ReservedBit: usize = 1;
+		let number_of_bits = ReservedBit + number_of_downstream_ports;
+		(number_of_bits + (Self::BitsPerByte - 1)) / Self::BitsPerByte
 	}
 }

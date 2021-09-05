@@ -2,36 +2,37 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use self::report::CollectionCommon;
-use self::report::ReportParser;
-use self::report::ReportParseError;
-use crate::collections::VecExt;
 use crate::collections::Bytes;
-use crate::descriptors::descriptor_index;
-use crate::version::Version;
-use crate::version::VersionParseError;
+use crate::collections::VecExt;
+use crate::descriptors::DescriptorHeaderLength;
 use crate::descriptors::DescriptorParser;
 use crate::descriptors::DescriptorType;
-use crate::descriptors::DescriptorHeaderLength;
+use crate::descriptors::descriptor_index;
 use crate::descriptors::verify_remaining_bytes;
+use crate::device::DeadOrAlive::Alive;
+use crate::device::DeadOrAlive::Dead;
+use crate::device::DeadOrAlive;
+use crate::device::{DeviceConnection, ReusableBuffer};
+use crate::interface::InterfaceNumber;
+use crate::serde::TryReserveErrorRemote;
+use crate::version::Version;
+use crate::version::VersionParseError;
 use likely::unlikely;
+use self::report::CollectionCommon;
+use self::report::ReportParseError;
+use self::report::ReportParser;
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::TryReserveError;
 use std::error;
-use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
+use std::fmt;
 use std::mem::transmute;
-use swiss_army_knife::non_zero::new_non_zero_u8;
-use swiss_army_knife::get_unchecked::GetUnchecked;
-use std::collections::TryReserveError;
 use std::num::NonZeroU8;
-use crate::device::{DeviceConnection, ReusableBuffer};
-use crate::device::DeadOrAlive;
-use crate::device::DeadOrAlive::Alive;
-use crate::device::DeadOrAlive::Dead;
-use crate::interface::InterfaceNumber;
+use swiss_army_knife::get_unchecked::GetUnchecked;
+use swiss_army_knife::non_zero::new_non_zero_u8;
 
 
 /// Report.

@@ -27,6 +27,7 @@
 #![feature(associated_type_bounds)]
 #![feature(const_fn_union)]
 #![feature(const_ptr_is_null)]
+#![feature(container_error_extra)]
 #![feature(core_intrinsics)]
 #![feature(macro_attributes_in_derive_output)]
 #![feature(maybe_uninit_slice)]
@@ -78,6 +79,10 @@ pub mod control_transfers;
 pub mod descriptors;
 
 
+/// Devices.
+pub mod devices;
+
+
 /// USB end points.
 pub mod end_point;
 
@@ -88,6 +93,10 @@ pub mod interface;
 
 /// Integers of unusual sizes.
 pub mod integers;
+
+
+/// Support functions for using serde.
+pub mod serde;
 
 
 /// A simple serializer for dumping data to the console.

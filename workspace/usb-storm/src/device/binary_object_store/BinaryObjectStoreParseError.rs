@@ -4,19 +4,24 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum BinaryObjectStoreParseError
 {
+	#[allow(missing_docs)]
 	CouldNotGet(GetStandardUsbDescriptorError),
 	
+	#[allow(missing_docs)]
 	TooShort
 	{
 		/// Less than 3 bytes.
 		remaining_length: usize,
 	},
 	
-	CouldNotAllocateMemoryForDeviceCapabilities(TryReserveError),
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForDeviceCapabilities(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
+	#[allow(missing_docs)]
 	CouldNotParseDeviceCapability(DeviceCapabilityParseError),
 }
 

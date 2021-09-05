@@ -4,6 +4,8 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum BillboardAlternateModeDeviceCapabilityParseError
 {
 	#[allow(missing_docs)]

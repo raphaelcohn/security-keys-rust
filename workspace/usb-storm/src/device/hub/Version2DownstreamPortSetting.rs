@@ -6,16 +6,28 @@
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct Version3PortSetting
+pub struct Version2DownstreamPortSetting
 {
 	device_is_removable: bool,
+	
+	usb_1_0_power_control: bool,
 }
 
-impl PortSetting for Version3PortSetting
+impl DownstreamPortSetting for Version2DownstreamPortSetting
 {
 	#[inline(always)]
 	fn device_is_removable(&self) -> bool
 	{
 		self.device_is_removable
+	}
+}
+
+impl Version2DownstreamPortSetting
+{
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn usb_1_0_power_control(&self) -> bool
+	{
+		self.usb_1_0_power_control
 	}
 }

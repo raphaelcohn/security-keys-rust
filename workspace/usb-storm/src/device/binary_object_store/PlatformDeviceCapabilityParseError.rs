@@ -4,15 +4,19 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
 pub enum PlatformDeviceCapabilityParseError
 {
+	#[allow(missing_docs)]
 	TooShort,
 	
+	#[allow(missing_docs)]
 	HasReservedByteSet,
-
-	CanNotAllocateMemoryForValue(TryReserveError),
 	
+	#[allow(missing_docs)]
+	CanNotAllocateMemoryForValue(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
+	
+	#[allow(missing_docs)]
 	WebUsbPlatformDeviceCapabilityParse(WebUsbPlatformDeviceCapabilityParseError),
 }
 

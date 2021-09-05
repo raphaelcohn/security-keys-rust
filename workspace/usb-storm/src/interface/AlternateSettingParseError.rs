@@ -4,6 +4,8 @@
 
 /// Interface descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum AlternateSettingParseError
 {
 	#[allow(missing_docs)]
@@ -99,7 +101,7 @@ pub enum AlternateSettingParseError
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForEndPoints
 	{
-		cause: TryReserveError,
+		#[serde(with = "TryReserveErrorRemote")] cause: TryReserveError,
 		
 		interface_index: u8,
 		

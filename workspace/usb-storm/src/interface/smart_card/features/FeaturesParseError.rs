@@ -4,6 +4,8 @@
 
 /// Human Interface Device (HID) descriptor parse error.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum FeaturesParseError
 {
 	/// Can not have more than one of TpduLevelExchangeWithCcid, ShortApduLevelExchangeWithCcid or ShortAndExtendedApduLevelExchangeWithCcid.

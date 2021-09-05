@@ -4,9 +4,11 @@
 
 /// A serious error when getting a string.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum GetWebUrlError
 {
+	#[allow(missing_docs)]
 	TooShort
 	{
 		vendor_code: u8,
@@ -14,6 +16,7 @@ pub enum GetWebUrlError
 		url_descriptor_index: NonZeroU8,
 	},
 	
+	#[allow(missing_docs)]
 	GetStandardUsbDescriptor
 	{
 		cause: GetStandardUsbDescriptorError,
@@ -23,18 +26,20 @@ pub enum GetWebUrlError
 		url_descriptor_index: NonZeroU8,
 	},
 	
+	#[allow(missing_docs)]
 	CouldNotAllocateMemory
 	{
-		cause: TryReserveError,
+		#[serde(with = "TryReserveErrorRemote")] cause: TryReserveError,
 		
 		vendor_code: u8,
 		
 		url_descriptor_index: NonZeroU8,
 	},
 	
+	#[allow(missing_docs)]
 	NotValidUtf8
 	{
-		cause: FromUtf8Error,
+		#[serde(with = "FromUtf8ErrorRemote")] cause: FromUtf8Error,
 		
 		vendor_code: u8,
 		

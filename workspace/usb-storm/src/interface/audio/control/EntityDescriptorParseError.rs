@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum EntityDescriptorParseError<E: error::Error>
 {
 	#[allow(missing_docs)]
@@ -16,7 +18,7 @@ pub enum EntityDescriptorParseError<E: error::Error>
 	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	OutOfMemoryCheckingUniqueIdentifiedEntityDescriptor(TryReserveError),
+	OutOfMemoryCheckingUniqueIdentifiedEntityDescriptor(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	NonUniqueEntityIdentifier
@@ -37,10 +39,10 @@ pub enum EntityDescriptorParseError<E: error::Error>
 	UnrecognizedEntityDescriptorType,
 	
 	#[allow(missing_docs)]
-	OutOfMemoryPushingAnonymousEntityDescriptor(TryReserveError),
+	OutOfMemoryPushingAnonymousEntityDescriptor(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	OutOfMemoryPushingIdentifiedEntityDescriptor(TryReserveError),
+	OutOfMemoryPushingIdentifiedEntityDescriptor(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	Version(E),

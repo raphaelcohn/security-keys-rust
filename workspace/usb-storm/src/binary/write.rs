@@ -6,9 +6,10 @@ pub(super) fn write(matches: &CommandLineParser, writer: impl Write + 'static) -
 {
 	let devices = Devices::list(Context::default()?)?;
 	let mut reusable_buffer = ReusableBuffer::new().map_err(ProgramError::CouldNotCreateBinaryObjectStoreBuffer)?;
-	let devices = devices.parse(&mut reusable_buffer)?;
-
+	let (good_and_bad_devices, _dead) = devices.parse(&mut reusable_buffer)?;
+	
 	let format = matches.format();
-	which_serialize(format, devices, writer)?;
+	good_and_bad_devices.which_serialize(format, writer)?;
+	
 	Ok(())
 }

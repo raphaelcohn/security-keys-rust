@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum DecoderParseError
 {
 	#[allow(missing_docs)]
@@ -25,7 +27,7 @@ pub enum DecoderParseError
 	DtsParse(DtsEncoderParseError),
 	
 	#[allow(missing_docs)]
-	CouldNotAllocateMemoryForUndefinedOrOtherOrUnrecognizedData(TryReserveError),
+	CouldNotAllocateMemoryForUndefinedOrOtherOrUnrecognizedData(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for DecoderParseError

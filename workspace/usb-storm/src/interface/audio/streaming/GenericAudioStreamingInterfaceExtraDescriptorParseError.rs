@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum GenericAudioStreamingInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]

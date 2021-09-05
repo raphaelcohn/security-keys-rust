@@ -2,32 +2,28 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Port setting.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct Version2PortSetting
+#[serde(remote = "DecodeUtf16Error")]
+pub(crate) struct DecodeUtf16ErrorRemote
 {
-	device_is_removable: bool,
-	
-	usb_1_0_power_control: bool,
+	#[serde(getter = "DecodeUtf16ErrorRemote::code")] code: u16,
 }
 
-impl PortSetting for Version2PortSetting
+impl DecodeUtf16ErrorRemote
 {
 	#[inline(always)]
-	fn device_is_removable(&self) -> bool
+	fn code(original: &DecodeUtf16Error) -> u16
 	{
-		self.device_is_removable
+		let this = unsafe { & * (original as *const DecodeUtf16Error as *const Self) };
+		this.code
 	}
 }
 
-impl Version2PortSetting
+impl From<DecodeUtf16ErrorRemote> for DecodeUtf16Error
 {
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn usb_1_0_power_control(&self) -> bool
+	fn from(remote: DecodeUtf16ErrorRemote) -> Self
 	{
-		self.usb_1_0_power_control
+		unsafe{ transmute(remote) }
 	}
 }

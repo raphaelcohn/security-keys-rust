@@ -4,26 +4,33 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum ConfigurationSummaryDeviceCapabilityParseError
 {
+	#[allow(missing_docs)]
 	TooShort,
-
+	
+	#[allow(missing_docs)]
 	Version(VersionParseError),
-
+	
+	#[allow(missing_docs)]
 	FunctionClassParse(FunctionClassParseError),
 	
+	#[allow(missing_docs)]
 	TooManyConfigurations
 	{
 		bConfigurationCount: u8,
 	},
 	
+	#[allow(missing_docs)]
 	DuplicateConfigurationIndex
 	{
 		configuration_descriptor_index: u8,
 	},
-
-	OutOfMemoryForConfigurationDescriptorIndices(TryReserveError),
+	
+	#[allow(missing_docs)]
+	OutOfMemoryForConfigurationDescriptorIndices(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for ConfigurationSummaryDeviceCapabilityParseError

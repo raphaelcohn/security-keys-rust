@@ -6,7 +6,7 @@
 pub trait HubDescriptorTrait
 {
 	#[allow(missing_docs)]
-	type PS: PortSetting;
+	type DPS: DownstreamPortSetting;
 	
 	#[allow(missing_docs)]
 	fn logical_power_switching_mode(&self) -> LogicalPowerSwitchingMode;
@@ -17,9 +17,11 @@ pub trait HubDescriptorTrait
 	#[allow(missing_docs)]
 	fn overcurrent_protection_mode(&self) -> OvercurrentProtectionMode;
 	
-	/// Maximum value is 510.
+	/// Will never return more than 510ms (`255 × 2`).
+	///
+	/// EHCI 1.0 has a maximum value of 20ms.
 	fn time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port(&self) -> u16;
 	
 	#[allow(missing_docs)]
-	fn ports_settings(&self) -> &PortsSetting<Self::PS>;
+	fn downstream_ports(&self) -> &DownstreamPorts<Self::DPS>;
 }

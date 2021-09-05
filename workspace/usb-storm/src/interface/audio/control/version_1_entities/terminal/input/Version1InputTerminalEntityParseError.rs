@@ -4,13 +4,15 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version1InputTerminalEntityParseError
 {
 	#[allow(missing_docs)]
 	TerminalTypeIsOutputOnly,
 	
 	#[allow(missing_docs)]
-	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<Infallible>),
+	LogicalAudioChannelClusterParse(LogicalAudioChannelClusterParseError<InfallibleError>),
 	
 	#[allow(missing_docs)]
 	InvalidDescriptionString(GetLocalizedStringError),
@@ -43,10 +45,10 @@ impl error::Error for Version1InputTerminalEntityParseError
 	}
 }
 
-impl From<LogicalAudioChannelClusterParseError<Infallible>> for Version1InputTerminalEntityParseError
+impl From<LogicalAudioChannelClusterParseError<InfallibleError>> for Version1InputTerminalEntityParseError
 {
 	#[inline(always)]
-	fn from(cause: LogicalAudioChannelClusterParseError<Infallible>) -> Self
+	fn from(cause: LogicalAudioChannelClusterParseError<InfallibleError>) -> Self
 	{
 		Version1InputTerminalEntityParseError::LogicalAudioChannelClusterParse(cause)
 	}

@@ -22,12 +22,12 @@ pub struct Version3HubDescriptor
 	
 	maximum_delay_in_nanoseconds: u16,
 	
-	ports_settings: PortsSetting<Version3PortSetting>,
+	downstream_ports: DownstreamPorts<Version3DownstreamPortSetting>,
 }
 
 impl HubDescriptorTrait for Version3HubDescriptor
 {
-	type PS = Version3PortSetting;
+	type DPS = Version3DownstreamPortSetting;
 	
 	#[inline(always)]
 	fn logical_power_switching_mode(&self) -> LogicalPowerSwitchingMode
@@ -55,9 +55,9 @@ impl HubDescriptorTrait for Version3HubDescriptor
 	}
 	
 	#[inline(always)]
-	fn ports_settings(&self) -> &PortsSetting<Self::PS>
+	fn downstream_ports(&self) -> &DownstreamPorts<Self::DPS>
 	{
-		&self.ports_settings
+		&self.downstream_ports
 	}
 }
 
@@ -130,10 +130,41 @@ impl Version3HubDescriptor
 					
 						maximum_delay_in_nanoseconds: descriptor_body.u16(descriptor_index::<8>()),
 					
-						ports_settings: PortsSetting::version_3_parse(descriptor_body)?,
+						downstream_ports: Self::downstream_ports_parse(descriptor_body)?,
 					}
 				)
 			)
 		)
+	}
+	
+	#[inline(always)]
+	fn downstream_ports_parse(descriptor_body: &[u8]) -> Result<DownstreamPorts<Version3DownstreamPortSetting>, Version3HubDescriptorParseError>
+	{
+		use Version3HubDescriptorParseError::*;
+		
+		let number_of_downstream_ports =
+		{
+			let bNbrPorts = descriptor_body.u8(descriptor_index::<2>());
+			if unlikely!(bNbrPorts > 15)
+			{
+				return Err(MoreThan15Ports { bNbrPorts })
+			}
+			bNbrPorts as usize
+		};
+		
+		let device_removable = descriptor_body.u16(descriptor_index::<10>()) as usize;
+		
+		let mut port_settings = Vec::new_with_capacity(number_of_downstream_ports).map_err(CouldNotAllocatePortsSettings)?;
+		for port_number in 1 ..= number_of_downstream_ports
+		{
+			port_settings.push_unchecked
+			(
+				Version3DownstreamPortSetting
+				{
+					device_is_removable: ((device_removable >> port_number) & 0b1) != 0,
+				}
+			)
+		}
+		Ok(DownstreamPorts(port_settings))
 	}
 }

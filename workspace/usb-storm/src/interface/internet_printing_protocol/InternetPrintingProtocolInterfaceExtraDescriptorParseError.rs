@@ -4,6 +4,8 @@
 
 /// Internet Printing Protocol (IPP) descriptor parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum InternetPrintingProtocolInterfaceExtraDescriptorParseError
 {
 	#[allow(missing_docs)]
@@ -40,7 +42,7 @@ pub enum InternetPrintingProtocolInterfaceExtraDescriptorParseError
 	InvalidPrinterUuidString(GetLocalizedStringError),
 	
 	#[allow(missing_docs)]
-	VendorCapabilityDescriptorsCanNotBeAllocated(TryReserveError),
+	VendorCapabilityDescriptorsCanNotBeAllocated(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	VendorCapabilityDescriptorHeaderTooShort
@@ -71,7 +73,7 @@ pub enum InternetPrintingProtocolInterfaceExtraDescriptorParseError
 	#[allow(missing_docs)]
 	VendorCapabilityDescriptorBytesCanNotBeAllocated
 	{
-		cause: TryReserveError,
+		#[serde(with = "TryReserveErrorRemote")] cause: TryReserveError,
 		
 		index: usize,
 	},

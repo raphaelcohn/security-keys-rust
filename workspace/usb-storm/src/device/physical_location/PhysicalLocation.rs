@@ -16,14 +16,17 @@ pub struct PhysicalLocation
 impl PhysicalLocation
 {
 	#[inline(always)]
-	pub(super) fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Self
+	pub(super) fn from_libusb_device(libusb_device: NonNull<libusb_device>) -> Result<Self, LocationError>
 	{
-		Self
-		{
-			port_number: get_port_number(libusb_device),
-			
-			port_numbers: get_port_numbers(libusb_device),
-		}
+		Ok
+		(
+			Self
+			{
+				port_number: get_port_number(libusb_device)?,
+				
+				port_numbers: get_port_numbers(libusb_device),
+			}
+		)
 	}
 	
 	/// Bus number.

@@ -4,30 +4,37 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
 pub enum SuperSpeedDeviceCapabilityParseError
 {
+	#[allow(missing_docs)]
 	TooShort,
 	
+	#[allow(missing_docs)]
 	HasReservedAttributesBitsSet,
 	
+	#[allow(missing_docs)]
 	HasReservedSpeedsSupportedBitsSet,
 	
+	#[allow(missing_docs)]
 	HasInvalidFunctionalitySupportSpeed
 	{
 		bFunctionalitySupport: u8,
 	},
-
+	
+	#[allow(missing_docs)]
 	HasFunctionalitySupportSpeedMissingFromSupportedSpeeds
 	{
 		lowest_speed_that_supports_all_functionality: SuperSpeedDeviceCapabilitySupportedSpeed,
 	},
 	
+	#[allow(missing_docs)]
 	HasReservedU1DeviceExitLatency
 	{
 		bU1DevExitLat: u8,
 	},
 	
+	#[allow(missing_docs)]
 	HasReservedU2DeviceExitLatency
 	{
 		bU2DevExitLat: u16,

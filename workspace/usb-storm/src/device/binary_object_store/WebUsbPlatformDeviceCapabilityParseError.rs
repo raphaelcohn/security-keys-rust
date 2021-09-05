@@ -4,7 +4,7 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
 pub enum WebUsbPlatformDeviceCapabilityParseError
 {
 	#[allow(missing_docs)]

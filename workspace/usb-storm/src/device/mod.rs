@@ -4,6 +4,7 @@
 
 use super::integers::u3;
 use crate::collections::VecExt;
+use crate::serde::TryReserveErrorRemote;
 use self::binary_object_store::BinaryObjectStore;
 use self::binary_object_store::BinaryObjectStoreParseError;
 use self::binary_object_store::DeviceCapability;
@@ -22,7 +23,6 @@ use super::configuration::GetConfigurationDescriptorBackendError;
 use super::configuration::get_active_config_descriptor;
 use super::configuration::get_config_descriptor;
 use super::configuration::MaximumNumberOfConfigurations;
-use super::context::Context;
 use super::interface::InterfaceNumber;
 use super::string::GetLanguagesError;
 use super::string::GetLocalizedStringError;
@@ -34,10 +34,8 @@ use libusb1_sys::libusb_close;
 use libusb1_sys::libusb_device;
 use libusb1_sys::libusb_device_descriptor;
 use libusb1_sys::libusb_device_handle;
-use libusb1_sys::libusb_free_device_list;
 use libusb1_sys::libusb_get_device;
 use libusb1_sys::libusb_get_device_descriptor;
-use libusb1_sys::libusb_get_device_list;
 use libusb1_sys::libusb_get_device_speed;
 use libusb1_sys::libusb_get_parent;
 use libusb1_sys::libusb_open;
@@ -74,7 +72,6 @@ use std::fmt::Formatter;
 use std::mem::MaybeUninit;
 use std::mem::transmute;
 use std::ptr::NonNull;
-use std::slice::from_raw_parts;
 use swiss_army_knife::non_zero::{new_non_null, new_non_zero_u8};
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use self::DeadOrAlive::Alive;
@@ -89,7 +86,12 @@ use crate::string::find_web_usb_url_control_transfer;
 use crate::string::WebUrl;
 use crate::string::get_languages;
 use crate::string::get_localized_string;
-use crate::device::hub::{HubDescriptor, HubDescriptorParseError};
+use crate::device::hub::HubDescriptor;
+use crate::device::hub::HubDescriptorParseError;
+use either::Either;
+use either::Left;
+use either::Right;
+use crate::device::logical_location::LocationError;
 
 
 include!("return_ok_if_dead.rs");
@@ -121,14 +123,14 @@ pub mod vendor;
 
 
 include!("DeadOrAlive.rs");
+include!("DeadOrFailedToParseDeviceDetails.rs");
 include!("Device.rs");
 include!("DeviceConnection.rs");
 include!("DeviceHandle.rs");
 include!("DeviceHandleOpenError.rs");
 include!("DeviceParseError.rs");
 include!("DeviceReference.rs");
-include!("Devices.rs");
-include!("DevicesParseError.rs");
+include!("DeviceReferenceParseError.rs");
 include!("ReusableBuffer.rs");
 include!("get_device.rs");
 include!("get_device_descriptor.rs");

@@ -4,17 +4,23 @@
 
 /// A serious error when getting languages.
 #[derive(Debug, Clone, PartialEq, Eq)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum GetLanguagesError
 {
+	#[allow(missing_docs)]
 	GetStandardUsbDescriptor(GetStandardUsbDescriptorError),
 	
+	#[allow(missing_docs)]
 	NotACorrectArraySize,
 	
-	CouldNotAllocateDuplicateLanguages(TryReserveError),
+	#[allow(missing_docs)]
+	CouldNotAllocateDuplicateLanguages(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
-	CouldNotAllocateLanguages(TryReserveError),
+	#[allow(missing_docs)]
+	CouldNotAllocateLanguages(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
+	#[allow(missing_docs)]
 	DuplicateLanguage
 	{
 		language: Language,

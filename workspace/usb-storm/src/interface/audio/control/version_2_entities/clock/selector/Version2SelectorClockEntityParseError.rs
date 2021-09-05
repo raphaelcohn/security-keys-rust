@@ -4,10 +4,12 @@
 
 /// Parse error.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version2SelectorClockEntityParseError
 {
 	#[allow(missing_docs)]
-	CouldNotAllocateSources(TryReserveError),
+	CouldNotAllocateSources(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	PIsTooLarge,

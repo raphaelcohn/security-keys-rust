@@ -4,6 +4,8 @@
 
 /// Parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum Version3HubDescriptorParseError
 {
 	#[allow(missing_docs)]
@@ -13,13 +15,13 @@ pub enum Version3HubDescriptorParseError
 	HubDescriptorTooShort,
 	
 	#[allow(missing_docs)]
-	TooManyPorts
+	MoreThan15Ports
 	{
 		bNbrPorts: u8
 	},
 
 	#[allow(missing_docs)]
-	CouldNotAllocatePortsSettings(TryReserveError),
+	CouldNotAllocatePortsSettings(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for Version3HubDescriptorParseError

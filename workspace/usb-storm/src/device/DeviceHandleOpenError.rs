@@ -4,13 +4,17 @@
 
 /// A serious error when opening a device handle.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[allow(missing_docs)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum DeviceHandleOpenError
 {
+	#[allow(missing_docs)]
 	OutOfMemory,
 	
+	#[allow(missing_docs)]
 	AccessDenied,
 	
+	#[allow(missing_docs)]
 	Other,
 }
 
