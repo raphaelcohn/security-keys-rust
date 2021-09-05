@@ -61,6 +61,7 @@ include!("Version2AudioFunctionCategory.rs");
 include!("Version3AudioFunctionCategory.rs");
 include!("Version2AudioFunctionSubClass.rs");
 include!("Version3AudioFunctionSubClass.rs");
+include!("VideoProtocol.rs");
 include!("VideoSubClass.rs");
 include!("WireAdapterProtocol.rs");
 include!("WirelessControllerSubClass.rs");
