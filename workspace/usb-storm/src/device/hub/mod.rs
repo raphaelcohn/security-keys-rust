@@ -8,6 +8,7 @@ use crate::control_transfers::descriptors::get_version_3_hub_device_descriptor;
 use crate::serde::TryReserveErrorRemote;
 use super::DeadOrAlive;
 use super::DeviceConnection;
+use likely::likely;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
