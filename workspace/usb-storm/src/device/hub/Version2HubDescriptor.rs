@@ -189,7 +189,6 @@ impl Version2HubDescriptor
 	#[inline(always)]
 	fn parse_port_details<const reserved_bit_correction: usize>(mut port_settings: Vec<Version2DownstreamPortSetting>, remaining_bytes_of_descriptor: &[u8], offset: usize) -> DownstreamPorts<Version2DownstreamPortSetting>
 	{
-		eprintln!("reserved_bit_correction {}", reserved_bit_correction);
 		for bit_index in reserved_bit_correction .. (port_settings.len() + reserved_bit_correction)
 		{
 			port_settings.push_unchecked
