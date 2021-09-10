@@ -9,12 +9,12 @@
 pub enum ExtensionCodeAndControls
 {
 	/// Microsofot UVC 1.5 controls: <https://docs.microsoft.com/en-us/windows-hardware/drivers/stream/uvc-extensions-1-5>.
-	Microsoft(ExtensionControls),
+	Microsoft(WrappedBitFlags<MicrosoftExtensionControl>),
 	
-	/// Sourced from <https://sourceforge.net/p/libwebcam/code/ci/master/tree/uvcdynctrl/data/046d/logitech.xml>.
+	/// See 'USB_Video_Payload_H 264_1.0.pdf', Section 3.3.
 	///
-	/// ? H.264 Device Interface specification 0.9e ?
-	H264(ExtensionControls),
+	/// Sourced from <https://github.com/AndyA/v4l2h264/blob/master/set-bit-rate/uvch264.h>.
+	H264(WrappedBitFlags<H264ExtensionControl>),
 	
 	/// Vimicro-based SIS DOP camera for enabled LED flash.
 	///
@@ -103,9 +103,9 @@ impl ExtensionCodeAndControls
 		let extension_code = entity_body.universally_unique_identifier(entity_index::<4>());
 		match extension_code
 		{
-			MS_CAMERA_CONTROL_XU => Microsoft(controls),
+			MS_CAMERA_CONTROL_XU => known_controls(Microsoft, controls),
 			
-			GUID_UVCX_H264_XU => H264(controls),
+			GUID_UVCX_H264_XU => known_controls(H264, controls),
 			
 			UVC_GUID_SIS_LED_HW_CONTROL => known_controls(VimicroSisDop, controls),
 			
