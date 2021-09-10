@@ -30,6 +30,7 @@ use serde::de::{Visitor, SeqAccess, Error};
 use crate::universally_unique_identifiers_support::UniversallyUniqueIdentifier;
 
 
+include!("ExtensionCodeAndControls.rs");
 include!("ExtensionControls.rs");
 include!("ExtensionControlsIterator.rs");
 include!("ExtensionUnitEntity.rs");

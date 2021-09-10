@@ -8,11 +8,9 @@
 #[serde(deny_unknown_fields)]
 pub struct ExtensionUnitEntity
 {
-	extension_code: UniversallyUniqueIdentifier,
-	
 	sources: Sources,
 	
-	controls: ExtensionControls,
+	extension_code_and_controls: ExtensionCodeAndControls,
 	
 	description: Option<LocalizedStrings>,
 }
@@ -49,11 +47,9 @@ impl Entity for ExtensionUnitEntity
 			(
 				Self
 				{
-					extension_code: entity_body.universally_unique_identifier(entity_index::<4>()),
-					
 					sources,
 					
-					controls,
+					extension_code_and_controls: ExtensionCodeAndControls::parse(entity_body, controls),
 					
 					description:
 					{
@@ -89,21 +85,11 @@ impl ExtensionUnitEntity
 {
 	const MinimumBLength: usize = 24;
 	
-	// /// <https://docs.microsoft.com/en-us/windows-hardware/drivers/stream/uvc-extensions-1-5> `{0F3F95DC-2632-4C4E-92C9-A04782F43BC8}`
-	// const MS_CAMERA_CONTROL_XU: Uuid = Uuid::from_bytes()
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn extension_code(&self) -> UniversallyUniqueIdentifier
+	pub fn extension_code_and_controls(&self) -> &ExtensionCodeAndControls
 	{
-		self.extension_code
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub fn controls(&self) -> &ExtensionControls
-	{
-		&self.controls
+		&self.extension_code_and_controls
 	}
 	
 	#[inline(always)]
