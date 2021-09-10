@@ -2,6 +2,7 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
+use enumflags2::{bitflags, BitFlag};
 use likely::unlikely;
 use serde::{Deserialize, Serializer, Deserializer};
 use serde::Serialize;
@@ -22,7 +23,7 @@ use crate::interface::video::control::entities::unit::UnitEntity;
 use crate::interface::video::control::entities::unit::SourcesParseError;
 use crate::string::{LocalizedStrings, GetLocalizedStringError};
 use crate::device::DeadOrAlive::Alive;
-use crate::collections::Bytes;
+use crate::collections::{Bytes, WrappedBitFlags};
 use crate::integers::u6;
 use std::iter::FusedIterator;
 use serde::ser::SerializeSeq;
@@ -35,3 +36,14 @@ include!("ExtensionControls.rs");
 include!("ExtensionControlsIterator.rs");
 include!("ExtensionUnitEntity.rs");
 include!("ExtensionUnitEntityParseError.rs");
+include!("LogitechCodecExtensionControl.rs");
+include!("LogitechCodecExtendedExtensionControl.rs");
+include!("LogitechDeviceInformationVersion1ExtensionControl.rs");
+include!("LogitechDeviceInformationVersion3ExtensionControl.rs");
+include!("LogitechMotorVersion1ExtensionControl.rs");
+include!("LogitechPeripheralExtensionControl.rs");
+include!("LogitechTestDebugVersion3ExtensionControl.rs");
+include!("LogitechUserHardwareVersion1ExtensionControl.rs");
+include!("LogitechVideoPipeVersion1ExtensionControls.rs");
+include!("LogitechVideoPipeVersion3ExtensionControls.rs");
+include!("VimicroSisDopExtensionControls.rs");
