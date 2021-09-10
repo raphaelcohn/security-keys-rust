@@ -63,6 +63,16 @@ pub enum ExtensionCodeAndControls
 	/// H.264 cameras.
 	LogitechCodecExtended(WrappedBitFlags<LogitechCodecExtendedExtensionControl>),
 	
+	/// Seems to be used for firmware update in Chrome OS.
+	///
+	/// Has controls called something like:-
+	///
+	/// * `kLogiUvcXuAitCustomCsGetMmpResult`: ? Bit 4.
+	/// * `kLogiUvcXuAitCustomCsSetMmp`: ? Bit 3.
+	/// * `kLogiUvcXuAitCustomCsSetFwData`: ? Bit 2.
+	/// * `kLogiUvcXuAitCustomReboot`: ? Bit 10.
+	LogitechAitCustom(ExtensionControls),
+	
 	/// Unrecognised identifier.
 	Other
 	{
@@ -79,7 +89,10 @@ impl ExtensionCodeAndControls
 	#[inline(always)]
 	fn parse(entity_body: &[u8], controls: ExtensionControls) -> Self
 	{
+		// From MSDN.
 		const MS_CAMERA_CONTROL_XU: UniversallyUniqueIdentifier = UniversallyUniqueIdentifier::parse_microsoft_string_or_panic(b"{0F3F95DC-2632-4C4E-92C9-A04782F43BC8}");
+		
+		// From libwebcam.
 		const GUID_UVCX_H264_XU: UniversallyUniqueIdentifier = UniversallyUniqueIdentifier::parse_rfc_4122_string_or_panic(b"A29E7641-DE04-47E3-8B2B-F4341AFF003B");
 		const UVC_GUID_SIS_LED_HW_CONTROL: UniversallyUniqueIdentifier = UniversallyUniqueIdentifier::parse_rfc_4122_string_or_panic(b"5dc717a9-1941-da11-ae0e-000d56ac7b4c");
 		const UVC_GUID_LOGITECH_USER_HW_CONTROL_V1: UniversallyUniqueIdentifier = UniversallyUniqueIdentifier::parse_rfc_4122_string_or_panic(b"63610682-5070-49ab-b8cc-b3855e8d221f");
@@ -92,6 +105,9 @@ impl ExtensionCodeAndControls
 		const UVC_GUID_LOGITECH_PERIPHERAL: UniversallyUniqueIdentifier = UniversallyUniqueIdentifier::parse_rfc_4122_string_or_panic(b"FFE52D21-8030-4e2c-82D9-F587D00540BD");
 		const UVC_GUID_LOGITECH_CODEC: UniversallyUniqueIdentifier = UniversallyUniqueIdentifier::parse_rfc_4122_string_or_panic(b"9ACD00B6-DC4A-4bbd-BDF8-5FFBB0C0D366");
 		const UVC_GUID_LOGITECH_CODECEX: UniversallyUniqueIdentifier = UniversallyUniqueIdentifier::parse_rfc_4122_string_or_panic(b"49C532A0-4F15-4cfc-908A-5BCE154B1CEA");
+		
+		// From Google Chromium OS sources (<https://chromium.googlesource.com/chromiumos/third_party/logitech-updater/+/refs/heads/release-R68-10718.B/src/utilities.h>).
+		const kLogiGuidAITCustom: UniversallyUniqueIdentifier = UniversallyUniqueIdentifier::parse_rfc_4122_string_or_panic(b"23e49ed0-1178-4f31-ae52-d2fb8a8d3b48");
 		
 		#[inline(always)]
 		fn known_controls<T: BitFlag<Numeric=u64>>(constructor: impl FnOnce(WrappedBitFlags<T>) -> ExtensionCodeAndControls, controls: ExtensionControls) -> ExtensionCodeAndControls
@@ -128,6 +144,8 @@ impl ExtensionCodeAndControls
 			UVC_GUID_LOGITECH_CODEC => known_controls(LogitechCodec, controls),
 			
 			UVC_GUID_LOGITECH_CODECEX => known_controls(LogitechCodecExtended, controls),
+			
+			kLogiGuidAITCustom => LogitechAitCustom(controls),
 			
 			_ => Other
 			{
