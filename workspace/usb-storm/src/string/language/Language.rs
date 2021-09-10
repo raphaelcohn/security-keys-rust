@@ -146,6 +146,9 @@ pub enum Language
 	Marathi,
 	
 	#[allow(missing_docs)]
+	MicrosoftOperatingSystemDescriptorsVersion_1_0,
+	
+	#[allow(missing_docs)]
 	Nepali,
 	
 	#[allow(missing_docs)]
@@ -417,6 +420,8 @@ impl<'de> Deserialize<'de> for Language
 					
 					"Marathi" => Marathi,
 					
+					"MicrosoftOperatingSystemDescriptorsVersion_1_0" => MicrosoftOperatingSystemDescriptorsVersion_1_0,
+					
 					"Nepali" => Nepali,
 					
 					"Norwegian-Bokmål" => Norwegian(Bokmål),
@@ -594,6 +599,8 @@ impl Language
 		let sub_language_code = language_identifier & SUB_LANGUAGE_MASK;
 		match language_identifier & PRIMARY_LANGUAGE_MASK
 		{
+			0x0000 => MicrosoftOperatingSystemDescriptorsVersion_1_0,
+			
 			0x0036 => Afrikaans,
 			
 			0x001C => Albanian,

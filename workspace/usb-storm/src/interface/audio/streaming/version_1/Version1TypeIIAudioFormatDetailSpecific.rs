@@ -48,7 +48,7 @@ impl Version1TypeIIAudioFormatDetailSpecific
 		
 		{
 			let bDescriptorType = audio_format_specific_descriptor_bytes.u8(1);
-			if unlikely!(bDescriptorType != AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE)
+			if unlikely!(bDescriptorType != CS_INTERFACE)
 			{
 				return if unlikely!(format == Undefined)
 				{

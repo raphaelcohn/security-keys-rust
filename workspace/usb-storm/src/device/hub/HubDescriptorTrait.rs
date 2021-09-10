@@ -22,6 +22,10 @@ pub trait HubDescriptorTrait
 	/// EHCI 1.0 has a maximum value of 20ms.
 	fn time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port(&self) -> u16;
 	
+	/// For USB 3 hubs, the inclusive maximum value is 1020 milliamps, with values in 4 milliamp steps.
+	/// For USB 2 hubs, the inclusive maximum value is 255 milliamps, in 1 milliamp steps.
+	fn maximum_current_requirement_in_milliamps(&self) -> u16;
+	
 	#[allow(missing_docs)]
 	fn downstream_ports(&self) -> &DownstreamPorts<Self::DPS>;
 }

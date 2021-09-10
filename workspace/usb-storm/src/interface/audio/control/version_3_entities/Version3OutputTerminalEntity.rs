@@ -27,7 +27,7 @@ impl Entity for Version3OutputTerminalEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -50,7 +50,7 @@ impl Entity for Version3OutputTerminalEntity
 						
 						clock_source: entity_body.optional_non_zero_u8(entity_index::<8>()),
 						
-						controls: TerminalControls::new::<9>(entity_body),
+						controls: TerminalControls::parse::<9>(entity_body)?,
 						
 						cluster_descriptor_identifier: entity_body.u16(entity_index::<13>()),
 						
@@ -68,41 +68,40 @@ impl Entity for Version3OutputTerminalEntity
 	}
 }
 
+impl Version3Entity for Version3OutputTerminalEntity
+{
+}
+
 impl TerminalEntity for Version3OutputTerminalEntity
 {
 }
 
-impl Deref for Version3OutputTerminalEntity
-{
-	type Target = TerminalEntityCommon;
-	
-	#[inline(always)]
-	fn deref(&self) -> &Self::Target
-	{
-		&self.common
-	}
-}
-
-impl Version3OutputTerminalEntity
+impl OutputTerminalEntity for Version3OutputTerminalEntity
 {
 	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn output_terminal_type(&self) -> OutputTerminalType
+	fn output_terminal_type(&self) -> OutputTerminalType
 	{
 		self.output_terminal_type
 	}
 	
 	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn associated_input_terminal(&self) -> Option<TerminalEntityIdentifier>
+	fn associated_input_terminal(&self) -> Option<TerminalEntityIdentifier>
 	{
 		self.associated_input_terminal
 	}
 	
 	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn output_logical_audio_channel_cluster(&self) -> Option<UnitOrTerminalEntityIdentifier>
+	fn output_logical_audio_channel_cluster(&self) -> Option<UnitOrTerminalEntityIdentifier>
 	{
 		self.output_logical_audio_channel_cluster
+	}
+}
+
+impl Version3TerminalEntity for Version3OutputTerminalEntity
+{
+	#[inline(always)]
+	fn common(&self) -> &TerminalEntityCommon
+	{
+		&self.common
 	}
 }

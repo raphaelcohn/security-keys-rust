@@ -2,7 +2,6 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-// (bLength, entity_identifier, entity_body, device_connection
 #[inline(always)]
 fn parse_entity_descriptor<E: Entity, const MinimumBLength: u8>(bLength: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], device_connection: &DeviceConnection, entities: &mut Entities<E>) -> Result<DeadOrAlive<()>, EntityDescriptorParseError<E::ParseError>>
 {
@@ -12,8 +11,8 @@ fn parse_entity_descriptor<E: Entity, const MinimumBLength: u8>(bLength: u8, ent
 		return Err(BLengthIsLessThanMinimum)
 	}
 	
-	let x = E::parse(entity_body, device_connection).map_err(Version)?;
-	let entity = return_ok_if_dead!(x);
+	let dead_or_alive = E::parse(entity_body, device_connection).map_err(Version)?;
+	let entity = return_ok_if_dead!(dead_or_alive);
 	
 	match entity_identifier
 	{

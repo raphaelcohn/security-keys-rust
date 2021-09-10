@@ -6,7 +6,7 @@ use crate::collections::Bytes;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
 use crate::interface::audio::Control;
-use crate::interface::audio::control::entities::Entity;
+use crate::interface::audio::control::entities::{Entity, DescribedEntity, Version2Entity, OutputTerminalEntity};
 use crate::interface::audio::control::entities::TerminalEntity;
 use crate::interface::audio::control::entity_identifiers::ClockEntityIdentifier;
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
@@ -25,7 +25,7 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::transmute;
+use crate::interface::audio::control::version_2_entities::terminal::Version2TerminalEntity;
 
 
 include!("Version2OutputTerminalEntity.rs");

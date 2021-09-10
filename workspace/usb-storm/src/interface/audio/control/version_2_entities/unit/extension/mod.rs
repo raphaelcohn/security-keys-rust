@@ -8,7 +8,7 @@ use crate::device::DeadOrAlive;
 use crate::device::DeviceConnection;
 use crate::interface::audio::control::Control;
 use crate::interface::audio::control::DescriptorEntityMinimumLength;
-use crate::interface::audio::control::entities::Entity;
+use crate::interface::audio::control::entities::{Entity, DescribedEntity, Version2Entity, ExtensionUnitEntity};
 use crate::interface::audio::control::entities::UnitEntity;
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
 use crate::interface::audio::control::entity_identifiers::UnitEntityIdentifier;
@@ -32,7 +32,6 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::transmute;
 
 
 include!("Version2ExtensionUnitEntity.rs");

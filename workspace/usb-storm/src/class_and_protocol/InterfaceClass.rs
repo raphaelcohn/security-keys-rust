@@ -387,8 +387,8 @@ impl InterfaceClass
 			
 			(0x0D, _, _) => ContentSecurity(KnownOrUnrecognizedSubClassAndProtocol::Unrecognized(UnrecognizedSubClass { sub_class_code, protocol_code })),
 
-			(0x0E, 0x01, 0x00) => Video(VideoSubClass::Control(VideoProtocol::Version_1_1)),
-			(0x0E, 0x02, 0x00) => Video(VideoSubClass::Streaming(VideoProtocol::Version_1_1)),
+			(0x0E, 0x01, 0x00) => Video(VideoSubClass::Control(VideoProtocol::Version_1_0)),
+			(0x0E, 0x02, 0x00) => Video(VideoSubClass::Streaming(VideoProtocol::Version_1_0)),
 			(0x0E, 0x01, 0x01) => Video(VideoSubClass::Control(VideoProtocol::Version_1_5)),
 			(0x0E, 0x02, 0x01) => Video(VideoSubClass::Streaming(VideoProtocol::Version_1_5)),
 			(0x0E, 0x03, 0x00) => Video(VideoSubClass::InterfaceCollection),

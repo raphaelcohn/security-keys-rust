@@ -3,64 +3,69 @@
 
 
 /// Terminal controls.
-#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TerminalControls
 {
-	insertion: u2,
+	insertion: Control,
 	
-	overload: u2,
+	overload: Control,
 	
-	underflow: u2,
+	underflow: Control,
 	
-	overflow: u2,
+	overflow: Control,
 }
 
 impl TerminalControls
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn insertion(self) -> u2
+	pub const fn insertion(self) -> Control
 	{
 		self.insertion
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn overload(self) -> u2
+	pub const fn overload(self) -> Control
 	{
 		self.overload
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn underflow(self) -> u2
+	pub const fn underflow(self) -> Control
 	{
 		self.underflow
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn overflow(self) -> u2
+	pub const fn overflow(self) -> Control
 	{
 		self.overflow
 	}
 	
 	#[inline(always)]
-	fn new<const index: usize>(entity_body: &[u8]) -> Self
+	fn parse<const index: usize>(entity_body: &[u8]) -> Result<Self, TerminalControlsParseError>
 	{
+		use TerminalControlsParseError::*;
+		
 		let bmControls = entity_body.u32(entity_index::<index>());
 		
-		Self
-		{
-			insertion: (bmControls & 0b11) as u2,
-			
-			overload: ((bmControls >> 2) & 0b11) as u2,
-			
-			underflow: ((bmControls >> 4) & 0b11) as u2,
-			
-			overflow: ((bmControls >> 6) & 0b11) as u2,
-		}
+		Ok
+		(
+			Self
+			{
+				insertion: Control::parse_u32(bmControls, 0, InsertionControlInvalid)?,
+				
+				overload: Control::parse_u32(bmControls, 1, OverloadControlInvalid)?,
+				
+				underflow: Control::parse_u32(bmControls, 2, UnderflowControlInvalid)?,
+				
+				overflow: Control::parse_u32(bmControls, 3, OverflowControlInvalid)?,
+			}
+		)
 	}
 }

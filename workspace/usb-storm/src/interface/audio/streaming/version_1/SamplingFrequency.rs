@@ -53,8 +53,8 @@ impl SamplingFrequency
 					return Err(ContinuousSamplingFrequencyLengthWrong { length })
 				}
 				
-				let lower_bound = descriptor_body.u24(descriptor_index_non_constant(index));
-				let upper_bound = descriptor_body.u24(descriptor_index_non_constant(index + U24Size));
+				let lower_bound = descriptor_body.u24_as_u32(descriptor_index_non_constant(index));
+				let upper_bound = descriptor_body.u24_as_u32(descriptor_index_non_constant(index + U24Size));
 				if unlikely!(lower_bound > upper_bound)
 				{
 					return Err(ContinuousSamplingFrequencyBoundsNegative { lower_bound, upper_bound })
@@ -88,7 +88,7 @@ impl SamplingFrequency
 				{
 					sampling_frequencies:  Vec::new_populated(count, CouldNotAllocateMemoryForDiscreteSamplingFrequencies, |sample_index|
 					{
-						Ok(descriptor_body.u24(descriptor_index_non_constant(index + (sample_index * U24Size))))
+						Ok(descriptor_body.u24_as_u32(descriptor_index_non_constant(index + (sample_index * U24Size))))
 					})?,
 				}
 			}

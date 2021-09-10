@@ -33,7 +33,7 @@ impl Entity for Version2MixerUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -43,19 +43,29 @@ impl Entity for Version2MixerUnitEntity
 	}
 }
 
+impl DescribedEntity for Version2MixerUnitEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version2Entity for Version2MixerUnitEntity
+{
+}
+
 impl UnitEntity for Version2MixerUnitEntity
+{
+}
+
+impl MixerUnitEntity for Version2MixerUnitEntity
 {
 }
 
 impl Version2MixerUnitEntity
 {
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
-	}
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub fn input_logical_audio_channel_clusters(&self) -> &InputLogicalAudioChannelClusters

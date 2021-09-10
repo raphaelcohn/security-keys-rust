@@ -26,7 +26,7 @@ impl Entity for Version1InputTerminalEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -36,8 +36,44 @@ impl Entity for Version1InputTerminalEntity
 	}
 }
 
+impl DescribedEntity for Version1InputTerminalEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version1Entity for Version1InputTerminalEntity
+{
+}
+
 impl TerminalEntity for Version1InputTerminalEntity
 {
+}
+
+impl InputTerminalEntity for Version1InputTerminalEntity
+{
+	type LACC = Version1LogicalAudioChannelCluster;
+	
+	#[inline(always)]
+	fn input_terminal_type(&self) -> InputTerminalType
+	{
+		self.input_terminal_type
+	}
+	
+	#[inline(always)]
+	fn associated_output_terminal(&self) -> Option<TerminalEntityIdentifier>
+	{
+		self.associated_output_terminal
+	}
+	
+	#[inline(always)]
+	fn output_logical_audio_channel_cluster(&self) -> &Self::LACC
+	{
+		&self.output_logical_audio_channel_cluster
+	}
 }
 
 impl Version1InputTerminalEntity
@@ -61,13 +97,6 @@ impl Version1InputTerminalEntity
 	pub const fn output_logical_audio_channel_cluster(&self) -> &Version1LogicalAudioChannelCluster
 	{
 		&self.output_logical_audio_channel_cluster
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 	
 	#[inline(always)]

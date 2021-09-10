@@ -6,7 +6,7 @@ use crate::collections::Bytes;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
 use crate::interface::audio::Control;
-use crate::interface::audio::control::entities::ClockEntity;
+use crate::interface::audio::control::entities::{ClockEntity, DescribedEntity, Version2Entity, MultiplierClockEntity};
 use crate::interface::audio::control::entities::Entity;
 use crate::interface::audio::control::entity_identifiers::ClockEntityIdentifier;
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
@@ -22,7 +22,6 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::transmute;
 
 
 include!("Version2MultiplierClockEntity.rs");

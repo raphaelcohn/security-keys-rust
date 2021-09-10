@@ -16,7 +16,7 @@ impl DescriptorParser for AudioStreamingInterfaceExtraDescriptorParser
 	{
 		match descriptor_type
 		{
-			AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE => (),
+			CS_INTERFACE => (),
 			
 			_ => return Ok(None),
 		};

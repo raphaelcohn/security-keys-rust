@@ -27,6 +27,9 @@ pub enum DeviceParseError
 	MaximumSupportedUsbVersion(VersionParseError),
 	
 	#[allow(missing_docs)]
+	MicrosoftOperatingSystemDescriptorStringVersion_1_0_VendorCode(GetLocalizedUtf16LittleEndianStringError),
+	
+	#[allow(missing_docs)]
 	FirmwareVersion(VersionParseError),
 	
 	#[allow(missing_docs)]
@@ -106,6 +109,8 @@ impl error::Error for DeviceParseError
 			GetBinaryObjectStore(cause) => Some(cause),
 			
 			MaximumSupportedUsbVersion(cause) => Some(cause),
+			
+			MicrosoftOperatingSystemDescriptorStringVersion_1_0_VendorCode(cause) => Some(cause),
 			
 			FirmwareVersion(cause) => Some(cause),
 			

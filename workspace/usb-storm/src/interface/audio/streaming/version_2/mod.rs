@@ -4,7 +4,9 @@
 
 use arrayvec::ArrayVec;
 use crate::collections::WrappedBitFlags;
-use crate::collections::{Bytes, VecExt};
+use crate::collections::Bytes;
+use crate::collections::VecExt;
+use crate::interface::audio::CS_INTERFACE;
 use crate::descriptors::DescriptorHeaderLength;
 use crate::descriptors::DescriptorSubType;
 use crate::descriptors::DescriptorType;
@@ -16,7 +18,6 @@ use crate::device::DeadOrAlive;
 use crate::device::DeviceConnection;
 use crate::integers::u3;
 use crate::interface::audio::Control;
-use crate::interface::audio::control::AudioControlInterfaceExtraDescriptorParser;
 use crate::interface::audio::control::entity_identifiers::TerminalEntityIdentifier;
 use crate::interface::audio::control::logical_audio_channels::LogicalAudioChannelClusterParseError;
 use crate::interface::audio::control::version_2_entities::logical_audio_channel_cluster::Version2LogicalAudioChannelCluster;

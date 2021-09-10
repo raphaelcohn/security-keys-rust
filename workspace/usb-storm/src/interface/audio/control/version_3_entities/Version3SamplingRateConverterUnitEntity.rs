@@ -18,7 +18,7 @@ impl Entity for Version3SamplingRateConverterUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -28,6 +28,14 @@ impl Entity for Version3SamplingRateConverterUnitEntity
 	}
 }
 
+impl Version3Entity for Version3SamplingRateConverterUnitEntity
+{
+}
+
 impl UnitEntity for Version3SamplingRateConverterUnitEntity
+{
+}
+
+impl SamplingRateConverterUnitEntity for Version3SamplingRateConverterUnitEntity
 {
 }

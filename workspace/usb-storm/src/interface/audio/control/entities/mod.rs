@@ -19,10 +19,28 @@ use std::error;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::num::NonZeroU8;
+use crate::string::LocalizedStrings;
+use crate::interface::audio::control::terminal_types::{OutputTerminalType, InputTerminalType};
+use crate::interface::audio::control::entity_identifiers::UnitOrTerminalEntityIdentifier;
 
 
 include!("ClockEntity.rs");
+include!("DescribedEntity.rs");
 include!("Entities.rs");
 include!("Entity.rs");
+include!("ExtensionUnitEntity.rs");
+include!("FeatureUnitEntity.rs");
+include!("InputTerminalEntity.rs");
+include!("MixerUnitEntity.rs");
+include!("MultiplierClockEntity.rs");
+include!("OutputTerminalEntity.rs");
+include!("ProcessingUnitEntity.rs");
+include!("SamplingRateConverterUnitEntity.rs");
+include!("SelectorClockEntity.rs");
+include!("SelectorUnitEntity.rs");
+include!("SourceClockEntity.rs");
 include!("TerminalEntity.rs");
 include!("UnitEntity.rs");
+include!("Version1Entity.rs");
+include!("Version2Entity.rs");
+include!("Version3Entity.rs");

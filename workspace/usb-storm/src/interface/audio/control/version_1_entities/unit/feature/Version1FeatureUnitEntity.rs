@@ -24,7 +24,7 @@ impl Entity for Version1FeatureUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -67,7 +67,24 @@ impl Entity for Version1FeatureUnitEntity
 	}
 }
 
+impl DescribedEntity for Version1FeatureUnitEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version1Entity for Version1FeatureUnitEntity
+{
+}
+
 impl UnitEntity for Version1FeatureUnitEntity
+{
+}
+
+impl FeatureUnitEntity for Version1FeatureUnitEntity
 {
 }
 
@@ -85,13 +102,6 @@ impl Version1FeatureUnitEntity
 	pub const fn controls_by_channel_number(&self) -> &ChannelControlsByChannelNumber<WrappedBitFlags<Version1AudioChannelFeatureControl>>
 	{
 		&self.controls_by_channel_number
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 	
 	#[inline(always)]

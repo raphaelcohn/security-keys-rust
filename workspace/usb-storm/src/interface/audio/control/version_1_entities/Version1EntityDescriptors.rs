@@ -28,7 +28,7 @@ impl EntityDescriptors for Version1EntityDescriptors
 	type Error = Version1EntityDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_entity_body(&mut self, bLength: u8, bDescriptorSubtype: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
+	fn parse_entity_body(&mut self, bLength: u8, bDescriptorSubType: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
 	{
 		// These constants differ in value between versions 1, 2 and 3 of the Audio specifications!
 		const INPUT_TERMINAL: u8 = 0x02;
@@ -39,7 +39,7 @@ impl EntityDescriptors for Version1EntityDescriptors
 		const PROCESSING_UNIT: u8 = 0x07;
 		const EXTENSION_UNIT: u8 = 0x08;
 		
-		let dead_or_alive = match bDescriptorSubtype
+		let dead_or_alive = match bDescriptorSubType
 		{
 			INPUT_TERMINAL => parse_entity_descriptor::<_, 12>(bLength, entity_identifier, entity_body, device_connection, &mut self.input_terminal)?,
 			
@@ -88,4 +88,53 @@ impl Version1EntityDescriptors
 	const SelectorUnitMinimumBLength: u8 = 6;
 	
 	const FeatureUnitMinimumBLength: u8 = 7;
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn input_terminal(&self) -> &Entities<Version1InputTerminalEntity>
+	{
+		&self.input_terminal
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn output_terminal(&self) -> &Entities<Version1OutputTerminalEntity>
+	{
+		&self.output_terminal
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn mixer_unit(&self) -> &Entities<Version1MixerUnitEntity>
+	{
+		&self.mixer_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn selector_unit(&self) -> &Entities<Version1SelectorUnitEntity>
+	{
+		&self.selector_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn feature_unit(&self) -> &Entities<Version1FeatureUnitEntity>
+	{
+		&self.feature_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn processing_unit(&self) -> &Entities<Version1ProcessingUnitEntity>
+	{
+		&self.processing_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn extension_unit(&self) -> &Entities<Version1ExtensionUnitEntity>
+	{
+		&self.extension_unit
+	}
 }

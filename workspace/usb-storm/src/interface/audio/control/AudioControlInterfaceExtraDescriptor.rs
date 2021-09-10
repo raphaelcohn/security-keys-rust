@@ -321,9 +321,9 @@ impl AudioControlInterfaceExtraDescriptor
 			}
 			
 			let bDescriptorType = entity_descriptors_bytes.u8(1);
-			if unlikely!(bDescriptorType != AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE)
+			if unlikely!(bDescriptorType != CS_INTERFACE)
 			{
-				return Err(ExpectedInterfaceDescriptorType)
+				return Err(ExpectedInterfaceDescriptorType { bDescriptorType })
 			}
 			
 			let entity_identifier = entity_descriptors_bytes.optional_non_zero_u8(3);
@@ -336,19 +336,19 @@ impl AudioControlInterfaceExtraDescriptor
 				}
 			}
 			
-			let bDescriptorSubtype = entity_descriptors_bytes.u8(2);
+			let bDescriptorSubType = entity_descriptors_bytes.u8(2);
 			
-			match entity_descriptors.parse_entity_body(bLength, bDescriptorSubtype, entity_identifier, entity_descriptors_bytes.get_unchecked_range_safe(DescriptorEntityMinimumLength .. bLengthUsize), device_connection)?
+			match entity_descriptors.parse_entity_body(bLength, bDescriptorSubType, entity_identifier, entity_descriptors_bytes.get_unchecked_range_safe(DescriptorEntityMinimumLength .. bLengthUsize), device_connection)?
 			{
 				Alive(true) => (),
 				
-				Alive(false) => return match bDescriptorSubtype
+				Alive(false) => return match bDescriptorSubType
 				{
 					AC_DESCRIPTOR_UNDEFINED => Err(UndefinedInterfaceDescriptorType),
 					
 					HEADER => Err(HeaderInterfaceDescriptorTypeAfterHeader),
 					
-					_ => Err(UnrecognizedEntityDescriptorType)
+					_ => Err(UnrecognizedEntityDescriptorType { bDescriptorSubType })
 				},
 				
 				Dead => return Ok(Dead),

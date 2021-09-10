@@ -209,6 +209,12 @@ impl AlternateSetting
 		}
 		
 		#[inline(always)]
+		fn video_control(device_connection: &DeviceConnection, extra: &[u8], protocol: VideoProtocol) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
+		{
+			InterfaceExtraDescriptorParser::parse_descriptors(device_connection, extra, VideoControlInterfaceExtraDescriptorParser(protocol))
+		}
+		
+		#[inline(always)]
 		fn smart_card(device_connection: &DeviceConnection, extra: &[u8], smart_card_protocol: SmartCardProtocol, bDescriptorType: u8) -> Result<DeadOrAlive<Vec<InterfaceExtraDescriptor>>, DescriptorParseError<InterfaceExtraDescriptorParseError>>
 		{
 			InterfaceExtraDescriptorParser::parse_descriptors(device_connection, extra, SmartCardInterfaceExtraDescriptorParser::new(smart_card_protocol, bDescriptorType))
@@ -254,6 +260,8 @@ impl AlternateSetting
 			
 			Printer(PrinterSubClass::Known(PrinterProtocol::InternetPrintingProtocolOverUsb)) => internet_printing_protocol(device_connection, extra),
 			
+			Video(VideoSubClass::Control(video_protocol)) => video_control(device_connection, extra, video_protocol),
+			
 			// Some devices from as far back as 2007 put the Smart Card descriptor at the end of the end points yet claim to be a Smart Card.
 			// The CCID project uses a patch with `#define O2MICRO_OZ776_PATCH` to support them; they are broken in use in multiple ways.
 			// We do not support them.
@@ -283,7 +291,7 @@ impl AlternateSetting
 			// The bDescriptorType is 0x21.
 			SmartCard(SmartCardInterfaceSubClass::Unrecognized(UnrecognizedSubClass { sub_class_code: 0x01, protocol_code: 0x01 })) if SmartCardInterfaceExtraDescriptor::extra_has_matching_length(extra) => smart_card(device_connection, extra, IccdVersionA, SmartCardDescriptorType),
 			
-			// These pre-standardization devices have the following features:-
+			// These pre-standardization smart card devices have the following features:-
 			//
 			// * The sub class is 0x5C.
 			// * The protocol is always 0x00.
@@ -297,7 +305,7 @@ impl AlternateSetting
 			// * Token GEM USB COMBI-M (0x08E6, 0x1359, 2005).
 			VendorSpecific(UnrecognizedSubClass { sub_class_code: 0x5C, protocol_code: 0x00 }) if SmartCardInterfaceExtraDescriptor::extra_has_matching_length(extra) => smart_card(device_connection, extra, BulkTransfer, VendorSpecificDescriptorType),
 			
-			// This case exists from before standardization; devices have the following features:-
+			// This smart card case exists from before standardization; devices have the following features:-
 			//
 			// * The sub class is 0x00.
 			// * The protocol is always 0x00 ..= 0x02.

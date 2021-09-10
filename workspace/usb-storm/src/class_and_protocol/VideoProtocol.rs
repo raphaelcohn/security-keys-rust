@@ -9,7 +9,7 @@
 pub enum VideoProtocol
 {
 	#[allow(missing_docs)]
-	Version_1_1,
+	Version_1_0,
 
 	#[allow(missing_docs)]
 	Version_1_5,

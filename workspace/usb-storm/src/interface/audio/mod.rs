@@ -13,13 +13,10 @@ use std::num::NonZeroU16;
 pub mod control;
 
 
-/// Audio MIDI.
-pub mod midi;
-
-
 /// Audio streaming.
 pub mod streaming;
 
 
 include!("Control.file.rs");
+include!("CS_INTERFACE.rs");
 include!("Version3AudioDynamicStringDescriptorIdentifier.rs");

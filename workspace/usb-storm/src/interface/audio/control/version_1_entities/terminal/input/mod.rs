@@ -5,7 +5,7 @@
 use crate::collections::Bytes;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
-use crate::interface::audio::control::entities::Entity;
+use crate::interface::audio::control::entities::{Entity, DescribedEntity, Version1Entity, InputTerminalEntity};
 use crate::interface::audio::control::entities::TerminalEntity;
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
 use crate::interface::audio::control::entity_identifiers::TerminalEntityIdentifier;
@@ -24,7 +24,6 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::transmute;
 use crate::serde::InfallibleError;
 
 

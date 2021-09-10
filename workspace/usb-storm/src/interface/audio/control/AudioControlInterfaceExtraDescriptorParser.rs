@@ -16,7 +16,7 @@ impl DescriptorParser for AudioControlInterfaceExtraDescriptorParser
 	{
 		match descriptor_type
 		{
-			Self::CS_INTERFACE => (),
+			CS_INTERFACE => (),
 			
 			_ => return Ok(None),
 		};
@@ -35,9 +35,4 @@ impl DescriptorParser for AudioControlInterfaceExtraDescriptorParser
 		};
 		Ok(Some(outcome))
 	}
-}
-
-impl AudioControlInterfaceExtraDescriptorParser
-{
-	pub(crate) const CS_INTERFACE: u8 = 0x24;
 }

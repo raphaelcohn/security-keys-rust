@@ -41,7 +41,7 @@ impl Entity for Version2InputTerminalEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -51,33 +51,57 @@ impl Entity for Version2InputTerminalEntity
 	}
 }
 
+impl DescribedEntity for Version2InputTerminalEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version2Entity for Version2InputTerminalEntity
+{
+}
+
 impl TerminalEntity for Version2InputTerminalEntity
 {
 }
 
-impl Version2InputTerminalEntity
+impl InputTerminalEntity for Version2InputTerminalEntity
 {
-	#[allow(missing_docs)]
+	type LACC = Version2LogicalAudioChannelCluster;
+	
 	#[inline(always)]
-	pub const fn input_terminal_type(&self) -> InputTerminalType
+	fn input_terminal_type(&self) -> InputTerminalType
 	{
 		self.input_terminal_type
 	}
 	
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn associated_output_terminal(&self) -> Option<TerminalEntityIdentifier>
+	fn associated_output_terminal(&self) -> Option<TerminalEntityIdentifier>
 	{
 		self.associated_output_terminal
 	}
 	
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn clock_source(&self) -> Option<ClockEntityIdentifier>
+	fn output_logical_audio_channel_cluster(&self) -> &Self::LACC
+	{
+		&self.output_logical_audio_channel_cluster
+	}
+}
+
+impl Version2TerminalEntity for Version2InputTerminalEntity
+{
+	#[inline(always)]
+	fn clock_source(&self) -> Option<ClockEntityIdentifier>
 	{
 		self.clock_source
 	}
-	
+}
+
+impl Version2InputTerminalEntity
+{
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn copy_protect_control(&self) -> Control
@@ -118,20 +142,6 @@ impl Version2InputTerminalEntity
 	pub const fn overflow_control(&self) -> Control
 	{
 		self.overflow_control
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn output_logical_audio_channel_cluster(&self) -> &Version2LogicalAudioChannelCluster
-	{
-		&self.output_logical_audio_channel_cluster
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 	
 	#[inline(always)]

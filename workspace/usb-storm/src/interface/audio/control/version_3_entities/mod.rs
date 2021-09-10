@@ -3,8 +3,7 @@
 
 
 use crate::collections::Bytes;
-use crate::integers::u2;
-use crate::interface::audio::Version3AudioDynamicStringDescriptorIdentifier;
+use crate::interface::audio::{Version3AudioDynamicStringDescriptorIdentifier, Control};
 use serde::Deserialize;
 use serde::Serialize;
 use std::error;
@@ -13,7 +12,6 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
 use std::hash::Hash;
-use std::mem::transmute;
 use std::num::NonZeroU16;
 use std::num::NonZeroU8;
 use super::entities::ClockEntity;
@@ -33,14 +31,15 @@ use super::entity_identifiers::UnitOrTerminalEntityIdentifier;
 use super::parse_entity_descriptor;
 use super::terminal_types::InputTerminalType;
 use super::terminal_types::OutputTerminalType;
-use std::ops::Deref;
 use crate::device::DeviceConnection;
 use crate::device::DeadOrAlive;
 use crate::device::DeadOrAlive::Alive;
+use crate::interface::audio::control::entities::{Version3Entity, InputTerminalEntity, OutputTerminalEntity, MixerUnitEntity, FeatureUnitEntity, ExtensionUnitEntity, SelectorUnitEntity, ProcessingUnitEntity, SamplingRateConverterUnitEntity, MultiplierClockEntity, SelectorClockEntity, SourceClockEntity};
 
 
 include!("ClusterDescriptorIdentifier.rs");
 include!("TerminalControls.rs");
+include!("TerminalControlsParseError.rs");
 include!("TerminalEntityCommon.rs");
 include!("Version3EffectUnitEntity.rs");
 include!("Version3EntityDescriptorParseError.rs");
@@ -57,3 +56,4 @@ include!("Version3SamplingRateConverterUnitEntity.rs");
 include!("Version3SelectorClockEntity.rs");
 include!("Version3SelectorUnitEntity.rs");
 include!("Version3SourceClockEntity.rs");
+include!("Version3TerminalEntity.rs");

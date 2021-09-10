@@ -35,7 +35,7 @@ impl Entity for Version2ExtensionUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -45,7 +45,24 @@ impl Entity for Version2ExtensionUnitEntity
 	}
 }
 
+impl DescribedEntity for Version2ExtensionUnitEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version2Entity for Version2ExtensionUnitEntity
+{
+}
+
 impl UnitEntity for Version2ExtensionUnitEntity
+{
+}
+
+impl ExtensionUnitEntity for Version2ExtensionUnitEntity
 {
 }
 
@@ -77,13 +94,6 @@ impl Version2ExtensionUnitEntity
 	pub const fn extension_code(&self) -> u16
 	{
 		self.extension_code
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 	
 	#[inline(always)]

@@ -39,7 +39,7 @@ pub enum InternetPrintingProtocolInterfaceExtraDescriptorParseError
 	InvalidVersionsSupportedString(GetLocalizedStringError),
 	
 	#[allow(missing_docs)]
-	InvalidPrinterUuidString(GetLocalizedStringError),
+	InvalidPrinterUniversallyUniqueIdentifierString(GetLocalizedStringError),
 	
 	#[allow(missing_docs)]
 	VendorCapabilityDescriptorsCanNotBeAllocated(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
@@ -99,7 +99,7 @@ impl error::Error for InternetPrintingProtocolInterfaceExtraDescriptorParseError
 		{
 			InvalidVersionsSupportedString(cause) => Some(cause),
 			
-			InvalidPrinterUuidString(cause) => Some(cause),
+			InvalidPrinterUniversallyUniqueIdentifierString(cause) => Some(cause),
 			
 			VendorCapabilityDescriptorsCanNotBeAllocated(cause) => Some(cause),
 			

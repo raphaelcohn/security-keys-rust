@@ -31,7 +31,7 @@ impl Entity for Version2SourceClockEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -69,19 +69,29 @@ impl Entity for Version2SourceClockEntity
 	}
 }
 
+impl DescribedEntity for Version2SourceClockEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version2Entity for Version2SourceClockEntity
+{
+}
+
 impl ClockEntity for Version2SourceClockEntity
+{
+}
+
+impl SourceClockEntity for Version2SourceClockEntity
 {
 }
 
 impl Version2SourceClockEntity
 {
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
-	}
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn clock_type(&self) -> ClockType

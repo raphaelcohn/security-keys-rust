@@ -39,7 +39,7 @@ impl Entity for Version2OutputTerminalEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -84,40 +84,55 @@ impl Entity for Version2OutputTerminalEntity
 	}
 }
 
+impl DescribedEntity for Version2OutputTerminalEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version2Entity for Version2OutputTerminalEntity
+{
+}
+
 impl TerminalEntity for Version2OutputTerminalEntity
 {
 }
 
-impl Version2OutputTerminalEntity
+impl OutputTerminalEntity for Version2OutputTerminalEntity
 {
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn output_terminal_type(&self) -> OutputTerminalType
+	fn output_terminal_type(&self) -> OutputTerminalType
 	{
 		self.output_terminal_type
 	}
 	
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn associated_input_terminal(&self) -> Option<TerminalEntityIdentifier>
+	fn associated_input_terminal(&self) -> Option<TerminalEntityIdentifier>
 	{
 		self.associated_input_terminal
 	}
 	
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn clock_source(&self) -> Option<ClockEntityIdentifier>
-	{
-		self.clock_source
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn output_logical_audio_channel_cluster(&self) -> Option<UnitOrTerminalEntityIdentifier>
+	fn output_logical_audio_channel_cluster(&self) -> Option<UnitOrTerminalEntityIdentifier>
 	{
 		self.output_logical_audio_channel_cluster
 	}
-	
+}
+
+impl Version2TerminalEntity for Version2OutputTerminalEntity
+{
+	#[inline(always)]
+	fn clock_source(&self) -> Option<ClockEntityIdentifier>
+	{
+		self.clock_source
+	}
+}
+
+impl Version2OutputTerminalEntity
+{
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn copy_protect_control(&self) -> Control
@@ -151,12 +166,5 @@ impl Version2OutputTerminalEntity
 	pub const fn overflow_control(&self) -> Control
 	{
 		self.overflow_control
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 }

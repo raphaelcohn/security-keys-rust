@@ -12,7 +12,15 @@ pub(crate) trait Bytes
 		Version::parse(self.u16(index))
 	}
 	
-	fn uuid(&self, index: usize) -> Uuid;
+	/// From little-endian ordered bytes as used by USB.
+	///
+	/// This binary format is used by USB.
+	///
+	/// It has caused substantial confusion (eg <https://github.com/WICG/webusb/issues/115>) not least because the USB 3.1 specification is completely silent on the subject.
+	/// WebUSB makes the following observation: the GUID `{3408b638-09a9-47a0-8bfd-a0768815b665}` is sent over the USB bus in the order `0x38, 0xB6, 0x08, 0x34, 0xA9, 0x09, 0xA0, 0x47, 0x8B, 0xFD, 0xA0, 0x76, 0x88, 0x15, 0xB6, 0x65`.
+	/// This is the same order produced by the python code `python3 -c "import uuid;print(', '.join(map(hex, uuid.UUID('3408b638-09a9-47a0-8bfd-a0768815b665').bytes_le)))"`.
+	/// Note that the GUID 3408b638-09a9-47a0-8bfd-a0768815b665 is RFC 4122 variant (top 3 bits of 8th octet 0xA0 are 0b101).
+	fn universally_unique_identifier(&self, index: usize) -> UniversallyUniqueIdentifier;
 	
 	#[inline(always)]
 	fn optional_non_zero_u8(&self, index: usize) -> Option<NonZeroU8>
@@ -30,11 +38,31 @@ pub(crate) trait Bytes
 	
 	fn u16(&self, index: usize) -> u16;
 	
-	fn u24(&self, index: usize) -> u24;
-	
 	fn u32(&self, index: usize) -> u32;
 	
 	fn u64(&self, index: usize) -> u64;
+	
+	fn u128(&self, index: usize) -> u128;
+	
+	fn u8_as_u32(&self, index: usize) -> u32;
+	
+	fn u16_as_u32(&self, index: usize) -> u32;
+	
+	fn u8_as_u64(&self, index: usize) -> u64;
+	
+	fn u16_as_u64(&self, index: usize) -> u64;
+	
+	fn u24_as_u32(&self, index: usize) -> u24;
+	
+	fn u24_as_u64(&self, index: usize) -> u64;
+	
+	fn u32_as_u64(&self, index: usize) -> u64;
+	
+	fn u40_as_u64(&self, index: usize) -> u40;
+	
+	fn u48_as_u64(&self, index: usize) -> u48;
+	
+	fn u56_as_u64(&self, index: usize) -> u56;
 }
 
 impl<'a> Bytes for &'a [u8]
@@ -46,11 +74,11 @@ impl<'a> Bytes for &'a [u8]
 	}
 	
 	#[inline(always)]
-	fn uuid(&self, index: usize) -> Uuid
+	fn universally_unique_identifier(&self, index: usize) -> UniversallyUniqueIdentifier
 	{
-		let pointer = self.as_ptr() as *const u128;
-		let bytes = unsafe { pointer.add(index).read_volatile() };
-		Uuid::from_bytes(bytes.to_be_bytes())
+		let pointer = self.as_ptr();
+		let offset = (unsafe { pointer.add(index) }) as *const [u8; 16];
+		UniversallyUniqueIdentifier::from_microsoft_mixed_endian_bytes(unsafe { & * offset })
 	}
 	
 	#[inline(always)]
@@ -78,12 +106,6 @@ impl<'a> Bytes for &'a [u8]
 	}
 	
 	#[inline(always)]
-	fn u24(&self, index: usize) -> u24
-	{
-		u32::from_le_bytes([0x00, self.get_unchecked_value_safe(index), self.get_unchecked_value_safe(index + 1), self.get_unchecked_value_safe(index + 2)])
-	}
-	
-	#[inline(always)]
 	#[cfg(target_endian = "little")]
 	fn u32(&self, index: usize) -> u32
 	{
@@ -117,5 +139,83 @@ impl<'a> Bytes for &'a [u8]
 		let pointer = self.as_ptr();
 		let offset = (unsafe { pointer.add(index) }) as *const u64;
 		(unsafe { offset.read_unaligned() }).swap_bytes()
+	}
+	
+	#[inline(always)]
+	#[cfg(target_endian = "little")]
+	fn u128(&self, index: usize) -> u128
+	{
+		let pointer = self.as_ptr();
+		let offset = (unsafe { pointer.add(index) }) as *const u128;
+		unsafe { offset.read_unaligned() }
+	}
+	
+	#[inline(always)]
+	#[cfg(target_endian = "big")]
+	fn u128(&self, index: usize) -> u128
+	{
+		let pointer = self.as_ptr();
+		let offset = (unsafe { pointer.add(index) }) as *const u128;
+		(unsafe { offset.read_unaligned() }).swap_bytes()
+	}
+	
+	#[inline(always)]
+	fn u8_as_u32(&self, index: usize) -> u32
+	{
+		self.u8(index) as u32
+	}
+	
+	#[inline(always)]
+	fn u8_as_u64(&self, index: usize) -> u64
+	{
+		self.u8(index) as u64
+	}
+	
+	#[inline(always)]
+	fn u16_as_u32(&self, index: usize) -> u32
+	{
+		self.u16(index) as u32
+	}
+	
+	#[inline(always)]
+	fn u16_as_u64(&self, index: usize) -> u64
+	{
+		self.u16(index) as u64
+	}
+	
+	#[inline(always)]
+	fn u24_as_u32(&self, index: usize) -> u24
+	{
+		(self.u8_as_u32(index + 2) << 16) | (self.u8_as_u32(index + 1) << 8) | self.u8_as_u32(index)
+	}
+	
+	#[inline(always)]
+	fn u24_as_u64(&self, index: usize) -> u64
+	{
+		self.u24_as_u32(index) as u64
+	}
+	
+	#[inline(always)]
+	fn u32_as_u64(&self, index: usize) -> u64
+	{
+		self.u32(index) as u64
+	}
+	
+	#[inline(always)]
+	fn u40_as_u64(&self, index: usize) -> u40
+	{
+		(self.u8_as_u64(index + 4) << 32) | (self.u8_as_u64(index + 3) << 24) | (self.u8_as_u64(index + 2) << 16) | (self.u8_as_u64(index + 1) << 8) | self.u8_as_u64(index)
+	}
+	
+	#[inline(always)]
+	fn u48_as_u64(&self, index: usize) -> u48
+	{
+		(self.u8_as_u64(index + 5) << 40) | (self.u8_as_u64(index + 4) << 32) | (self.u8_as_u64(index + 3) << 24) | (self.u8_as_u64(index + 2) << 16) | (self.u8_as_u64(index + 1) << 8) | self.u8_as_u64(index)
+	}
+	
+	#[inline(always)]
+	fn u56_as_u64(&self, index: usize) -> u48
+	{
+		(self.u8_as_u64(index + 6) << 48) | (self.u8_as_u64(index + 5) << 40) | (self.u8_as_u64(index + 4) << 32) | (self.u8_as_u64(index + 3) << 24) | (self.u8_as_u64(index + 2) << 16) | (self.u8_as_u64(index + 1) << 8) | self.u8_as_u64(index)
 	}
 }

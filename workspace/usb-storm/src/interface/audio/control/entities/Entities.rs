@@ -30,6 +30,20 @@ impl<E: Entity> Default for Entities<E>
 
 impl<E: Entity> Entities<E>
 {
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn identified(&self) -> &WrappedHashMap<E::EntityIdentifier, E>
+	{
+		&self.identified
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn anonymous(&self) -> &[E]
+	{
+		&self.anonymous
+	}
+	
 	#[inline(always)]
 	pub(crate) fn push_anonymous(&mut self, entity: E) -> Result<(), EntityDescriptorParseError<E::ParseError>>
 	{

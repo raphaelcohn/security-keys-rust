@@ -32,7 +32,6 @@ serde = { version = "^1.0.126", features = ["derive"] }
 strum = { version = "^0.21.0" }
 strum_macros = { version = "^0.21.1" }
 swiss-army-knife = "^0.0.22"
-uuid = { version = "^0.8.2", features = ["serde", "v1", "v3", "v4", "v5"] }
 
 # Binary
 clap = "^2.33.3"

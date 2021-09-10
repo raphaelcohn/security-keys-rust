@@ -35,10 +35,13 @@ use std::ops::RangeInclusive;
 use std::ptr::write;
 use swiss_army_knife::get_unchecked::AsUsizeIndex;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use uuid::Uuid;
 use std::fmt::Formatter;
 use serde::ser::SerializeSeq;
 use crate::integers::u24;
+use crate::integers::u40;
+use crate::integers::u48;
+use crate::integers::u56;
+use crate::universally_unique_identifiers_support::UniversallyUniqueIdentifier;
 
 
 include!("Bytes.rs");

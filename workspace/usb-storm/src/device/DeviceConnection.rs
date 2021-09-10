@@ -24,7 +24,11 @@ impl<'a> DeviceConnection<'a>
 				{
 					device_handle,
 					
-					languages: return_ok_if_dead!(get_languages(device_handle.as_non_null())?),
+					languages:
+					{
+						let dead_or_alive = get_languages(device_handle.as_non_null())?;
+						return_ok_if_dead!(dead_or_alive)
+					},
 				}
 			)
 		)
@@ -65,7 +69,8 @@ impl<'a> DeviceConnection<'a>
 		else
 		{
 			let string_descriptor_index = new_non_zero_u8(string_descriptor_index);
-			Ok(Alive(Some(return_ok_if_dead!(self.find_string_non_zero(string_descriptor_index)?))))
+			let dead_or_alive = self.find_string_non_zero(string_descriptor_index)?;
+			Ok(Alive(Some(return_ok_if_dead!(dead_or_alive))))
 		}
 	}
 	
@@ -81,12 +86,59 @@ impl<'a> DeviceConnection<'a>
 				let mut localized_strings = BTreeMap::new();
 				for language in languages
 				{
-					let string = return_ok_if_dead!(get_localized_string(self.device_handle_non_null(), string_descriptor_index, *language)?);
+					let dead_or_alive = get_localized_string(self.device_handle_non_null(), string_descriptor_index, *language)?;
+					let string = return_ok_if_dead!(dead_or_alive);
 					let _ = localized_strings.insert(language.1, string);
 				}
 				Ok(Alive(LocalizedStrings::new(localized_strings)))
 			}
 		}
+	}
+	
+	/// This is very similar to finding a string, but it can contain UTF-16 little endian invalid data (a lone surrogate pair for the final character).
+	#[inline(always)]
+	pub(crate) fn find_microsoft_operating_system_descriptor_string_version_1_0_vendor_code(&self) -> Result<DeadOrAlive<Option<MicrosoftVendorCode>>, GetLocalizedUtf16LittleEndianStringError>
+	{
+		#[inline(always)]
+		const fn utf16_little_endian(byte: u8) -> u16
+		{
+			(byte as u16).to_le()
+		}
+		
+		const StringDescriptorIndex: NonZeroU8 = new_non_zero_u8(0xEE);
+		const Languages: (u16, Language) = (0, Language::MicrosoftOperatingSystemDescriptorsVersion_1_0);
+		
+		const SignatureLength: usize = 14;
+		const Utf16SignatureLength: usize = SignatureLength / size_of::<u16>();
+		static Signature: [u16; Utf16SignatureLength] =
+		[
+			utf16_little_endian(b'M'),
+			utf16_little_endian(b'S'),
+			utf16_little_endian(b'F'),
+			utf16_little_endian(b'T'),
+			utf16_little_endian(b'1'),
+			utf16_little_endian(b'0'),
+			utf16_little_endian(b'0'),
+		];
+		const U16ArrayLength: usize = Utf16SignatureLength + 1;
+		
+		let mut buffer = MaybeUninit::uninit_array();
+		let dead_or_alive = get_localized_string_utf16_little_endian(self.device_handle_non_null(), StringDescriptorIndex, Languages, &mut buffer)?;
+		let (remaining_bytes, array_length_in_u16) = return_ok_if_dead_or_alive_none!(dead_or_alive);
+		
+		if unlikely!(array_length_in_u16 != U16ArrayLength)
+		{
+			return Ok(Alive(None))
+		}
+		
+		let qwSignature = unsafe { & * (remaining_bytes.as_ptr() as *const [u16; Utf16SignatureLength]) };
+		if unlikely!(qwSignature.ne(&Signature))
+		{
+			return Ok(Alive(None))
+		}
+		
+		let bMS_VendorCode = remaining_bytes.get_unchecked_value_safe(SignatureLength + 1);
+		Ok(Alive(Some(bMS_VendorCode)))
 	}
 	
 	#[inline(always)]

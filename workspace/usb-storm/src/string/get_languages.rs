@@ -7,7 +7,7 @@ pub(crate) fn get_languages(device_handle: NonNull<libusb_device_handle>) -> Res
 {
 	use GetLanguagesError::*;
 	
-	let mut buffer = MaybeUninit::uninit_array();
+	let mut buffer: [MaybeUninit<u8>; MaximumStandardUsbDescriptorLength] = MaybeUninit::uninit_array();
 	let remaining_bytes = return_ok_if_dead_or_alive_none!(get_string_device_descriptor_languages(device_handle, &mut buffer)?);
 	
 	let array_length_in_bytes = remaining_bytes.len();

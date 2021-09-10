@@ -25,6 +25,9 @@ pub enum Version3EntityDescriptorParseError
 	
 	#[allow(missing_docs)]
 	TerminalTypeIsInputOnly,
+	
+	#[allow(missing_docs)]
+	TerminalControlsParse(TerminalControlsParseError),
 }
 
 impl Display for Version3EntityDescriptorParseError
@@ -38,4 +41,25 @@ impl Display for Version3EntityDescriptorParseError
 
 impl error::Error for Version3EntityDescriptorParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use Version3EntityDescriptorParseError::*;
+		
+		match self
+		{
+			TerminalControlsParse(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
+}
+
+impl From<TerminalControlsParseError> for Version3EntityDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: TerminalControlsParseError) -> Self
+	{
+		Version3EntityDescriptorParseError::TerminalControlsParse(cause)
+	}
 }

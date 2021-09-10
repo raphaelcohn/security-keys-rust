@@ -27,6 +27,9 @@ pub enum InterfaceExtraDescriptor
 	SmartCard(SmartCardInterfaceExtraDescriptor),
 	
 	#[allow(missing_docs)]
+	VideoControl(VideoControlInterfaceExtraDescriptor),
+	
+	#[allow(missing_docs)]
 	Unknown
 	{
 		descriptor_type: DescriptorType,
@@ -86,6 +89,15 @@ impl From<SmartCardInterfaceExtraDescriptor> for InterfaceExtraDescriptor
 	fn from(value: SmartCardInterfaceExtraDescriptor) -> Self
 	{
 		InterfaceExtraDescriptor::SmartCard(value)
+	}
+}
+
+impl From<VideoControlInterfaceExtraDescriptor> for InterfaceExtraDescriptor
+{
+	#[inline(always)]
+	fn from(value: VideoControlInterfaceExtraDescriptor) -> Self
+	{
+		InterfaceExtraDescriptor::VideoControl(value)
 	}
 }
 

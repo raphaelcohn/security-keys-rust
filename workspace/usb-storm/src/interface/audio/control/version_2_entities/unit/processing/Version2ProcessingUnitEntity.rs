@@ -28,7 +28,7 @@ impl Entity for Version2ProcessingUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -38,19 +38,29 @@ impl Entity for Version2ProcessingUnitEntity
 	}
 }
 
+impl DescribedEntity for Version2ProcessingUnitEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version2Entity for Version2ProcessingUnitEntity
+{
+}
+
 impl UnitEntity for Version2ProcessingUnitEntity
+{
+}
+
+impl ProcessingUnitEntity for Version2ProcessingUnitEntity
 {
 }
 
 impl Version2ProcessingUnitEntity
 {
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
-	}
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn enable_control(&self) -> Control

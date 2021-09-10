@@ -13,7 +13,7 @@ pub struct Version1SelectorUnitEntity
 	description: Option<LocalizedStrings>,
 }
 
-impl 	Entity for Version1SelectorUnitEntity
+impl Entity for Version1SelectorUnitEntity
 {
 	type EntityIdentifier = UnitEntityIdentifier;
 	
@@ -22,7 +22,7 @@ impl 	Entity for Version1SelectorUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -52,7 +52,24 @@ impl 	Entity for Version1SelectorUnitEntity
 	}
 }
 
+impl DescribedEntity for Version1SelectorUnitEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version1Entity for Version1SelectorUnitEntity
+{
+}
+
 impl UnitEntity for Version1SelectorUnitEntity
+{
+}
+
+impl SelectorUnitEntity for Version1SelectorUnitEntity
 {
 }
 
@@ -63,12 +80,5 @@ impl Version1SelectorUnitEntity
 	pub fn input_logical_audio_channel_clusters(&self) -> &InputLogicalAudioChannelClusters
 	{
 		&self.input_logical_audio_channel_clusters
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 }

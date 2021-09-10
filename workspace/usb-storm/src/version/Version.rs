@@ -55,6 +55,12 @@ impl Version
 	}
 	
 	#[inline(always)]
+	pub(crate) const fn is_2_0_or_greater(&self) -> bool
+	{
+		self.major >= 2
+	}
+	
+	#[inline(always)]
 	pub(crate) const fn is_3_0_or_greater(&self) -> bool
 	{
 		self.major >= 3
@@ -70,6 +76,18 @@ impl Version
 	pub(crate) const fn is_3(&self) -> bool
 	{
 		self.major == 3
+	}
+	
+	#[inline(always)]
+	pub(crate) const fn is_1_1_or_greater(&self) -> bool
+	{
+		self.major == 1 && self.minor >= 1
+	}
+	
+	#[inline(always)]
+	pub(crate) const fn is_1_5_or_greater(&self) -> bool
+	{
+		self.major == 1 && self.minor >= 5
 	}
 	
 	#[inline(always)]

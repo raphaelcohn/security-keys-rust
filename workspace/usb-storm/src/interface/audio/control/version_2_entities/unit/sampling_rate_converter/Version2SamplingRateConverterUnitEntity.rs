@@ -18,6 +18,15 @@ pub struct Version2SamplingRateConverterUnitEntity
 	source_output_clock_entity: Option<ClockEntityIdentifier>,
 }
 
+impl DescribedEntity for Version2SamplingRateConverterUnitEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
 impl Entity for Version2SamplingRateConverterUnitEntity
 {
 	type EntityIdentifier = UnitEntityIdentifier;
@@ -27,7 +36,7 @@ impl Entity for Version2SamplingRateConverterUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -54,19 +63,20 @@ impl Entity for Version2SamplingRateConverterUnitEntity
 	}
 }
 
+impl Version2Entity for Version2SamplingRateConverterUnitEntity
+{
+}
+
 impl UnitEntity for Version2SamplingRateConverterUnitEntity
+{
+}
+
+impl SamplingRateConverterUnitEntity for Version2SamplingRateConverterUnitEntity
 {
 }
 
 impl Version2SamplingRateConverterUnitEntity
 {
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
-	}
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn source_cluster_identifier(&self) -> Option<UnitOrTerminalEntityIdentifier>

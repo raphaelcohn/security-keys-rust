@@ -97,7 +97,7 @@ impl Version1AudioStreamingInterfaceExtraDescriptor
 		
 		{
 			let bDescriptorType = audio_format_descriptor_followed_by_remaining_bytes.u8(1);
-			if unlikely!(bDescriptorType != AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE)
+			if unlikely!(bDescriptorType != CS_INTERFACE)
 			{
 				return Err(DescriptorTypeIsNotInterface { bDescriptorType })
 			}

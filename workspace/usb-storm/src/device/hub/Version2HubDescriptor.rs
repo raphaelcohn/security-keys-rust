@@ -20,7 +20,7 @@ pub struct Version2HubDescriptor
 	
 	time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port: u16,
 	
-	maximum_current_requirement_in_milliamps: u8,
+	maximum_current_requirement_in_milliamps: u16,
 	
 	downstream_ports: DownstreamPorts<Version2DownstreamPortSetting>,
 }
@@ -53,6 +53,13 @@ impl HubDescriptorTrait for Version2HubDescriptor
 		self.time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port
 	}
 	
+	/// Inclusive maximum value is 255 milliamps, in 1 milliamp steps.
+	#[inline(always)]
+	fn maximum_current_requirement_in_milliamps(&self) -> u16
+	{
+		self.maximum_current_requirement_in_milliamps
+	}
+	
 	#[inline(always)]
 	fn downstream_ports(&self) -> &DownstreamPorts<Self::DPS>
 	{
@@ -74,13 +81,6 @@ impl Version2HubDescriptor
 	pub const fn port_indicators_supported(&self) -> bool
 	{
 		self.port_indicators_supported
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn maximum_current_requirement_in_milliamps(&self) -> u8
-	{
-		self.maximum_current_requirement_in_milliamps
 	}
 	
 	const MinimumBLength: usize = 7;
@@ -126,7 +126,7 @@ impl Version2HubDescriptor
 						
 						time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port: (descriptor_body.u8(descriptor_index::<5>()) as u16) * 2,
 						
-						maximum_current_requirement_in_milliamps: descriptor_body.u8(descriptor_index::<6>()),
+						maximum_current_requirement_in_milliamps: descriptor_body.u8(descriptor_index::<6>()) as u16,
 						
 						downstream_ports: Self::downstream_ports_parse(descriptor_body)?,
 					}

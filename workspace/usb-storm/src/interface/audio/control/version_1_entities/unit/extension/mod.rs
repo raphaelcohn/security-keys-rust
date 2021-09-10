@@ -7,7 +7,7 @@ use crate::collections::VecExt;
 use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
 use crate::device::DeviceConnection;
-use crate::interface::audio::control::entities::Entity;
+use crate::interface::audio::control::entities::{Entity, DescribedEntity, Version1Entity, ExtensionUnitEntity};
 use crate::interface::audio::control::entities::UnitEntity;
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
 use crate::interface::audio::control::entity_identifiers::UnitEntityIdentifier;
@@ -30,7 +30,6 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::transmute;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 
 

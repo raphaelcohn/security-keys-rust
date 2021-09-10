@@ -25,10 +25,15 @@
 
 #![feature(allocator_api)]
 #![feature(associated_type_bounds)]
+#![feature(const_fn_trait_bound)]
 #![feature(const_fn_union)]
+#![feature(const_panic)]
+#![feature(const_ptr_offset)]
 #![feature(const_ptr_is_null)]
+#![feature(const_raw_ptr_deref)]
 #![feature(container_error_extra)]
 #![feature(core_intrinsics)]
+#![feature(get_mut_unchecked)]
 #![feature(macro_attributes_in_derive_output)]
 #![feature(maybe_uninit_slice)]
 #![feature(maybe_uninit_uninit_array)]
@@ -38,12 +43,13 @@
 #![feature(slice_ptr_len)]
 #![feature(trusted_len)]
 #![feature(try_reserve)]
-#![feature(get_mut_unchecked)]
 
 
 //! usb-storm is a library for enumerating USB devices and parsing USB descriptors.
 
 
+// These are required for the binary build (main.rs) but not the library build (lib.rs), but Cargo provides no way to exclude from the library build's dependencies.
+// Hence the use of an 'ignore' syntax to suppress the `unused_crate_dependencies` lint above.
 use clap as _;
 use ron as _;
 use serde_json as _;
@@ -105,6 +111,10 @@ pub mod simple_serializer;
 
 /// USB strings.
 pub mod string;
+
+
+/// Universally-unique identifiers (UUID) and Globally-unique identifiers (GUID) support.
+pub mod universally_unique_identifiers_support;
 
 
 /// USB binary coded decimal version.

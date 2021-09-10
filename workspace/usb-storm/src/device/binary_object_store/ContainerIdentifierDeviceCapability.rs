@@ -7,13 +7,13 @@
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[repr(transparent)]
-pub struct ContainerIdentifierDeviceCapability(Uuid);
+pub struct ContainerIdentifierDeviceCapability(UniversallyUniqueIdentifier);
 
 impl ContainerIdentifierDeviceCapability
 {
 	/// Support for this is mandatory for hubs.
 	#[inline(always)]
-	pub const fn unique_identifier(&self) -> Uuid
+	pub const fn universally_unique_identifier(&self) -> UniversallyUniqueIdentifier
 	{
 		self.0
 	}
@@ -35,7 +35,7 @@ impl ContainerIdentifierDeviceCapability
 			return Err(HasReservedByteSet)
 		}
 		
-		let uuid = device_capability_bytes.uuid(1);
+		let uuid = device_capability_bytes.universally_unique_identifier(1);
 		Ok(Self(uuid))
 	}
 }

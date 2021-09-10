@@ -4,6 +4,7 @@
 
 use crate::collections::Bytes;
 use crate::collections::VecExt;
+use crate::interface::audio::CS_INTERFACE;
 use crate::descriptors::DescriptorHeaderLength;
 use crate::descriptors::DescriptorSubType;
 use crate::descriptors::DescriptorType;
@@ -11,7 +12,6 @@ use crate::descriptors::descriptor_index;
 use crate::descriptors::descriptor_index_non_constant;
 use crate::descriptors::verify_remaining_bytes;
 use crate::integers::u24;
-use crate::interface::audio::control::AudioControlInterfaceExtraDescriptorParser;
 use crate::interface::audio::control::entity_identifiers::TerminalEntityIdentifier;
 use crate::interface::audio::streaming::Ac3Common;
 use crate::interface::audio::streaming::GenericAudioStreamingInterfaceExtraDescriptorParseError;

@@ -9,6 +9,9 @@
 pub enum GetLocalizedStringError
 {
 	#[allow(missing_docs)]
+	GetLocalizedStringUtf16LittleEndian(GetLocalizedUtf16LittleEndianStringError),
+	
+	#[allow(missing_docs)]
 	StringIndexNonZeroButDeviceDoesNotSupportLanguages
 	{
 		string_descriptor_index: NonZeroU8,
@@ -23,24 +26,6 @@ pub enum GetLocalizedStringError
 		string_descriptor_index: NonZeroU8,
 		
 		#[allow(missing_docs)]
-		language: Language,
-	},
-	
-	#[allow(missing_docs)]
-	GetStandardUsbDescriptor
-	{
-		cause: GetStandardUsbDescriptorError,
-		
-		string_descriptor_index: NonZeroU8,
-	
-		language: Language,
-	},
-	
-	#[allow(missing_docs)]
-	NotACorrectUtf16LittleEndianSize
-	{
-		string_descriptor_index: NonZeroU8,
-		
 		language: Language,
 	},
 	
@@ -83,7 +68,7 @@ impl error::Error for GetLocalizedStringError
 		
 		match self
 		{
-			GetStandardUsbDescriptor { cause, .. } => Some(cause),
+			GetLocalizedStringUtf16LittleEndian(cause) => Some(cause),
 			
 			CouldNotAllocateString { cause, .. } => Some(cause),
 			

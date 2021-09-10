@@ -38,7 +38,7 @@ impl EntityDescriptors for Version2EntityDescriptors
 	type Error = Version2EntityDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_entity_body(&mut self, bLength: u8, bDescriptorSubtype: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
+	fn parse_entity_body(&mut self, bLength: u8, bDescriptorSubType: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
 	{
 		// These constants differ in value between versions 1, 2 and 3 of the Audio specifications!
 		const INPUT_TERMINAL: u8 = 0x02;
@@ -54,7 +54,7 @@ impl EntityDescriptors for Version2EntityDescriptors
 		const CLOCK_MULTIPLIER: u8 = 0x0C;
 		const SAMPLE_RATE_CONVERTER: u8 = 0x0D;
 		
-		let dead_or_alive = match bDescriptorSubtype
+		let dead_or_alive = match bDescriptorSubType
 		{
 			INPUT_TERMINAL => parse_entity_descriptor::<_, 17>(bLength, entity_identifier, entity_body, device_connection, &mut self.input_terminal)?,
 			
@@ -137,4 +137,81 @@ impl Version2EntityDescriptors
 	const ProcessingUnitMinimumBLength: u8 = 17;
 	
 	const ExtensionUnitMinimumBLength: u8 = 16;
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn input_terminal(&self) -> &Entities<Version2InputTerminalEntity>
+	{
+		&self.input_terminal
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn output_terminal(&self) -> &Entities<Version2OutputTerminalEntity>
+	{
+		&self.output_terminal
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn mixer_unit(&self) -> &Entities<Version2MixerUnitEntity>
+	{
+		&self.mixer_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn selector_unit(&self) -> &Entities<Version2SelectorUnitEntity>
+	{
+		&self.selector_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn feature_unit(&self) -> &Entities<Version2FeatureUnitEntity>
+	{
+		&self.feature_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn processing_unit(&self) -> &Entities<Version2ProcessingUnitEntity>
+	{
+		&self.processing_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn extension_unit(&self) -> &Entities<Version2ExtensionUnitEntity>
+	{
+		&self.extension_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn sampling_rate_converter_unit(&self) -> &Entities<Version2SamplingRateConverterUnitEntity>
+	{
+		&self.sampling_rate_converter_unit
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn source_clock(&self) -> &Entities<Version2SourceClockEntity>
+	{
+		&self.source_clock
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn selector_clock(&self) -> &Entities<Version2SelectorClockEntity>
+	{
+		&self.selector_clock
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn multiplier_clock(&self) -> &Entities<Version2MultiplierClockEntity>
+	{
+		&self.multiplier_clock
+	}
 }

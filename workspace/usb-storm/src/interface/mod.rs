@@ -77,6 +77,8 @@ use super::string::GetLocalizedStringError;
 use super::string::LocalizedStrings;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u8;
+use crate::class_and_protocol::{VideoSubClass, VideoProtocol};
+use crate::interface::video::control::{VideoControlInterfaceExtraDescriptorParser, VideoControlInterfaceExtraDescriptorParseError, VideoControlInterfaceExtraDescriptor};
 
 
 /// Audio.
@@ -101,6 +103,10 @@ pub mod smart_card;
 
 /// Unsupported.
 pub(crate) mod unsupported;
+
+
+/// Video.
+pub mod video;
 
 
 include!("AlternateSetting.rs");

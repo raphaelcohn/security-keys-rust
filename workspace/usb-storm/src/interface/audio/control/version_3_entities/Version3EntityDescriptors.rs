@@ -40,7 +40,7 @@ impl EntityDescriptors for Version3EntityDescriptors
 	type Error = Version3EntityDescriptorParseError;
 	
 	#[inline(always)]
-	fn parse_entity_body(&mut self, bLength: u8, bDescriptorSubtype: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
+	fn parse_entity_body(&mut self, bLength: u8, bDescriptorSubType: u8, entity_identifier: Option<NonZeroU8>, entity_body: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<bool>, EntityDescriptorParseError<Self::Error>>
 	{
 		use EntityDescriptorParseError::Version;
 		use Version3EntityDescriptorParseError::*;
@@ -62,7 +62,7 @@ impl EntityDescriptors for Version3EntityDescriptors
 		const CONNECTORS: u8 = 0x0F;
 		const POWER_DOMAIN: u8 = 0x10;
 		
-		let dead_or_alive = match bDescriptorSubtype
+		let dead_or_alive = match bDescriptorSubType
 		{
 			INPUT_TERMINAL => parse_entity_descriptor::<_, 20>(bLength, entity_identifier, entity_body, device_connection, &mut self.input_terminal)?,
 			

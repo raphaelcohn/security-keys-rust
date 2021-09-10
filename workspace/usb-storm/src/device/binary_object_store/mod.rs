@@ -11,11 +11,6 @@ use crate::descriptors::DescriptorHeaderLength;
 use crate::configuration::MaximumNumberOfConfigurations;
 use crate::control_transfers::descriptors::get_binary_object_store_device_descriptor;
 use crate::control_transfers::descriptors::GetStandardUsbDescriptorError;
-use crate::integers::u1;
-use crate::integers::u2;
-use crate::integers::u4;
-use crate::integers::u11;
-use enumflags2::bitflags;
 use likely::unlikely;
 use serde::Deserialize;
 use serde::Serialize;
@@ -25,40 +20,43 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use std::mem::size_of;
-use std::mem::transmute;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use uuid::Uuid;
 use crate::version::Version;
 use crate::version::VersionParseError;
 use std::ops::Deref;
-use crate::collections::WrappedIndexMap;
 use crate::collections::WrappedIndexSet;
 use crate::collections::WithCapacity;
-use crate::collections::WrappedHashMap;
-use crate::collections::WrappedBitFlags;
 use crate::class_and_protocol::FunctionClass;
 use crate::class_and_protocol::FunctionClassParseError;
-use crate::string::WebUrl;
-use crate::string::GetLocalizedStringError;
-use crate::string::LocalizedStrings;
 use crate::device::DeviceConnection;
 use crate::device::ReusableBuffer;
 use crate::serde::TryReserveErrorRemote;
-use crate::string::GetWebUrlError;
+use crate::universally_unique_identifiers_support::UniversallyUniqueIdentifier;
+use crate::device::binary_object_store::super_speed_device_capability::SuperSpeedPlusDeviceCapability;
+use crate::device::binary_object_store::super_speed_device_capability::SuperSpeedDeviceCapability;
+use crate::device::binary_object_store::super_speed_device_capability::SuperSpeedDeviceCapabilityParseError;
+use crate::device::binary_object_store::super_speed_device_capability::SuperSpeedPlusDeviceCapabilityParseError;
+use crate::device::binary_object_store::platform_device_capability::PlatformDeviceCapability;
+use crate::device::binary_object_store::platform_device_capability::PlatformDeviceCapabilityParseError;
+use crate::device::binary_object_store::billboard::BillboardDeviceCapability;
+use crate::device::binary_object_store::billboard::BillboardAlternateModeDeviceCapability;
+use crate::device::binary_object_store::billboard::BillboardDeviceCapabilityParseError;
+use crate::device::binary_object_store::billboard::BillboardAlternateModeDeviceCapabilityParseError;
 
 
-include!("BillboardAlternateMode.rs");
-include!("BillboardAlternateModeConfigurationResult.rs");
-include!("BillboardAlternateModeDeviceCapability.rs");
-include!("BillboardAlternateModeDeviceCapabilityParseError.rs");
-include!("BillboardDeviceCapability.rs");
-include!("BillboardDeviceCapabilityParseError.rs");
-include!("BillboardDeviceContainerFailedBecause.rs");
-include!("BillboardVconnPowerInWatts.rs");
-include!("BinaryObjectStore.rs");
-include!("BinaryObjectStoreParseError.rs");
-include!("BitRate.rs");
+/// Billboard.
+pub mod billboard;
+
+
+/// Platform device capability
+pub mod platform_device_capability;
+
+
+/// Super speed device capability.
+pub mod super_speed_device_capability;
+
+
+include!("BinaryObjectStore.rs");include!("BinaryObjectStoreParseError.rs");
 include!("capability_descriptor_index.rs");
 include!("ConfigurationSummaryDeviceCapability.rs");
 include!("ConfigurationSummaryDeviceCapabilityParseError.rs");
@@ -67,22 +65,6 @@ include!("ContainerIdentifierDeviceCapabilityParseError.rs");
 include!("DeviceCapability.rs");
 include!("DeviceCapabilityParseError.rs");
 include!("minimum_size.rs");
-include!("PlatformDeviceCapability.rs");
-include!("PlatformDeviceCapabilityParseError.rs");
-include!("ReceiveOrTransmit.rs");
-include!("SublinkProtocol.rs");
-include!("SublinkSpeedAttribute.rs");
-include!("SublinkSpeedAttributeIdentifier.rs");
-include!("SublinkSpeedLinks.rs");
-include!("SublinkType.rs");
-include!("SublinkTypeSymmetry.rs");
 include!("ReservedDeviceCapability.rs");
-include!("SuperSpeedDeviceCapability.rs");
-include!("SuperSpeedDeviceCapabilityParseError.rs");
-include!("SuperSpeedDeviceCapabilitySupportedSpeed.rs");
-include!("SuperSpeedPlusDeviceCapability.rs");
-include!("SuperSpeedPlusDeviceCapabilityParseError.rs");
 include!("Usb2ExtensionDeviceCapability.rs");
 include!("Usb2ExtensionDeviceCapabilityParseError.rs");
-include!("WebUsbPlatformDeviceCapability.rs");
-include!("WebUsbPlatformDeviceCapabilityParseError.rs");

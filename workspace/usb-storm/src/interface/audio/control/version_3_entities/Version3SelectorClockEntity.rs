@@ -18,7 +18,7 @@ impl Entity for Version3SelectorClockEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -28,6 +28,14 @@ impl Entity for Version3SelectorClockEntity
 	}
 }
 
+impl Version3Entity for Version3SelectorClockEntity
+{
+}
+
 impl ClockEntity for Version3SelectorClockEntity
+{
+}
+
+impl SelectorClockEntity for Version3SelectorClockEntity
 {
 }

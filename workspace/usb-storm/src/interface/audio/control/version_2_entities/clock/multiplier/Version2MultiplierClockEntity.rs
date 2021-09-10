@@ -27,7 +27,7 @@ impl Entity for Version2MultiplierClockEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -56,19 +56,29 @@ impl Entity for Version2MultiplierClockEntity
 	}
 }
 
+impl DescribedEntity for Version2MultiplierClockEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version2Entity for Version2MultiplierClockEntity
+{
+}
+
 impl ClockEntity for Version2MultiplierClockEntity
+{
+}
+
+impl MultiplierClockEntity for Version2MultiplierClockEntity
 {
 }
 
 impl Version2MultiplierClockEntity
 {
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
-	}
-	
 	/// Clock Entity to which the last Clock Input Pin of this Clock Selector Entity is connected.
 	#[inline(always)]
 	pub const fn source(&self) -> Option<ClockEntityIdentifier>

@@ -18,7 +18,7 @@ impl Entity for Version3EffectUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -26,6 +26,10 @@ impl Entity for Version3EffectUnitEntity
 	{
 		Ok(Alive(Self))
 	}
+}
+
+impl Version3Entity for Version3EffectUnitEntity
+{
 }
 
 impl UnitEntity for Version3EffectUnitEntity

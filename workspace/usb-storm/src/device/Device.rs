@@ -32,9 +32,11 @@ pub struct Device
 	
 	languages: Option<Vec<Language>>,
 	
-	active_configuration_number: Option<ConfigurationNumber>,
+	microsoft_operating_system_descriptor_support: Option<MicrosoftOperatingSystemDescriptorSupport>,
 	
 	binary_object_store: Option<BinaryObjectStore>,
+	
+	active_configuration_number: Option<ConfigurationNumber>,
 	
 	configurations: WrappedIndexMap<ConfigurationNumber, Configuration>,
 }
@@ -111,6 +113,13 @@ impl Device
 		self.hub_descriptor.as_ref()
 	}
 	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn microsoft_operating_system_descriptor_support(&self) -> Option<MicrosoftOperatingSystemDescriptorSupport>
+	{
+		self.microsoft_operating_system_descriptor_support
+	}
+	
 	/// Can contain a maximum of 126 languages (this is an internal limit in USB's design).
 	#[inline(always)]
 	pub fn languages(&self) -> Option<&[Language]>
@@ -175,12 +184,6 @@ impl Device
 			return_ok_if_dead!(dead_or_alive)
 		};
 		
-		let binary_object_store =
-		{
-			let dead_or_alive = BinaryObjectStore::parse(&device_connection, reusable_buffer)?;
-			return_ok_if_dead!(dead_or_alive)
-		};
-		
 		let speed = get_device_speed(libusb_device);
 		
 		let maximum_supported_usb_version = Version::parse(device_descriptor.bcdUSB).map_err(MaximumSupportedUsbVersion)?;
@@ -192,6 +195,13 @@ impl Device
 		};
 		
 		let device_class = DeviceClass::parse(&device_descriptor);
+		
+		let (binary_object_store, has_microsoft_operating_system_descriptors_version_2_0) =
+		{
+			let mut has_microsoft_operating_system_descriptors_version_2_0 = false;
+			let dead_or_alive = BinaryObjectStore::parse(&device_connection, &mut has_microsoft_operating_system_descriptors_version_2_0, reusable_buffer)?;
+			(return_ok_if_dead!(dead_or_alive), has_microsoft_operating_system_descriptors_version_2_0)
+		};
 		
 		Ok
 		(
@@ -236,6 +246,25 @@ impl Device
 					},
 					
 					active_configuration_number: return_ok_if_dead!(Self::get_active_configuration_number(libusb_device, &configurations)?),
+					
+					microsoft_operating_system_descriptor_support:
+					{
+						use MicrosoftOperatingSystemDescriptorSupport::*;
+						
+						if unlikely!(has_microsoft_operating_system_descriptors_version_2_0)
+						{
+							Some(Version_2_0)
+						}
+						else if likely!(maximum_supported_usb_version.is_2_0_or_greater())
+						{
+							let dead_or_alive = device_connection.find_microsoft_operating_system_descriptor_string_version_1_0_vendor_code().map_err(MicrosoftOperatingSystemDescriptorStringVersion_1_0_VendorCode)?;
+							return_ok_if_dead!(dead_or_alive).map(|vendor_code| Version_1_0 { vendor_code })
+						}
+						else
+						{
+							None
+						}
+					},
 					
 					binary_object_store,
 					

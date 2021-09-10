@@ -25,7 +25,7 @@ impl Entity for Version2FeatureUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -50,7 +50,24 @@ impl Entity for Version2FeatureUnitEntity
 	}
 }
 
+impl DescribedEntity for Version2FeatureUnitEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version2Entity for Version2FeatureUnitEntity
+{
+}
+
 impl UnitEntity for Version2FeatureUnitEntity
+{
+}
+
+impl FeatureUnitEntity for Version2FeatureUnitEntity
 {
 }
 
@@ -68,13 +85,6 @@ impl Version2FeatureUnitEntity
 	pub const fn controls_by_channel_number(&self) -> &ChannelControlsByChannelNumber<Version2AudioChannelFeatureControls>
 	{
 		&self.controls_by_channel_number
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 	
 }

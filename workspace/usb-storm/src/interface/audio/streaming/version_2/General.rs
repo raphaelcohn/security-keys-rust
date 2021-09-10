@@ -110,7 +110,7 @@ impl General
 		
 		{
 			let descriptor_type = descriptor_body.u8(descriptor_index::<1>());
-			if unlikely!(descriptor_type != AudioControlInterfaceExtraDescriptorParser::CS_INTERFACE)
+			if unlikely!(descriptor_type != CS_INTERFACE)
 			{
 				return Err(UnrecognizedInterfaceDescriptorType { descriptor_type })
 			}

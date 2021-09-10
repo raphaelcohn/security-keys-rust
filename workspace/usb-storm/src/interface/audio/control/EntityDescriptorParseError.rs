@@ -12,10 +12,13 @@ pub enum EntityDescriptorParseError<E: error::Error>
 	LessThanFourByteHeader,
 	
 	#[allow(missing_docs)]
-	ExpectedInterfaceDescriptorType,
+	BLengthExceedsRemainingBytes,
 	
 	#[allow(missing_docs)]
-	BLengthExceedsRemainingBytes,
+	ExpectedInterfaceDescriptorType
+	{
+		bDescriptorType: u8,
+	},
 	
 	#[allow(missing_docs)]
 	OutOfMemoryCheckingUniqueIdentifiedEntityDescriptor(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
@@ -27,16 +30,19 @@ pub enum EntityDescriptorParseError<E: error::Error>
 	},
 	
 	#[allow(missing_docs)]
-	BLengthIsLessThanMinimum,
-	
-	#[allow(missing_docs)]
 	UndefinedInterfaceDescriptorType,
 	
 	#[allow(missing_docs)]
 	HeaderInterfaceDescriptorTypeAfterHeader,
 	
 	#[allow(missing_docs)]
-	UnrecognizedEntityDescriptorType,
+	UnrecognizedEntityDescriptorType
+	{
+		bDescriptorSubType: DescriptorSubType
+	},
+	
+	#[allow(missing_docs)]
+	BLengthIsLessThanMinimum,
 	
 	#[allow(missing_docs)]
 	OutOfMemoryPushingAnonymousEntityDescriptor(#[serde(with = "TryReserveErrorRemote")] TryReserveError),

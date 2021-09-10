@@ -25,6 +25,9 @@ pub enum InterfaceExtraDescriptorParseError
 	
 	/// Smart Card (CCID).
 	SmartCard(SmartCardInterfaceExtraDescriptorParseError),
+	
+	/// Video Control (VC).
+	VideoControl(VideoControlInterfaceExtraDescriptorParseError),
 }
 
 impl Display for InterfaceExtraDescriptorParseError
@@ -54,6 +57,8 @@ impl error::Error for InterfaceExtraDescriptorParseError
 			HumanInterfaceDevice(cause) => Some(cause),
 			
 			InternetPrintingProtocol(cause) => Some(cause),
+			
+			VideoControl(cause) => Some(cause),
 			
 			SmartCard(cause) => Some(cause),
 		}
@@ -111,6 +116,15 @@ impl From<SmartCardInterfaceExtraDescriptorParseError> for InterfaceExtraDescrip
 	fn from(cause: SmartCardInterfaceExtraDescriptorParseError) -> Self
 	{
 		InterfaceExtraDescriptorParseError::SmartCard(cause)
+	}
+}
+
+impl From<VideoControlInterfaceExtraDescriptorParseError> for InterfaceExtraDescriptorParseError
+{
+	#[inline(always)]
+	fn from(cause: VideoControlInterfaceExtraDescriptorParseError) -> Self
+	{
+		InterfaceExtraDescriptorParseError::VideoControl(cause)
 	}
 }
 

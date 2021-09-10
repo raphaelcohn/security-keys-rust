@@ -18,7 +18,7 @@ impl Entity for Version3MixerUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -26,6 +26,14 @@ impl Entity for Version3MixerUnitEntity
 	{
 		Ok(Alive(Self))
 	}
+}
+
+impl Version3Entity for Version3MixerUnitEntity
+{
+}
+
+impl MixerUnitEntity for Version3MixerUnitEntity
+{
 }
 
 impl UnitEntity for Version3MixerUnitEntity

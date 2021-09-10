@@ -26,7 +26,7 @@ impl Entity for Version1MixerUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -36,7 +36,24 @@ impl Entity for Version1MixerUnitEntity
 	}
 }
 
+impl DescribedEntity for Version1MixerUnitEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version1Entity for Version1MixerUnitEntity
+{
+}
+
 impl UnitEntity for Version1MixerUnitEntity
+{
+}
+
+impl MixerUnitEntity for Version1MixerUnitEntity
 {
 }
 
@@ -72,13 +89,6 @@ impl Version1MixerUnitEntity
 	pub fn is_a_programmable_mixing_control(&self, _input_channel_number_u: LogicalAudioChannelNumber, _output_channel_number_v: LogicalAudioChannelNumber) -> bool
 	{
 		unimplemented!();
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 	
 	#[inline(always)]

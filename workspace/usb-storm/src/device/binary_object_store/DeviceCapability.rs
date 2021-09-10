@@ -65,7 +65,7 @@ impl DeviceCapability
 	const DeviceCapabilityHeaderSize: usize = DescriptorHeaderLength + 1;
 	
 	#[inline(always)]
-	fn parse(device_capabilities_bytes: &[u8], device_connection: &DeviceConnection) -> Result<DeadOrAlive<(usize, DeviceCapability)>, DeviceCapabilityParseError>
+	fn parse(device_capabilities_bytes: &[u8], device_connection: &DeviceConnection, has_microsoft_operating_system_descriptors_version_2_0: &mut bool) -> Result<DeadOrAlive<(usize, DeviceCapability)>, DeviceCapabilityParseError>
 	{
 		use DeviceCapability::*;
 		use DeviceCapabilityParseError::*;
@@ -107,7 +107,11 @@ impl DeviceCapability
 			
 			0x04 => ContainerIdentifier(ContainerIdentifierDeviceCapability::parse(device_capability_bytes)?),
 			
-			0x05 => Platform(return_ok_if_dead!(PlatformDeviceCapability::parse(device_capability_bytes, device_connection)?)),
+			0x05 =>
+			{
+				let dead_or_alive = PlatformDeviceCapability::parse(device_capability_bytes, device_connection, has_microsoft_operating_system_descriptors_version_2_0)?;
+				Platform(return_ok_if_dead!(dead_or_alive))
+			},
 			
 			0x06 => PowerDelivery(Self::parse_blob(device_capability_bytes, ParsePowerDeliveryDeviceCapability)?),
 			
@@ -123,7 +127,11 @@ impl DeviceCapability
 			
 			0x0C => WirelessUsbExtended(Self::parse_blob(device_capability_bytes, ParseWirelessUsbExtendedDeviceCapability)?),
 			
-			0x0D => Billboard(return_ok_if_dead!(BillboardDeviceCapability::parse(device_capability_bytes, device_connection)?)),
+			0x0D =>
+			{
+				let dead_or_alive = BillboardDeviceCapability::parse(device_capability_bytes, device_connection)?;
+				Billboard(return_ok_if_dead!(dead_or_alive))
+			},
 			
 			0x0E => Authentication(Self::parse_blob(device_capability_bytes, ParseAuthenticationDeviceCapability)?),
 			

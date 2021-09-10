@@ -25,7 +25,7 @@ impl Entity for Version2SelectorUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -59,7 +59,24 @@ impl Entity for Version2SelectorUnitEntity
 	}
 }
 
+impl DescribedEntity for Version2SelectorUnitEntity
+{
+	#[inline(always)]
+	fn description(&self) -> Option<&LocalizedStrings>
+	{
+		self.description.as_ref()
+	}
+}
+
+impl Version2Entity for Version2SelectorUnitEntity
+{
+}
+
 impl UnitEntity for Version2SelectorUnitEntity
+{
+}
+
+impl SelectorUnitEntity for Version2SelectorUnitEntity
 {
 }
 
@@ -77,12 +94,5 @@ impl Version2SelectorUnitEntity
 	pub const fn selector_control(&self) -> Control
 	{
 		self.selector_control
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn description(&self) -> Option<&LocalizedStrings>
-	{
-		self.description.as_ref()
 	}
 }

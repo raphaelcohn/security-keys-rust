@@ -18,7 +18,7 @@ impl Entity for Version3SelectorUnitEntity
 	#[inline(always)]
 	fn cast_entity_identifier(value: EntityIdentifier) -> Self::EntityIdentifier
 	{
-		unsafe { transmute(value) }
+		value
 	}
 	
 	#[inline(always)]
@@ -28,6 +28,14 @@ impl Entity for Version3SelectorUnitEntity
 	}
 }
 
+impl Version3Entity for Version3SelectorUnitEntity
+{
+}
+
 impl UnitEntity for Version3SelectorUnitEntity
+{
+}
+
+impl SelectorUnitEntity for Version3SelectorUnitEntity
 {
 }

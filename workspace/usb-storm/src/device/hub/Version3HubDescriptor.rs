@@ -16,7 +16,7 @@ pub struct Version3HubDescriptor
 	
 	time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port: u16,
 	
-	maximum_current_requirement_scalar: u8,
+	maximum_current_requirement_in_milliamps: u16,
 	
 	packet_header_decode_latency: PacketHeaderDecodeLatency,
 	
@@ -54,6 +54,13 @@ impl HubDescriptorTrait for Version3HubDescriptor
 		self.time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port
 	}
 	
+	/// Inclusive maximum value is 1020 milliamps, with values in 4 milliamp steps.
+	#[inline(always)]
+	fn maximum_current_requirement_in_milliamps(&self) -> u16
+	{
+		self.maximum_current_requirement_in_milliamps
+	}
+	
 	#[inline(always)]
 	fn downstream_ports(&self) -> &DownstreamPorts<Self::DPS>
 	{
@@ -63,13 +70,6 @@ impl HubDescriptorTrait for Version3HubDescriptor
 
 impl Version3HubDescriptor
 {
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn maximum_current_requirement_scalar(&self) -> u8
-	{
-		self.maximum_current_requirement_scalar
-	}
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn packet_header_decode_latency(&self) -> PacketHeaderDecodeLatency
@@ -124,7 +124,7 @@ impl Version3HubDescriptor
 						
 						time_in_milliseconds_from_power_on_a_port_until_power_is_good_on_that_port: (descriptor_body.u8(descriptor_index::<5>()) as u16) * 2,
 						
-						maximum_current_requirement_scalar: descriptor_body.u8(descriptor_index::<6>()),
+						maximum_current_requirement_in_milliamps: descriptor_body.u8(descriptor_index::<6>()) as u16,
 						
 						packet_header_decode_latency: PacketHeaderDecodeLatency::parse(descriptor_body.u8(descriptor_index::<7>())),
 					

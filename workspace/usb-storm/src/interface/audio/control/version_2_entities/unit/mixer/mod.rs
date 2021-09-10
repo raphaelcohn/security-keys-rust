@@ -8,7 +8,7 @@ use crate::device::DeadOrAlive::Alive;
 use crate::device::DeadOrAlive;
 use crate::interface::audio::Control;
 use crate::interface::audio::control::DescriptorEntityMinimumLength;
-use crate::interface::audio::control::entities::{UnitEntity, Entity};
+use crate::interface::audio::control::entities::{UnitEntity, Entity, DescribedEntity, Version2Entity, MixerUnitEntity};
 use crate::interface::audio::control::entity_identifiers::EntityIdentifier;
 use crate::interface::audio::control::entity_identifiers::UnitEntityIdentifier;
 use crate::interface::audio::control::entity_index_non_constant;
@@ -29,7 +29,6 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::transmute;
 
 
 include!("Version2MixerUnitEntity.rs");

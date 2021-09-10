@@ -90,7 +90,7 @@ impl DescriptorParser for InternetPrintingProtocolInterfaceExtraDescriptorParser
 								Dead => return Ok(Some(Dead))
 							},
 							
-							printer_uuid: match device_connection.find_string(descriptor_body.u8(descriptor_index::<9>())).map_err(InvalidPrinterUuidString)?
+							printer_uuid: match device_connection.find_string(descriptor_body.u8(descriptor_index::<9>())).map_err(InvalidPrinterUniversallyUniqueIdentifierString)?
 							{
 								Alive(value) => value,
 								

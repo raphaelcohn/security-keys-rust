@@ -23,11 +23,15 @@ impl Deref for BinaryObjectStore
 impl BinaryObjectStore
 {
 	#[inline(always)]
-	pub(super) fn parse(device_connection: &DeviceConnection, reusable_buffer: &mut ReusableBuffer) -> Result<DeadOrAlive<Option<Self>>, BinaryObjectStoreParseError>
+	pub(super) fn parse(device_connection: &DeviceConnection, has_microsoft_operating_system_descriptors_version_2_0: &mut bool, reusable_buffer: &mut ReusableBuffer) -> Result<DeadOrAlive<Option<Self>>, BinaryObjectStoreParseError>
 	{
 		use BinaryObjectStoreParseError::*;
 		
-		let (remaining_bytes, _bLength) = return_ok_if_dead_or_alive_none!(get_binary_object_store_device_descriptor(device_connection.device_handle_non_null(), reusable_buffer.as_maybe_uninit_slice())?);
+		let (remaining_bytes, _bLength) =
+		{
+			let dead_or_alive = get_binary_object_store_device_descriptor(device_connection.device_handle_non_null(), reusable_buffer.as_maybe_uninit_slice())?;
+			return_ok_if_dead_or_alive_none!(dead_or_alive)
+		};
 		
 		const MinimumRemainingSize: usize = 3;
 		let remaining_length = remaining_bytes.len();
@@ -44,7 +48,8 @@ impl BinaryObjectStore
 		let mut device_capabilities = Vec::new_with_capacity(bNumDeviceCaps).map_err(CouldNotAllocateMemoryForDeviceCapabilities)?;
 		while !device_capabilities_bytes.is_empty()
 		{
-			let (length, device_capability) = return_ok_if_dead!(DeviceCapability::parse(device_capabilities_bytes, device_connection).map_err(CouldNotParseDeviceCapability)?);
+			let dead_or_alive = DeviceCapability::parse(device_capabilities_bytes, device_connection, has_microsoft_operating_system_descriptors_version_2_0).map_err(CouldNotParseDeviceCapability)?;
+			let (length, device_capability) = return_ok_if_dead!(dead_or_alive);
 			device_capabilities.push_unchecked(device_capability);
 			device_capabilities_bytes = device_capabilities_bytes.get_unchecked_range_safe(length .. );
 		}
