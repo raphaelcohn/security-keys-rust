@@ -10,7 +10,7 @@ struct ParsingLocalItems
 {
 	usages: Vec<RangeInclusive<Usage>>,
 	
-	have_minimum_usage: Option<(u32, bool)>,
+	have_minimum_usage: Option<(u32, DataWidth)>,
 	
 	designators: Vec<RangeInclusive<DesignatorIndex>>,
 	
@@ -104,45 +104,52 @@ impl ParsingLocalItems
 	}
 	
 	#[inline(always)]
-	fn parse_usage(&mut self, data: u32, was_32_bits_wide: bool) -> Result<(), LocalItemParseError>
+	fn parse_usage(&mut self, data: u32, data_width: DataWidth) -> Result<(), LocalItemParseError>
 	{
-		let usage = Usage::parse(data, was_32_bits_wide);
+		let usage = Usage::parse(data, data_width);
 		self.usages.try_push(usage ..= usage).map_err(LocalItemParseError::CouldNotPushUsageItem)
 	}
 	
 	#[inline(always)]
-	fn parse_usage_minimum(&mut self, minimum_data: u32, minimum_was_32_bits_wide: bool) -> Result<(), LocalItemParseError>
+	fn parse_usage_minimum(&mut self, minimum_data: u32, minimum_data_width: DataWidth) -> Result<(), LocalItemParseError>
 	{
 		if unlikely!(self.have_minimum_usage.is_some())
 		{
 			return Err(LocalItemParseError::UsageMinimumCanNotBeFollowedByUsageMinimum)
 		}
-		self.have_minimum_usage = Some((minimum_data, minimum_was_32_bits_wide));
+		self.have_minimum_usage = Some((minimum_data, minimum_data_width));
 		Ok(())
 	}
 	
 	#[inline(always)]
-	fn parse_usage_maximum(&mut self, maximum_data: u32, maximum_was_32_bits_wide: bool) -> Result<(), LocalItemParseError>
+	fn parse_usage_maximum(&mut self, maximum_data: u32, maximum_data_width: DataWidth) -> Result<(), LocalItemParseError>
 	{
 		use LocalItemParseError::*;
 		match self.have_minimum_usage.take()
 		{
 			None => return Err(UsageMaximumMustBePreceededByUsageMinimum),
 			
-			Some((minimum_data, minimum_was_32_bits_wide)) =>
+			Some((minimum_data, minimum_data_width)) =>
 			{
 				if unlikely!(minimum_data > maximum_data)
 				{
 					return Err(UsageMinimumMustBeLessThanMaximum)
 				}
 				
-				if unlikely!(minimum_was_32_bits_wide != maximum_was_32_bits_wide)
+				use DataWidth::*;
+				match (minimum_data_width, maximum_data_width)
 				{
-					return Err(UsageMinimumAndMaximumMustBeTheSameWidth)
+					(ThirtyTwoBit, ThirtyTwoBit) => (),
+					
+					(ThirtyTwoBit, _) => return Err(UsageMinimumAndMaximumMustBeSimilar { minimum_data_width, maximum_data_width }),
+					
+					(_, ThirtyTwoBit) => return Err(UsageMinimumAndMaximumMustBeSimilar { minimum_data_width, maximum_data_width }),
+					
+					_ => (),
 				}
 				
-				let minimum = Usage::parse(minimum_data, minimum_was_32_bits_wide);
-				let maximum = Usage::parse(maximum_data, maximum_was_32_bits_wide);
+				let minimum = Usage::parse(minimum_data, minimum_data_width);
+				let maximum = Usage::parse(maximum_data, maximum_data_width);
 				self.usages.try_push(minimum ..= maximum).map_err(CouldNotPushUsageItem)?;
 			}
 		}
@@ -235,16 +242,9 @@ impl ParsingLocalItems
 	}
 	
 	#[inline(always)]
-	fn parse_reserved(&mut self, data: u32, was_32_bits_wide: bool, tag: ReservedLocalItemTag) -> Result<(), LocalItemParseError>
+	fn parse_reserved(&mut self, data: u32, data_width: DataWidth, tag: ReservedLocalItemTag) -> Result<(), LocalItemParseError>
 	{
-		let item = ReservedLocalItem
-		{
-			tag,
-			
-			data,
-			
-			was_32_bits_wide
-		};
+		let item = ReservedLocalItem::parse(data, data_width, tag);
 		self.reserveds.try_push(item).map_err(LocalItemParseError::CouldNotPushReservedItem)
 	}
 	

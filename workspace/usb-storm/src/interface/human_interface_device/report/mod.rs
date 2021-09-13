@@ -39,7 +39,7 @@ use std::ptr::read;
 use std::rc::Rc;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u32;
-use crate::interface::human_interface_device::report::main_item_common::InputMainItem;
+use crate::interface::human_interface_device::report::main_item_common::{InputMainItem, ReservedMainItemTag, ReservedMainItem};
 
 
 /// Main item common.
@@ -49,6 +49,7 @@ pub mod main_item_common;
 include!("CollectionCommon.rs");
 include!("CollectionDescription.rs");
 include!("CollectionMainItem.rs");
+include!("DataWidth.rs");
 include!("DesignatorIndex.rs");
 include!("GlobalItemParseError.rs");
 include!("GlobalItems.rs");
@@ -62,10 +63,9 @@ include!("ParsingLocalItems.rs");
 include!("Report.rs");
 include!("ReportParseError.rs");
 include!("ReportParser.rs");
+include!("ReservedGlobalItem.rs");
 include!("ReservedLocalItem.rs");
 include!("ReservedLocalItemTag.rs");
-include!("ReservedMainItem.rs");
-include!("ReservedMainItemTag.rs");
 include!("ShortItemType.rs");
 include!("Stack.rs");
 include!("Usage.rs");

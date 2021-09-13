@@ -10,6 +10,7 @@ use super::GlobalItems;
 use super::LocalItems;
 use std::mem::transmute;
 use std::ops::Deref;
+use crate::interface::human_interface_device::report::DataWidth;
 
 
 include!("AbsoluteOrRelative.rs");
@@ -24,3 +25,5 @@ include!("OutputOrFeatureOrInputVariableCommon.rs");
 include!("OutputOrFeatureMainItem.rs");
 include!("parse_boolean.rs");
 include!("parse_boolean_enum.rs");
+include!("ReservedMainItem.rs");
+include!("ReservedMainItemTag.rs");

@@ -2,58 +2,41 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A report reserved main item.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// A report reserved global item.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct ReservedMainItem
+pub struct ReservedGlobalItem
 {
-	globals: Rc<GlobalItems>,
-	
-	locals: LocalItems,
+	data: u32,
 
-	tag: ReservedMainItemTag,
-
-	value: u32,
-	
-	was_32_bits_wide: bool,
+	data_width: DataWidth,
 }
 
-impl MainItem for ReservedMainItem
-{
-	#[inline(always)]
-	fn globals(&self) -> &GlobalItems
-	{
-		&self.globals
-	}
-	
-	#[inline(always)]
-	fn locals(&self) -> &LocalItems
-	{
-		&self.locals
-	}
-}
-
-impl ReservedMainItem
+impl ReservedGlobalItem
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn tag(&self) -> ReservedMainItemTag
+	pub const fn data(&self) -> u32
 	{
-		self.tag
+		self.data
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn value(&self) -> u32
+	pub const fn data_width(&self) -> DataWidth
 	{
-		self.value
+		self.data_width
 	}
 	
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn was_32_bits_wide(&self) -> bool
+	fn parse(data: u32, data_width: DataWidth) -> Self
 	{
-		self.was_32_bits_wide
+		Self
+		{
+			data,
+		
+			data_width,
+		}
 	}
 }

@@ -24,7 +24,12 @@ pub enum LocalItemParseError
 	UsageMinimumNotFollowedByUsageMaximum,
 	
 	#[allow(missing_docs)]
-	UsageMinimumAndMaximumMustBeTheSameWidth,
+	UsageMinimumAndMaximumMustBeSimilar
+	{
+		minimum_data_width: DataWidth,
+		
+		maximum_data_width: DataWidth,
+	},
 	
 	#[allow(missing_docs)]
 	CouldNotPushDesignatorItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),

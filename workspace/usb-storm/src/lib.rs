@@ -26,6 +26,7 @@
 #![feature(allocator_api)]
 #![feature(associated_type_bounds)]
 #![feature(const_fn_trait_bound)]
+#![feature(const_fn_transmute)]
 #![feature(const_fn_union)]
 #![feature(const_panic)]
 #![feature(const_ptr_offset)]

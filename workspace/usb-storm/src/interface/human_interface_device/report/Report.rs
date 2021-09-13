@@ -86,22 +86,8 @@ impl Report
 	}
 	
 	#[inline(always)]
-	fn parse_reserved(data: u32, was_32_bits_wide: bool, globals: Rc<GlobalItems>, locals: LocalItems, tag: ReservedMainItemTag) -> Self
+	fn parse_reserved(data: u32, data_width: DataWidth, globals: Rc<GlobalItems>, locals: LocalItems, tag: ReservedMainItemTag) -> Self
 	{
-		Report::Reserved
-		(
-			ReservedMainItem
-			{
-				globals,
-				
-				locals,
-				
-				tag,
-				
-				value: data,
-				
-				was_32_bits_wide
-			}
-		)
+		Report::Reserved(ReservedMainItem::parse(data, data_width, globals, locals, tag))
 	}
 }

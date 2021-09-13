@@ -39,11 +39,11 @@ impl Usage
 	}
 	
 	#[inline(always)]
-	fn parse(data: u32, was_32_bits_wide: bool) -> Self
+	fn parse(data: u32, data_width: DataWidth) -> Self
 	{
 		Self
 		{
-			usage_page: if was_32_bits_wide
+			usage_page: if data_width == DataWidth::ThirtyTwoBit
 			{
 				Some((data >> 16) as u16)
 			}

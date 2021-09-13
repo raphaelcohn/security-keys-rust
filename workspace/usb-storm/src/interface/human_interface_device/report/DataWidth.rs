@@ -2,61 +2,22 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A report reserved local item.
+/// Width of data; important if a value might be a signed integer.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct ReservedLocalItem
-{
-	tag: ReservedLocalItemTag,
-
-	data: u32,
-	
-	data_width: DataWidth,
-}
-
-impl TryClone for ReservedLocalItem
-{
-	#[inline(always)]
-	fn try_clone(&self) -> Result<Self, TryReserveError>
-	{
-		Ok(*self)
-	}
-}
-
-impl ReservedLocalItem
+#[repr(u8)]
+pub enum DataWidth
 {
 	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn tag(&self) -> ReservedLocalItemTag
-	{
-		self.tag
-	}
+	Widthless = 0,
 	
 	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn data(&self) -> u32
-	{
-		self.data
-	}
+	EightBit = 1,
 	
 	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn data_width(&self) -> DataWidth
-	{
-		self.data_width
-	}
+	SixteenBit = 2,
 	
-	#[inline(always)]
-	fn parse(data: u32, data_width: DataWidth, tag: ReservedLocalItemTag) -> Self
-	{
-		Self
-		{
-			tag,
-			
-			data,
-			
-			data_width
-		}
-	}
+	#[allow(missing_docs)]
+	ThirtyTwoBit = 3,
 }

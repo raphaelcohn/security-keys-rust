@@ -16,23 +16,23 @@ pub struct GlobalItems
 	
 	report_count: Option<u32>,
 	
-	logical_minimum_extent: Option<u32>,
+	logical_minimum_extent: Option<i32>,
 	
-	logical_maximum_extent: Option<u32>,
+	logical_maximum_extent: Option<i32>,
 	
-	physical_minimum_extent: Option<u32>,
+	physical_minimum_extent: Option<i32>,
 	
-	physical_maximum_extent: Option<u32>,
+	physical_maximum_extent: Option<i32>,
 	
 	unit_exponent: Option<u32>,
 
 	unit: Option<u32>,
 	
-	reserved0: Option<u32>,
+	reserved0: Option<ReservedGlobalItem>,
 	
-	reserved1: Option<u32>,
+	reserved1: Option<ReservedGlobalItem>,
 	
-	reserved2: Option<u32>,
+	reserved2: Option<ReservedGlobalItem>,
 }
 
 impl GlobalItems
@@ -79,28 +79,28 @@ impl GlobalItems
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn logical_minimum_extent(&self) -> Option<u32>
+	pub const fn logical_minimum_extent(&self) -> Option<i32>
 	{
 		self.logical_minimum_extent
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn logical_maximum_extent(&self) -> Option<u32>
+	pub const fn logical_maximum_extent(&self) -> Option<i32>
 	{
 		self.logical_maximum_extent
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn physical_minimum_extent(&self) -> Option<u32>
+	pub const fn physical_minimum_extent(&self) -> Option<i32>
 	{
 		self.physical_minimum_extent
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn physical_maximum_extent(&self) -> Option<u32>
+	pub const fn physical_maximum_extent(&self) -> Option<i32>
 	{
 		self.physical_maximum_extent
 	}
@@ -121,21 +121,21 @@ impl GlobalItems
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn reserved0(&self) -> Option<u32>
+	pub const fn reserved0(&self) -> Option<ReservedGlobalItem>
 	{
 		self.reserved0
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn reserved1(&self) -> Option<u32>
+	pub const fn reserved1(&self) -> Option<ReservedGlobalItem>
 	{
 		self.reserved1
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn reserved2(&self) -> Option<u32>
+	pub const fn reserved2(&self) -> Option<ReservedGlobalItem>
 	{
 		self.reserved2
 	}
@@ -152,52 +152,45 @@ impl GlobalItems
 	}
 	
 	#[inline(always)]
-	fn parse_logical_minimum(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_logical_minimum(&mut self, data: u32, data_width: DataWidth)
 	{
-		self.logical_minimum_extent = Some(data);
-		Ok(())
+		self.logical_minimum_extent = Some(Self::convert_data_to_signed_value(data, data_width));
 	}
 	
 	#[inline(always)]
-	fn parse_logical_maximum(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_logical_maximum(&mut self, data: u32, data_width: DataWidth)
 	{
-		self.logical_maximum_extent = Some(data);
-		Ok(())
+		self.logical_maximum_extent = Some(Self::convert_data_to_signed_value(data, data_width));
 	}
 	
 	#[inline(always)]
-	fn parse_physical_minimum(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_physical_minimum(&mut self, data: u32, data_width: DataWidth)
 	{
-		self.physical_minimum_extent = Some(data);
-		Ok(())
+		self.physical_minimum_extent = Some(Self::convert_data_to_signed_value(data, data_width));
 	}
 	
 	#[inline(always)]
-	fn parse_physical_maximum(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_physical_maximum(&mut self, data: u32, data_width: DataWidth)
 	{
-		self.physical_maximum_extent = Some(data);
-		Ok(())
+		self.physical_maximum_extent = Some(Self::convert_data_to_signed_value(data, data_width));
 	}
 	
 	#[inline(always)]
-	fn parse_unit_exponent(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_unit_exponent(&mut self, data: u32)
 	{
 		self.unit_exponent = Some(data);
-		Ok(())
 	}
 	
 	#[inline(always)]
-	fn parse_unit(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_unit(&mut self, data: u32)
 	{
 		self.unit = Some(data);
-		Ok(())
 	}
 	
 	#[inline(always)]
-	fn parse_report_size(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_report_size(&mut self, data: u32)
 	{
 		self.report_size = Some(data);
-		Ok(())
 	}
 	
 	#[inline(always)]
@@ -213,30 +206,75 @@ impl GlobalItems
 	}
 	
 	#[inline(always)]
-	fn parse_report_count(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_report_count(&mut self, data: u32)
 	{
 		self.report_count = Some(data);
-		Ok(())
 	}
 	
 	#[inline(always)]
-	fn parse_reserved0(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_reserved0(&mut self, data: u32, data_width: DataWidth)
 	{
-		self.reserved0 = Some(data);
-		Ok(())
+		self.reserved0 = Some(ReservedGlobalItem::parse(data, data_width));
 	}
 	
 	#[inline(always)]
-	fn parse_reserved1(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_reserved1(&mut self, data: u32, data_width: DataWidth)
 	{
-		self.reserved1 = Some(data);
-		Ok(())
+		self.reserved1 = Some(ReservedGlobalItem::parse(data, data_width));
 	}
 	
 	#[inline(always)]
-	fn parse_reserved2(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	fn parse_reserved2(&mut self, data: u32, data_width: DataWidth)
 	{
-		self.reserved2 = Some(data);
-		Ok(())
+		self.reserved2 = Some(ReservedGlobalItem::parse(data, data_width));
+	}
+	
+	#[inline(always)]
+	fn convert_data_to_signed_value(data: u32, data_width: DataWidth) -> i32
+	{
+		#[inline(always)]
+		const fn is_signed<const bit_index: u8>(data: u32) -> bool
+		{
+			let signed_bit = 1 << (bit_index as u32);
+			(data & signed_bit) != 0
+		}
+		
+		use DataWidth::*;
+		match data_width
+		{
+			Widthless =>
+			{
+				debug_assert_eq!(data, 0);
+				0
+			}
+			
+			EightBit =>
+			{
+				debug_assert!(data <= (u8::MAX as u32));
+				if is_signed::<7>(data)
+				{
+					data as u8 as i8 as i32
+				}
+				else
+				{
+					data as u8 as i32
+				}
+			},
+			
+			SixteenBit =>
+			{
+				debug_assert!(data <= (u16::MAX as u32));
+				if is_signed::<15>(data)
+				{
+					data as u16 as i16 as i32
+				}
+				else
+				{
+					data as u16 as i32
+				}
+			},
+			
+			ThirtyTwoBit => data as i32,
+		}
 	}
 }

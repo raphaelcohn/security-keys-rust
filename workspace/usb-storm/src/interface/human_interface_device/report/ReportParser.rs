@@ -77,8 +77,8 @@ impl<'a> ReportParser<'a>
 				let bType = (item_prefix >> 2) & 0b11;
 				let bTag = item_prefix >> 4;
 				
-				let (exclusive_end_of_data_index, data, was_32_bits_wide) = Self::get_short_item_data(descriptor_bytes, bSize)?;
-				let alive_or_dead = self.parse_short_item(unsafe { transmute(bType) }, bTag, data, was_32_bits_wide)?;
+				let (exclusive_end_of_data_index, data, data_width) = Self::get_short_item_data(descriptor_bytes, bSize)?;
+				let alive_or_dead = self.parse_short_item(unsafe { transmute(bType) }, bTag, data, data_width)?;
 				return_ok_if_dead!(alive_or_dead);
 				exclusive_end_of_data_index
 			};
@@ -97,7 +97,7 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn parse_short_item(&mut self, short_item_type: ShortItemType, item_tag: u8, data: u32, was_32_bits_wide: bool) -> Result<DeadOrAlive<()>, ReportParseError>
+	fn parse_short_item(&mut self, short_item_type: ShortItemType, item_tag: u8, data: u32, data_width: DataWidth) -> Result<DeadOrAlive<()>, ReportParseError>
 	{
 		use ReportParseError::*;
 		use ShortItemType::*;
@@ -111,15 +111,15 @@ impl<'a> ReportParser<'a>
 				use ReservedMainItemTag::*;
 				let report = match item_tag
 				{
-					0b0000 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _0),
-					0b0001 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _1),
-					0b0010 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _2),
-					0b0011 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _3),
+					0b0000 => Report::parse_reserved(data, data_width, globals, locals, _0),
+					0b0001 => Report::parse_reserved(data, data_width, globals, locals, _1),
+					0b0010 => Report::parse_reserved(data, data_width, globals, locals, _2),
+					0b0011 => Report::parse_reserved(data, data_width, globals, locals, _3),
 					
-					0b0100 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _4),
-					0b0101 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _5),
-					0b0110 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _6),
-					0b0111 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _7),
+					0b0100 => Report::parse_reserved(data, data_width, globals, locals, _4),
+					0b0101 => Report::parse_reserved(data, data_width, globals, locals, _5),
+					0b0110 => Report::parse_reserved(data, data_width, globals, locals, _6),
+					0b0111 => Report::parse_reserved(data, data_width, globals, locals, _7),
 					
 					0b1000 => Report::parse_input(data, globals, locals),
 					0b1001 => Report::parse_output(data, globals, locals),
@@ -169,8 +169,8 @@ impl<'a> ReportParser<'a>
 						collection.end_data = data;
 						Report::Collection(collection)
 					}
-					0b1101 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _8),
-					0b1110 => Report::parse_reserved(data, was_32_bits_wide, globals, locals, _9),
+					0b1101 => Report::parse_reserved(data, data_width, globals, locals, _8),
+					0b1110 => Report::parse_reserved(data, data_width, globals, locals, _9),
 					0b1111 => unreachable!("Long tag"),
 					
 					_ => unreachable!(),
@@ -184,23 +184,23 @@ impl<'a> ReportParser<'a>
 				match item_tag
 				{
 					0b0000 => self.globals()?.parse_usage_page(data)?,
-					0b0001 => self.globals()?.parse_logical_minimum(data)?,
-					0b0010 => self.globals()?.parse_logical_maximum(data)?,
-					0b0011 => self.globals()?.parse_physical_minimum(data)?,
+					0b0001 => self.globals()?.parse_logical_minimum(data, data_width),
+					0b0010 => self.globals()?.parse_logical_maximum(data, data_width),
+					0b0011 => self.globals()?.parse_physical_minimum(data, data_width),
 					
-					0b0100 => self.globals()?.parse_physical_maximum(data)?,
-					0b0101 => self.globals()?.parse_unit_exponent(data)?,
-					0b0110 => self.globals()?.parse_unit(data)?,
-					0b0111 => self.globals()?.parse_report_size(data)?,
+					0b0100 => self.globals()?.parse_physical_maximum(data, data_width),
+					0b0101 => self.globals()?.parse_unit_exponent(data),
+					0b0110 => self.globals()?.parse_unit(data),
+					0b0111 => self.globals()?.parse_report_size(data),
 					
 					0b1000 => self.globals()?.parse_report_identifier(data)?,
-					0b1001 => self.globals()?.parse_report_count(data)?,
+					0b1001 => self.globals()?.parse_report_count(data),
 					0b1010 => self.push_item_state_table()?,
 					0b1011 => self.pop_item_state_table()?,
 					
-					0b1100 => self.globals()?.parse_reserved0(data)?,
-					0b1101 => self.globals()?.parse_reserved1(data)?,
-					0b1110 => self.globals()?.parse_reserved2(data)?,
+					0b1100 => self.globals()?.parse_reserved0(data, data_width),
+					0b1101 => self.globals()?.parse_reserved1(data, data_width),
+					0b1110 => self.globals()?.parse_reserved2(data, data_width),
 					0b1111 => unreachable!("Long tag"),
 					
 					_ => unreachable!(),
@@ -213,14 +213,14 @@ impl<'a> ReportParser<'a>
 				
 				match item_tag
 				{
-					0b0000 => self.locals().parse_usage(data, was_32_bits_wide)?,
-					0b0001 => self.locals().parse_usage_minimum(data, was_32_bits_wide)?,
-					0b0010 => self.locals().parse_usage_maximum(data, was_32_bits_wide)?,
+					0b0000 => self.locals().parse_usage(data, data_width)?,
+					0b0001 => self.locals().parse_usage_minimum(data, data_width)?,
+					0b0010 => self.locals().parse_usage_maximum(data, data_width)?,
 					0b0011 => self.locals().parse_designator(data)?,
 					
 					0b0100 => self.locals().parse_designator_minimum(data)?,
 					0b0101 => self.locals().parse_designator_maximum(data)?,
-					0b0110 => self.locals().parse_reserved(data, was_32_bits_wide, _0)?,
+					0b0110 => self.locals().parse_reserved(data, data_width, _0)?,
 					0b0111 =>
 					{
 						let device_connection = self.device_connection;
@@ -246,11 +246,11 @@ impl<'a> ReportParser<'a>
 						
 						_ => Err(InvalidLocalDelimiter { data }),
 					},
-					0b1011 => self.locals().parse_reserved(data, was_32_bits_wide, _1)?,
+					0b1011 => self.locals().parse_reserved(data, data_width, _1)?,
 					
-					0b1100 => self.locals().parse_reserved(data, was_32_bits_wide, _1)?,
-					0b1101 => self.locals().parse_reserved(data, was_32_bits_wide, _3)?,
-					0b1110 => self.locals().parse_reserved(data, was_32_bits_wide, _4)?,
+					0b1100 => self.locals().parse_reserved(data, data_width, _2)?,
+					0b1101 => self.locals().parse_reserved(data, data_width, _3)?,
+					0b1110 => self.locals().parse_reserved(data, data_width, _4)?,
 					0b1111 => unreachable!("Long tag"),
 					
 					_ => unreachable!(),
@@ -262,41 +262,42 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn get_short_item_data(descriptor_bytes: &[u8], bSize: u8) -> Result<(usize, u32, bool), ReportParseError>
+	fn get_short_item_data(descriptor_bytes: &[u8], bSize: u8) -> Result<(usize, u32, DataWidth), ReportParseError>
 	{
+		use DataWidth::*;
+		
 		const inclusive_start_of_data_index: u8 = 1;
-		let outcome = match bSize
+		let data_width: DataWidth = unsafe { transmute(bSize) };
+		let (exclusive_end_of_data_index, data) = match data_width
 		{
-			0 =>
+			Widthless =>
 			{
 				let exclusive_end_of_data_index = Self::get_exclusive_end_of_data_index(descriptor_bytes, inclusive_start_of_data_index, 0)?;
-				(exclusive_end_of_data_index, 0, false)
-			},
+				(exclusive_end_of_data_index, 0)
+			}
 			
-			1 =>
+			EightBit =>
 			{
 				let (exclusive_end_of_data_index, short_item_data) = Self::get_item_data(descriptor_bytes, inclusive_start_of_data_index, 1)?;
-				(exclusive_end_of_data_index, short_item_data.u8(0) as u32, false)
-			},
+				(exclusive_end_of_data_index, short_item_data.u8(0) as u32)
+			}
 			
-			2 =>
+			SixteenBit =>
 			{
 				let (exclusive_end_of_data_index, short_item_data) = Self::get_item_data(descriptor_bytes, inclusive_start_of_data_index, 2)?;
-				(exclusive_end_of_data_index, short_item_data.u16(0) as u32, false)
-			},
+				(exclusive_end_of_data_index, short_item_data.u16(0) as u32)
+			}
 			
-			3 =>
+			ThirtyTwoBit =>
 			{
 				// Yes, this is correct.
 				const Four: u8 = 4;
 				let (exclusive_end_of_data_index, short_item_data) = Self::get_item_data(descriptor_bytes, inclusive_start_of_data_index, Four)?;
-				(exclusive_end_of_data_index, short_item_data.u32(0), true)
-			},
-			
-			_ => unreachable!("Exceeds the size of a short piece of data")
+				(exclusive_end_of_data_index, short_item_data.u32(0))
+			}
 		};
 		
-		Ok(outcome)
+		Ok((exclusive_end_of_data_index, data, data_width))
 	}
 	
 	#[inline(always)]

@@ -2,33 +2,43 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A report reserved local item.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// A report reserved main item.
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct ReservedLocalItem
+pub struct ReservedMainItem
 {
-	tag: ReservedLocalItemTag,
+	globals: Rc<GlobalItems>,
+	
+	locals: LocalItems,
+
+	tag: ReservedMainItemTag,
 
 	data: u32,
 	
 	data_width: DataWidth,
 }
 
-impl TryClone for ReservedLocalItem
+impl MainItem for ReservedMainItem
 {
 	#[inline(always)]
-	fn try_clone(&self) -> Result<Self, TryReserveError>
+	fn globals(&self) -> &GlobalItems
 	{
-		Ok(*self)
+		&self.globals
+	}
+	
+	#[inline(always)]
+	fn locals(&self) -> &LocalItems
+	{
+		&self.locals
 	}
 }
 
-impl ReservedLocalItem
+impl ReservedMainItem
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn tag(&self) -> ReservedLocalItemTag
+	pub const fn tag(&self) -> ReservedMainItemTag
 	{
 		self.tag
 	}
@@ -48,10 +58,14 @@ impl ReservedLocalItem
 	}
 	
 	#[inline(always)]
-	fn parse(data: u32, data_width: DataWidth, tag: ReservedLocalItemTag) -> Self
+	pub(super) fn parse(data: u32, data_width: DataWidth, globals: Rc<GlobalItems>, locals: LocalItems, tag: ReservedMainItemTag) -> Self
 	{
 		Self
 		{
+			globals,
+			
+			locals,
+			
 			tag,
 			
 			data,
