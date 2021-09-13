@@ -39,12 +39,24 @@ impl GlobalItems
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
+	pub fn number_of_data_fields(&self) -> Option<u64>
+	{
+		match (self.report_size, self.report_count)
+		{
+			(Some(report_size), Some(report_count)) => Some((report_size as u64) * (report_count as u64)),
+			
+			_ => None,
+		}
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
 	pub const fn usage_page(&self) -> Option<UsagePage>
 	{
 		self.usage_page
 	}
 	
-	#[allow(missing_docs)]
+	/// This value is a number of bits.
 	#[inline(always)]
 	pub const fn report_size(&self) -> Option<u32>
 	{

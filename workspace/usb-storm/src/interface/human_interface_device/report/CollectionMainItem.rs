@@ -8,11 +8,12 @@
 #[serde(deny_unknown_fields)]
 pub struct CollectionMainItem
 {
-	common: CollectionCommon,
-	
 	description: CollectionDescription,
 	
 	end_data: u32,
+	
+	#[serde(flatten)]
+	common: CollectionCommon,
 }
 
 impl Default for CollectionMainItem
@@ -22,6 +23,17 @@ impl Default for CollectionMainItem
 	{
 		const ValueIrrelevantAsWillBeRemovedWhenParsingFinished: CollectionDescription = CollectionDescription::Application;
 		Self::new(Default::default(), Default::default(), ValueIrrelevantAsWillBeRemovedWhenParsingFinished)
+	}
+}
+
+impl Deref for CollectionMainItem
+{
+	type Target = CollectionCommon;
+	
+	#[inline(always)]
+	fn deref(&self) -> &Self::Target
+	{
+		&self.common
 	}
 }
 
@@ -37,17 +49,6 @@ impl MainItem for CollectionMainItem
 	fn locals(&self) -> &LocalItems
 	{
 		&self.common.locals()
-	}
-}
-
-impl Deref for CollectionMainItem
-{
-	type Target = [Report];
-	
-	#[inline(always)]
-	fn deref(&self) -> &Self::Target
-	{
-		self.common.deref()
 	}
 }
 
@@ -72,6 +73,10 @@ impl CollectionMainItem
 	{
 		Self
 		{
+			description,
+			
+			end_data: 0,
+			
 			common: CollectionCommon
 			{
 				globals,
@@ -80,10 +85,6 @@ impl CollectionMainItem
 				
 				reports: Vec::new(),
 			},
-		
-			description,
-		
-			end_data: 0,
 		}
 	}
 	

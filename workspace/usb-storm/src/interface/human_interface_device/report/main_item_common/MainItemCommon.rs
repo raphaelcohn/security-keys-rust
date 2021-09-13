@@ -2,40 +2,52 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A report input main item.
+/// Details common to a report's output, feature or input main item.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct MainItemCommonExtended
+pub struct MainItemCommon
 {
 	#[serde(flatten)]
-	common: MainItemCommon,
+	globals: Rc<GlobalItems>,
 	
-	volatile: bool,
+	#[serde(flatten)]
+	locals: LocalItems,
+	
+	data_or_constant: DataOrConstant,
+	
+	absolute_or_relative: AbsoluteOrRelative,
 }
 
-impl MainItem for MainItemCommonExtended
+impl MainItem for MainItemCommon
 {
 	#[inline(always)]
 	fn globals(&self) -> &GlobalItems
 	{
-		self.common.globals()
+		&self.globals
 	}
 	
 	#[inline(always)]
 	fn locals(&self) -> &LocalItems
 	{
-		self.common.locals()
+		&self.locals
 	}
 }
 
-impl MainItemCommonExtended
+impl MainItemCommon
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn volatile(&self) -> bool
+	pub const fn data_or_constant(&self) -> DataOrConstant
 	{
-		self.volatile
+		self.data_or_constant
+	}
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub const fn absolute_or_relative(&self) -> AbsoluteOrRelative
+	{
+		self.absolute_or_relative
 	}
 	
 	#[inline(always)]
@@ -43,9 +55,13 @@ impl MainItemCommonExtended
 	{
 		Self
 		{
-			common: MainItemCommon::parse(data, globals, locals),
-		
-			volatile: (data & 0b0_1000_0000) != 0,
+			globals,
+			
+			locals,
+			
+			data_or_constant: parse_boolean_enum(data, 0),
+			
+			absolute_or_relative: parse_boolean_enum(data, 2),
 		}
 	}
 }

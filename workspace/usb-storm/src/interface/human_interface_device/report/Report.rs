@@ -9,13 +9,13 @@
 pub enum Report
 {
 	#[allow(missing_docs)]
-	Input(MainItemCommon),
+	Input(InputMainItem),
 	
 	#[allow(missing_docs)]
-	Output(MainItemCommonExtended),
+	Output(OutputOrFeatureMainItem),
 	
 	#[allow(missing_docs)]
-	Feature(MainItemCommonExtended),
+	Feature(OutputOrFeatureMainItem),
 	
 	#[allow(missing_docs)]
 	Collection(CollectionMainItem),
@@ -70,19 +70,19 @@ impl Report
 	#[inline(always)]
 	fn parse_input(data: u32, globals: Rc<GlobalItems>, locals: LocalItems) -> Self
 	{
-		Report::Input(MainItemCommon::parse(data, globals, locals))
+		Report::Input(InputMainItem::parse(data, globals, locals))
 	}
 	
 	#[inline(always)]
 	fn parse_output(data: u32, globals: Rc<GlobalItems>, locals: LocalItems) -> Self
 	{
-		Report::Output(MainItemCommonExtended::parse(data, globals, locals))
+		Report::Output(OutputOrFeatureMainItem::parse(data, globals, locals))
 	}
 	
 	#[inline(always)]
 	fn parse_feature(data: u32, globals: Rc<GlobalItems>, locals: LocalItems) -> Self
 	{
-		Report::Feature(MainItemCommonExtended::parse(data, globals, locals))
+		Report::Feature(OutputOrFeatureMainItem::parse(data, globals, locals))
 	}
 	
 	#[inline(always)]

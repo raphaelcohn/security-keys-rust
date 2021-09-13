@@ -17,6 +17,7 @@ use crate::serde::TryReserveErrorRemote;
 use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use likely::unlikely;
+use self::main_item_common::OutputOrFeatureMainItem;
 use serde::Deserialize;
 use serde::Serialize;
 use std::alloc::AllocError;
@@ -38,6 +39,11 @@ use std::ptr::read;
 use std::rc::Rc;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_zero_u32;
+use crate::interface::human_interface_device::report::main_item_common::InputMainItem;
+
+
+/// Main item common.
+pub mod main_item_common;
 
 
 include!("CollectionCommon.rs");
@@ -52,8 +58,6 @@ include!("LocalItems.rs");
 include!("LongItem.rs");
 include!("LongItemTag.rs");
 include!("MainItem.rs");
-include!("MainItemCommon.rs");
-include!("MainItemCommonExtended.rs");
 include!("ParsingLocalItems.rs");
 include!("Report.rs");
 include!("ReportParseError.rs");
