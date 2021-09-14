@@ -40,6 +40,7 @@
 #![feature(maybe_uninit_uninit_array)]
 #![feature(new_uninit)]
 #![feature(once_cell)]
+#![feature(option_result_unwrap_unchecked)]
 #![feature(slice_ptr_get)]
 #![feature(slice_ptr_len)]
 #![feature(trusted_len)]

@@ -52,6 +52,9 @@ pub enum ReportParseError
 	
 	#[allow(missing_docs)]
 	TooManyCollectionPops,
+	
+	#[allow(missing_docs)]
+	OutOfMemoryAllocatingUsages(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for ReportParseError
@@ -83,6 +86,8 @@ impl error::Error for ReportParseError
 			GlobalItemParse(cause) => Some(cause),
 			
 			LocalItemParse(cause) => Some(cause),
+			
+			OutOfMemoryAllocatingUsages(cause) => Some(cause),
 			
 			_ => None,
 		}

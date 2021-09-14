@@ -2,17 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A set of global items.
+/// A set of local items.
 #[derive(Default, Debug, Clone, Eq, PartialEq, Hash)]
-#[derive(Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
 struct ParsingLocalItems
 {
-	usages: Vec<RangeInclusive<Usage>>,
+	usage_ranges: Vec<InclusiveRange<ParsingUsage>>,
 	
 	have_minimum_usage: Option<(u32, DataWidth)>,
 	
-	designators: Vec<RangeInclusive<DesignatorIndex>>,
+	designators: Vec<InclusiveRange<DesignatorIndex>>,
 	
 	have_minimum_designator: Option<u32>,
 	
@@ -24,7 +22,7 @@ struct ParsingLocalItems
 	
 	longs: Vec<LongItem>,
 
-	sets: Vec<LocalItems>,
+	alternates: Vec<Self>,
 }
 
 impl TryClone for ParsingLocalItems
@@ -36,7 +34,7 @@ impl TryClone for ParsingLocalItems
 		(
 			Self
 			{
-				usages: self.usages.try_clone()?,
+				usage_ranges: self.usage_ranges.try_clone()?,
 				
 				have_minimum_usage: self.have_minimum_usage,
 				
@@ -52,7 +50,7 @@ impl TryClone for ParsingLocalItems
 				
 				longs: self.longs.try_clone()?,
 				
-				sets: self.sets.try_clone()?,
+				alternates: self.alternates.try_clone()?,
 			}
 		)
 	}
@@ -61,53 +59,52 @@ impl TryClone for ParsingLocalItems
 impl ParsingLocalItems
 {
 	#[inline(always)]
-	fn finish(self) -> Result<LocalItems, LocalItemParseError>
+	fn finish(self, globals: &ParsingGlobalItemsSet) -> Result<ParsingLocalItemsSet, ReportParseError>
 	{
 		use LocalItemParseError::*;
 		
 		if unlikely!(self.have_minimum_usage.is_some())
 		{
-			return Err(UsageMinimumNotFollowedByUsageMaximum)
+			Err(UsageMinimumNotFollowedByUsageMaximum)?
 		}
 		if unlikely!(self.have_minimum_designator.is_some())
 		{
-			return Err(DesignatorMinimumNotFollowedByDesignatorMaximum)
+			Err(DesignatorMinimumNotFollowedByDesignatorMaximum)?
 		}
 		if unlikely!(self.have_minimum_string.is_some())
 		{
-			return Err(StringMinimumNotFollowedByStringMaximum)
+			Err(StringMinimumNotFollowedByStringMaximum)?
+		}
+		if unlikely!(self.usage_ranges.is_empty())
+		{
+			Err(NoUsages)?
 		}
 		
-		Ok
-		(
-			LocalItems
+		let alternates =
+		{
+			let mut alternates = Vec::new_with_capacity(self.alternates.len()).map_err(OutOfMemoryAllocatingReportItemsSets)?;
+			for parsing_locals in self.alternates
 			{
-				usages: self.usages,
-				
-				designators: self.designators,
-				
-				strings: self.strings,
-				
-				reserveds: self.reserveds,
-				
-				longs: self.longs,
-			
-				sets: self.sets,
+				let report_items = ReportItems::finish(Cow::Borrowed(globals), parsing_locals)?;
+				alternates.push_unchecked(report_items)
 			}
-		)
+			alternates
+		};
+		
+		Ok((self.usage_ranges, self.designators, self.strings, self.reserveds, self.longs, alternates))
 	}
 	
 	#[inline(always)]
-	fn push_set(&mut self, local_set: Self) -> Result<(), LocalItemParseError>
+	fn push_alternate(&mut self, alternate: Self) -> Result<(), LocalItemParseError>
 	{
-		self.sets.try_push(local_set.finish()?).map_err(LocalItemParseError::CouldNotPushSet)
+		self.alternates.try_push(alternate).map_err(LocalItemParseError::CouldNotPushAlternate)
 	}
 	
 	#[inline(always)]
 	fn parse_usage(&mut self, data: u32, data_width: DataWidth) -> Result<(), LocalItemParseError>
 	{
-		let usage = Usage::parse(data, data_width);
-		self.usages.try_push(usage ..= usage).map_err(LocalItemParseError::CouldNotPushUsageItem)
+		let usage = ParsingUsage::parse(data, data_width);
+		self.usage_ranges.try_push(InclusiveRange(usage ..= usage)).map_err(LocalItemParseError::CouldNotPushUsageItem)
 	}
 	
 	#[inline(always)]
@@ -148,9 +145,9 @@ impl ParsingLocalItems
 					_ => (),
 				}
 				
-				let minimum = Usage::parse(minimum_data, minimum_data_width);
-				let maximum = Usage::parse(maximum_data, maximum_data_width);
-				self.usages.try_push(minimum ..= maximum).map_err(CouldNotPushUsageItem)?;
+				let minimum = ParsingUsage::parse(minimum_data, minimum_data_width);
+				let maximum = ParsingUsage::parse(maximum_data, maximum_data_width);
+				self.usage_ranges.try_push(InclusiveRange(minimum ..= maximum)).map_err(CouldNotPushUsageItem)?;
 			}
 		}
 		Ok(())
@@ -159,7 +156,7 @@ impl ParsingLocalItems
 	#[inline(always)]
 	fn parse_designator(&mut self, data: u32) -> Result<(), LocalItemParseError>
 	{
-		self.designators.try_push(data ..= data).map_err(LocalItemParseError::CouldNotPushDesignatorItem)
+		self.designators.try_push(InclusiveRange(data ..= data)).map_err(LocalItemParseError::CouldNotPushDesignatorItem)
 	}
 	
 	#[inline(always)]
@@ -188,7 +185,7 @@ impl ParsingLocalItems
 					return Err(DesignatorMinimumMustBeLessThanMaximum)
 				}
 				
-				self.designators.try_push(minimum_data ..= maximum_data).map_err(CouldNotPushDesignatorItem)?;
+				self.designators.try_push(InclusiveRange(minimum_data ..= maximum_data)).map_err(CouldNotPushDesignatorItem)?;
 			}
 		}
 		Ok(())

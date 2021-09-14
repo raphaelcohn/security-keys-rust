@@ -80,7 +80,13 @@ pub enum LocalItemParseError
 	CouldNotPushLongItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	CouldNotPushSet(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
+	CouldNotPushAlternate(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
+	
+	#[allow(missing_docs)]
+	NoUsages,
+	
+	#[allow(missing_docs)]
+	OutOfMemoryAllocatingReportItemsSets(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
 impl Display for LocalItemParseError
@@ -115,7 +121,9 @@ impl error::Error for LocalItemParseError
 			
 			CouldNotPushLongItem(cause) => Some(cause),
 			
-			CouldNotPushSet(cause) => Some(cause),
+			CouldNotPushAlternate(cause) => Some(cause),
+			
+			OutOfMemoryAllocatingReportItemsSets(cause) => Some(cause),
 			
 			_ => None,
 		}

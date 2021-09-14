@@ -22,7 +22,7 @@ impl Default for CollectionMainItem
 	fn default() -> Self
 	{
 		const ValueIrrelevantAsWillBeRemovedWhenParsingFinished: CollectionDescription = CollectionDescription::Application;
-		Self::new(Default::default(), Default::default(), ValueIrrelevantAsWillBeRemovedWhenParsingFinished)
+		Self::new(Default::default(), ValueIrrelevantAsWillBeRemovedWhenParsingFinished)
 	}
 }
 
@@ -40,15 +40,9 @@ impl Deref for CollectionMainItem
 impl MainItem for CollectionMainItem
 {
 	#[inline(always)]
-	fn globals(&self) -> &GlobalItems
+	fn items(&self) -> &ReportItems
 	{
-		&self.common.globals()
-	}
-	
-	#[inline(always)]
-	fn locals(&self) -> &LocalItems
-	{
-		&self.common.locals()
+		&self.common.items()
 	}
 }
 
@@ -69,7 +63,7 @@ impl CollectionMainItem
 	}
 	
 	#[inline(always)]
-	fn new(globals: Rc<GlobalItems>, locals: LocalItems, description: CollectionDescription) -> Self
+	fn new(items: ReportItems, description: CollectionDescription) -> Self
 	{
 		Self
 		{
@@ -79,9 +73,7 @@ impl CollectionMainItem
 			
 			common: CollectionCommon
 			{
-				globals,
-				
-				locals,
+				items,
 				
 				reports: Vec::new(),
 			},

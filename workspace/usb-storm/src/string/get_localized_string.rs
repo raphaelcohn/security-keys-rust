@@ -24,10 +24,13 @@ pub(crate) fn get_localized_string(device_handle: NonNull<libusb_device_handle>,
 	
 	let mut utf_8_bytes = Vec::new_with_capacity(maximum_number_of_utf_8_bytes).map_err(|cause| CouldNotAllocateString { cause, string_descriptor_index, language: language_details.1 })?;
 	let array = unsafe { from_raw_parts(remaining_bytes.as_ptr() as *const u16, array_length_in_u16) };
+	
+	let mut performant = UnsafePerformantByteWritable::new(&mut utf_8_bytes);
 	for result in decode_utf16(array.iter().cloned())
 	{
 		let character = result.map_err(|cause| InvalidUtf16LittleEndianSequence { cause, string_descriptor_index, language: language_details.1 })?;
-		encode_utf8_raw(character, &mut utf_8_bytes);
+		let result = performant.encode_utf8_raw(character);
+		let _ = unsafe { result.unwrap_unchecked() };
 	}
 	
 	utf_8_bytes.shrink_to_fit();

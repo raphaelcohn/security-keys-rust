@@ -9,10 +9,7 @@
 pub struct CollectionCommon
 {
 	#[serde(flatten)]
-	globals: Rc<GlobalItems>,
-	
-	#[serde(flatten)]
-	locals: LocalItems,
+	items: ReportItems,
 	
 	reports: Vec<Report>,
 }
@@ -31,15 +28,9 @@ impl Deref for CollectionCommon
 impl MainItem for CollectionCommon
 {
 	#[inline(always)]
-	fn globals(&self) -> &GlobalItems
+	fn items(&self) -> &ReportItems
 	{
-		&self.globals
-	}
-	
-	#[inline(always)]
-	fn locals(&self) -> &LocalItems
-	{
-		&self.locals
+		&self.items
 	}
 }
 

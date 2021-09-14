@@ -23,7 +23,6 @@ use crate::serde::FromUtf8ErrorRemote;
 use crate::serde::TryReserveErrorRemote;
 use crate::string::language::LanguageIdentifier;
 use libusb1_sys::libusb_device_handle;
-use likely::likely;
 use likely::unlikely;
 use self::language::Language;
 use serde::Deserialize;
@@ -45,13 +44,14 @@ use std::slice::from_raw_parts;
 use std::string::FromUtf8Error;
 use super::control_transfers::descriptors::GetStandardUsbDescriptorError;
 use swiss_army_knife::get_unchecked::GetUnchecked;
+use swiss_army_knife::strings::to_number::ByteWritable;
+use swiss_army_knife::strings::to_number::UnsafePerformantByteWritable;
 
 
 /// USB language.
 pub mod language;
 
 
-include!("encode_utf8_raw.rs");
 include!("find_web_usb_url_control_transfer.rs");
 include!("get_languages.rs");
 include!("get_localized_string.rs");

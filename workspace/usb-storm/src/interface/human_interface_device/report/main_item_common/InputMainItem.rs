@@ -18,28 +18,15 @@ pub enum InputMainItem
 impl MainItem for InputMainItem
 {
 	#[inline(always)]
-	fn globals(&self) -> &GlobalItems
+	fn items(&self) -> &ReportItems
 	{
 		use InputMainItem::*;
 		
 		match self
 		{
-			Variable(main_item) => main_item.globals(),
+			Variable(main_item) => main_item.items(),
 			
-			Array(main_item) => main_item.globals(),
-		}
-	}
-	
-	#[inline(always)]
-	fn locals(&self) -> &LocalItems
-	{
-		use InputMainItem::*;
-		
-		match self
-		{
-			Variable(main_item) => main_item.locals(),
-			
-			Array(main_item) => main_item.locals(),
+			Array(main_item) => main_item.items(),
 		}
 	}
 }
@@ -47,16 +34,16 @@ impl MainItem for InputMainItem
 impl InputMainItem
 {
 	#[inline(always)]
-	pub(super) fn parse(data: u32, globals: Rc<GlobalItems>, locals: LocalItems) -> Self
+	pub(super) fn parse(data: u32, items: ReportItems) -> Self
 	{
 		use InputMainItem::*;
 		if is_array(data)
 		{
-			Array(MainItemCommon::parse(data, globals, locals))
+			Array(MainItemCommon::parse(data, items))
 		}
 		else
 		{
-			Variable(OutputOrFeatureOrInputVariableCommon::parse(data, globals, locals))
+			Variable(OutputOrFeatureOrInputVariableCommon::parse(data, items))
 		}
 	}
 }

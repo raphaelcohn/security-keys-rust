@@ -21,3 +21,12 @@ pub enum DataWidth
 	#[allow(missing_docs)]
 	ThirtyTwoBit = 3,
 }
+
+impl Default for DataWidth
+{
+	#[inline(always)]
+	fn default() -> Self
+	{
+		DataWidth::Widthless
+	}
+}

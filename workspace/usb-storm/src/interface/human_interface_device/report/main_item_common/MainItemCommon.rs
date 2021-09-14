@@ -9,10 +9,7 @@
 pub struct MainItemCommon
 {
 	#[serde(flatten)]
-	globals: Rc<GlobalItems>,
-	
-	#[serde(flatten)]
-	locals: LocalItems,
+	items: ReportItems,
 	
 	data_or_constant: DataOrConstant,
 	
@@ -22,15 +19,9 @@ pub struct MainItemCommon
 impl MainItem for MainItemCommon
 {
 	#[inline(always)]
-	fn globals(&self) -> &GlobalItems
+	fn items(&self) -> &ReportItems
 	{
-		&self.globals
-	}
-	
-	#[inline(always)]
-	fn locals(&self) -> &LocalItems
-	{
-		&self.locals
+		&self.items
 	}
 }
 
@@ -51,13 +42,11 @@ impl MainItemCommon
 	}
 	
 	#[inline(always)]
-	fn parse(data: u32, globals: Rc<GlobalItems>, locals: LocalItems) -> Self
+	fn parse(data: u32, items: ReportItems) -> Self
 	{
 		Self
 		{
-			globals,
-			
-			locals,
+			items,
 			
 			data_or_constant: parse_boolean_enum(data, 0),
 			

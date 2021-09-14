@@ -4,13 +4,11 @@
 
 use serde::Deserialize;
 use serde::Serialize;
-use std::rc::Rc;
 use super::MainItem;
-use super::GlobalItems;
-use super::LocalItems;
 use std::mem::transmute;
 use std::ops::Deref;
 use crate::interface::human_interface_device::report::DataWidth;
+use crate::interface::human_interface_device::report::ReportItems;
 
 
 include!("AbsoluteOrRelative.rs");

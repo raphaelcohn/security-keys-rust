@@ -8,52 +8,24 @@
 #[serde(deny_unknown_fields)]
 pub struct Usage
 {
-	usage_page: Option<UsagePage>,
+	page: UsagePage,
 
-	usage_identifier: UsageIdentifier,
-}
-
-impl TryClone for Usage
-{
-	#[inline(always)]
-	fn try_clone(&self) -> Result<Self, TryReserveError>
-	{
-		Ok(*self)
-	}
+	identifier: UsageIdentifier,
 }
 
 impl Usage
 {
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn usage_page(&self) -> Option<UsagePage>
+	pub const fn page(&self) -> UsagePage
 	{
-		self.usage_page
+		self.page
 	}
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn usage_identifier(&self) -> UsageIdentifier
+	pub const fn identifier(&self) -> UsageIdentifier
 	{
-		self.usage_identifier
+		self.identifier
 	}
-	
-	#[inline(always)]
-	fn parse(data: u32, data_width: DataWidth) -> Self
-	{
-		Self
-		{
-			usage_page: if data_width == DataWidth::ThirtyTwoBit
-			{
-				Some((data >> 16) as u16)
-			}
-			else
-			{
-				None
-			},
-		
-			usage_identifier: data as u16,
-		}
-	}
-	
 }

@@ -27,7 +27,7 @@ impl<'a> ReportParser<'a>
 				{
 					let item_state_table = ItemStateTable
 					{
-						globals: Rc::try_new(GlobalItems::default()).map_err(ReportParseError::CouldNotAllocateGlobals)?,
+						globals: Rc::try_new(ParsingGlobalItems::default()).map_err(ReportParseError::CouldNotAllocateGlobals)?,
 						
 						locals: Stack::new(ParsingLocalItems::default())?,
 					};
@@ -106,24 +106,24 @@ impl<'a> ReportParser<'a>
 		{
 			Main =>
 			{
-				let (globals, locals, ) = self.finish_globals_and_locals()?;
+				let items = self.finish_globals_and_locals()?;
 				
 				use ReservedMainItemTag::*;
 				let report = match item_tag
 				{
-					0b0000 => Report::parse_reserved(data, data_width, globals, locals, _0),
-					0b0001 => Report::parse_reserved(data, data_width, globals, locals, _1),
-					0b0010 => Report::parse_reserved(data, data_width, globals, locals, _2),
-					0b0011 => Report::parse_reserved(data, data_width, globals, locals, _3),
+					0b0000 => Report::parse_reserved(data, data_width, items, _0),
+					0b0001 => Report::parse_reserved(data, data_width, items, _1),
+					0b0010 => Report::parse_reserved(data, data_width, items, _2),
+					0b0011 => Report::parse_reserved(data, data_width, items, _3),
 					
-					0b0100 => Report::parse_reserved(data, data_width, globals, locals, _4),
-					0b0101 => Report::parse_reserved(data, data_width, globals, locals, _5),
-					0b0110 => Report::parse_reserved(data, data_width, globals, locals, _6),
-					0b0111 => Report::parse_reserved(data, data_width, globals, locals, _7),
+					0b0100 => Report::parse_reserved(data, data_width, items, _4),
+					0b0101 => Report::parse_reserved(data, data_width, items, _5),
+					0b0110 => Report::parse_reserved(data, data_width, items, _6),
+					0b0111 => Report::parse_reserved(data, data_width, items, _7),
 					
-					0b1000 => Report::parse_input(data, globals, locals),
-					0b1001 => Report::parse_output(data, globals, locals),
-					0b1011 => Report::parse_feature(data, globals, locals),
+					0b1000 => Report::parse_input(data, items),
+					0b1001 => Report::parse_output(data, items),
+					0b1011 => Report::parse_feature(data, items),
 					0b1010 =>
 					{
 						use CollectionDescription::*;
@@ -131,9 +131,7 @@ impl<'a> ReportParser<'a>
 						(
 							CollectionMainItem::new
 							(
-								globals,
-								
-								locals,
+								items,
 								
 								match data
 								{
@@ -169,8 +167,8 @@ impl<'a> ReportParser<'a>
 						collection.end_data = data;
 						Report::Collection(collection)
 					}
-					0b1101 => Report::parse_reserved(data, data_width, globals, locals, _8),
-					0b1110 => Report::parse_reserved(data, data_width, globals, locals, _9),
+					0b1101 => Report::parse_reserved(data, data_width, items, _8),
+					0b1110 => Report::parse_reserved(data, data_width, items, _9),
 					0b1111 => unreachable!("Long tag"),
 					
 					_ => unreachable!(),
@@ -189,12 +187,12 @@ impl<'a> ReportParser<'a>
 					0b0011 => self.globals()?.parse_physical_minimum(data, data_width),
 					
 					0b0100 => self.globals()?.parse_physical_maximum(data, data_width),
-					0b0101 => self.globals()?.parse_unit_exponent(data),
+					0b0101 => self.globals()?.parse_unit_exponent(data, data_width),
 					0b0110 => self.globals()?.parse_unit(data),
-					0b0111 => self.globals()?.parse_report_size(data),
+					0b0111 => self.globals()?.parse_report_size(data)?,
 					
 					0b1000 => self.globals()?.parse_report_identifier(data)?,
-					0b1001 => self.globals()?.parse_report_count(data),
+					0b1001 => self.globals()?.parse_report_count(data)?,
 					0b1010 => self.push_item_state_table()?,
 					0b1011 => self.pop_item_state_table()?,
 					
@@ -239,7 +237,7 @@ impl<'a> ReportParser<'a>
 						{
 							None => Err(ClosedTooManyOpenLocalSets),
 							
-							Some(local_set) => Ok(Alive(self.locals().push_set(local_set)?)),
+							Some(local_set) => Ok(Alive(self.locals().push_alternate(local_set)?)),
 						}
 						
 						1 => Ok(Alive(self.locals_stack().push()?)),
@@ -339,31 +337,31 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn finish_globals_and_locals(&mut self) -> Result<(Rc<GlobalItems>, LocalItems), ReportParseError>
+	fn finish_globals_and_locals(&mut self) -> Result<ReportItems, ReportParseError>
 	{
-		let globals = self.globals_inner().clone();
-		let items = self.locals_stack().consume_and_replace()?;
-		Ok
-		(
-			(
-				globals,
-				items.finish()?
-			)
-		)
+		let globals =
+		{
+			let parsing_globals = self.globals_inner();
+			parsing_globals.finish()?
+		};
+		
+		let parsing_locals = self.locals_stack().consume_and_replace()?;
+		
+		ReportItems::finish(Cow::Owned(globals), parsing_locals)
 	}
 	
 	#[inline(always)]
-	fn globals(&mut self) -> Result<&mut GlobalItems, ReportParseError>
+	fn globals(&mut self) -> Result<&mut ParsingGlobalItems, ReportParseError>
 	{
 		Self::make_mut(self.globals_inner())
 	}
 	
 	// Memory-allocation failure handling version of Rc::make_mut() which uses a less efficient path if there is one strong reference and multiple weak references; this is because it it not possible to access the necessary internal functionality.
 	#[inline(always)]
-	fn make_mut(this: &mut Rc<GlobalItems>) -> Result<&mut GlobalItems, ReportParseError>
+	fn make_mut(this: &mut Rc<ParsingGlobalItems>) -> Result<&mut ParsingGlobalItems, ReportParseError>
 	{
 		#[inline(always)]
-		fn new_rc() -> Result<Rc<MaybeUninit<GlobalItems>>, ReportParseError>
+		fn new_rc() -> Result<Rc<MaybeUninit<ParsingGlobalItems>>, ReportParseError>
 		{
 			Rc::try_new_uninit().map_err(ReportParseError::CouldNotAllocateGlobals)
 		}
@@ -377,7 +375,7 @@ impl<'a> ReportParser<'a>
 		// Creates a new Rc with a separate memory allocation and clones its contents.
 		// Then assigns this new rc to the original's memory pointer.
 		#[inline(always)]
-		fn clone_rc_and_its_contents(this: &mut Rc<GlobalItems>) -> Result<(), ReportParseError>
+		fn clone_rc_and_its_contents(this: &mut Rc<ParsingGlobalItems>) -> Result<(), ReportParseError>
 		{
 			let mut rc = new_rc()?;
 			let data = get_mut_checked(&mut rc);
@@ -416,7 +414,7 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn globals_inner(&mut self) -> &mut Rc<GlobalItems>
+	fn globals_inner(&mut self) -> &mut Rc<ParsingGlobalItems>
 	{
 		&mut self.current_item_state_table().globals
 	}

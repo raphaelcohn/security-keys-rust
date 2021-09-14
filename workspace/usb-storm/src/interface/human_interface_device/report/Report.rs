@@ -27,40 +27,21 @@ pub enum Report
 impl MainItem for Report
 {
 	#[inline(always)]
-	fn globals(&self) -> &GlobalItems
+	fn items(&self) -> &ReportItems
 	{
 		use Report::*;
 		
 		match self
 		{
-			Input(item) => item.globals(),
+			Input(item) => item.items(),
 			
-			Output(item) => item.globals(),
+			Output(item) => item.items(),
 			
-			Feature(item) => item.globals(),
+			Feature(item) => item.items(),
 			
-			Collection(item) => item.globals(),
+			Collection(item) => item.items(),
 			
-			Reserved(item) => item.globals(),
-		}
-	}
-	
-	#[inline(always)]
-	fn locals(&self) -> &LocalItems
-	{
-		use Report::*;
-		
-		match self
-		{
-			Input(item) => item.locals(),
-			
-			Output(item) => item.locals(),
-			
-			Feature(item) => item.locals(),
-			
-			Collection(item) => item.locals(),
-			
-			Reserved(item) => item.locals(),
+			Reserved(item) => item.items(),
 		}
 	}
 }
@@ -68,26 +49,26 @@ impl MainItem for Report
 impl Report
 {
 	#[inline(always)]
-	fn parse_input(data: u32, globals: Rc<GlobalItems>, locals: LocalItems) -> Self
+	fn parse_input(data: u32, items: ReportItems) -> Self
 	{
-		Report::Input(InputMainItem::parse(data, globals, locals))
+		Report::Input(InputMainItem::parse(data, items))
 	}
 	
 	#[inline(always)]
-	fn parse_output(data: u32, globals: Rc<GlobalItems>, locals: LocalItems) -> Self
+	fn parse_output(data: u32, items: ReportItems) -> Self
 	{
-		Report::Output(OutputOrFeatureMainItem::parse(data, globals, locals))
+		Report::Output(OutputOrFeatureMainItem::parse(data, items))
 	}
 	
 	#[inline(always)]
-	fn parse_feature(data: u32, globals: Rc<GlobalItems>, locals: LocalItems) -> Self
+	fn parse_feature(data: u32, items: ReportItems) -> Self
 	{
-		Report::Feature(OutputOrFeatureMainItem::parse(data, globals, locals))
+		Report::Feature(OutputOrFeatureMainItem::parse(data, items))
 	}
 	
 	#[inline(always)]
-	fn parse_reserved(data: u32, data_width: DataWidth, globals: Rc<GlobalItems>, locals: LocalItems, tag: ReservedMainItemTag) -> Self
+	fn parse_reserved(data: u32, data_width: DataWidth, items: ReportItems, tag: ReservedMainItemTag) -> Self
 	{
-		Report::Reserved(ReservedMainItem::parse(data, data_width, globals, locals, tag))
+		Report::Reserved(ReservedMainItem::parse(data, data_width, items, tag))
 	}
 }

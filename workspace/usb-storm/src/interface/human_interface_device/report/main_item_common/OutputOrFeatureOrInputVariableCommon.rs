@@ -36,15 +36,9 @@ impl Deref for OutputOrFeatureOrInputVariableCommon
 impl MainItem for OutputOrFeatureOrInputVariableCommon
 {
 	#[inline(always)]
-	fn globals(&self) -> &GlobalItems
+	fn items(&self) -> &ReportItems
 	{
-		self.common.globals()
-	}
-	
-	#[inline(always)]
-	fn locals(&self) -> &LocalItems
-	{
-		self.common.locals()
+		self.common.items()
 	}
 }
 
@@ -86,11 +80,11 @@ impl OutputOrFeatureOrInputVariableCommon
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(data: u32, globals: Rc<GlobalItems>, locals: LocalItems) -> Self
+	pub(super) fn parse(data: u32, items: ReportItems) -> Self
 	{
 		Self
 		{
-			common: MainItemCommon::parse(data, globals, locals),
+			common: MainItemCommon::parse(data, items),
 			
 			wraps: parse_boolean(data, 3),
 			

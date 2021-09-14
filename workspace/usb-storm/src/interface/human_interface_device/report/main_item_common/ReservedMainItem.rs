@@ -8,9 +8,7 @@
 #[serde(deny_unknown_fields)]
 pub struct ReservedMainItem
 {
-	globals: Rc<GlobalItems>,
-	
-	locals: LocalItems,
+	items: ReportItems,
 
 	tag: ReservedMainItemTag,
 
@@ -22,15 +20,9 @@ pub struct ReservedMainItem
 impl MainItem for ReservedMainItem
 {
 	#[inline(always)]
-	fn globals(&self) -> &GlobalItems
+	fn items(&self) -> &ReportItems
 	{
-		&self.globals
-	}
-	
-	#[inline(always)]
-	fn locals(&self) -> &LocalItems
-	{
-		&self.locals
+		&self.items
 	}
 }
 
@@ -58,13 +50,11 @@ impl ReservedMainItem
 	}
 	
 	#[inline(always)]
-	pub(super) fn parse(data: u32, data_width: DataWidth, globals: Rc<GlobalItems>, locals: LocalItems, tag: ReservedMainItemTag) -> Self
+	pub(super) fn parse(data: u32, data_width: DataWidth, items: ReportItems, tag: ReservedMainItemTag) -> Self
 	{
 		Self
 		{
-			globals,
-			
-			locals,
+			items,
 			
 			tag,
 			

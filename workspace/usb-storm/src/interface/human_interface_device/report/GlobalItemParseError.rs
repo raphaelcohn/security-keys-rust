@@ -18,10 +18,77 @@ pub enum GlobalItemParseError
 	ReportIdentifierZeroIsReserved,
 	
 	#[allow(missing_docs)]
+	ReportIdentifierTooLarge
+	{
+		data: u32,
+	},
+	
+	#[allow(missing_docs)]
+	ReportCountTooLarge
+	{
+		data: u32,
+	},
+	
+	#[allow(missing_docs)]
 	CouldNotPushStack(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
 	TooManyStackPops,
+	
+	#[allow(missing_docs)]
+	MissingMaximumLogicalExtent
+	{
+		minimum: i32,
+	},
+	
+	#[allow(missing_docs)]
+	MissingMinimumLogicalExtent
+	{
+		maximum: i32,
+	},
+	
+	#[allow(missing_docs)]
+	MissingMinimumAndMaximumLogicalExtent,
+	
+	#[allow(missing_docs)]
+	MinimumLogicalExtentExceedsMaximum
+	{
+		minimum: i32,
+		
+		maximum: i32,
+	},
+	
+	#[allow(missing_docs)]
+	MinimumPhysicalExtentExceedsMaximum
+	{
+		minimum: i32,
+		
+		maximum: i32,
+	},
+	
+	#[allow(missing_docs)]
+	PhysicalExtentWouldCauseDivisionByZeroForResolution,
+	
+	#[allow(missing_docs)]
+	NoReportSize,
+	
+	#[allow(missing_docs)]
+	NoReportCount,
+	
+	#[allow(missing_docs)]
+	NoUsagePage,
+	
+	#[allow(missing_docs)]
+	ReportBitLengthIsTooLarge
+	{
+		report_bit_length: u64,
+	},
+	
+	#[allow(missing_docs)]
+	ReportSizeGreaterThan256Bytes
+	{
+		data: u32,
+	},
 }
 
 impl Display for GlobalItemParseError

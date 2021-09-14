@@ -5,7 +5,7 @@
 #[derive(Debug)]
 struct ItemStateTable
 {
-	globals: Rc<GlobalItems>,
+	globals: Rc<ParsingGlobalItems>,
 	
 	locals: Stack<ParsingLocalItems>,
 }

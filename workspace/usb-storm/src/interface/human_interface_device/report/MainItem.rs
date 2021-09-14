@@ -5,9 +5,6 @@
 /// A main item.
 pub trait MainItem
 {
-	/// Globals.
-	fn globals(&self) -> &GlobalItems;
-	
-	/// Locals.
-	fn locals(&self) -> &LocalItems;
+	/// Items.
+	fn items(&self) -> &ReportItems;
 }
