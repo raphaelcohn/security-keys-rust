@@ -9,6 +9,9 @@
 pub enum GlobalItemParseError
 {
 	#[allow(missing_docs)]
+	UsagePageCanNotBeZero,
+	
+	#[allow(missing_docs)]
 	UsagePageTooBig
 	{
 		data: u32
@@ -24,6 +27,9 @@ pub enum GlobalItemParseError
 	},
 	
 	#[allow(missing_docs)]
+	ReportCountCanNotBeZero,
+	
+	#[allow(missing_docs)]
 	ReportCountTooLarge
 	{
 		data: u32,
@@ -36,26 +42,27 @@ pub enum GlobalItemParseError
 	TooManyStackPops,
 	
 	#[allow(missing_docs)]
-	MissingMaximumLogicalExtent
-	{
-		minimum: i32,
-	},
-	
-	#[allow(missing_docs)]
-	MissingMinimumLogicalExtent
-	{
-		maximum: i32,
-	},
-	
-	#[allow(missing_docs)]
-	MissingMinimumAndMaximumLogicalExtent,
-	
-	#[allow(missing_docs)]
 	MinimumLogicalExtentExceedsMaximum
 	{
 		minimum: i32,
 		
 		maximum: i32,
+	},
+	
+	#[allow(missing_docs)]
+	LogicalMinimumRequiresMoreBitsThanReportSize
+	{
+		minimum: i32,
+		
+		report_size: ReportSize,
+	},
+	
+	#[allow(missing_docs)]
+	LogicalMaximumRequiresMoreBitsThanReportSize
+	{
+		maximum: i32,
+		
+		report_size: ReportSize,
 	},
 	
 	#[allow(missing_docs)]
@@ -81,7 +88,7 @@ pub enum GlobalItemParseError
 	#[allow(missing_docs)]
 	ReportBitLengthIsTooLarge
 	{
-		report_bit_length: u64,
+		report_bit_length: NonZeroU32,
 	},
 	
 	#[allow(missing_docs)]

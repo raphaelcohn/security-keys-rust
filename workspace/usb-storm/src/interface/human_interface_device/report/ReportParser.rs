@@ -193,8 +193,8 @@ impl<'a> ReportParser<'a>
 					
 					0b1000 => self.globals()?.parse_report_identifier(data)?,
 					0b1001 => self.globals()?.parse_report_count(data)?,
-					0b1010 => self.push_item_state_table()?,
-					0b1011 => self.pop_item_state_table()?,
+					0b1010 => self.push_item_state_table(data, data_width)?,
+					0b1011 => self.pop_item_state_table(data, data_width)?,
 					
 					0b1100 => self.globals()?.parse_reserved0(data, data_width),
 					0b1101 => self.globals()?.parse_reserved1(data, data_width),
@@ -342,12 +342,12 @@ impl<'a> ReportParser<'a>
 		let globals =
 		{
 			let parsing_globals = self.globals_inner();
-			parsing_globals.finish()?
+			parsing_globals.finish_parsing()?
 		};
 		
 		let parsing_locals = self.locals_stack().consume_and_replace()?;
 		
-		ReportItems::finish(Cow::Owned(globals), parsing_locals)
+		ReportItems::finish_parsing(Cow::Owned(globals), parsing_locals)
 	}
 	
 	#[inline(always)]
@@ -426,16 +426,26 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn push_item_state_table(&mut self) -> Result<(), ReportParseError>
+	fn push_item_state_table(&mut self, data: u32, data_width: DataWidth) -> Result<(), ReportParseError>
 	{
+		if unlikely!(data_width != DataWidth::Widthless)
+		{
+			return Err(ReportParseError::PushCanNotHaveData { data, data_width })
+		}
+		
 		let cloned_item_state_table = self.current_item_state_table().try_clone().map_err(|cause| ReportParseError::GlobalItemParse(GlobalItemParseError::CouldNotPushStack(cause)))?;
 		self.item_state_table_stack.push_value(cloned_item_state_table)?;
 		Ok(())
 	}
 	
 	#[inline(always)]
-	fn pop_item_state_table(&mut self) -> Result<(), ReportParseError>
+	fn pop_item_state_table(&mut self, data: u32, data_width: DataWidth) -> Result<(), ReportParseError>
 	{
+		if unlikely!(data_width != DataWidth::Widthless)
+		{
+			return Err(ReportParseError::PopCanNotHaveData { data, data_width })
+		}
+		
 		if self.item_state_table_stack.pop().is_some()
 		{
 			Ok(())

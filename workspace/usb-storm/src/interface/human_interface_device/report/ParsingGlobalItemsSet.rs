@@ -2,4 +2,4 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-type ParsingGlobalItemsSet = (UsagePage, InclusiveRange<i32>, InclusiveRange<i32>, (Option<Unit>, UnitExponent), ReportSize, u32, u32, Option<ReportIdentifier>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>);
+type ParsingGlobalItemsSet = (UsagePage, InclusiveRange<i32>, InclusiveRange<i32>, (Option<Unit>, UnitExponent), ReportSize, ReportCount, NonZeroU32, Option<ReportIdentifier>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>);

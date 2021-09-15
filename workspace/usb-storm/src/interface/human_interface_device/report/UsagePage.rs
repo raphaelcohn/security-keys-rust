@@ -3,4 +3,39 @@
 
 
 /// Usage page.
-pub type UsagePage = u16;
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+#[repr(transparent)]
+pub struct UsagePage(NonZeroU16);
+
+impl TryFrom<u32> for UsagePage
+{
+	type Error = GlobalItemParseError;
+	
+	#[inline(always)]
+	fn try_from(data: u32) -> Result<Self, Self::Error>
+	{
+		use GlobalItemParseError::*;
+		
+		if unlikely!(data > (u16::MAX as u32))
+		{
+			return Err(UsagePageTooBig { data })
+		}
+		Self::new_checked(data as u16, UsagePageCanNotBeZero)
+	}
+}
+
+impl UsagePage
+{
+	#[inline(always)]
+	fn new_checked<E: error::Error>(usage_page: u16, usage_page_can_not_be_zero_error: E) -> Result<Self, E>
+	{
+		if unlikely!(usage_page == 0)
+		{
+			return Err(usage_page_can_not_be_zero_error)
+		}
+		
+		Ok(Self(new_non_zero_u16(usage_page)))
+	}
+}

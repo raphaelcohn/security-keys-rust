@@ -3,62 +3,79 @@
 
 
 /// Usage.
-#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Default, Debug, Copy, Clone, Eq, PartialEq, Hash)]
 struct ParsingUsage
 {
-	data: u32,
-	
-	data_width: DataWidth,
+	page: Option<UsagePage>,
+
+	identifier: u16,
 }
 
-impl TryClone for ParsingUsage
+impl PartialOrd for ParsingUsage
 {
 	#[inline(always)]
-	fn try_clone(&self) -> Result<Self, TryReserveError>
+	fn partial_cmp(&self, other: &Self) -> Option<Ordering>
 	{
-		Ok(*self)
+		if unlikely!(self.page != other.page)
+		{
+			return None
+		}
+		Some(self.identifier.cmp(&other.identifier))
 	}
 }
 
 impl ParsingUsage
 {
 	#[inline(always)]
-	fn next(self) -> Self
+	fn with_maximum(self, maximum: ParsingUsage) -> Result<ParsingUsageInclusiveRange, LocalItemParseError>
 	{
-		Self
-		{
-			data: self.data + 1,
+		use LocalItemParseError::*;
 		
-			data_width: self.data_width,
-		}
-	}
-	
-	#[inline(always)]
-	fn finish(self, usage_page: UsagePage) -> Usage
-	{
-		Usage
+		let minimum = self;
+		use Ordering::Greater;
+		match minimum.partial_cmp(&maximum)
 		{
-			page: if self.data_width == DataWidth::ThirtyTwoBit
-			{
-				(self.data >> 16) as u16
-			}
-			else
-			{
-				usage_page
-			},
+			None => Err(UsageMinimumAndUsageMaximumMustHaveSameUsagePage),
 			
-			identifier: self.data as u16,
+			Some(Greater) => Err(UsageMinimumMustBeLessThanMaximum),
+			
+			_ => Ok
+			(
+				ParsingUsageInclusiveRange
+				{
+					page: minimum.page,
+				
+					inclusive_minimum_identifier: minimum.identifier,
+				
+					inclusive_maximum_identifier: maximum.identifier,
+				}
+			),
 		}
 	}
 	
 	#[inline(always)]
-	fn parse(data: u32, data_width: DataWidth) -> Self
+	fn parse(data: u32, data_width: DataWidth, usage_page_can_not_be_zero_error: LocalItemParseError) -> Result<Self, LocalItemParseError>
 	{
-		Self
-		{
-			data,
-		
-			data_width,
-		}
+		Ok
+		(
+			Self
+			{
+				page: if data_width == DataWidth::ThirtyTwoBit
+				{
+					let usage_page_data = (data >> 16) as u16;
+					if unlikely!(usage_page_data == 0)
+					{
+						return Err(usage_page_can_not_be_zero_error)
+					}
+					Some(UsagePage::new_checked(usage_page_data, usage_page_can_not_be_zero_error)?)
+				}
+				else
+				{
+					None
+				},
+			
+				identifier: data as u16,
+			}
+		)
 	}
 }

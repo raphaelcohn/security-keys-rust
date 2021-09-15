@@ -10,9 +10,9 @@ struct ParsingGlobalItems
 	
 	report_size: Option<ReportSize>,
 	
-	report_identifier: Option<ReportIdentifier>,
+	report_count: Option<ReportCount>,
 	
-	report_count: Option<u32>,
+	report_identifier: Option<ReportIdentifier>,
 	
 	logical_minimum_extent: Option<i32>,
 	
@@ -36,26 +36,55 @@ struct ParsingGlobalItems
 impl ParsingGlobalItems
 {
 	#[inline(always)]
-	fn finish(&self) -> Result<ParsingGlobalItemsSet, GlobalItemParseError>
+	fn finish_parsing(&self) -> Result<ParsingGlobalItemsSet, GlobalItemParseError>
 	{
 		use GlobalItemParseError::*;
 		
-		let logical_extent = match (self.logical_minimum_extent, self.logical_maximum_extent)
+		let unit_exponent = self.unit_exponent.unwrap_or_default();
+		
+		xxxx;
+		// These do not exist at the top-level or in nested collections.
+		
+		let report_size = self.report_size.ok_or(NoReportSize)?;
+		
+		let report_count = self.report_count.ok_or(NoReportCount)?;
+		
+		let usage_page = self.usage_page.ok_or(NoUsagePage)?;
+		
+		let report_bit_length =
 		{
-			(Some(minimum), Some(maximum)) => if unlikely!(minimum > maximum)
+			let report_bit_length = new_non_zero_u32(report_size.u32() * report_count.u32());
+			if report_bit_length > ReportItems::ReportBitLengthInclusiveMaximum
 			{
-				return Err(MinimumLogicalExtentExceedsMaximum { minimum, maximum })
+				return Err(ReportBitLengthIsTooLarge { report_bit_length })
 			}
-			else
+			report_bit_length
+		};
+		
+		let logical_extent =
+		{
+			let logical_extent = match (self.logical_minimum_extent, self.logical_maximum_extent)
 			{
-				InclusiveRange(minimum ..= maximum)
-			},
+				(Some(minimum), Some(maximum)) => minimum ..= maximum,
+				
+				(Some(minimum), None) => minimum ..= 0,
+				
+				(None, Some(maximum)) => 0 ..= maximum,
+				
+				_ => 0 ..= 0
+			};
 			
-			(Some(minimum), None) => return Err(MissingMaximumLogicalExtent { minimum }),
+			let minimum = logical_extent.start();
+			let maximum = logical_extent.end();
+			if unlikely!(minimum.gt(maximum))
+			{
+				return Err(MinimumLogicalExtentExceedsMaximum { minimum: *minimum, maximum: *maximum })
+			}
 			
-			(None, Some(maximum)) => return Err(MissingMinimumLogicalExtent { maximum }),
+			Self::guard_logical_extent_minimum_bits_are_not_too_small_for_report_size(report_size, *minimum, LogicalMinimumRequiresMoreBitsThanReportSize { minimum: *minimum, report_size })?;
+			Self::guard_logical_extent_minimum_bits_are_not_too_small_for_report_size(report_size, *minimum, LogicalMaximumRequiresMoreBitsThanReportSize { maximum: *maximum, report_size })?;
 			
-			_ => return Err(MissingMinimumAndMaximumLogicalExtent)
+			InclusiveRange(logical_extent)
 		};
 		
 		let physical_extent =
@@ -83,38 +112,32 @@ impl ParsingGlobalItems
 			physical_extent
 		};
 		
-		let unit_exponent = self.unit_exponent.unwrap_or_default();
-		
-		let report_size = self.report_size.ok_or(NoReportSize)?;
-		
-		let report_count = self.report_count.ok_or(NoReportCount)?;
-		
-		let usage_page = self.usage_page.ok_or(NoUsagePage)?;
-		
-		let report_bit_length =
+		Ok((usage_page, logical_extent, physical_extent, (self.unit, unit_exponent), report_size, report_count, report_bit_length, self.report_identifier, self.reserved0, self.reserved1, self.reserved2))
+	}
+	
+	#[inline(always)]
+	fn guard_logical_extent_minimum_bits_are_not_too_small_for_report_size(report_size: ReportSize, logical_extent_minimum_or_maximum: i32,  error: GlobalItemParseError) -> Result<(), GlobalItemParseError>
+	{
+		let minimum_bits = i32::BITS - if logical_extent_minimum_or_maximum >= 0
 		{
-			let report_bit_length = (report_size as u64) * (report_count as u64);
-			// This check is taken from Linux.
-			const HID_MAX_BUFFER_SIZE: u64 = 16384;
-			const Maximum: u64 = (HID_MAX_BUFFER_SIZE - 1) << 3;
-			if report_bit_length > Maximum
-			{
-				return Err(ReportBitLengthIsTooLarge { report_bit_length })
-			}
-			report_bit_length as u32
+			logical_extent_minimum_or_maximum.leading_zeros()
+		}
+		else
+		{
+			logical_extent_minimum_or_maximum.abs().leading_zeros() - 1
 		};
 		
-		Ok((usage_page, logical_extent, physical_extent, (self.unit, unit_exponent), report_size, report_count, report_bit_length, self.report_identifier, self.reserved0, self.reserved1, self.reserved2))
+		if unlikely!(minimum_bits > report_size.u32())
+		{
+			return Err(error)
+		}
+		Ok(())
 	}
 	
 	#[inline(always)]
 	fn parse_usage_page(&mut self, data: u32) -> Result<(), GlobalItemParseError>
 	{
-		if unlikely!(data > (u16::MAX as u32))
-		{
-			return Err(GlobalItemParseError::UsagePageTooBig { data })
-		}
-		self.usage_page = Some(data as u16);
+		self.usage_page = Some(UsagePage::try_from(data)?);
 		Ok(())
 	}
 	
@@ -157,47 +180,21 @@ impl ParsingGlobalItems
 	#[inline(always)]
 	fn parse_report_size(&mut self, data: u32) -> Result<(), GlobalItemParseError>
 	{
-		if unlikely!(data > 256)
-		{
-			return Err(GlobalItemParseError::ReportSizeGreaterThan256Bytes { data })
-		}
-		self.report_size = Some(data as u16);
-		Ok(())
-	}
-	
-	#[inline(always)]
-	fn parse_report_identifier(&mut self, data: u32) -> Result<(), GlobalItemParseError>
-	{
-		use GlobalItemParseError::*;
-		
-		if unlikely!(data == 0)
-		{
-			return Err(ReportIdentifierZeroIsReserved)
-		}
-		
-		// This value is from Linux.
-		const HID_MAX_IDS: u32 = 256;
-		
-		if unlikely!(data >= HID_MAX_IDS)
-		{
-			return Err(ReportIdentifierTooLarge { data })
-		}
-		
-		self.report_identifier = Some(new_non_zero_u16(data as u16));
+		self.report_size = Some(ReportSize::try_from(data)?);
 		Ok(())
 	}
 	
 	#[inline(always)]
 	fn parse_report_count(&mut self, data: u32) -> Result<(), GlobalItemParseError>
 	{
-		// This value is from Linux.
-		const HID_MAX_USAGES: u32 = 12288;
-		
-		if unlikely!(data > HID_MAX_USAGES)
-		{
-			return Err(GlobalItemParseError::ReportCountTooLarge { data })
-		}
-		self.report_count = Some(data);
+		self.report_count = Some(ReportCount::try_from(data)?);
+		Ok(())
+	}
+	
+	#[inline(always)]
+	fn parse_report_identifier(&mut self, data: u32) -> Result<(), GlobalItemParseError>
+	{
+		self.report_identifier = Some(ReportIdentifier::try_from(data)?);
 		Ok(())
 	}
 	

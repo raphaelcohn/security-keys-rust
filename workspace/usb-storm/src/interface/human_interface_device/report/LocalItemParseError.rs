@@ -9,6 +9,15 @@
 pub enum LocalItemParseError
 {
 	#[allow(missing_docs)]
+	UsagePageCanNotBeZero,
+	
+	#[allow(missing_docs)]
+	MinimumUsagePageCanNotBeZero,
+	
+	#[allow(missing_docs)]
+	MaximumUsagePageCanNotBeZero,
+	
+	#[allow(missing_docs)]
 	CouldNotPushUsageItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
@@ -18,18 +27,13 @@ pub enum LocalItemParseError
 	UsageMaximumMustBePreceededByUsageMinimum,
 	
 	#[allow(missing_docs)]
+	UsageMinimumAndUsageMaximumMustHaveSameUsagePage,
+	
+	#[allow(missing_docs)]
 	UsageMinimumMustBeLessThanMaximum,
 	
 	#[allow(missing_docs)]
 	UsageMinimumNotFollowedByUsageMaximum,
-	
-	#[allow(missing_docs)]
-	UsageMinimumAndMaximumMustBeSimilar
-	{
-		minimum_data_width: DataWidth,
-		
-		maximum_data_width: DataWidth,
-	},
 	
 	#[allow(missing_docs)]
 	CouldNotPushDesignatorItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),

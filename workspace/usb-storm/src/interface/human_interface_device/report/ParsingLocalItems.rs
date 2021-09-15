@@ -6,9 +6,11 @@
 #[derive(Default, Debug, Clone, Eq, PartialEq, Hash)]
 struct ParsingLocalItems
 {
-	usage_ranges: Vec<InclusiveRange<ParsingUsage>>,
+	total_number_of_usages: usize,
 	
-	have_minimum_usage: Option<(u32, DataWidth)>,
+	usage_ranges: Vec<ParsingUsageInclusiveRange>,
+	
+	have_minimum_usage: Option<ParsingUsage>,
 	
 	designators: Vec<InclusiveRange<DesignatorIndex>>,
 	
@@ -34,6 +36,8 @@ impl TryClone for ParsingLocalItems
 		(
 			Self
 			{
+				total_number_of_usages: self.total_number_of_usages,
+				
 				usage_ranges: self.usage_ranges.try_clone()?,
 				
 				have_minimum_usage: self.have_minimum_usage,
@@ -59,7 +63,7 @@ impl TryClone for ParsingLocalItems
 impl ParsingLocalItems
 {
 	#[inline(always)]
-	fn finish(self, globals: &ParsingGlobalItemsSet) -> Result<ParsingLocalItemsSet, ReportParseError>
+	fn finish_parsing(self, globals: &ParsingGlobalItemsSet) -> Result<ParsingLocalItemsSet, ReportParseError>
 	{
 		use LocalItemParseError::*;
 		
@@ -85,13 +89,13 @@ impl ParsingLocalItems
 			let mut alternates = Vec::new_with_capacity(self.alternates.len()).map_err(OutOfMemoryAllocatingReportItemsSets)?;
 			for parsing_locals in self.alternates
 			{
-				let report_items = ReportItems::finish(Cow::Borrowed(globals), parsing_locals)?;
+				let report_items = ReportItems::finish_parsing(Cow::Borrowed(globals), parsing_locals)?;
 				alternates.push_unchecked(report_items)
 			}
 			alternates
 		};
 		
-		Ok((self.usage_ranges, self.designators, self.strings, self.reserveds, self.longs, alternates))
+		Ok(((self.total_number_of_usages, self.usage_ranges), self.designators, self.strings, self.reserveds, self.longs, alternates))
 	}
 	
 	#[inline(always)]
@@ -103,8 +107,10 @@ impl ParsingLocalItems
 	#[inline(always)]
 	fn parse_usage(&mut self, data: u32, data_width: DataWidth) -> Result<(), LocalItemParseError>
 	{
-		let usage = ParsingUsage::parse(data, data_width);
-		self.usage_ranges.try_push(InclusiveRange(usage ..= usage)).map_err(LocalItemParseError::CouldNotPushUsageItem)
+		let usage = ParsingUsage::parse(data, data_width, LocalItemParseError::UsagePageCanNotBeZero)?;
+		let parsing_usage_inclusive_range = usage.into();
+		self.total_number_of_usages += 1;
+		self.usage_ranges.try_push(parsing_usage_inclusive_range).map_err(LocalItemParseError::CouldNotPushUsageItem)
 	}
 	
 	#[inline(always)]
@@ -114,7 +120,7 @@ impl ParsingLocalItems
 		{
 			return Err(LocalItemParseError::UsageMinimumCanNotBeFollowedByUsageMinimum)
 		}
-		self.have_minimum_usage = Some((minimum_data, minimum_data_width));
+		self.have_minimum_usage = Some(ParsingUsage::parse(minimum_data, minimum_data_width, LocalItemParseError::MinimumUsagePageCanNotBeZero)?);
 		Ok(())
 	}
 	
@@ -126,28 +132,13 @@ impl ParsingLocalItems
 		{
 			None => return Err(UsageMaximumMustBePreceededByUsageMinimum),
 			
-			Some((minimum_data, minimum_data_width)) =>
+			Some(minimum) =>
 			{
-				if unlikely!(minimum_data > maximum_data)
-				{
-					return Err(UsageMinimumMustBeLessThanMaximum)
-				}
+				let maximum = ParsingUsage::parse(maximum_data, maximum_data_width, MaximumUsagePageCanNotBeZero)?;
+				let parsing_usage_inclusive_range = minimum.with_maximum(maximum)?;
 				
-				use DataWidth::*;
-				match (minimum_data_width, maximum_data_width)
-				{
-					(ThirtyTwoBit, ThirtyTwoBit) => (),
-					
-					(ThirtyTwoBit, _) => return Err(UsageMinimumAndMaximumMustBeSimilar { minimum_data_width, maximum_data_width }),
-					
-					(_, ThirtyTwoBit) => return Err(UsageMinimumAndMaximumMustBeSimilar { minimum_data_width, maximum_data_width }),
-					
-					_ => (),
-				}
-				
-				let minimum = ParsingUsage::parse(minimum_data, minimum_data_width);
-				let maximum = ParsingUsage::parse(maximum_data, maximum_data_width);
-				self.usage_ranges.try_push(InclusiveRange(minimum ..= maximum)).map_err(CouldNotPushUsageItem)?;
+				self.total_number_of_usages += parsing_usage_inclusive_range.len();
+				self.usage_ranges.try_push(parsing_usage_inclusive_range).map_err(CouldNotPushUsageItem)?;
 			}
 		}
 		Ok(())

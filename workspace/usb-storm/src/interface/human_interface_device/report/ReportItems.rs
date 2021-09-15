@@ -3,7 +3,7 @@
 
 
 /// Report items, combined from globals and locals.
-#[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReportItems
@@ -14,9 +14,9 @@ pub struct ReportItems
 	
 	report_size: ReportSize,
 	
-	report_count: u32,
+	report_count: ReportCount,
 	
-	report_bit_length: u32,
+	report_bit_length: NonZeroU32,
 	
 	logical_extent: InclusiveRange<i32>,
 	
@@ -41,41 +41,60 @@ pub struct ReportItems
 	longs: Vec<LongItem>,
 }
 
+impl Default for ReportItems
+{
+	#[inline(always)]
+	fn default() -> Self
+	{
+		Self
+		{
+			usages: Default::default(),
+			
+			report_identifier: None,
+			
+			report_size: ReportSize(new_non_zero_u16(1)),
+			
+			report_count: ReportCount(new_non_zero_u16(1)),
+			
+			report_bit_length: new_non_zero_u32(1),
+			
+			logical_extent: Default::default(),
+			
+			physical_extent: Default::default(),
+			
+			physical_unit: Default::default(),
+			
+			designators: Default::default(),
+			
+			strings: Default::default(),
+			
+			sets: Default::default(),
+			
+			global_reserved0: None,
+			
+			global_reserved1: None,
+			
+			global_reserved2: None,
+			
+			local_reserveds: Default::default(),
+			
+			longs: Default::default(),
+		}
+	}
+}
+
 impl ReportItems
 {
-	fn finish(globals: Cow<ParsingGlobalItemsSet>, parsing_locals: ParsingLocalItems) -> Result<Self, ReportParseError>
+	fn finish_parsing(globals: Cow<ParsingGlobalItemsSet>, parsing_locals: ParsingLocalItems) -> Result<Self, ReportParseError>
 	{
-		let (usage_ranges, designators, strings, local_reserveds, longs, sets) = parsing_locals.finish(globals.borrow())?;
+		let (usages, designators, strings, local_reserveds, longs, sets) = parsing_locals.finish_parsing(globals.borrow())?;
 		let (usage_page, logical_extent, physical_extent, physical_unit, report_size, report_count, report_bit_length, report_identifier, global_reserved0, global_reserved1, global_reserved2) = globals.into_owned();
 		
-		let usages =
-		{
-			let mut usages = Vec::new_with_capacity(usage_ranges.len()).map_err(OutOfMemoryAllocatingUsages)?;
-			// TODO: Parse HUT!
-			for usage_range in usage_ranges
-			{
-				let mut current = usage_range.inclusive_start();
-				let end = usage_range.inclusive_end();
-				loop
-				{
-					usages.try_push(current.finish(usage_page)).map_err(OutOfMemoryAllocatingUsages)?;
-					
-					if current == end
-					{
-						break
-					}
-					current = current.next();
-				}
-			}
-			usages
-		};
-		
-		use ReportParseError::*;
 		Ok
 		(
 			Self
 			{
-				usages,
+				usages: Self::finish_parsing_usages(usages, usage_page)?,
 				
 				report_identifier,
 			
@@ -110,6 +129,20 @@ impl ReportItems
 		)
 	}
 	
+	#[inline(always)]
+	fn finish_parsing_usages((total_number_of_usages, parsing_usage_inclusive_ranges): (usize, Vec<ParsingUsageInclusiveRange>), usage_page: UsagePage) -> Result<Vec<Usage>, ReportParseError>
+	{
+		let mut usages = Vec::new_with_capacity(total_number_of_usages).map_err(ReportParseError::OutOfMemoryAllocatingUsages)?;
+		for parsing_usage_inclusive_range in parsing_usage_inclusive_ranges
+		{
+			for usage in parsing_usage_inclusive_range.iter(usage_page)
+			{
+				usages.push_unchecked(usage);
+			}
+		}
+		Ok(usages)
+	}
+	
 	/// Will not exceed `(i32::MAX as u32) + 1`.
 	///
 	/// Only relevant if the item is an array.
@@ -133,7 +166,7 @@ impl ReportItems
 		self.report_identifier
 	}
 	
-	/// This value is a number of bits.
+	#[allow(missing_docs)]
 	#[inline(always)]
 	pub const fn report_size(&self) -> ReportSize
 	{
@@ -142,14 +175,20 @@ impl ReportItems
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn report_count(&self) -> u32
+	pub const fn report_count(&self) -> ReportCount
 	{
 		self.report_count
 	}
 	
-	/// This value is a number of bits; it does not exceed 131_064 (a Linux limitation).
+	// This constant is taken from Linux.
+	const HID_MAX_BUFFER_SIZE: u32 = 16384;
+	
+	/// Limitation from Linux of 131,064.
+	pub const ReportBitLengthInclusiveMaximum: NonZeroU32 = new_non_zero_u32((Self::HID_MAX_BUFFER_SIZE - 1) << 3);
+	
+	/// This value is a number of bits; it does not exceed `Self::ReportBitLengthInclusiveMaximum`.
 	#[inline(always)]
-	pub const fn report_bit_length(&self) -> u32
+	pub const fn report_bit_length(&self) -> NonZeroU32
 	{
 		self.report_bit_length
 	}

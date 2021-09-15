@@ -2,16 +2,16 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Report size.
+/// Report count.
 ///
-/// This value is a number of bits.
-/// Think of it as the width of a field in bits.
+/// Think of this value as the number of fields.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
 #[repr(transparent)]
-pub struct ReportSize(NonZeroU16);
+pub struct ReportCount(NonZeroU16);
 
-impl Into<NonZeroU16> for ReportSize
+impl Into<NonZeroU16> for ReportCount
 {
 	#[inline(always)]
 	fn into(self) -> NonZeroU16
@@ -20,7 +20,7 @@ impl Into<NonZeroU16> for ReportSize
 	}
 }
 
-impl Into<u16> for ReportSize
+impl Into<u16> for ReportCount
 {
 	#[inline(always)]
 	fn into(self) -> u16
@@ -29,7 +29,7 @@ impl Into<u16> for ReportSize
 	}
 }
 
-impl Into<NonZeroU32> for ReportSize
+impl Into<NonZeroU32> for ReportCount
 {
 	#[inline(always)]
 	fn into(self) -> NonZeroU32
@@ -38,7 +38,7 @@ impl Into<NonZeroU32> for ReportSize
 	}
 }
 
-impl Into<u32> for ReportSize
+impl Into<u32> for ReportCount
 {
 	#[inline(always)]
 	fn into(self) -> u32
@@ -47,26 +47,36 @@ impl Into<u32> for ReportSize
 	}
 }
 
-impl TryFrom<u32> for ReportSize
+impl TryFrom<u32> for ReportCount
 {
 	type Error = GlobalItemParseError;
 	
 	#[inline(always)]
 	fn try_from(data: u32) -> Result<Self, Self::Error>
 	{
-		// This check is based on that in Linux in `drivers/hid/hid_core.c`, starting from `case HID_GLOBAL_ITEM_TAG_REPORT_SIZE`.
-		if unlikely!(data > 256)
+		use GlobalItemParseError::*;
+		
+		if unlikely!(data == 0)
 		{
-			return Err(GlobalItemParseError::ReportSizeGreaterThan256Bytes { data })
+			return Err(ReportCountCanNotBeZero)
 		}
+		
+		if unlikely!(data > ReportCount::HID_MAX_USAGES)
+		{
+			return Err(ReportCountTooLarge { data })
+		}
+		
 		Ok(Self(new_non_zero_u16(data as u16)))
 	}
 }
 
-impl ReportSize
+impl ReportCount
 {
-	/// Inclusive maximum is 256.
-	pub const InclusiveMaximum: Self = Self(new_non_zero_u16(256));
+	// This constant is from Linux.
+	const HID_MAX_USAGES: u32 = 12288;
+	
+	/// Inclusive maximum.
+	pub const InclusiveMaximum: Self = Self(new_non_zero_u16(Self::HID_MAX_USAGES as u16));
 	
 	#[inline(always)]
 	fn u16(self) -> u16

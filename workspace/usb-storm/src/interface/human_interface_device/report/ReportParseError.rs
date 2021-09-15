@@ -54,6 +54,22 @@ pub enum ReportParseError
 	TooManyCollectionPops,
 	
 	#[allow(missing_docs)]
+	PushCanNotHaveData
+	{
+		data: u32,
+	
+		data_width: DataWidth,
+	},
+	
+	#[allow(missing_docs)]
+	PopCanNotHaveData
+	{
+		data: u32,
+		
+		data_width: DataWidth,
+	},
+	
+	#[allow(missing_docs)]
 	OutOfMemoryAllocatingUsages(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
