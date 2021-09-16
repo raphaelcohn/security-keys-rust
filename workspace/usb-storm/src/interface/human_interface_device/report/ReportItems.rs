@@ -2,7 +2,19 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Report items, combined from globals and locals.
+/// Report items.
+///
+/// * The range of values in `self.logical_extent()` is the range of values possible in a report field.
+/// * The size, in bits, of a report field is given by `self.report_size()`.
+/// 	* This is validated to support the range of values above.
+/// * The number of report fields is given by `self.report_count()`.
+/// * The total number of bits of all report fields is given by `self.report_bit_length()`.
+/// 	* This is validated to not exceed a sensible maximum.
+/// * The `self.usages()` should contain an entry for each report field, but this is not necessarily the case
+/// 	* If `self.usages().len() < self.report_count()`: The last entry in `self.usages()` is repeated for the remaining fields.
+/// 	* If `self.usages().len() == self.report_count()`: Assign 1:1.
+/// 	* If `self.usages().len() > self.report_count()`: Ignore final usages.
+/// * Likewise, `self.alternate_usages()` can also be used.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
