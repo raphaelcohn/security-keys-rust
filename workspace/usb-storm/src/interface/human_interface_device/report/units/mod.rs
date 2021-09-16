@@ -28,6 +28,7 @@ include!("TemperatureUnits.rs");
 include!("LinearOrRotation.rs");
 include!("MassUnits.rs");
 include!("parse_exponent_nibble.rs");
+include!("PhysicalUnit.rs");
 include!("ReservedUnits.rs");
 include!("System.rs");
 include!("SystemOfUnits.rs");

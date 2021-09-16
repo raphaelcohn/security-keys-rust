@@ -17,7 +17,7 @@ pub struct ReservedMainItem
 	data_width: DataWidth,
 }
 
-impl MainItem for ReservedMainItem
+impl HasReportItems for ReservedMainItem
 {
 	#[inline(always)]
 	fn items(&self) -> &ReportItems

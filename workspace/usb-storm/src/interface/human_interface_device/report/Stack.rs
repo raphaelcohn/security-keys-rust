@@ -61,35 +61,3 @@ impl<V> Stack<V>
 		Ok(value)
 	}
 }
-
-impl<V: Default> Stack<V>
-{
-	#[inline(always)]
-	fn push(&mut self) -> Result<(), ReportParseError>
-	{
-		self.push_value(V::default())
-	}
-	
-	#[inline(always)]
-	fn consume_and_replace(&mut self) -> Result<V, ReportParseError>
-	{
-		self.guard_consume()?;
-		
-		Ok(take(self.0.get_unchecked_mut_safe(0)))
-	}
-}
-
-impl Stack<ParsingLocalItems>
-{
-	#[inline(always)]
-	fn try_clone(&self) -> Result<Self, TryReserveError>
-	{
-		Ok
-		(
-			Self
-			(
-				self.0.try_clone()?
-			)
-		)
-	}
-}

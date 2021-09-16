@@ -27,7 +27,7 @@ impl Deref for OutputOrFeatureMainItem
 	}
 }
 
-impl MainItem for OutputOrFeatureMainItem
+impl HasReportItems for OutputOrFeatureMainItem
 {
 	#[inline(always)]
 	fn items(&self) -> &ReportItems

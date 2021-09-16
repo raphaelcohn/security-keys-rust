@@ -13,23 +13,6 @@ pub struct LongItem
 	data: Vec<u8>,
 }
 
-impl TryClone for LongItem
-{
-	#[inline(always)]
-	fn try_clone(&self) -> Result<Self, TryReserveError>
-	{
-		Ok
-		(
-			Self
-			{
-				tag: self.tag,
-			
-				data: self.data.try_clone()?,
-			}
-		)
-	}
-}
-
 impl LongItem
 {
 	#[allow(missing_docs)]

@@ -47,7 +47,8 @@
 #![feature(try_reserve)]
 
 
-//! usb-storm is a library for enumerating USB devices and parsing USB descriptors.
+//!
+#[doc = include_str!("../README.md")]
 
 
 // These are required for the binary build (main.rs) but not the library build (lib.rs), but Cargo provides no way to exclude from the library build's dependencies.

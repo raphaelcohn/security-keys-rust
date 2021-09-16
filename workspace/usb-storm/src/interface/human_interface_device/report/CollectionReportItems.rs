@@ -2,29 +2,15 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Report items, combined from globals and locals.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// Collection eport items, combined from globals and locals.
+#[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct ReportItems
+pub struct CollectionReportItems
 {
 	usages: Vec<Usage>,
 	
 	alternate_usages: Vec<Vec<Usage>>,
-	
-	report_identifier: Option<ReportIdentifier>,
-	
-	report_size: ReportSize,
-	
-	report_count: ReportCount,
-	
-	report_bit_length: NonZeroU32,
-	
-	logical_extent: InclusiveRange<i32>,
-	
-	physical_extent: InclusiveRange<i32>,
-
-	physical_unit: PhysicalUnit,
 	
 	designators: Vec<InclusiveRange<DesignatorIndex>>,
 	
@@ -41,11 +27,11 @@ pub struct ReportItems
 	longs: Vec<LongItem>,
 }
 
-impl ReportItems
+impl CollectionReportItems
 {
 	fn finish_parsing(parsing_globals: &Rc<ParsingGlobalItems>, parsing_locals: ParsingLocalItems) -> Result<Self, ReportParseError>
 	{
-		let (usage_page, logical_extent, physical_extent, physical_unit, report_size, report_count, report_bit_length, report_identifier, global_reserved0, global_reserved1, global_reserved2) = parsing_globals.finish_parsing()?;
+		let (usage_page, global_reserved0, global_reserved1, global_reserved2) = parsing_globals.finish_collection_parsing()?;
 		let (usages, designators, strings, local_reserveds, longs, alternate_usages) = parsing_locals.finish_parsing(usage_page)?;
 		
 		Ok
@@ -55,20 +41,6 @@ impl ReportItems
 				usages,
 				
 				alternate_usages,
-				
-				report_identifier,
-			
-				report_size,
-			
-				report_count,
-				
-				report_bit_length,
-				
-				logical_extent,
-			
-				physical_extent,
-			
-				physical_unit,
 			
 				designators,
 			
@@ -87,15 +59,6 @@ impl ReportItems
 		)
 	}
 	
-	/// Will not exceed `(i32::MAX as u32) + 1`.
-	///
-	/// Only relevant if the item is an array.
-	#[inline(always)]
-	pub fn number_of_array_items(&self) -> NonZeroU32
-	{
-		self.logical_extent.count()
-	}
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub fn usages(&self) -> &[Usage]
@@ -108,61 +71,6 @@ impl ReportItems
 	pub fn alternate_usages(&self) -> &[Vec<Usage>]
 	{
 		&self.alternate_usages
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn report_identifier(&self) -> Option<ReportIdentifier>
-	{
-		self.report_identifier
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn report_size(&self) -> ReportSize
-	{
-		self.report_size
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn report_count(&self) -> ReportCount
-	{
-		self.report_count
-	}
-	
-	// This constant is taken from Linux.
-	const HID_MAX_BUFFER_SIZE: u32 = 16384;
-	
-	/// Limitation from Linux of 131,064.
-	pub const ReportBitLengthInclusiveMaximum: NonZeroU32 = new_non_zero_u32((Self::HID_MAX_BUFFER_SIZE - 1) << 3);
-	
-	/// This value is a number of bits; it does not exceed `Self::ReportBitLengthInclusiveMaximum`.
-	#[inline(always)]
-	pub const fn report_bit_length(&self) -> NonZeroU32
-	{
-		self.report_bit_length
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn logical_extent(&self) -> &InclusiveRange<i32>
-	{
-		&self.logical_extent
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn physical_extent(&self) -> &InclusiveRange<i32>
-	{
-		&self.physical_extent
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn physical_unit(&self) -> PhysicalUnit
-	{
-		self.physical_unit
 	}
 	
 	#[allow(missing_docs)]

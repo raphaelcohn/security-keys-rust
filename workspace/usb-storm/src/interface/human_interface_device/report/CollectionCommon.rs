@@ -3,39 +3,33 @@
 
 
 /// A top-level report.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct CollectionCommon
 {
 	#[serde(flatten)]
-	items: ReportItems,
+	items: CollectionReportItems,
 	
 	reports: Vec<Report>,
 }
 
-impl Deref for CollectionCommon
+impl CollectionCommon
 {
-	type Target = [Report];
-	
+	#[allow(missing_docs)]
 	#[inline(always)]
-	fn deref(&self) -> &Self::Target
-	{
-		&self.reports
-	}
-}
-
-impl MainItem for CollectionCommon
-{
-	#[inline(always)]
-	fn items(&self) -> &ReportItems
+	pub fn items(&self) -> &CollectionReportItems
 	{
 		&self.items
 	}
-}
-
-impl CollectionCommon
-{
+	
+	#[allow(missing_docs)]
+	#[inline(always)]
+	pub fn reports(&self) -> &[Report]
+	{
+		&self.reports
+	}
+	
 	#[inline(always)]
 	fn push_report(&mut self, item: Report) -> Result<(), ReportParseError>
 	{

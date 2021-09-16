@@ -10,20 +10,8 @@ pub struct CollectionMainItem
 {
 	description: CollectionDescription,
 	
-	end_data: u32,
-	
 	#[serde(flatten)]
 	common: CollectionCommon,
-}
-
-impl Default for CollectionMainItem
-{
-	#[inline(always)]
-	fn default() -> Self
-	{
-		const ValueIrrelevantAsWillBeRemovedWhenParsingFinished: CollectionDescription = CollectionDescription::Application;
-		Self::new(Default::default(), ValueIrrelevantAsWillBeRemovedWhenParsingFinished)
-	}
 }
 
 impl Deref for CollectionMainItem
@@ -34,15 +22,6 @@ impl Deref for CollectionMainItem
 	fn deref(&self) -> &Self::Target
 	{
 		&self.common
-	}
-}
-
-impl MainItem for CollectionMainItem
-{
-	#[inline(always)]
-	fn items(&self) -> &ReportItems
-	{
-		&self.common.items()
 	}
 }
 
@@ -57,19 +36,24 @@ impl CollectionMainItem
 	
 	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn end_data(&self) -> u32
+	pub fn items(&self) -> &CollectionReportItems
 	{
-		self.end_data
+		self.common.items()
 	}
 	
 	#[inline(always)]
-	fn new(items: ReportItems, description: CollectionDescription) -> Self
+	fn new_for_collections_stack() -> Self
+	{
+		const ValueIrrelevantAsWillBeRemovedWhenParsingFinished: CollectionDescription = CollectionDescription::Application;
+		Self::new(Default::default(), ValueIrrelevantAsWillBeRemovedWhenParsingFinished)
+	}
+	
+	#[inline(always)]
+	fn new(items: CollectionReportItems, description: CollectionDescription) -> Self
 	{
 		Self
 		{
 			description,
-			
-			end_data: 0,
 			
 			common: CollectionCommon
 			{

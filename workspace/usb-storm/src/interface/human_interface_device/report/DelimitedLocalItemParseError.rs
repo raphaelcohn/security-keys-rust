@@ -2,48 +2,46 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Details common to a report's input main item.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// Parse error.
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum InputMainItem
+pub enum DelimitedLocalItemParseError
 {
 	#[allow(missing_docs)]
-	Variable(OutputOrFeatureOrInputVariableCommon),
+	Designator,
 	
 	#[allow(missing_docs)]
-	Array(MainItemCommon),
+	DesignatorMinimum,
+	
+	#[allow(missing_docs)]
+	DesignatorMaximum,
+	
+	#[allow(missing_docs)]
+	String,
+	
+	#[allow(missing_docs)]
+	StringMinimum,
+	
+	#[allow(missing_docs)]
+	StringMaximum,
+	
+	#[allow(missing_docs)]
+	Reserved(ReservedLocalItemTag),
+	
+	#[allow(missing_docs)]
+	Long,
 }
 
-impl HasReportItems for InputMainItem
+impl Display for DelimitedLocalItemParseError
 {
 	#[inline(always)]
-	fn items(&self) -> &ReportItems
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		use InputMainItem::*;
-		
-		match self
-		{
-			Variable(main_item) => main_item.items(),
-			
-			Array(main_item) => main_item.items(),
-		}
+		Debug::fmt(self, f)
 	}
 }
 
-impl InputMainItem
+impl error::Error for DelimitedLocalItemParseError
 {
-	#[inline(always)]
-	pub(super) fn parse(data: u32, items: ReportItems) -> Self
-	{
-		use InputMainItem::*;
-		if is_array(data)
-		{
-			Array(MainItemCommon::parse(data, items))
-		}
-		else
-		{
-			Variable(OutputOrFeatureOrInputVariableCommon::parse(data, items))
-		}
-	}
 }

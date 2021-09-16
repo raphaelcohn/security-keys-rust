@@ -36,9 +36,6 @@ pub enum GlobalItemParseError
 	},
 	
 	#[allow(missing_docs)]
-	CouldNotPushStack(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
-	
-	#[allow(missing_docs)]
 	TooManyStackPops,
 	
 	#[allow(missing_docs)]
@@ -109,16 +106,4 @@ impl Display for GlobalItemParseError
 
 impl error::Error for GlobalItemParseError
 {
-	#[inline(always)]
-	fn source(&self) -> Option<&(dyn error::Error + 'static)>
-	{
-		use GlobalItemParseError::*;
-		
-		match self
-		{
-			CouldNotPushStack(cause) => Some(cause),
-			
-			_ => None,
-		}
-	}
 }

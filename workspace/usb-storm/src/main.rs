@@ -25,7 +25,8 @@
 #![feature(try_reserve)]
 
 
-//! usb-storm.
+//!
+#[doc = include_str!("../README.md")]
 
 
 use self::binary::CommandLineParser;

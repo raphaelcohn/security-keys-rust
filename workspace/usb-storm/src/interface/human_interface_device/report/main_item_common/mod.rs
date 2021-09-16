@@ -4,7 +4,7 @@
 
 use serde::Deserialize;
 use serde::Serialize;
-use super::MainItem;
+use super::HasReportItems;
 use std::mem::transmute;
 use std::ops::Deref;
 use crate::interface::human_interface_device::report::DataWidth;

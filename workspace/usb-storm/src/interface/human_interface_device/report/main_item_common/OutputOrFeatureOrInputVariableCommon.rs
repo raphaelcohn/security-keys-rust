@@ -33,7 +33,7 @@ impl Deref for OutputOrFeatureOrInputVariableCommon
 	}
 }
 
-impl MainItem for OutputOrFeatureOrInputVariableCommon
+impl HasReportItems for OutputOrFeatureOrInputVariableCommon
 {
 	#[inline(always)]
 	fn items(&self) -> &ReportItems

@@ -87,10 +87,13 @@ pub enum LocalItemParseError
 	CouldNotPushAlternate(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	NoUsages,
+	OutOfMemoryAllocatingUsages(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	OutOfMemoryAllocatingReportItemsSets(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
+	OutOfMemoryAllocatingAlternateUsages(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
+	
+	#[allow(missing_docs)]
+	Delimited(DelimitedLocalItemParseError),
 }
 
 impl Display for LocalItemParseError
@@ -127,7 +130,11 @@ impl error::Error for LocalItemParseError
 			
 			CouldNotPushAlternate(cause) => Some(cause),
 			
-			OutOfMemoryAllocatingReportItemsSets(cause) => Some(cause),
+			OutOfMemoryAllocatingUsages(cause) => Some(cause),
+			
+			OutOfMemoryAllocatingAlternateUsages(cause) => Some(cause),
+			
+			Delimited(cause) => Some(cause),
 			
 			_ => None,
 		}

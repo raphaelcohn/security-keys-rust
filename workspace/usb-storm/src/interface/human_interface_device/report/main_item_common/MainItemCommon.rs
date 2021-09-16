@@ -16,7 +16,7 @@ pub struct MainItemCommon
 	absolute_or_relative: AbsoluteOrRelative,
 }
 
-impl MainItem for MainItemCommon
+impl HasReportItems for MainItemCommon
 {
 	#[inline(always)]
 	fn items(&self) -> &ReportItems

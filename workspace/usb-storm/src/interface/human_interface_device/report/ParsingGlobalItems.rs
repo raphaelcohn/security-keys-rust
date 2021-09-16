@@ -36,20 +36,25 @@ struct ParsingGlobalItems
 impl ParsingGlobalItems
 {
 	#[inline(always)]
-	fn finish_parsing(&self) -> Result<ParsingGlobalItemsSet, GlobalItemParseError>
+	fn finish_collection_parsing(&self) -> Result<(UsagePage, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), GlobalItemParseError>
+	{
+		let usage_page = self.usage_page.ok_or(GlobalItemParseError::NoUsagePage)?;
+		
+		Ok((usage_page, self.reserved0, self.reserved1, self.reserved2))
+	}
+	
+	#[inline(always)]
+	fn finish_parsing(&self) -> Result<(UsagePage, InclusiveRange<i32>, InclusiveRange<i32>, PhysicalUnit, ReportSize, ReportCount, NonZeroU32, Option<ReportIdentifier>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), GlobalItemParseError>
 	{
 		use GlobalItemParseError::*;
 		
-		let unit_exponent = self.unit_exponent.unwrap_or_default();
+		let usage_page = self.usage_page.ok_or(NoUsagePage)?;
 		
-		xxxx;
-		// These do not exist at the top-level or in nested collections.
+		let physical_unit = PhysicalUnit::new(self.unit, self.unit_exponent);
 		
 		let report_size = self.report_size.ok_or(NoReportSize)?;
 		
 		let report_count = self.report_count.ok_or(NoReportCount)?;
-		
-		let usage_page = self.usage_page.ok_or(NoUsagePage)?;
 		
 		let report_bit_length =
 		{
@@ -112,19 +117,19 @@ impl ParsingGlobalItems
 			physical_extent
 		};
 		
-		Ok((usage_page, logical_extent, physical_extent, (self.unit, unit_exponent), report_size, report_count, report_bit_length, self.report_identifier, self.reserved0, self.reserved1, self.reserved2))
+		Ok((usage_page, logical_extent, physical_extent, physical_unit, report_size, report_count, report_bit_length, self.report_identifier, self.reserved0, self.reserved1, self.reserved2))
 	}
 	
 	#[inline(always)]
 	fn guard_logical_extent_minimum_bits_are_not_too_small_for_report_size(report_size: ReportSize, logical_extent_minimum_or_maximum: i32,  error: GlobalItemParseError) -> Result<(), GlobalItemParseError>
 	{
-		let minimum_bits = i32::BITS - if logical_extent_minimum_or_maximum >= 0
+		let minimum_bits =  if logical_extent_minimum_or_maximum >= 0
 		{
-			logical_extent_minimum_or_maximum.leading_zeros()
+			i32::BITS - logical_extent_minimum_or_maximum.leading_zeros()
 		}
 		else
 		{
-			logical_extent_minimum_or_maximum.abs().leading_zeros() - 1
+			(i32::BITS - logical_extent_minimum_or_maximum.leading_ones()) + 1
 		};
 		
 		if unlikely!(minimum_bits > report_size.u32())

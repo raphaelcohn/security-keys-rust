@@ -24,28 +24,6 @@ pub enum Report
 	Reserved(ReservedMainItem),
 }
 
-impl MainItem for Report
-{
-	#[inline(always)]
-	fn items(&self) -> &ReportItems
-	{
-		use Report::*;
-		
-		match self
-		{
-			Input(item) => item.items(),
-			
-			Output(item) => item.items(),
-			
-			Feature(item) => item.items(),
-			
-			Collection(item) => item.items(),
-			
-			Reserved(item) => item.items(),
-		}
-	}
-}
-
 impl Report
 {
 	#[inline(always)]

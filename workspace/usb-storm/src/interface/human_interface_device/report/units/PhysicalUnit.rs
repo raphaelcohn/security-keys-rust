@@ -2,48 +2,41 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Details common to a report's input main item.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// A physical unit.
+#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum InputMainItem
+pub struct PhysicalUnit
+{
+	unit: Option<Unit>,
+	
+	exponent: UnitExponent,
+}
+
+impl PhysicalUnit
 {
 	#[allow(missing_docs)]
-	Variable(OutputOrFeatureOrInputVariableCommon),
+	#[inline(always)]
+	pub const fn unit(&self) -> Option<Unit>
+	{
+		self.unit
+	}
 	
 	#[allow(missing_docs)]
-	Array(MainItemCommon),
-}
-
-impl HasReportItems for InputMainItem
-{
 	#[inline(always)]
-	fn items(&self) -> &ReportItems
+	pub const fn exponent(&self) -> UnitExponent
 	{
-		use InputMainItem::*;
-		
-		match self
-		{
-			Variable(main_item) => main_item.items(),
-			
-			Array(main_item) => main_item.items(),
-		}
+		self.exponent
 	}
-}
-
-impl InputMainItem
-{
+	
 	#[inline(always)]
-	pub(super) fn parse(data: u32, items: ReportItems) -> Self
+	pub(super) fn new(unit: Option<Unit>, exponent: Option<UnitExponent>) -> Self
 	{
-		use InputMainItem::*;
-		if is_array(data)
+		Self
 		{
-			Array(MainItemCommon::parse(data, items))
-		}
-		else
-		{
-			Variable(OutputOrFeatureOrInputVariableCommon::parse(data, items))
+			unit,
+		
+			exponent: exponent.unwrap_or_default(),
 		}
 	}
 }

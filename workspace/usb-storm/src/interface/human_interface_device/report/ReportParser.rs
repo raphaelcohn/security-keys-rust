@@ -7,9 +7,13 @@ pub(super) struct ReportParser<'a>
 {
 	device_connection: &'a DeviceConnection<'a>,
 
-	item_state_table_stack: Stack<ItemStateTable>,
+	globals_stack: Stack<Rc<ParsingGlobalItems>>,
 
 	collection_stack: Stack<CollectionMainItem>,
+	
+	locals: ParsingLocalItems,
+	
+	locals_alternate_usages: Option<ParsingUsagesLocalItems>,
 }
 
 impl<'a> ReportParser<'a>
@@ -23,18 +27,13 @@ impl<'a> ReportParser<'a>
 			{
 				device_connection,
 				
-				item_state_table_stack:
-				{
-					let item_state_table = ItemStateTable
-					{
-						globals: Rc::try_new(ParsingGlobalItems::default()).map_err(ReportParseError::CouldNotAllocateGlobals)?,
-						
-						locals: Stack::new(ParsingLocalItems::default())?,
-					};
-					Stack::new(item_state_table)?
-				},
+				globals_stack: Stack::new(Rc::try_new(ParsingGlobalItems::default()).map_err(ReportParseError::CouldNotAllocateGlobals)?)?,
 				
-				collection_stack: Stack::new(CollectionMainItem::default())?,
+				collection_stack: Stack::new(CollectionMainItem::new_for_collections_stack())?,
+				
+				locals: ParsingLocalItems::default(),
+				
+				locals_alternate_usages: None,
 			}
 		)
 	}
@@ -93,7 +92,12 @@ impl<'a> ReportParser<'a>
 	#[inline(always)]
 	fn parse_long_item(&mut self, item_tag: u8, data: &[u8]) -> Result<(), ReportParseError>
 	{
-		Ok(self.locals().parse_long_item(item_tag, data)?)
+		if unlikely!(self.locals_alternate_usages.is_some())
+		{
+			Err(LocalItemParseError::Delimited(DelimitedLocalItemParseError::Long))?
+		}
+		
+		Ok(self.locals.parse_long_item(item_tag, data)?)
 	}
 	
 	#[inline(always)]
@@ -106,32 +110,40 @@ impl<'a> ReportParser<'a>
 		{
 			Main =>
 			{
-				let items = self.finish_globals_and_locals()?;
-				
 				use ReservedMainItemTag::*;
 				let report = match item_tag
 				{
-					0b0000 => Report::parse_reserved(data, data_width, items, _0),
-					0b0001 => Report::parse_reserved(data, data_width, items, _1),
-					0b0010 => Report::parse_reserved(data, data_width, items, _2),
-					0b0011 => Report::parse_reserved(data, data_width, items, _3),
+					0b0000 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _0),
 					
-					0b0100 => Report::parse_reserved(data, data_width, items, _4),
-					0b0101 => Report::parse_reserved(data, data_width, items, _5),
-					0b0110 => Report::parse_reserved(data, data_width, items, _6),
-					0b0111 => Report::parse_reserved(data, data_width, items, _7),
+					0b0001 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _1),
 					
-					0b1000 => Report::parse_input(data, items),
-					0b1001 => Report::parse_output(data, items),
-					0b1011 => Report::parse_feature(data, items),
+					0b0010 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _2),
+					
+					0b0011 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _3),
+					
+					0b0100 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _4),
+					
+					0b0101 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _5),
+					
+					0b0110 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _6),
+					
+					0b0111 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _7),
+					
+					0b1000 => Report::parse_input(data, self.finish_globals_and_locals_as_report_items()?),
+					
+					0b1001 => Report::parse_output(data, self.finish_globals_and_locals_as_report_items()?),
+					
+					0b1011 => Report::parse_feature(data, self.finish_globals_and_locals_as_report_items()?),
+					
 					0b1010 =>
 					{
 						use CollectionDescription::*;
+						let collection_report_items = self.finish_globals_and_locals_as_collection_report_items()?;
 						self.collection_stack.push_value
 						(
 							CollectionMainItem::new
 							(
-								items,
+								collection_report_items,
 								
 								match data
 								{
@@ -163,12 +175,17 @@ impl<'a> ReportParser<'a>
 					
 					0b1100 =>
 					{
-						let mut collection = self.collection_stack.pop().ok_or(TooManyCollectionPops)?;
-						collection.end_data = data;
+						let collection = self.collection_stack.pop().ok_or(TooManyCollectionPops)?;
+						if unlikely!(data != 0)
+						{
+							return Err(EndCollectionCanNotHaveData { data: new_non_zero_u32(data) })
+						}
 						Report::Collection(collection)
 					}
-					0b1101 => Report::parse_reserved(data, data_width, items, _8),
-					0b1110 => Report::parse_reserved(data, data_width, items, _9),
+					0b1101 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _8),
+					
+					0b1110 => Report::parse_reserved(data, data_width, self.finish_globals_and_locals_as_report_items()?, _9),
+					
 					0b1111 => unreachable!("Long tag"),
 					
 					_ => unreachable!(),
@@ -182,23 +199,35 @@ impl<'a> ReportParser<'a>
 				match item_tag
 				{
 					0b0000 => self.globals()?.parse_usage_page(data)?,
+					
 					0b0001 => self.globals()?.parse_logical_minimum(data, data_width),
+					
 					0b0010 => self.globals()?.parse_logical_maximum(data, data_width),
+					
 					0b0011 => self.globals()?.parse_physical_minimum(data, data_width),
 					
 					0b0100 => self.globals()?.parse_physical_maximum(data, data_width),
+					
 					0b0101 => self.globals()?.parse_unit_exponent(data, data_width),
+					
 					0b0110 => self.globals()?.parse_unit(data),
+					
 					0b0111 => self.globals()?.parse_report_size(data)?,
 					
 					0b1000 => self.globals()?.parse_report_identifier(data)?,
+					
 					0b1001 => self.globals()?.parse_report_count(data)?,
-					0b1010 => self.push_item_state_table(data, data_width)?,
-					0b1011 => self.pop_item_state_table(data, data_width)?,
+					
+					0b1010 => self.push_globals(data, data_width)?,
+					
+					0b1011 => self.pop_globals(data, data_width)?,
 					
 					0b1100 => self.globals()?.parse_reserved0(data, data_width),
+					
 					0b1101 => self.globals()?.parse_reserved1(data, data_width),
+					
 					0b1110 => self.globals()?.parse_reserved2(data, data_width),
+					
 					0b1111 => unreachable!("Long tag"),
 					
 					_ => unreachable!(),
@@ -209,50 +238,134 @@ impl<'a> ReportParser<'a>
 			{
 				use ReservedLocalItemTag::*;
 				
-				match item_tag
+				const EndDelimiter: u32 = 0;
+				const StartDelimiter: u32 = 1;
+				
+				if unlikely!(self.locals_alternate_usages.is_some())
 				{
-					0b0000 => self.locals().parse_usage(data, data_width)?,
-					0b0001 => self.locals().parse_usage_minimum(data, data_width)?,
-					0b0010 => self.locals().parse_usage_maximum(data, data_width)?,
-					0b0011 => self.locals().parse_designator(data)?,
+					#[inline(always)]
+					fn use_locals_alternate_usages(locals_alternate_usages: &mut Option<ParsingUsagesLocalItems>, data: u32, data_width: DataWidth, callback: impl FnOnce(&mut ParsingUsagesLocalItems, u32, DataWidth) -> Result<(), LocalItemParseError>) -> Result<(), LocalItemParseError>
+					{
+						let as_mut = locals_alternate_usages.as_mut();
+						let locals_alternate_usages = unsafe { as_mut.unwrap_unchecked() };
+						callback(locals_alternate_usages, data, data_width)
+					}
 					
-					0b0100 => self.locals().parse_designator_minimum(data)?,
-					0b0101 => self.locals().parse_designator_maximum(data)?,
-					0b0110 => self.locals().parse_reserved(data, data_width, _0)?,
-					0b0111 =>
+					#[inline(always)]
+					const fn error(error: DelimitedLocalItemParseError) -> Result<(), LocalItemParseError>
 					{
-						let device_connection = self.device_connection;
-						return Ok(self.locals().parse_string(data, device_connection)?)
-					},
+						Err(LocalItemParseError::Delimited(error))
+					}
 					
-					0b1000 => self.locals().parse_string_minimum(data)?,
-					0b1001 =>
+					use DelimitedLocalItemParseError::*;
+					
+					match item_tag
 					{
-						let device_connection = self.device_connection;
-						return Ok(self.locals().parse_string_maximum(data, device_connection)?)
-					},
-					0b1010 => return match data
-					{
-						0 => match self.locals_stack().pop()
+						0b0000 => use_locals_alternate_usages(&mut self.locals_alternate_usages, data, data_width, ParsingUsagesLocalItems::parse_usage)?,
+						
+						0b0001 => use_locals_alternate_usages(&mut self.locals_alternate_usages, data, data_width, ParsingUsagesLocalItems::parse_usage_minimum)?,
+						
+						0b0010 => use_locals_alternate_usages(&mut self.locals_alternate_usages, data, data_width, ParsingUsagesLocalItems::parse_usage_maximum)?,
+						
+						0b0011 => error(Designator)?,
+						
+						0b0100 => error(DesignatorMinimum)?,
+						
+						0b0101 => error(DesignatorMaximum)?,
+						
+						0b0110 => error(Reserved(_0))?,
+						
+						0b0111 => error(String)?,
+						
+						0b1000 => error(StringMinimum)?,
+						
+						0b1001 => error(StringMaximum)?,
+						
+						0b1010 => match data
 						{
-							None => Err(ClosedTooManyOpenLocalSets),
+							StartDelimiter => return Err(NestedDelimitersAreNotPermitted),
 							
-							Some(local_set) => Ok(Alive(self.locals().push_alternate(local_set)?)),
-						}
+							EndDelimiter =>
+							{
+								let take = self.locals_alternate_usages.take();
+								let alternate_usage = unsafe { take.unwrap_unchecked() };
+								self.locals.push_alternate_usage(alternate_usage)?
+							}
+							
+							_ => return Err(InvalidLocalDelimiter { data }),
+						},
 						
-						1 => Ok(Alive(self.locals_stack().push()?)),
+						0b1011 => error(Reserved(_1))?,
 						
-						_ => Err(InvalidLocalDelimiter { data }),
-					},
-					0b1011 => self.locals().parse_reserved(data, data_width, _1)?,
-					
-					0b1100 => self.locals().parse_reserved(data, data_width, _2)?,
-					0b1101 => self.locals().parse_reserved(data, data_width, _3)?,
-					0b1110 => self.locals().parse_reserved(data, data_width, _4)?,
-					0b1111 => unreachable!("Long tag"),
-					
-					_ => unreachable!(),
+						0b1100 => error(Reserved(_2))?,
+						
+						0b1101 => error(Reserved(_3))?,
+						
+						0b1110 => error(Reserved(_4))?,
+						
+						0b1111 => unreachable!("Long tag"),
+						
+						_ => unreachable!(),
+					}
 				}
+				else
+				{
+					match item_tag
+					{
+						0b0000 => self.locals.parse_usage(data, data_width)?,
+						
+						0b0001 => self.locals.parse_usage_minimum(data, data_width)?,
+						
+						0b0010 => self.locals.parse_usage_maximum(data, data_width)?,
+						
+						0b0011 => self.locals.parse_designator(data)?,
+						
+						0b0100 => self.locals.parse_designator_minimum(data)?,
+						
+						0b0101 => self.locals.parse_designator_maximum(data)?,
+						
+						0b0110 => self.locals.parse_reserved(data, data_width, _0)?,
+						
+						0b0111 =>
+						{
+							let device_connection = self.device_connection;
+							return Ok(self.locals.parse_string(data, device_connection)?)
+						},
+						
+						0b1000 => self.locals.parse_string_minimum(data)?,
+						
+						0b1001 =>
+						{
+							let device_connection = self.device_connection;
+							return Ok(self.locals.parse_string_maximum(data, device_connection)?)
+						},
+						
+						0b1010 => match data
+						{
+							StartDelimiter =>
+							{
+								self.locals_alternate_usages = Some(ParsingUsagesLocalItems::default());
+							},
+							
+							EndDelimiter => return Err(EndDelimiterNotPreceededByStartDelimiter),
+							
+							_ => return Err(InvalidLocalDelimiter { data }),
+						},
+						
+						0b1011 => self.locals.parse_reserved(data, data_width, _1)?,
+						
+						0b1100 => self.locals.parse_reserved(data, data_width, _2)?,
+						
+						0b1101 => self.locals.parse_reserved(data, data_width, _3)?,
+						
+						0b1110 => self.locals.parse_reserved(data, data_width, _4)?,
+						
+						0b1111 => unreachable!("Long tag"),
+						
+						_ => unreachable!(),
+					}
+				}
+				
 			},
 		}
 		
@@ -324,7 +437,7 @@ impl<'a> ReportParser<'a>
 		let dead_or_alive = get_human_interface_device_report_interface_descriptor(self.device_connection.device_handle_non_null(), interface_number, reusable_buffer.as_maybe_uninit_slice_of_length(report_total_length)).map_err(GetDescriptor)?;
 		match return_ok_if_dead!(dead_or_alive)
 		{
-			None => Err(UnsupportedEvenThisIsAHumanInterfaceDevice),
+			None => Err(UnsupportedEvenThoughThisIsAHumanInterfaceDevice),
 			
 			Some(descriptor_bytes) => Ok(Alive(descriptor_bytes)),
 		}
@@ -337,23 +450,35 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn finish_globals_and_locals(&mut self) -> Result<ReportItems, ReportParseError>
+	fn finish_globals_and_locals_as_report_items(&mut self) -> Result<ReportItems, ReportParseError>
 	{
-		let globals =
+		let parsing_locals = self.consume_locals()?;
+		let parsing_globals = self.current_globals();
+		ReportItems::finish_parsing(parsing_globals, parsing_locals)
+	}
+	
+	#[inline(always)]
+	fn finish_globals_and_locals_as_collection_report_items(&mut self) -> Result<CollectionReportItems, ReportParseError>
+	{
+		let parsing_locals = self.consume_locals()?;
+		let parsing_globals = self.current_globals();
+		CollectionReportItems::finish_parsing(parsing_globals, parsing_locals)
+	}
+	
+	#[inline(always)]
+	fn consume_locals(&mut self) -> Result<ParsingLocalItems, ReportParseError>
+	{
+		if unlikely!(self.locals_alternate_usages.is_some())
 		{
-			let parsing_globals = self.globals_inner();
-			parsing_globals.finish_parsing()?
-		};
-		
-		let parsing_locals = self.locals_stack().consume_and_replace()?;
-		
-		ReportItems::finish_parsing(Cow::Owned(globals), parsing_locals)
+			return Err(ReportParseError::DelimitersNotEnded)
+		}
+		Ok(take(&mut self.locals))
 	}
 	
 	#[inline(always)]
 	fn globals(&mut self) -> Result<&mut ParsingGlobalItems, ReportParseError>
 	{
-		Self::make_mut(self.globals_inner())
+		Self::make_mut(self.current_globals())
 	}
 	
 	// Memory-allocation failure handling version of Rc::make_mut() which uses a less efficient path if there is one strong reference and multiple weak references; this is because it it not possible to access the necessary internal functionality.
@@ -408,45 +533,27 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn locals(&mut self) -> &mut ParsingLocalItems
-	{
-		self.locals_stack().current()
-	}
-	
-	#[inline(always)]
-	fn globals_inner(&mut self) -> &mut Rc<ParsingGlobalItems>
-	{
-		&mut self.current_item_state_table().globals
-	}
-	
-	#[inline(always)]
-	fn locals_stack(&mut self) -> &mut Stack<ParsingLocalItems>
-	{
-		&mut self.current_item_state_table().locals
-	}
-	
-	#[inline(always)]
-	fn push_item_state_table(&mut self, data: u32, data_width: DataWidth) -> Result<(), ReportParseError>
+	fn push_globals(&mut self, data: u32, data_width: DataWidth) -> Result<(), ReportParseError>
 	{
 		if unlikely!(data_width != DataWidth::Widthless)
 		{
 			return Err(ReportParseError::PushCanNotHaveData { data, data_width })
 		}
 		
-		let cloned_item_state_table = self.current_item_state_table().try_clone().map_err(|cause| ReportParseError::GlobalItemParse(GlobalItemParseError::CouldNotPushStack(cause)))?;
-		self.item_state_table_stack.push_value(cloned_item_state_table)?;
+		let clone = self.current_globals().clone();
+		self.globals_stack.push_value(clone)?;
 		Ok(())
 	}
 	
 	#[inline(always)]
-	fn pop_item_state_table(&mut self, data: u32, data_width: DataWidth) -> Result<(), ReportParseError>
+	fn pop_globals(&mut self, data: u32, data_width: DataWidth) -> Result<(), ReportParseError>
 	{
 		if unlikely!(data_width != DataWidth::Widthless)
 		{
 			return Err(ReportParseError::PopCanNotHaveData { data, data_width })
 		}
 		
-		if self.item_state_table_stack.pop().is_some()
+		if self.globals_stack.pop().is_some()
 		{
 			Ok(())
 		}
@@ -457,8 +564,8 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn current_item_state_table(&mut self) -> &mut ItemStateTable
+	fn current_globals(&mut self) -> &mut Rc<ParsingGlobalItems>
 	{
-		self.item_state_table_stack.current()
+		self.globals_stack.current()
 	}
 }

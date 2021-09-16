@@ -12,7 +12,7 @@ pub enum ReportParseError
 	GetDescriptor(GetDescriptorError),
 	
 	#[allow(missing_docs)]
-	UnsupportedEvenThisIsAHumanInterfaceDevice,
+	UnsupportedEvenThoughThisIsAHumanInterfaceDevice,
 	
 	#[allow(missing_docs)]
 	LongItemTooShort,
@@ -39,7 +39,13 @@ pub enum ReportParseError
 	LocalItemParse(LocalItemParseError),
 	
 	#[allow(missing_docs)]
-	ClosedTooManyOpenLocalSets,
+	NestedDelimitersAreNotPermitted,
+	
+	#[allow(missing_docs)]
+	EndDelimiterNotPreceededByStartDelimiter,
+	
+	#[allow(missing_docs)]
+	DelimitersNotEnded,
 	
 	#[allow(missing_docs)]
 	InvalidLocalDelimiter
@@ -52,6 +58,12 @@ pub enum ReportParseError
 	
 	#[allow(missing_docs)]
 	TooManyCollectionPops,
+	
+	#[allow(missing_docs)]
+	EndCollectionCanNotHaveData
+	{
+		data: NonZeroU32,
+	},
 	
 	#[allow(missing_docs)]
 	PushCanNotHaveData
@@ -70,7 +82,7 @@ pub enum ReportParseError
 	},
 	
 	#[allow(missing_docs)]
-	OutOfMemoryAllocatingUsages(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
+	CouldNotFinishParsingAlternateUsage(LocalItemParseError),
 }
 
 impl Display for ReportParseError
@@ -103,7 +115,7 @@ impl error::Error for ReportParseError
 			
 			LocalItemParse(cause) => Some(cause),
 			
-			OutOfMemoryAllocatingUsages(cause) => Some(cause),
+			CouldNotFinishParsingAlternateUsage(cause) => Some(cause),
 			
 			_ => None,
 		}
