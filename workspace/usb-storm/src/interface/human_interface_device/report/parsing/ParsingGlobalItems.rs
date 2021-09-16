@@ -4,7 +4,7 @@
 
 /// A set of global items.
 #[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-struct ParsingGlobalItems
+pub(super) struct ParsingGlobalItems
 {
 	usage_page: Option<UsagePage>,
 	
@@ -36,17 +36,22 @@ struct ParsingGlobalItems
 impl ParsingGlobalItems
 {
 	#[inline(always)]
-	fn finish_collection_parsing(&self) -> Result<(UsagePage, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), GlobalItemParseError>
+	pub(super) fn finish_collection_parsing(&self) -> Result<(UsagePage, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), CollectionParseError>
 	{
-		let usage_page = self.usage_page.ok_or(GlobalItemParseError::NoUsagePage)?;
+		let usage_page = self.usage_page.ok_or(CollectionParseError::NoUsagePage)?;
 		
 		Ok((usage_page, self.reserved0, self.reserved1, self.reserved2))
 	}
 	
 	#[inline(always)]
-	fn finish_parsing(&self) -> Result<(UsagePage, InclusiveRange<i32>, InclusiveRange<i32>, PhysicalUnit, ReportSize, ReportCount, NonZeroU32, Option<ReportIdentifier>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), GlobalItemParseError>
+	pub(super) fn finish_parsing(&self) -> Result<(UsagePage, InclusiveRange<i32>, InclusiveRange<i32>, PhysicalUnit, ReportSize, ReportCount, NonZeroU32, Option<ReportIdentifier>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), GlobalItemParseError>
 	{
 		use GlobalItemParseError::*;
+		use UsagePageParseError::*;
+		use ReportCountParseError::*;
+		use ReportSizeParseError::*;
+		use LogicalExtentParseError::*;
+		use PhysicalExtentParseError::*;
 		
 		let usage_page = self.usage_page.ok_or(NoUsagePage)?;
 		
@@ -61,7 +66,7 @@ impl ParsingGlobalItems
 			let report_bit_length = new_non_zero_u32(report_size.u32() * report_count.u32());
 			if report_bit_length > ReportItems::ReportBitLengthInclusiveMaximum
 			{
-				return Err(ReportBitLengthIsTooLarge { report_bit_length })
+				return Err(ReportBitLengthIsTooLarge { report_size, report_count, report_bit_length })
 			}
 			report_bit_length
 		};
@@ -71,19 +76,19 @@ impl ParsingGlobalItems
 			let logical_extent = match (self.logical_minimum_extent, self.logical_maximum_extent)
 			{
 				(Some(minimum), Some(maximum)) => minimum ..= maximum,
+
+				(Some(minimum), None) => Err(LogicalExtentMaximumMissing { minimum })?,
 				
-				(Some(minimum), None) => minimum ..= 0,
+				(None, Some(maximum)) => Err(LogicalExtentMinimumMissing { maximum })?,
 				
-				(None, Some(maximum)) => 0 ..= maximum,
-				
-				_ => 0 ..= 0
+				_ => Err(LogicalExtentMinimumAndMaximumMissing)?
 			};
 			
 			let minimum = logical_extent.start();
 			let maximum = logical_extent.end();
 			if unlikely!(minimum.gt(maximum))
 			{
-				return Err(MinimumLogicalExtentExceedsMaximum { minimum: *minimum, maximum: *maximum })
+				Err(MinimumLogicalExtentExceedsMaximum { minimum: *minimum, maximum: *maximum })?
 			}
 			
 			Self::guard_logical_extent_minimum_bits_are_not_too_small_for_report_size(report_size, *minimum, LogicalMinimumRequiresMoreBitsThanReportSize { minimum: *minimum, report_size })?;
@@ -100,7 +105,7 @@ impl ParsingGlobalItems
 				
 				(Some(minimum), Some(maximum)) => if unlikely!(minimum > maximum)
 				{
-					return Err(MinimumPhysicalExtentExceedsMaximum { minimum, maximum })
+					Err(MinimumPhysicalExtentExceedsMaximum { minimum, maximum })?
 				}
 				else
 				{
@@ -112,7 +117,7 @@ impl ParsingGlobalItems
 			
 			if unlikely!(physical_extent.inclusive_start() == physical_extent.inclusive_end())
 			{
-				return Err(PhysicalExtentWouldCauseDivisionByZeroForResolution)
+				Err(PhysicalExtentWouldCauseDivisionByZeroForResolution)?
 			}
 			physical_extent
 		};
@@ -121,7 +126,7 @@ impl ParsingGlobalItems
 	}
 	
 	#[inline(always)]
-	fn guard_logical_extent_minimum_bits_are_not_too_small_for_report_size(report_size: ReportSize, logical_extent_minimum_or_maximum: i32,  error: GlobalItemParseError) -> Result<(), GlobalItemParseError>
+	fn guard_logical_extent_minimum_bits_are_not_too_small_for_report_size(report_size: ReportSize, logical_extent_minimum_or_maximum: i32,  error: LogicalExtentParseError) -> Result<(), LogicalExtentParseError>
 	{
 		let minimum_bits =  if logical_extent_minimum_or_maximum >= 0
 		{

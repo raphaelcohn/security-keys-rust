@@ -2,97 +2,68 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-use crate::collections::Bytes;
 use crate::collections::TryClone;
 use crate::collections::VecExt;
-use crate::control_transfers::descriptors::GetDescriptorError;
-use crate::control_transfers::descriptors::get_human_interface_device_report_interface_descriptor;
-use crate::device::DeadOrAlive::Alive;
-use crate::device::DeadOrAlive;
-use crate::device::DeviceConnection;
-use crate::device::ReusableBuffer;
-use crate::interface::InterfaceNumber;
-use crate::serde::AllocErrorRemote;
-use crate::serde::TryReserveErrorRemote;
-use crate::string::GetLocalizedStringError;
 use crate::string::LocalizedStrings;
 use likely::unlikely;
+use self::main_item_common::InputMainItem;
 use self::main_item_common::OutputOrFeatureMainItem;
+use self::main_item_common::ReservedMainItem;
+use self::main_item_common::ReservedMainItemTag;
+use self::parsing::DataWidth;
+use self::parsing::LongItemParseError;
+use self::parsing::ReportCountParseError;
+use self::parsing::ReportIdentifierParseError;
+use self::parsing::ReportParseError;
+use self::parsing::ReportSizeParseError;
+use self::parsing::UsagePageParseError;
+use self::units::PhysicalUnit;
 use serde::Deserialize;
 use serde::Serialize;
-use std::alloc::AllocError;
 use std::cmp::Ordering;
 use std::collections::TryReserveError;
 use std::convert::TryFrom;
-use std::error;
 use std::fmt::Debug;
-use std::fmt::Display;
-use std::fmt::Formatter;
-use std::fmt;
-use std::mem::MaybeUninit;
-use std::mem::take;
-use std::mem::transmute;
+use std::hash::Hash;
+use std::num::NonZeroU16;
 use std::num::NonZeroU32;
 use std::num::NonZeroU8;
-use std::num::NonZeroU16;
 use std::ops::Deref;
-use std::ops::DerefMut;
 use std::ops::RangeInclusive;
-use std::ptr::read;
-use std::rc::Rc;
-use swiss_army_knife::get_unchecked::GetUnchecked;
-use swiss_army_knife::non_zero::new_non_zero_u8;
 use swiss_army_knife::non_zero::new_non_zero_u16;
 use swiss_army_knife::non_zero::new_non_zero_u32;
-use self::main_item_common::InputMainItem;
-use self::main_item_common::ReservedMainItemTag;
-use self::main_item_common::ReservedMainItem;
-use self::units::Unit;
-use self::units::UnitExponent;
-use std::hash::Hash;
-use std::iter::FusedIterator;
-use crate::interface::human_interface_device::report::units::PhysicalUnit;
+use swiss_army_knife::non_zero::new_non_zero_u8;
+use std::error;
 
 
 /// Main item common.
 pub mod main_item_common;
 
 
+/// Parsing.
+pub mod parsing;
+
+
 /// Units.
 pub mod units;
 
 
-include!("CollectionCommon.rs");
-include!("CollectionDescription.rs");
+include!("CollectionCommon.rs");include!("CollectionDescription.rs");
 include!("CollectionMainItem.rs");
 include!("CollectionReportItems.rs");
-include!("DataWidth.rs");
-include!("DelimitedLocalItemParseError.rs");
 include!("DesignatorIndex.rs");
-include!("GlobalItemParseError.rs");
 include!("HasReportItems.rs");
 include!("InclusiveRange.rs");
-include!("LocalItemParseError.rs");
 include!("LongItem.rs");
 include!("LongItemTag.rs");
-include!("ParsingLocalItems.rs");
-include!("ParsingGlobalItems.rs");
-include!("ParsingUsage.rs");
-include!("ParsingUsageInclusiveRange.rs");
-include!("ParsingUsageInclusiveRangeIterator.rs");
-include!("ParsingUsagesLocalItems.rs");
 include!("Report.rs");
 include!("ReportCount.rs");
 include!("ReportItems.rs");
 include!("ReportIdentifier.rs");
-include!("ReportParseError.rs");
-include!("ReportParser.rs");
 include!("ReportSize.rs");
 include!("ReservedGlobalItem.rs");
 include!("ReservedLocalItem.rs");
 include!("ReservedLocalItemTag.rs");
-include!("ShortItemType.rs");
-include!("Stack.rs");
 include!("Usage.rs");
 include!("UsageIdentifier.rs");
 include!("UsagePage.rs");

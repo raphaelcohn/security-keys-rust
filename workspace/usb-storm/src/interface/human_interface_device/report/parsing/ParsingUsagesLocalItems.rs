@@ -3,7 +3,7 @@
 
 
 #[derive(Default, Debug, Clone, Eq, PartialEq, Hash)]
-struct ParsingUsagesLocalItems
+pub(super) struct ParsingUsagesLocalItems
 {
 	total_number_of_usages: usize,
 	
@@ -17,11 +17,11 @@ impl ParsingUsagesLocalItems
 	#[inline(always)]
 	fn finish_parsing(self, usage_page: UsagePage) -> Result<Vec<Usage>, LocalItemParseError>
 	{
-		use LocalItemParseError::*;
+		use UsageParseError::*;
 
 		if unlikely!(self.have_minimum_usage.is_some())
 		{
-			return Err(UsageMinimumNotFollowedByUsageMaximum)
+			Err(UsageMinimumNotFollowedByUsageMaximum)?
 		}
 		
 		let mut usages = Vec::new_with_capacity(self.total_number_of_usages).map_err(OutOfMemoryAllocatingUsages)?;
@@ -38,30 +38,35 @@ impl ParsingUsagesLocalItems
 	#[inline(always)]
 	fn parse_usage(&mut self, data: u32, data_width: DataWidth) -> Result<(), LocalItemParseError>
 	{
-		let usage = ParsingUsage::parse(data, data_width, LocalItemParseError::UsagePageCanNotBeZero)?;
+		use UsageParseError::*;
+		
+		let usage = ParsingUsage::parse(data, data_width, UsagePageCanNotBeZero)?;
 		let parsing_usage_inclusive_range = usage.into();
 		self.total_number_of_usages += 1;
-		self.parsing_usage_inclusive_ranges.try_push(parsing_usage_inclusive_range).map_err(LocalItemParseError::CouldNotPushUsageItem)
+		Ok(self.parsing_usage_inclusive_ranges.try_push(parsing_usage_inclusive_range).map_err(CouldNotPushUsageItem)?)
 	}
 	
 	#[inline(always)]
 	fn parse_usage_minimum(&mut self, minimum_data: u32, minimum_data_width: DataWidth) -> Result<(), LocalItemParseError>
 	{
+		use UsageParseError::*;
+		
 		if unlikely!(self.have_minimum_usage.is_some())
 		{
-			return Err(LocalItemParseError::UsageMinimumCanNotBeFollowedByUsageMinimum)
+			Err(UsageMinimumCanNotBeFollowedByUsageMinimum)?
 		}
-		self.have_minimum_usage = Some(ParsingUsage::parse(minimum_data, minimum_data_width, LocalItemParseError::MinimumUsagePageCanNotBeZero)?);
+		self.have_minimum_usage = Some(ParsingUsage::parse(minimum_data, minimum_data_width, MinimumUsagePageCanNotBeZero)?);
 		Ok(())
 	}
 	
 	#[inline(always)]
 	fn parse_usage_maximum(&mut self, maximum_data: u32, maximum_data_width: DataWidth) -> Result<(), LocalItemParseError>
 	{
-		use LocalItemParseError::*;
+		use UsageParseError::*;
+		
 		match self.have_minimum_usage.take()
 		{
-			None => return Err(UsageMaximumMustBePreceededByUsageMinimum),
+			None => Err(UsageMaximumMustBePreceededByUsageMinimum)?,
 			
 			Some(minimum) =>
 			{

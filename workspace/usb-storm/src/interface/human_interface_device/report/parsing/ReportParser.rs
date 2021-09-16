@@ -3,7 +3,7 @@
 
 
 #[derive(Debug)]
-pub(super) struct ReportParser<'a>
+pub(crate) struct ReportParser<'a>
 {
 	device_connection: &'a DeviceConnection<'a>,
 
@@ -19,7 +19,7 @@ pub(super) struct ReportParser<'a>
 impl<'a> ReportParser<'a>
 {
 	#[inline(always)]
-	pub(super) fn new(device_connection: &'a DeviceConnection) -> Result<Self, ReportParseError>
+	pub(crate) fn new(device_connection: &'a DeviceConnection) -> Result<Self, ReportParseError>
 	{
 		Ok
 		(
@@ -27,7 +27,12 @@ impl<'a> ReportParser<'a>
 			{
 				device_connection,
 				
-				globals_stack: Stack::new(Rc::try_new(ParsingGlobalItems::default()).map_err(ReportParseError::CouldNotAllocateGlobals)?)?,
+				globals_stack:
+				{
+					let items = ParsingGlobalItems::default();
+					let globals = Rc::try_new(items).map_err(|cause| ReportParseError::GlobalItemParse(GlobalItemParseError::CouldNotAllocateGlobals(cause)))?;
+					Stack::new(globals)?
+				},
 				
 				collection_stack: Stack::new(CollectionMainItem::new_for_collections_stack())?,
 				
@@ -39,7 +44,7 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	pub(super) fn get_and_parse(mut self, reusable_buffer: &mut ReusableBuffer, interface_number: InterfaceNumber, report_total_length: u16) -> Result<DeadOrAlive<CollectionCommon>, ReportParseError>
+	pub(crate) fn get_and_parse(mut self, reusable_buffer: &mut ReusableBuffer, interface_number: InterfaceNumber, report_total_length: u16) -> Result<DeadOrAlive<CollectionCommon>, ReportParseError>
 	{
 		let dead_or_alive = self.get_report_descriptor_bytes(reusable_buffer, interface_number, report_total_length)?;
 		let descriptor_bytes: &[u8] = return_ok_if_dead!(dead_or_alive);
@@ -61,7 +66,7 @@ impl<'a> ReportParser<'a>
 			{
 				if unlikely!(length < 2)
 				{
-					return Err(LongItemTooShort)
+					return Err(LocalItemParse(LocalItemParseError::LongItemParse(LongItemParseError::LongItemTooShort)))
 				}
 				let bDataSize = descriptor_bytes.u8(1);
 				let bLongItemTag = descriptor_bytes.u8(2);
@@ -103,7 +108,6 @@ impl<'a> ReportParser<'a>
 	#[inline(always)]
 	fn parse_short_item(&mut self, short_item_type: ShortItemType, item_tag: u8, data: u32, data_width: DataWidth) -> Result<DeadOrAlive<()>, ReportParseError>
 	{
-		use ReportParseError::*;
 		use ShortItemType::*;
 		
 		match short_item_type
@@ -175,10 +179,11 @@ impl<'a> ReportParser<'a>
 					
 					0b1100 =>
 					{
+						use CollectionParseError::*;
 						let collection = self.collection_stack.pop().ok_or(TooManyCollectionPops)?;
 						if unlikely!(data != 0)
 						{
-							return Err(EndCollectionCanNotHaveData { data: new_non_zero_u32(data) })
+							Err(EndCollectionCanNotHaveData { data: new_non_zero_u32(data) })?
 						}
 						Report::Collection(collection)
 					}
@@ -241,6 +246,14 @@ impl<'a> ReportParser<'a>
 				const EndDelimiter: u32 = 0;
 				const StartDelimiter: u32 = 1;
 				
+				use DelimitedLocalItemParseError::*;
+				
+				#[inline(always)]
+				const fn error(error: DelimitedLocalItemParseError) -> Result<(), LocalItemParseError>
+				{
+					Err(LocalItemParseError::Delimited(error))
+				}
+				
 				if unlikely!(self.locals_alternate_usages.is_some())
 				{
 					#[inline(always)]
@@ -250,14 +263,6 @@ impl<'a> ReportParser<'a>
 						let locals_alternate_usages = unsafe { as_mut.unwrap_unchecked() };
 						callback(locals_alternate_usages, data, data_width)
 					}
-					
-					#[inline(always)]
-					const fn error(error: DelimitedLocalItemParseError) -> Result<(), LocalItemParseError>
-					{
-						Err(LocalItemParseError::Delimited(error))
-					}
-					
-					use DelimitedLocalItemParseError::*;
 					
 					match item_tag
 					{
@@ -283,7 +288,7 @@ impl<'a> ReportParser<'a>
 						
 						0b1010 => match data
 						{
-							StartDelimiter => return Err(NestedDelimitersAreNotPermitted),
+							StartDelimiter => error(NestedDelimitersAreNotPermitted)?,
 							
 							EndDelimiter =>
 							{
@@ -292,7 +297,7 @@ impl<'a> ReportParser<'a>
 								self.locals.push_alternate_usage(alternate_usage)?
 							}
 							
-							_ => return Err(InvalidLocalDelimiter { data }),
+							_ => error(InvalidLocalDelimiter { data })?,
 						},
 						
 						0b1011 => error(Reserved(_1))?,
@@ -347,9 +352,9 @@ impl<'a> ReportParser<'a>
 								self.locals_alternate_usages = Some(ParsingUsagesLocalItems::default());
 							},
 							
-							EndDelimiter => return Err(EndDelimiterNotPreceededByStartDelimiter),
+							EndDelimiter => error(EndDelimiterNotPreceededByStartDelimiter)?,
 							
-							_ => return Err(InvalidLocalDelimiter { data }),
+							_ => error(InvalidLocalDelimiter { data })?,
 						},
 						
 						0b1011 => self.locals.parse_reserved(data, data_width, _1)?,
@@ -452,25 +457,102 @@ impl<'a> ReportParser<'a>
 	#[inline(always)]
 	fn finish_globals_and_locals_as_report_items(&mut self) -> Result<ReportItems, ReportParseError>
 	{
-		let parsing_locals = self.consume_locals()?;
-		let parsing_globals = self.current_globals();
-		ReportItems::finish_parsing(parsing_globals, parsing_locals)
+		let (usage_page, logical_extent, physical_extent, physical_unit, report_size, report_count, report_bit_length, report_identifier, global_reserved0, global_reserved1, global_reserved2) =
+		{
+			let parsing_globals = self.current_globals();
+			parsing_globals.finish_parsing()?
+		};
+		
+		let (usages, designators, strings, local_reserveds, longs, alternate_usages) = self.consume_and_finish_parsing_locals(usage_page)?;
+		
+		Ok
+		(
+			ReportItems
+			{
+				usages,
+				
+				alternate_usages,
+				
+				report_identifier,
+			
+				report_size,
+			
+				report_count,
+				
+				report_bit_length,
+				
+				logical_extent,
+			
+				physical_extent,
+			
+				physical_unit,
+			
+				designators,
+			
+				strings,
+			
+				global_reserved0,
+			
+				global_reserved1,
+			
+				global_reserved2,
+			
+				local_reserveds,
+			
+				longs,
+			}
+		)
 	}
 	
 	#[inline(always)]
 	fn finish_globals_and_locals_as_collection_report_items(&mut self) -> Result<CollectionReportItems, ReportParseError>
 	{
-		let parsing_locals = self.consume_locals()?;
-		let parsing_globals = self.current_globals();
-		CollectionReportItems::finish_parsing(parsing_globals, parsing_locals)
+		let (usage_page, global_reserved0, global_reserved1, global_reserved2) =
+		{
+			let parsing_globals = self.current_globals();
+			parsing_globals.finish_collection_parsing()?
+		};
+		
+		let (usages, designators, strings, local_reserveds, longs, alternate_usages) = self.consume_and_finish_parsing_locals(usage_page)?;
+		
+		Ok
+		(
+			CollectionReportItems
+			{
+				usages,
+				
+				alternate_usages,
+				
+				designators,
+				
+				strings,
+				
+				global_reserved0,
+				
+				global_reserved1,
+				
+				global_reserved2,
+				
+				local_reserveds,
+				
+				longs,
+			}
+		)
 	}
 	
 	#[inline(always)]
-	fn consume_locals(&mut self) -> Result<ParsingLocalItems, ReportParseError>
+	fn consume_and_finish_parsing_locals(&mut self, usage_page: UsagePage) -> Result<(Vec<Usage>, Vec<InclusiveRange<DesignatorIndex>>, Vec<Option<LocalizedStrings>>, Vec<ReservedLocalItem>, Vec<LongItem>, Vec<Vec<Usage>>), ReportParseError>
+	{
+		let parsing_locals = self.consume_locals()?;
+		parsing_locals.finish_parsing(usage_page)
+	}
+	
+	#[inline(always)]
+	fn consume_locals(&mut self) -> Result<ParsingLocalItems, LocalItemParseError>
 	{
 		if unlikely!(self.locals_alternate_usages.is_some())
 		{
-			return Err(ReportParseError::DelimitersNotEnded)
+			Err(DelimitedLocalItemParseError::DelimitersNotEnded)?
 		}
 		Ok(take(&mut self.locals))
 	}
@@ -486,9 +568,9 @@ impl<'a> ReportParser<'a>
 	fn make_mut(this: &mut Rc<ParsingGlobalItems>) -> Result<&mut ParsingGlobalItems, ReportParseError>
 	{
 		#[inline(always)]
-		fn new_rc() -> Result<Rc<MaybeUninit<ParsingGlobalItems>>, ReportParseError>
+		fn new_rc() -> Result<Rc<MaybeUninit<ParsingGlobalItems>>, GlobalItemParseError>
 		{
-			Rc::try_new_uninit().map_err(ReportParseError::CouldNotAllocateGlobals)
+			Rc::try_new_uninit().map_err(GlobalItemParseError::CouldNotAllocateGlobals)
 		}
 		
 		#[inline(always)]

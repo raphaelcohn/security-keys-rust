@@ -3,40 +3,25 @@
 
 
 /// Parse error.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum GlobalItemParseError
+pub enum LogicalExtentParseError
 {
 	#[allow(missing_docs)]
-	UsagePageCanNotBeZero,
-	
-	#[allow(missing_docs)]
-	UsagePageTooBig
+	LogicalExtentMaximumMissing
 	{
-		data: u32
+		minimum: i32,
 	},
 	
 	#[allow(missing_docs)]
-	ReportIdentifierZeroIsReserved,
-	
-	#[allow(missing_docs)]
-	ReportIdentifierTooLarge
+	LogicalExtentMinimumMissing
 	{
-		data: u32,
+		maximum: i32,
 	},
 	
 	#[allow(missing_docs)]
-	ReportCountCanNotBeZero,
-	
-	#[allow(missing_docs)]
-	ReportCountTooLarge
-	{
-		data: u32,
-	},
-	
-	#[allow(missing_docs)]
-	TooManyStackPops,
+	LogicalExtentMinimumAndMaximumMissing,
 	
 	#[allow(missing_docs)]
 	MinimumLogicalExtentExceedsMaximum
@@ -61,41 +46,9 @@ pub enum GlobalItemParseError
 		
 		report_size: ReportSize,
 	},
-	
-	#[allow(missing_docs)]
-	MinimumPhysicalExtentExceedsMaximum
-	{
-		minimum: i32,
-		
-		maximum: i32,
-	},
-	
-	#[allow(missing_docs)]
-	PhysicalExtentWouldCauseDivisionByZeroForResolution,
-	
-	#[allow(missing_docs)]
-	NoReportSize,
-	
-	#[allow(missing_docs)]
-	NoReportCount,
-	
-	#[allow(missing_docs)]
-	NoUsagePage,
-	
-	#[allow(missing_docs)]
-	ReportBitLengthIsTooLarge
-	{
-		report_bit_length: NonZeroU32,
-	},
-	
-	#[allow(missing_docs)]
-	ReportSizeGreaterThan256Bytes
-	{
-		data: u32,
-	},
 }
 
-impl Display for GlobalItemParseError
+impl Display for LogicalExtentParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -104,6 +57,6 @@ impl Display for GlobalItemParseError
 	}
 }
 
-impl error::Error for GlobalItemParseError
+impl error::Error for LogicalExtentParseError
 {
 }

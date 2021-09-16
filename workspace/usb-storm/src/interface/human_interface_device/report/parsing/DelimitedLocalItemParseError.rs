@@ -2,52 +2,61 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// A report reserved local item.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+/// Parse error.
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct ReservedLocalItem
+pub enum DelimitedLocalItemParseError
 {
-	tag: ReservedLocalItemTag,
-
-	data: u32,
+	#[allow(missing_docs)]
+	Designator,
 	
-	data_width: DataWidth,
+	#[allow(missing_docs)]
+	DesignatorMinimum,
+	
+	#[allow(missing_docs)]
+	DesignatorMaximum,
+	
+	#[allow(missing_docs)]
+	String,
+	
+	#[allow(missing_docs)]
+	StringMinimum,
+	
+	#[allow(missing_docs)]
+	StringMaximum,
+	
+	#[allow(missing_docs)]
+	Reserved(ReservedLocalItemTag),
+	
+	#[allow(missing_docs)]
+	Long,
+	
+	#[allow(missing_docs)]
+	NestedDelimitersAreNotPermitted,
+	
+	#[allow(missing_docs)]
+	InvalidLocalDelimiter
+	{
+		data: u32,
+	},
+	
+	#[allow(missing_docs)]
+	EndDelimiterNotPreceededByStartDelimiter,
+	
+	#[allow(missing_docs)]
+	DelimitersNotEnded,
 }
 
-impl ReservedLocalItem
+impl Display for DelimitedLocalItemParseError
 {
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn tag(&self) -> ReservedLocalItemTag
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		self.tag
+		Debug::fmt(self, f)
 	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn data(&self) -> u32
-	{
-		self.data
-	}
-	
-	#[allow(missing_docs)]
-	#[inline(always)]
-	pub const fn data_width(&self) -> DataWidth
-	{
-		self.data_width
-	}
-	
-	#[inline(always)]
-	fn parse(data: u32, data_width: DataWidth, tag: ReservedLocalItemTag) -> Self
-	{
-		Self
-		{
-			tag,
-			
-			data,
-			
-			data_width
-		}
-	}
+}
+
+impl error::Error for DelimitedLocalItemParseError
+{
 }

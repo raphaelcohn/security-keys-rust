@@ -11,12 +11,12 @@ pub struct UsagePage(NonZeroU16);
 
 impl TryFrom<u32> for UsagePage
 {
-	type Error = GlobalItemParseError;
+	type Error = UsagePageParseError;
 	
 	#[inline(always)]
 	fn try_from(data: u32) -> Result<Self, Self::Error>
 	{
-		use GlobalItemParseError::*;
+		use UsagePageParseError::*;
 		
 		if unlikely!(data > (u16::MAX as u32))
 		{

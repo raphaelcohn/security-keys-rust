@@ -49,12 +49,12 @@ impl Into<u32> for ReportCount
 
 impl TryFrom<u32> for ReportCount
 {
-	type Error = GlobalItemParseError;
+	type Error = ReportCountParseError;
 	
 	#[inline(always)]
 	fn try_from(data: u32) -> Result<Self, Self::Error>
 	{
-		use GlobalItemParseError::*;
+		use ReportCountParseError::*;
 		
 		if unlikely!(data == 0)
 		{

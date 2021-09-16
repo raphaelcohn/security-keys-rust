@@ -29,36 +29,6 @@ pub struct CollectionReportItems
 
 impl CollectionReportItems
 {
-	fn finish_parsing(parsing_globals: &Rc<ParsingGlobalItems>, parsing_locals: ParsingLocalItems) -> Result<Self, ReportParseError>
-	{
-		let (usage_page, global_reserved0, global_reserved1, global_reserved2) = parsing_globals.finish_collection_parsing()?;
-		let (usages, designators, strings, local_reserveds, longs, alternate_usages) = parsing_locals.finish_parsing(usage_page)?;
-		
-		Ok
-		(
-			Self
-			{
-				usages,
-				
-				alternate_usages,
-			
-				designators,
-			
-				strings,
-			
-				global_reserved0,
-			
-				global_reserved1,
-			
-				global_reserved2,
-			
-				local_reserveds,
-			
-				longs,
-			}
-		)
-	}
-	
 	#[allow(missing_docs)]
 	#[inline(always)]
 	pub fn usages(&self) -> &[Usage]

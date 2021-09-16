@@ -35,14 +35,14 @@ impl<V> Stack<V>
 	}
 	
 	#[inline(always)]
-	fn guard_consume(&mut self) -> Result<(), ReportParseError>
+	fn guard_consume(&mut self) -> Result<(), CollectionParseError>
 	{
 		let length = self.0.len();
 		debug_assert_ne!(length, 0, "Should not be empty for consume");
 		
 		if unlikely!(length > 1)
 		{
-			return Err(ReportParseError::OpenNestedStructures)
+			return Err(CollectionParseError::UnclosedCollection)
 		}
 		
 		Ok(())
@@ -56,7 +56,7 @@ impl<V> Stack<V>
 		let value = unsafe
 		{
 			self.0.set_len(0);
-			read(self.0.as_ptr())
+			ptr::read(self.0.as_ptr())
 		};
 		Ok(value)
 	}

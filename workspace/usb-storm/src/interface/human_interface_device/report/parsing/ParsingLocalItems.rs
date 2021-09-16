@@ -4,7 +4,7 @@
 
 /// A set of local items.
 #[derive(Default, Debug, Clone, Eq, PartialEq, Hash)]
-struct ParsingLocalItems
+pub(super) struct ParsingLocalItems
 {
 	usages: ParsingUsagesLocalItems,
 	
@@ -46,46 +46,48 @@ impl DerefMut for ParsingLocalItems
 impl ParsingLocalItems
 {
 	#[inline(always)]
-	fn finish_parsing(self, usage_page: UsagePage) -> Result<(Vec<Usage>, Vec<InclusiveRange<DesignatorIndex>>, Vec<Option<LocalizedStrings>>, Vec<ReservedLocalItem>, Vec<LongItem>, Vec<Vec<Usage>>), ReportParseError>
+	pub(super) fn finish_parsing(self, usage_page: UsagePage) -> Result<(Vec<Usage>, Vec<InclusiveRange<DesignatorIndex>>, Vec<Option<LocalizedStrings>>, Vec<ReservedLocalItem>, Vec<LongItem>, Vec<Vec<Usage>>), ReportParseError>
 	{
 		use LocalItemParseError::*;
 		
 		if unlikely!(self.have_minimum_designator.is_some())
 		{
-			Err(DesignatorMinimumNotFollowedByDesignatorMaximum)?
+			Err(DesignatorParse(DesignatorParseError::DesignatorMinimumNotFollowedByDesignatorMaximum))?
 		}
 		
 		if unlikely!(self.have_minimum_string.is_some())
 		{
-			Err(StringMinimumNotFollowedByStringMaximum)?
+			Err(StringParse(StringParseError::StringMinimumNotFollowedByStringMaximum))?
 		}
 		
 		let usages = self.usages.finish_parsing(usage_page)?;
 		
-		let alternate_usages =
-		{
-			let mut alternate_usages = Vec::new_with_capacity(self.alternate_usages.len()).map_err(OutOfMemoryAllocatingAlternateUsages)?;
-			for alternate_usage in self.alternate_usages
-			{
-				let usages = alternate_usage.finish_parsing(usage_page).map_err(ReportParseError::CouldNotFinishParsingAlternateUsage)?;
-				alternate_usages.push_unchecked(usages)
-			}
-			alternate_usages
-		};
+		let alternate_usages = Self::finish_parsing_alternate_usages(self.alternate_usages, usage_page)?;
 		
 		Ok((usages, self.designators, self.strings, self.reserveds, self.longs, alternate_usages))
+	}
+	
+	fn finish_parsing_alternate_usages(self_alternate_usages: Vec<ParsingUsagesLocalItems>, usage_page: UsagePage) -> Result<Vec<Vec<Usage>>, ReportParseError>
+	{
+		let mut alternate_usages = Vec::new_with_capacity(self_alternate_usages.len()).map_err(|cause| LocalItemParseError::AlternateUsageParse(AlternateUsageParseError::OutOfMemoryAllocatingAlternateUsages(cause)))?;
+		for alternate_usage in self_alternate_usages
+		{
+			let usages = alternate_usage.finish_parsing(usage_page).map_err(ReportParseError::CouldNotFinishParsingAlternateUsage)?;
+			alternate_usages.push_unchecked(usages)
+		}
+		Ok(alternate_usages)
 	}
 	
 	#[inline(always)]
 	fn push_alternate_usage(&mut self, alternate: ParsingUsagesLocalItems) -> Result<(), LocalItemParseError>
 	{
-		self.alternate_usages.try_push(alternate).map_err(LocalItemParseError::CouldNotPushAlternate)
+		Ok(self.alternate_usages.try_push(alternate).map_err(AlternateUsageParseError::CouldNotPushAlternateUsage)?)
 	}
 	
 	#[inline(always)]
 	fn parse_designator(&mut self, data: u32) -> Result<(), LocalItemParseError>
 	{
-		self.designators.try_push(InclusiveRange(data ..= data)).map_err(LocalItemParseError::CouldNotPushDesignatorItem)
+		Ok(self.designators.try_push(InclusiveRange(data ..= data)).map_err(DesignatorParseError::CouldNotPushDesignatorItem)?)
 	}
 	
 	#[inline(always)]
@@ -93,7 +95,7 @@ impl ParsingLocalItems
 	{
 		if unlikely!(self.have_minimum_designator.is_some())
 		{
-			return Err(LocalItemParseError::DesignatorMinimumCanNotBeFollowedByDesignatorMinimum)
+			Err(DesignatorParseError::DesignatorMinimumCanNotBeFollowedByDesignatorMinimum)?
 		}
 		self.have_minimum_designator = Some(minimum_data);
 		Ok(())
@@ -102,16 +104,17 @@ impl ParsingLocalItems
 	#[inline(always)]
 	fn parse_designator_maximum(&mut self, maximum_data: u32) -> Result<(), LocalItemParseError>
 	{
-		use LocalItemParseError::*;
+		use DesignatorParseError::*;
+		
 		match self.have_minimum_designator.take()
 		{
-			None => return Err(DesignatorMaximumMustBePreceededByDesignatorMinimum),
+			None => Err(DesignatorMaximumMustBePreceededByDesignatorMinimum)?,
 			
 			Some(minimum_data) =>
 			{
 				if unlikely!(minimum_data > maximum_data)
 				{
-					return Err(DesignatorMinimumMustBeLessThanMaximum)
+					Err(DesignatorMinimumMustBeLessThanMaximum)?
 				}
 				
 				self.designators.try_push(InclusiveRange(minimum_data ..= maximum_data)).map_err(CouldNotPushDesignatorItem)?;
@@ -128,7 +131,7 @@ impl ParsingLocalItems
 		{
 			Ok(()) => Ok(Alive(())),
 			
-			Err(cause) => Err(LocalItemParseError::CouldNotPushStringItem(cause))
+			Err(cause) => Err(StringParseError::CouldNotPushStringItem(cause))?
 		}
 	}
 	
@@ -137,7 +140,7 @@ impl ParsingLocalItems
 	{
 		if unlikely!(self.have_minimum_string.is_some())
 		{
-			return Err(LocalItemParseError::StringMinimumCanNotBeFollowedByStringMinimum)
+			Err(StringParseError::StringMinimumCanNotBeFollowedByStringMinimum)?
 		}
 		self.have_minimum_string = Some(minimum_data);
 		Ok(())
@@ -146,21 +149,22 @@ impl ParsingLocalItems
 	#[inline(always)]
 	fn parse_string_maximum(&mut self, maximum_data: u32, device_connection: &DeviceConnection) -> Result<DeadOrAlive<()>, LocalItemParseError>
 	{
-		use LocalItemParseError::*;
+		use StringParseError::*;
 		match self.have_minimum_string.take()
 		{
-			None => return Err(StringMaximumMustBePreceededByStringMinimum),
+			None => Err(StringMaximumMustBePreceededByStringMinimum)?,
 			
 			Some(minimum_data) =>
 			{
 				if unlikely!(minimum_data > maximum_data)
 				{
-					return Err(StringMinimumMustBeLessThanMaximum)
+					Err(StringMinimumMustBeLessThanMaximum)?
 				}
 				
 				for data in minimum_data ..= maximum_data
 				{
-					return_ok_if_dead!(self.parse_string(data, device_connection)?)
+					let dead_or_alive = self.parse_string(data, device_connection)?;
+					return_ok_if_dead!(dead_or_alive)
 				}
 			}
 		}
@@ -178,17 +182,19 @@ impl ParsingLocalItems
 	fn parse_long_item(&mut self, item_tag: u8, data: &[u8]) -> Result<(), LocalItemParseError>
 	{
 		let item = LongItem::parse(item_tag, data)?;
-		self.longs.try_push(item).map_err(LocalItemParseError::CouldNotPushLongItem)
+		Ok(self.longs.try_push(item).map_err(LongItemParseError::CouldNotPushLongItem)?)
 	}
 	
 	#[inline(always)]
-	fn parse_string_descriptor_index(data: u32, device_connection: &DeviceConnection) -> Result<DeadOrAlive<Option<LocalizedStrings>>, LocalItemParseError>
+	fn parse_string_descriptor_index(data: u32, device_connection: &DeviceConnection) -> Result<DeadOrAlive<Option<LocalizedStrings>>, StringParseError>
 	{
+		use StringParseError::*;
+		
 		if data > (u8::MAX as u32)
 		{
-			return Err(LocalItemParseError::StringDescriptorIndexOutOfRange { data })
+			return Err(StringDescriptorIndexOutOfRange { data })
 		}
 		let string_descriptor_index = data as u8;
-		device_connection.find_string(string_descriptor_index).map_err(LocalItemParseError::CouldNotFindString)
+		device_connection.find_string(string_descriptor_index).map_err(CouldNotFindString)
 	}
 }

@@ -49,7 +49,7 @@ impl Into<u32> for ReportSize
 
 impl TryFrom<u32> for ReportSize
 {
-	type Error = GlobalItemParseError;
+	type Error = ReportSizeParseError;
 	
 	#[inline(always)]
 	fn try_from(data: u32) -> Result<Self, Self::Error>
@@ -57,7 +57,7 @@ impl TryFrom<u32> for ReportSize
 		// This check is based on that in Linux in `drivers/hid/hid_core.c`, starting from `case HID_GLOBAL_ITEM_TAG_REPORT_SIZE`.
 		if unlikely!(data > 256)
 		{
-			return Err(GlobalItemParseError::ReportSizeGreaterThan256Bytes { data })
+			return Err(ReportSizeParseError::ReportSizeGreaterThan256Bytes { data })
 		}
 		Ok(Self(new_non_zero_u16(data as u16)))
 	}

@@ -2,36 +2,33 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Localized strings.
-///
-/// Can contain a maximum of 126 strings (this is an internal limit in USB's design).
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+/// Parse error.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct LocalizedStrings(BTreeMap<Language, String>);
-
-impl Deref for LocalizedStrings
+pub enum PhysicalExtentParseError
 {
-	type Target = BTreeMap<Language, String>;
+	#[allow(missing_docs)]
+	PhysicalExtentWouldCauseDivisionByZeroForResolution,
 	
-	#[inline(always)]
-	fn deref(&self) -> &Self::Target
+	#[allow(missing_docs)]
+	MinimumPhysicalExtentExceedsMaximum
 	{
-		&self.0
+		minimum: i32,
+		
+		maximum: i32,
+	},
+}
+
+impl Display for PhysicalExtentParseError
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
+	{
+		Debug::fmt(self, f)
 	}
 }
 
-impl LocalizedStrings
+impl error::Error for PhysicalExtentParseError
 {
-	#[inline(always)]
-	pub(crate) fn new(localized_strings: BTreeMap<Language, String>) -> Self
-	{
-		Self(localized_strings)
-	}
-	
-	#[inline(always)]
-	pub(crate) fn first_value(&self) -> Option<&str>
-	{
-		self.0.values().next().map(String::as_str)
-	}
 }

@@ -30,7 +30,7 @@ impl LongItem
 	}
 	
 	#[inline(always)]
-	fn parse(item_tag: u8, data: &[u8]) -> Result<Self, LocalItemParseError>
+	fn parse(item_tag: u8, data: &[u8]) -> Result<Self, LongItemParseError>
 	{
 		Ok
 		(
@@ -38,7 +38,7 @@ impl LongItem
 			{
 				tag: LongItemTag::parse(item_tag),
 			
-				data: Vec::new_from(data).map_err(LocalItemParseError::CouldNotAllocateMemoryForLongItemData)?,
+				data: Vec::new_from(data).map_err(LongItemParseError::CouldNotAllocateMemoryForLongItemData)?,
 			}
 		)
 	}

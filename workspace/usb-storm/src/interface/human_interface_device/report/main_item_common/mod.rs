@@ -7,7 +7,7 @@ use serde::Serialize;
 use super::HasReportItems;
 use std::mem::transmute;
 use std::ops::Deref;
-use crate::interface::human_interface_device::report::DataWidth;
+use crate::interface::human_interface_device::report::parsing::DataWidth;
 use crate::interface::human_interface_device::report::ReportItems;
 
 

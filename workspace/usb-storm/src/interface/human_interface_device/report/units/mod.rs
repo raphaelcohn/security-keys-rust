@@ -16,7 +16,7 @@ use swiss_army_knife::strings::to_number::NumberAsDecimalString;
 use swiss_army_knife::strings::to_number::number_as_decimal_string_formats::SuperscriptLatinNumberAsDecimalStringFormat;
 use std::collections::TryReserveError;
 use std::hash::Hash;
-use crate::interface::human_interface_device::report::DataWidth;
+use super::parsing::DataWidth;
 
 
 include!("Ampere.rs");

@@ -15,9 +15,6 @@ pub enum ReportParseError
 	UnsupportedEvenThoughThisIsAHumanInterfaceDevice,
 	
 	#[allow(missing_docs)]
-	LongItemTooShort,
-	
-	#[allow(missing_docs)]
 	ItemHasDataSizeExceedingRemainingBytes
 	{
 		size: u8,
@@ -25,9 +22,6 @@ pub enum ReportParseError
 	
 	#[allow(missing_docs)]
 	OutOfMemoryPushingMainItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
-	
-	#[allow(missing_docs)]
-	CouldNotAllocateGlobals(#[serde(with = "AllocErrorRemote")] AllocError),
 	
 	#[allow(missing_docs)]
 	OutOfStackMemory(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
@@ -39,31 +33,7 @@ pub enum ReportParseError
 	LocalItemParse(LocalItemParseError),
 	
 	#[allow(missing_docs)]
-	NestedDelimitersAreNotPermitted,
-	
-	#[allow(missing_docs)]
-	EndDelimiterNotPreceededByStartDelimiter,
-	
-	#[allow(missing_docs)]
-	DelimitersNotEnded,
-	
-	#[allow(missing_docs)]
-	InvalidLocalDelimiter
-	{
-		data: u32,
-	},
-	
-	#[allow(missing_docs)]
-	OpenNestedStructures,
-	
-	#[allow(missing_docs)]
-	TooManyCollectionPops,
-	
-	#[allow(missing_docs)]
-	EndCollectionCanNotHaveData
-	{
-		data: NonZeroU32,
-	},
+	CollectionParse(CollectionParseError),
 	
 	#[allow(missing_docs)]
 	PushCanNotHaveData
@@ -107,13 +77,13 @@ impl error::Error for ReportParseError
 			
 			OutOfMemoryPushingMainItem(cause) => Some(cause),
 			
-			CouldNotAllocateGlobals(cause) => Some(cause),
-			
 			OutOfStackMemory(cause) => Some(cause),
 			
 			GlobalItemParse(cause) => Some(cause),
 			
 			LocalItemParse(cause) => Some(cause),
+			
+			CollectionParse(cause) => Some(cause),
 			
 			CouldNotFinishParsingAlternateUsage(cause) => Some(cause),
 			
@@ -137,5 +107,14 @@ impl From<LocalItemParseError> for ReportParseError
 	fn from(cause: LocalItemParseError) -> Self
 	{
 		ReportParseError::LocalItemParse(cause)
+	}
+}
+
+impl From<CollectionParseError> for ReportParseError
+{
+	#[inline(always)]
+	fn from(cause: CollectionParseError) -> Self
+	{
+		ReportParseError::CollectionParse(cause)
 	}
 }

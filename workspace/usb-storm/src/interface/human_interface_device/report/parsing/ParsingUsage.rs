@@ -27,9 +27,9 @@ impl PartialOrd for ParsingUsage
 impl ParsingUsage
 {
 	#[inline(always)]
-	fn with_maximum(self, maximum: ParsingUsage) -> Result<ParsingUsageInclusiveRange, LocalItemParseError>
+	fn with_maximum(self, maximum: ParsingUsage) -> Result<ParsingUsageInclusiveRange, UsageParseError>
 	{
-		use LocalItemParseError::*;
+		use UsageParseError::*;
 		
 		let minimum = self;
 		use Ordering::Greater;
@@ -54,7 +54,7 @@ impl ParsingUsage
 	}
 	
 	#[inline(always)]
-	fn parse(data: u32, data_width: DataWidth, usage_page_can_not_be_zero_error: LocalItemParseError) -> Result<Self, LocalItemParseError>
+	fn parse(data: u32, data_width: DataWidth, usage_page_can_not_be_zero_error: UsageParseError) -> Result<Self, UsageParseError>
 	{
 		Ok
 		(

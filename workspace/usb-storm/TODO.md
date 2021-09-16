@@ -8,9 +8,8 @@
   * Limit global stack
     * Linux uses HID_GLOBAL_STACK_SIZE, which is 4, for the global state table.
   * Cap collection depth
-  * Usages pages should not change in a range.
   * Linux caps usages and collections count at HID_MAX_USAGES
-  * Review missing logical min / max, too - top-level parsing may need to be different.
+  * Review missing logical min / max, too - top-level parsing may need to be different (LogicalExtentNotFullySpecified)
 * Video (Versions 1.0, 1.1 and 1.5)
   * Video Control End Points
   * Video Streaming Interfaces

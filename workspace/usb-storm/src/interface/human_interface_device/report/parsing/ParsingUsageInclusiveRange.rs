@@ -12,15 +12,6 @@ struct ParsingUsageInclusiveRange
 	inclusive_maximum_identifier: UsageIdentifier,
 }
 
-impl TryClone for ParsingUsageInclusiveRange
-{
-	#[inline(always)]
-	fn try_clone(&self) -> Result<Self, TryReserveError>
-	{
-		Ok(*self)
-	}
-}
-
 impl From<ParsingUsage> for ParsingUsageInclusiveRange
 {
 	#[inline(always)]

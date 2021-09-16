@@ -6,34 +6,25 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum DelimitedLocalItemParseError
+pub enum DesignatorParseError
 {
 	#[allow(missing_docs)]
-	Designator,
+	DesignatorMinimumCanNotBeFollowedByDesignatorMinimum,
 	
 	#[allow(missing_docs)]
-	DesignatorMinimum,
+	DesignatorMaximumMustBePreceededByDesignatorMinimum,
 	
 	#[allow(missing_docs)]
-	DesignatorMaximum,
+	DesignatorMinimumMustBeLessThanMaximum,
 	
 	#[allow(missing_docs)]
-	String,
-	
+	DesignatorMinimumNotFollowedByDesignatorMaximum,
+
 	#[allow(missing_docs)]
-	StringMinimum,
-	
-	#[allow(missing_docs)]
-	StringMaximum,
-	
-	#[allow(missing_docs)]
-	Reserved(ReservedLocalItemTag),
-	
-	#[allow(missing_docs)]
-	Long,
+	CouldNotPushDesignatorItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 }
 
-impl Display for DelimitedLocalItemParseError
+impl Display for DesignatorParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -42,6 +33,18 @@ impl Display for DelimitedLocalItemParseError
 	}
 }
 
-impl error::Error for DelimitedLocalItemParseError
+impl error::Error for DesignatorParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use DesignatorParseError::*;
+		
+		match self
+		{
+			CouldNotPushDesignatorItem(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

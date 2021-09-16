@@ -43,50 +43,6 @@ pub struct ReportItems
 
 impl ReportItems
 {
-	fn finish_parsing(parsing_globals: &Rc<ParsingGlobalItems>, parsing_locals: ParsingLocalItems) -> Result<Self, ReportParseError>
-	{
-		let (usage_page, logical_extent, physical_extent, physical_unit, report_size, report_count, report_bit_length, report_identifier, global_reserved0, global_reserved1, global_reserved2) = parsing_globals.finish_parsing()?;
-		let (usages, designators, strings, local_reserveds, longs, alternate_usages) = parsing_locals.finish_parsing(usage_page)?;
-		
-		Ok
-		(
-			Self
-			{
-				usages,
-				
-				alternate_usages,
-				
-				report_identifier,
-			
-				report_size,
-			
-				report_count,
-				
-				report_bit_length,
-				
-				logical_extent,
-			
-				physical_extent,
-			
-				physical_unit,
-			
-				designators,
-			
-				strings,
-			
-				global_reserved0,
-			
-				global_reserved1,
-			
-				global_reserved2,
-			
-				local_reserveds,
-			
-				longs,
-			}
-		)
-	}
-	
 	/// Will not exceed `(i32::MAX as u32) + 1`.
 	///
 	/// Only relevant if the item is an array.

@@ -28,12 +28,12 @@ impl From<NonZeroU8> for ReportIdentifier
 
 impl TryFrom<u32> for ReportIdentifier
 {
-	type Error = GlobalItemParseError;
+	type Error = ReportIdentifierParseError;
 	
 	#[inline(always)]
 	fn try_from(data: u32) -> Result<Self, Self::Error>
 	{
-		use GlobalItemParseError::*;
+		use ReportIdentifierParseError::*;
 		
 		if unlikely!(data == 0)
 		{
