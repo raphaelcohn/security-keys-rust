@@ -13,7 +13,6 @@
     * ?Application Collections can only be declared at top level
     * ?Report Collection must have an unique ReportIdentifier
     * Named Array Collections can only contain 'Selector' usages.
-  * Understanding report count, report size and logical extent.
 * Video (Versions 1.0, 1.1 and 1.5)
   * Video Control End Points
   * Video Streaming Interfaces
