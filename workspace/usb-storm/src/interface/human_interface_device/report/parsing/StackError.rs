@@ -6,28 +6,16 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub enum CollectionParseError
+pub enum StackError
 {
 	#[allow(missing_docs)]
-	Stack(StackError),
+	CouldNotAllocateStack(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	UnclosedCollection,
-	
-	#[allow(missing_docs)]
-	TooManyCollectionPops,
-	
-	#[allow(missing_docs)]
-	EndCollectionCanNotHaveData
-	{
-		data: NonZeroU32,
-	},
-	
-	#[allow(missing_docs)]
-	NoUsagePage,
+	StackOverflow,
 }
 
-impl Display for CollectionParseError
+impl Display for StackError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -36,27 +24,18 @@ impl Display for CollectionParseError
 	}
 }
 
-impl error::Error for CollectionParseError
+impl error::Error for StackError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use CollectionParseError::*;
+		use StackError::*;
 		
 		match self
 		{
-			Stack(cause) => Some(cause),
+			CouldNotAllocateStack(cause) => Some(cause),
 			
 			_ => None,
 		}
-	}
-}
-
-impl From<StackError> for CollectionParseError
-{
-	#[inline(always)]
-	fn from(cause: StackError) -> Self
-	{
-		CollectionParseError::Stack(cause)
 	}
 }

@@ -24,9 +24,6 @@ pub enum ReportParseError
 	OutOfMemoryPushingMainItem(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
 	
 	#[allow(missing_docs)]
-	OutOfStackMemory(#[serde(with = "TryReserveErrorRemote")] TryReserveError),
-	
-	#[allow(missing_docs)]
 	GlobalItemParse(GlobalItemParseError),
 	
 	#[allow(missing_docs)]
@@ -76,8 +73,6 @@ impl error::Error for ReportParseError
 			GetDescriptor(cause) => Some(cause),
 			
 			OutOfMemoryPushingMainItem(cause) => Some(cause),
-			
-			OutOfStackMemory(cause) => Some(cause),
 			
 			GlobalItemParse(cause) => Some(cause),
 			

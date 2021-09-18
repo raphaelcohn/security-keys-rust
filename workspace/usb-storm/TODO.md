@@ -5,10 +5,6 @@
   * Parse all report Usages into actual values based on HUT 1.22
   * Pass in a custom allocator
     * This will not work with IndexMap and IndexSet, but it's a start.
-  * Limit global stack
-    * Linux uses HID_GLOBAL_STACK_SIZE, which is 4, for the global state table.
-  * Cap collection depth
-  * Linux caps usages and collections count at HID_MAX_USAGES
   * Collections have additional constraints.
     * ?Application Collections can only be declared at top level
     * ?Report Collection must have an unique ReportIdentifier

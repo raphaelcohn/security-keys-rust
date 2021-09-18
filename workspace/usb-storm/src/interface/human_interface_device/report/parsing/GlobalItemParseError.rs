@@ -9,6 +9,9 @@
 pub enum GlobalItemParseError
 {
 	#[allow(missing_docs)]
+	Stack(StackError),
+	
+	#[allow(missing_docs)]
 	CouldNotAllocateGlobals(#[serde(with = "AllocErrorRemote")] AllocError),
 	
 	#[allow(missing_docs)]
@@ -61,6 +64,8 @@ impl error::Error for GlobalItemParseError
 		
 		match self
 		{
+			Stack(cause) => Some(cause),
+			
 			CouldNotAllocateGlobals(cause) => Some(cause),
 			
 			UsagePageParse(cause) => Some(cause),
@@ -77,6 +82,15 @@ impl error::Error for GlobalItemParseError
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<StackError> for GlobalItemParseError
+{
+	#[inline(always)]
+	fn from(cause: StackError) -> Self
+	{
+		GlobalItemParseError::Stack(cause)
 	}
 }
 

@@ -7,9 +7,9 @@ pub(crate) struct ReportParser<'a>
 {
 	device_connection: &'a DeviceConnection<'a>,
 
-	globals_stack: Stack<Rc<ParsingGlobalItems>>,
+	globals_stack: Stack<Rc<ParsingGlobalItems>, GlobalItemParseError>,
 
-	collection_stack: Stack<CollectionMainItem>,
+	collection_stack: Stack<CollectionMainItem, CollectionParseError>,
 	
 	locals: ParsingLocalItems,
 	
@@ -21,6 +21,9 @@ impl<'a> ReportParser<'a>
 	#[inline(always)]
 	pub(crate) fn new(device_connection: &'a DeviceConnection) -> Result<Self, ReportParseError>
 	{
+		const MaximumGlobalsStackDepth: NonZeroU8 = new_non_zero_u8(4);
+		const MaximumCollectionsStackDepth: NonZeroU8 = new_non_zero_u8(16);
+		
 		Ok
 		(
 			Self
@@ -30,11 +33,11 @@ impl<'a> ReportParser<'a>
 				globals_stack:
 				{
 					let items = ParsingGlobalItems::default();
-					let globals = Rc::try_new(items).map_err(|cause| ReportParseError::GlobalItemParse(GlobalItemParseError::CouldNotAllocateGlobals(cause)))?;
-					Stack::new(globals)?
+					let globals = Rc::try_new(items).map_err(GlobalItemParseError::CouldNotAllocateGlobals)?;
+					Stack::new(globals, MaximumGlobalsStackDepth)?
 				},
 				
-				collection_stack: Stack::new(CollectionMainItem::new_for_collections_stack())?,
+				collection_stack: Stack::new(CollectionMainItem::new_for_collections_stack(), MaximumCollectionsStackDepth)?,
 				
 				locals: ParsingLocalItems::default(),
 				

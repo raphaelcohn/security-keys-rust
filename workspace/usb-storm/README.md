@@ -15,7 +15,7 @@ Lastly, please note that [usb-storm] requires Rust nightly (currently `nightly-2
 
 * Support for many device classes and extensions:-
   * USB hubs.
-  * USB 3.1 SuperSpeed and USB 3.2 SuperSpeedPlus.
+  * USB 3.0 SuperSpeed and USB 3.1 SuperSpeedPlus.
   * Binary Object Store.
   * Microsoft OS Descriptors 1.0 detection.
   * Microsoft OS Descriptors 2.0 detection.
@@ -35,7 +35,7 @@ Lastly, please note that [usb-storm] requires Rust nightly (currently `nightly-2
   * Errors are serializable, so it is possible to send USB device failure reports remotely in the future.
 * Extensive memory allocation checking, recursion checking and the like.
 * Useful as a library.
-* Statically-link
+* Statically-linked.
 * Highly performant with aggresive avoidance of heap memory reallocations.
 
 
