@@ -46,7 +46,7 @@ impl DerefMut for ParsingLocalItems
 impl ParsingLocalItems
 {
 	#[inline(always)]
-	pub(super) fn finish_parsing(self, usage_page: UsagePage) -> Result<(Vec<Usage>, Vec<InclusiveRange<DesignatorIndex>>, Vec<Option<LocalizedStrings>>, Vec<ReservedLocalItem>, Vec<LongItem>, Vec<Vec<Usage>>), ReportParseError>
+	pub(super) fn finish_parsing(self, usage_page: ParsingUsagePage) -> Result<(Vec<Usage>, Vec<InclusiveRange<DesignatorIndex>>, Vec<Option<LocalizedStrings>>, Vec<ReservedLocalItem>, Vec<LongItem>, Vec<Vec<Usage>>), ReportParseError>
 	{
 		use LocalItemParseError::*;
 		
@@ -67,7 +67,7 @@ impl ParsingLocalItems
 		Ok((usages, self.designators, self.strings, self.reserveds, self.longs, alternate_usages))
 	}
 	
-	fn finish_parsing_alternate_usages(self_alternate_usages: Vec<ParsingUsagesLocalItems>, usage_page: UsagePage) -> Result<Vec<Vec<Usage>>, ReportParseError>
+	fn finish_parsing_alternate_usages(self_alternate_usages: Vec<ParsingUsagesLocalItems>, usage_page: ParsingUsagePage) -> Result<Vec<Vec<Usage>>, ReportParseError>
 	{
 		let mut alternate_usages = Vec::new_with_capacity(self_alternate_usages.len()).map_err(|cause| LocalItemParseError::AlternateUsageParse(AlternateUsageParseError::OutOfMemoryAllocatingAlternateUsages(cause)))?;
 		for alternate_usage in self_alternate_usages

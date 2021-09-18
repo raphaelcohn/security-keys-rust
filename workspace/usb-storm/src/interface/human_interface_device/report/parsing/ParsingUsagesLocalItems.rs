@@ -15,7 +15,7 @@ pub(super) struct ParsingUsagesLocalItems
 impl ParsingUsagesLocalItems
 {
 	#[inline(always)]
-	fn finish_parsing(self, usage_page: UsagePage) -> Result<Vec<Usage>, LocalItemParseError>
+	fn finish_parsing(self, usage_page: ParsingUsagePage) -> Result<Vec<Usage>, LocalItemParseError>
 	{
 		use UsageParseError::*;
 

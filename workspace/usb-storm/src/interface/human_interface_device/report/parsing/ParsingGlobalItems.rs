@@ -6,7 +6,7 @@
 #[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(super) struct ParsingGlobalItems
 {
-	usage_page: Option<UsagePage>,
+	usage_page: Option<ParsingUsagePage>,
 	
 	report_size: Option<ReportSize>,
 	
@@ -36,7 +36,7 @@ pub(super) struct ParsingGlobalItems
 impl ParsingGlobalItems
 {
 	#[inline(always)]
-	pub(super) fn finish_collection_parsing(&self) -> Result<(UsagePage, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), CollectionParseError>
+	pub(super) fn finish_collection_parsing(&self) -> Result<(ParsingUsagePage, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), CollectionParseError>
 	{
 		let usage_page = self.usage_page.ok_or(CollectionParseError::NoUsagePage)?;
 		
@@ -44,7 +44,7 @@ impl ParsingGlobalItems
 	}
 	
 	#[inline(always)]
-	pub(super) fn finish_parsing(&self) -> Result<(UsagePage, InclusiveRange<i32>, InclusiveRange<i32>, PhysicalUnit, ReportSize, ReportCount, NonZeroU32, Option<ReportIdentifier>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), GlobalItemParseError>
+	pub(super) fn finish_parsing(&self) -> Result<(ParsingUsagePage, InclusiveRange<i32>, InclusiveRange<i32>, PhysicalUnit, ReportSize, ReportCount, NonZeroU32, Option<ReportIdentifier>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>, Option<ReservedGlobalItem>), GlobalItemParseError>
 	{
 		use GlobalItemParseError::*;
 		use UsagePageParseError::*;
@@ -147,7 +147,7 @@ impl ParsingGlobalItems
 	#[inline(always)]
 	fn parse_usage_page(&mut self, data: u32) -> Result<(), GlobalItemParseError>
 	{
-		self.usage_page = Some(UsagePage::try_from(data)?);
+		self.usage_page = Some(ParsingUsagePage::try_from(data)?);
 		Ok(())
 	}
 	

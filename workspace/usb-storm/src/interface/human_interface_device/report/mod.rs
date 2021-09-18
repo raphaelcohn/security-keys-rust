@@ -16,8 +16,8 @@ use self::parsing::ReportCountParseError;
 use self::parsing::ReportIdentifierParseError;
 use self::parsing::ReportParseError;
 use self::parsing::ReportSizeParseError;
-use self::parsing::UsagePageParseError;
 use self::units::PhysicalUnit;
+use self::usages::Usage;
 use serde::Deserialize;
 use serde::Serialize;
 use std::cmp::Ordering;
@@ -33,7 +33,6 @@ use std::ops::RangeInclusive;
 use swiss_army_knife::non_zero::new_non_zero_u16;
 use swiss_army_knife::non_zero::new_non_zero_u32;
 use swiss_army_knife::non_zero::new_non_zero_u8;
-use std::error;
 
 
 /// Main item common.
@@ -46,6 +45,10 @@ pub mod parsing;
 
 /// Units.
 pub mod units;
+
+
+/// Usages.
+pub mod usages;
 
 
 include!("CollectionCommon.rs");include!("CollectionDescription.rs");
@@ -64,6 +67,3 @@ include!("ReportSize.rs");
 include!("ReservedGlobalItem.rs");
 include!("ReservedLocalItem.rs");
 include!("ReservedLocalItemTag.rs");
-include!("Usage.rs");
-include!("UsageIdentifier.rs");
-include!("UsagePage.rs");

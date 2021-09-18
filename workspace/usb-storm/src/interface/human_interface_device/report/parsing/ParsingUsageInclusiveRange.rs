@@ -5,7 +5,7 @@
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
 struct ParsingUsageInclusiveRange
 {
-	page: Option<UsagePage>,
+	page: Option<ParsingUsagePage>,
 
 	inclusive_minimum_identifier: UsageIdentifier,
 
@@ -37,7 +37,7 @@ impl ParsingUsageInclusiveRange
 	}
 	
 	#[inline(always)]
-	fn iter(self, usage_page: UsagePage) -> ParsingUsageInclusiveRangeIterator
+	fn iter(self, usage_page: ParsingUsagePage) -> ParsingUsageInclusiveRangeIterator
 	{
 		ParsingUsageInclusiveRangeIterator
 		{

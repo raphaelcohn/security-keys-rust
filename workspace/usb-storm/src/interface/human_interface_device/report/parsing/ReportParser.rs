@@ -544,7 +544,7 @@ impl<'a> ReportParser<'a>
 	}
 	
 	#[inline(always)]
-	fn consume_and_finish_parsing_locals(&mut self, usage_page: UsagePage) -> Result<(Vec<Usage>, Vec<InclusiveRange<DesignatorIndex>>, Vec<Option<LocalizedStrings>>, Vec<ReservedLocalItem>, Vec<LongItem>, Vec<Vec<Usage>>), ReportParseError>
+	fn consume_and_finish_parsing_locals(&mut self, usage_page: ParsingUsagePage) -> Result<(Vec<Usage>, Vec<InclusiveRange<DesignatorIndex>>, Vec<Option<LocalizedStrings>>, Vec<ReservedLocalItem>, Vec<LongItem>, Vec<Vec<Usage>>), ReportParseError>
 	{
 		let parsing_locals = self.consume_locals()?;
 		parsing_locals.finish_parsing(usage_page)

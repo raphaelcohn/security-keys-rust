@@ -6,7 +6,7 @@
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq, Hash)]
 struct ParsingUsage
 {
-	page: Option<UsagePage>,
+	page: Option<ParsingUsagePage>,
 
 	identifier: u16,
 }
@@ -67,7 +67,7 @@ impl ParsingUsage
 					{
 						return Err(usage_page_can_not_be_zero_error)
 					}
-					Some(UsagePage::new_checked(usage_page_data, usage_page_can_not_be_zero_error)?)
+					Some(ParsingUsagePage::new_checked(usage_page_data, usage_page_can_not_be_zero_error)?)
 				}
 				else
 				{

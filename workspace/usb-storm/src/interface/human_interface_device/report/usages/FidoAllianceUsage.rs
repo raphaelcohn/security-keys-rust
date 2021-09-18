@@ -2,40 +2,57 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Usage page.
+/// FIDO Alliance usage.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-#[repr(transparent)]
-pub struct UsagePage(NonZeroU16);
-
-impl TryFrom<u32> for UsagePage
+pub enum FidoAllianceUsage
 {
-	type Error = UsagePageParseError;
+	#[allow(missing_docs)]
+	Undefined,
 	
+	#[allow(missing_docs)]
+	U2FAuthenticatorDevice,
+	
+	#[allow(missing_docs)]
+	InputReportData,
+	
+	#[allow(missing_docs)]
+	OutputReportData,
+	
+	#[allow(missing_docs)]
+	Reserved(u16),
+}
+
+impl Default for FidoAllianceUsage
+{
 	#[inline(always)]
-	fn try_from(data: u32) -> Result<Self, Self::Error>
+	fn default() -> Self
 	{
-		use UsagePageParseError::*;
-		
-		if unlikely!(data > (u16::MAX as u32))
-		{
-			return Err(UsagePageTooBig { data })
-		}
-		Self::new_checked(data as u16, UsagePageCanNotBeZero)
+		FidoAllianceUsage::Undefined
 	}
 }
 
-impl UsagePage
+impl From<UsageIdentifier> for FidoAllianceUsage
 {
 	#[inline(always)]
-	fn new_checked<E: error::Error>(usage_page: u16, usage_page_can_not_be_zero_error: E) -> Result<Self, E>
+	fn from(identifier: UsageIdentifier) -> Self
 	{
-		if unlikely!(usage_page == 0)
-		{
-			return Err(usage_page_can_not_be_zero_error)
-		}
+		use FidoAllianceUsage::*;
 		
-		Ok(Self(new_non_zero_u16(usage_page)))
+		match identifier
+		{
+			0x00 => Undefined,
+			
+			0x01 => U2FAuthenticatorDevice,
+			
+			value @ 0x02 ..= 0x1F => Reserved(value),
+			
+			0x20 => InputReportData,
+			
+			0x21 => OutputReportData,
+			
+			value @ 0x22 ..= 0xFFFF => Reserved(value),
+		}
 	}
 }

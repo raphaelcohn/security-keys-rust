@@ -2,40 +2,33 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-struct ParsingUsageInclusiveRangeIterator
+/// Ordinal usage.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub enum OrdinalUsage
 {
-	page: ParsingUsagePage,
-	
-	identifiers: RangeInclusive<UsageIdentifier>,
+	#[allow(missing_docs)]
+	Reserved,
+
+	/// Increasing ordinals have less significance.
+	Ordinal(NonZeroU16)
 }
 
-impl Iterator for ParsingUsageInclusiveRangeIterator
+impl Default for OrdinalUsage
 {
-	type Item = Usage;
-	
 	#[inline(always)]
-	fn next(&mut self) -> Option<Self::Item>
+	fn default() -> Self
 	{
-		self.identifiers.next().map(|identifier| self.page.to_usage(identifier))
-	}
-	
-	#[inline(always)]
-	fn size_hint(&self) -> (usize, Option<usize>)
-	{
-		self.identifiers.size_hint()
+		OrdinalUsage::Reserved
 	}
 }
 
-impl FusedIterator for ParsingUsageInclusiveRangeIterator
-{
-}
-
-impl ExactSizeIterator for ParsingUsageInclusiveRangeIterator
+impl From<UsageIdentifier> for OrdinalUsage
 {
 	#[inline(always)]
-	fn len(&self) -> usize
+	fn from(identifier: UsageIdentifier) -> Self
 	{
-		self.identifiers.len()
+		unsafe { transmute(identifier) }
 	}
 }

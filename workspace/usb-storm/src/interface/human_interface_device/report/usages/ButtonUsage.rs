@@ -2,30 +2,33 @@
 // Copyright © 2021 The developers of security-keys-rust. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/security-keys-rust/master/COPYRIGHT.
 
 
-/// Usage.
+/// Button usage.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct Usage
+pub enum ButtonUsage
 {
-	page: UsagePage,
+	#[allow(missing_docs)]
+	NoButtonPressed,
 
-	identifier: UsageIdentifier,
+	/// Increasing ordinals have less significance.
+	Ordinal(NonZeroU16)
 }
 
-impl Usage
+impl Default for ButtonUsage
 {
-	#[allow(missing_docs)]
 	#[inline(always)]
-	pub const fn page(&self) -> UsagePage
+	fn default() -> Self
 	{
-		self.page
+		ButtonUsage::NoButtonPressed
 	}
-	
-	#[allow(missing_docs)]
+}
+
+impl From<UsageIdentifier> for ButtonUsage
+{
 	#[inline(always)]
-	pub const fn identifier(&self) -> UsageIdentifier
+	fn from(identifier: UsageIdentifier) -> Self
 	{
-		self.identifier
+		unsafe { transmute(identifier) }
 	}
 }
