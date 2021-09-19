@@ -25,8 +25,7 @@
 #![feature(try_reserve)]
 
 
-//!
-#[doc = include_str!("../README.md")]
+#![doc = include_str!("../README.md")]
 
 
 use self::binary::CommandLineParser;
